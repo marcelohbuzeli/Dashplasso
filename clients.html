@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plassô Marketing — Gestão Integrada</title>
+    <title>Plassô | Marketing</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -84,7 +84,6 @@
                 <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
                     <i class="fa-solid fa-network-wired text-blue-500 text-xs"></i> Gestão de Clientes
                 </h1>
-                <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/clients</p>
             </div>
             <div>
                 <button onclick="openNewClientModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
@@ -136,7 +135,7 @@
         <form onsubmit="createNewClient(event)" class="space-y-4 text-xs">
             <h3 class="text-sm font-bold text-white uppercase">Novo Cliente</h3>
             <input type="text" id="nc-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome">
-            <input type="number" id="nc-fee" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" value="1200">
+            <input type="number" id="nc-fee" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" value="Valor mensal">
             <input type="date" id="nc-duedate" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono">
             <div class="flex justify-end gap-3 pt-2">
                 <button type="button" onclick="closeNewClientModal()" class="text-slate-400">Cancelar</button>
@@ -196,7 +195,8 @@
 
     function openClientApprovalPortal() {
         if (!currentActiveClient) return;
-        let htmlContent = `<!DOCTYPE html>
+        let htmlContent = 
+            `<!DOCTYPE html>
         <html lang="pt-BR">
         <head>
             <meta charset="UTF-8">
@@ -256,7 +256,7 @@
 
         let blob = new Blob([htmlContent], { type: 'text/html' });
         let url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
+
     }
 
     function openNewClientModal() { document.getElementById('newClientModal').classList.remove('hidden'); document.getElementById('newClientModal').classList.add('flex'); document.getElementById('nc-duedate').valueAsDate = new Date(); }
@@ -272,9 +272,3 @@
 </script>
 </body>
 </html>
-'''
-
-with open("clients.html", "w", encoding="utf-8") as f:
-    f.write(clients_html)
-
-print("clients.html gerado com sucesso!")
