@@ -89,7 +89,7 @@
 
         <div class="flex-1 overflow-y-auto p-8 space-y-6">
             <div class="bg-dark-900 border border-dark-800 rounded-2xl p-6">
-                <h3 class="text-sm font-bold text-white mb-4 uppercase tracking-wider">Esse mês</h3>
+                <h3 id="calendar-title" class="text-sm font-bold text-white mb-4 uppercase tracking-wider">Calendário — Carregando mês...</h3>
                 <div id="calendar-view" class="grid grid-cols-7 gap-3 text-center"></div>
             </div>
         </div>
@@ -97,10 +97,22 @@
 </div>
 <script>
     function renderCalendar() {
+        const calTitle = document.getElementById('calendar-title');
         const calView = document.getElementById('calendar-view');
         if(!calView) return;
+
+        // Pegar o mês e ano atual automaticamente
+        const now = new Date();
+        const options = { month: 'long', year: 'numeric' };
+        let mesAnoFormatado = now.toLocaleDateString('pt-BR', options);
+        // Deixar a primeira letra maiúscula (ex: "Outubro de 2026")
+        mesAnoFormatado = mesAnoFormatado.charAt(0).toUpperCase() + mesAnoFormatado.slice(1);
+        
+        calTitle.innerHTML = `<i class="fa-regular fa-calendar text-blue-400 mr-2"></i> Calendário — ${mesAnoFormatado}`;
+
         calView.innerHTML = '';
         ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].forEach(d => { calView.innerHTML += '<div class="text-xs font-bold text-slate-400 uppercase py-2">' + d + '</div>'; });
+        
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
         for (let i = 1; i <= 31; i++) {
             const hasTask = tasks.some(t => t.date.endsWith('-' + (i < 10 ? '0' + i : i)));
