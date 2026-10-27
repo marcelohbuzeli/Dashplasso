@@ -161,12 +161,27 @@
                 <div id="client-mini-calendar" class="grid grid-cols-7 gap-2"></div>
             </div>
 
+            <!-- Checklist e Processos Atualizados -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Checklist</h4><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Contrato</label><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Briefing</label></div>
-                <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Processos</h4><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Estratégia</label><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Cronograma</label></div>
+                <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-2.5">
+                    <h4 class="font-bold text-white uppercase text-[11px] mb-2 tracking-wider">Checklist</h4>
+                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Contrato assinado</label>
+                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Grupo no WhatsApp</label>
+                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Pasta no Drive</label>
+                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Briefing</label>
+                </div>
+                <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-2.5">
+                    <h4 class="font-bold text-white uppercase text-[11px] mb-2 tracking-wider">Processos</h4>
+                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Objetivos</label>
+                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Análise de Marca</label>
+                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Análise SWOT</label>
+                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Análise de Mercado</label>
+                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Estruturação da estratégia</label>
+                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Criação</label>
+                </div>
             </div>
 
-            <!-- Seção Financeira e Lançamento de Pagamento no Card do Cliente -->
+            <!-- Seção Financeira -->
             <div class="bg-dark-950 p-5 rounded-2xl border border-dark-800 space-y-4">
                 <h4 class="font-bold text-white uppercase text-xs tracking-wider flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-400"></i> Financeiro do Cliente</h4>
                 <div class="flex items-center gap-4 flex-wrap">
@@ -180,7 +195,6 @@
                     </div>
                     <div class="pt-5 flex gap-2">
                         <button onclick="registerClientPayment()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold transition cursor-pointer shadow"><i class="fa-solid fa-check mr-1"></i> Lançar</button>
-                        
                     </div>
                 </div>
             </div>
@@ -263,9 +277,6 @@
             <button onclick="saveNewClientPost()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Criar Postagem</button>
         </div>
     </div>
-</div>
-
-
 </div>
 
 <!-- Modal Novo Cliente -->
@@ -452,31 +463,9 @@
         alert('Ficha do cliente salva com sucesso!');
     }
 
-    function closeClientPaymentModal() {
-        document.getElementById('clientPaymentModal').classList.add('hidden');
-        document.getElementById('clientPaymentModal').classList.remove('flex');
-    }
-
-    function submitClientPayment() {
-        let payDate = document.getElementById('cp-date').value;
-        let payValue = parseFloat(document.getElementById('cp-value').value);
-
-        if(!payValue || isNaN(payValue)) {
-            alert('Insira um valor válido.');
-            return;
-        }
-
-        let entries = JSON.parse(localStorage.getItem('plasso_entries') || '[]');
-        entries.push({
-            id: 'e_' + Date.now(),
-            name: currentActiveClient.name + ' (Pagamento)',
-            value: payValue,
-            date: payDate
-        });
-        localStorage.setItem('plasso_entries', JSON.stringify(entries));
-
-        alert('Pagamento lançado com sucesso nas entradas do Financeiro!');
-        closeClientPaymentModal();
+    function closeClientModal() { 
+        document.getElementById('clientModal').classList.add('hidden'); 
+        document.getElementById('clientModal').classList.remove('flex'); 
     }
 
     function openClientApprovalPortal() {
