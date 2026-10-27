@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plassô | Marketing</title>
+    <title>Plassô Marketing</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -30,8 +30,6 @@
         ::-webkit-scrollbar-track { background: #030712; }
         ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #374151; }
-        
-        /* Sistema de Abas Robusto */
         .tab-view { display: none !important; }
         .tab-view.active { display: flex !important; flex-direction: column; flex: 1; height: 100%; overflow: hidden; }
     </style>
@@ -46,9 +44,10 @@
                 <!-- Topo: Logo Dinâmica -->
                 <div class="h-20 flex items-center justify-between px-4 border-b border-dark-800/60 shrink-0">
                     <div id="logo-wrapper" class="flex items-center gap-3 overflow-hidden transition-all">
-                        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white text-lg shadow-lg shrink-0">P</div>
-                        <div class="sidebar-text truncate transition-opacity duration-200">
-                            <span class="font-bold text-sm tracking-widest text-white uppercase">Plassô</span>
+                        <div id="sidebar-logo-icon" class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center font-bold text-white text-lg shadow-lg shrink-0 font-mono">P</div>
+                        <div class="sidebar-text truncate transition-opacity duration-200 flex flex-col">
+                            <span class="font-bold text-base tracking-widest text-white uppercase font-sans">Plassô</span>
+                            <span class="text-[9px] text-blue-400 font-mono tracking-wider">MARKETING</span>
                         </div>
                     </div>
                     <button id="toggle-btn" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-dark-800 transition shrink-0">
@@ -94,6 +93,7 @@
                     <h1 id="topbar-title" class="text-base font-bold text-white tracking-wide flex items-center gap-2">
                         <i class="fa-solid fa-chart-pie text-blue-500 text-xs"></i> Dashboard Geral
                     </h1>
+                </div>
             </header>
 
             <!-- ================= ABA 1: DASHBOARD (GERAL) ================= -->
@@ -120,16 +120,28 @@
                         </div>
                         <div class="space-y-3">
                             <div class="flex justify-between text-xs font-mono"><span class="text-slate-400">Entrada Atual:</span><span id="dash-fin-actual" class="text-white font-bold">R$ 0,00</span></div>
-                            <div class="flex justify-between text-xs font-mono"><span class="text-slate-400">Meta Mensal:</span><span class="text-slate-200">R$ 20.000,00</span></div>
+                            <div class="flex justify-between text-xs font-mono"><span class="text-slate-400">Meta Mensal:</span><span id="dash-fin-goal-display" class="text-slate-200">R$ 20.000,00</span></div>
                             <div class="w-full bg-dark-950 rounded-full h-2 overflow-hidden border border-dark-800"><div id="dash-progress-bar" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div></div>
                         </div>
                     </div>
                 </div>
-                <div class="bg-dark-900/80 border border-dark-800 rounded-2xl p-6">
-                    <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar-days text-blue-400"></i> Agenda Notion Calendar</h3><span class="text-xs text-slate-400 font-mono">Sincronizado</span></div>
-                    <div class="bg-dark-950 border border-dark-800 rounded-xl p-4 min-h-[180px] flex flex-col items-center justify-center text-center">
-                        <i class="fa-solid fa-calendar-check text-2xl text-blue-500 mb-2"></i>
-                        <p class="text-sm font-medium text-slate-200">Nenhum compromisso pendente no Notion para hoje.</p>
+
+                <!-- Notion Calendar Integration Section -->
+                <div class="bg-dark-900/80 border border-dark-800 rounded-2xl p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar-days text-blue-400"></i> Integração Notion Calendar</h3>
+                        <span class="text-xs text-slate-400 font-mono">Embed Direto</span>
+                    </div>
+                    <div id="notion-embed-container" class="bg-dark-950 border border-dark-800 rounded-xl p-4 min-h-[280px] flex flex-col items-center justify-center text-center">
+                        <div id="notion-placeholder" class="space-y-3">
+                            <i class="fa-solid fa-calendar-check text-3xl text-blue-500 animate-pulse"></i>
+                            <p class="text-sm font-medium text-slate-200">Conecte sua Agenda do Notion</p>
+                            <p class="text-xs text-slate-400 max-w-md">No Notion, abra sua página/calendário > Clique em <strong>Share</strong> (Compartilhar) > <strong>Publish to web</strong> (Publicar na web) > Copie o link e cole abaixo:</p>
+                            <div class="flex gap-2 mt-2 max-w-lg mx-auto">
+                                <input type="url" id="notion-url-input" class="flex-1 bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-xs text-white font-mono" placeholder="https://notion.so/...">
+                                <button onclick="connectNotionCalendar()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Integrar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -174,7 +186,10 @@
             <div id="view-finance" class="tab-view overflow-y-auto p-8 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5"><p class="text-xs text-slate-400 uppercase">Entradas do Mês</p><h2 id="fin-top-actual" class="text-2xl font-bold font-mono text-emerald-400 mt-1">R$ 0,00</h2></div>
-                    <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5"><p class="text-xs text-slate-400 uppercase">Meta do Mês</p><h2 class="text-2xl font-bold font-mono text-white mt-1">R$ 20.000,00</h2></div>
+                    <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5">
+                        <div class="flex justify-between items-center"><p class="text-xs text-slate-400 uppercase">Meta do Mês</p><button onclick="editGoal()" class="text-[10px] text-blue-400 hover:underline"><i class="fa-solid fa-pen"></i> Alterar</button></div>
+                        <h2 id="fin-goal-display" class="text-2xl font-bold font-mono text-white mt-1">R$ 20.000,00</h2>
+                    </div>
                     <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5 flex flex-col justify-between"><div class="flex justify-between items-center"><p class="text-xs text-slate-400 uppercase">Atingimento</p><span id="fin-pct-badge" class="text-xs font-mono bg-emerald-950 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-800">0%</span></div><div class="w-full bg-dark-950 rounded-full h-2.5 overflow-hidden border border-dark-800 mt-3"><div id="fin-progress-bar" class="bg-emerald-500 h-full transition-all" style="width: 0%"></div></div></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -215,6 +230,7 @@
 
     <!-- JavaScript Application Logic -->
     <script>
+        let monthlyGoal = 20000; // Meta dinâmica definida no Financeiro
         let tasks = [
             { id: '1', client: 'Rosa Pink - Reels', type: 'Reels', caption: 'Lançamento nova coleção.', drive: 'https://drive.google.com/file/d/exemplo1/view', date: new Date().toISOString().split('T')[0], status: 'urgent', notes: 'Revisar cor.', isRejected: true },
             { id: '2', client: 'Umuclean - Sofá', type: 'Carrossel', caption: 'Higienização impermeabilizada.', drive: 'https://drive.google.com/file/d/exemplo2/view', date: '2026-10-30', status: 'todo', notes: '' },
@@ -246,7 +262,7 @@
         let currentActiveTaskDetailId = null;
         let activeRejectionTaskId = null;
 
-        // Função crucial de troca de abas
+        // Função de troca de abas robusta e garantida
         function switchTab(tabName) {
             console.log("Alternando para aba:", tabName);
             document.querySelectorAll('.tab-view').forEach(el => {
@@ -257,7 +273,7 @@
                 el.classList.add('text-slate-400', 'hover:text-slate-200', 'hover:bg-dark-800/40');
             });
             
-            const targetView = document.getElementById('view-_' + tabName) || document.getElementById('view-' + tabName);
+            const targetView = document.getElementById('view-' + tabName);
             if (targetView) {
                 targetView.classList.add('active');
             }
@@ -387,10 +403,10 @@
             }
 
             let totalEntries = entries.reduce((acc, curr) => acc + curr.value, 0);
-            const goal = 20000;
-            let pct = Math.round((totalEntries * 100) / goal);
+            let pct = Math.round((totalEntries * 100) / monthlyGoal);
             if (pct > 100) pct = 100;
             if(document.getElementById('dash-fin-actual')) document.getElementById('dash-fin-actual').innerText = 'R$ ' + totalEntries.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+            if(document.getElementById('dash-fin-goal-display')) document.getElementById('dash-fin-goal-display').innerText = 'R$ ' + monthlyGoal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
             if(document.getElementById('dash-goal-pct')) document.getElementById('dash-goal-pct').innerText = pct + '%';
             if(document.getElementById('dash-progress-bar')) document.getElementById('dash-progress-bar').style.width = pct + '%';
         }
@@ -421,10 +437,10 @@
             let totalEntries = entries.reduce((acc, curr) => acc + curr.value, 0);
             let totalExpenses = expenses.reduce((acc, curr) => acc + curr.value, 0);
             if(document.getElementById('fin-top-actual')) document.getElementById('fin-top-actual').innerText = 'R$ ' + totalEntries.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+            if(document.getElementById('fin-goal-display')) document.getElementById('fin-goal-display').innerText = 'R$ ' + monthlyGoal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
             if(document.getElementById('fin-total-entries')) document.getElementById('fin-total-entries').innerText = 'R$ ' + totalEntries.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
             if(document.getElementById('fin-total-expenses')) document.getElementById('fin-total-expenses').innerText = 'R$ ' + totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-            const goal = 20000;
-            let pct = Math.round((totalEntries * 100) / goal);
+            let pct = Math.round((totalEntries * 100) / monthlyGoal);
             if (pct > 100) pct = 100;
             if(document.getElementById('fin-pct-badge')) document.getElementById('fin-pct-badge').innerText = pct + '%';
             if(document.getElementById('fin-progress-bar')) document.getElementById('fin-progress-bar').style.width = pct + '%';
@@ -440,6 +456,22 @@
                 exList.innerHTML = '';
                 expenses.forEach(x => { exList.innerHTML += `<div class="bg-dark-950 p-3 rounded-xl border border-dark-800 flex justify-between items-center text-xs font-mono"><div><span class="font-bold text-white font-sans">${x.name}</span><p class="text-[10px] text-slate-400">${x.date.split('-').reverse().join('/')}</p></div><span class="text-red-400 font-bold">- R$ ${x.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>`; });
             }
+        }
+
+        function editGoal() {
+            const newGoal = prompt("Digite o novo valor da meta mensal (R$):", monthlyGoal);
+            if (newGoal && !isNaN(newGoal)) {
+                monthlyGoal = parseFloat(newGoal);
+                renderAll();
+                alert("Meta atualizada com sucesso!");
+            }
+        }
+
+        function connectNotionCalendar() {
+            const url = document.getElementById('notion-url-input').value;
+            if(!url) { alert("Insira um link válido do Notion."); return; }
+            const container = document.getElementById('notion-embed-container');
+            container.innerHTML = `<iframe src="${url}" class="w-full h-[320px] rounded-xl border-0"></iframe>`;
         }
 
         function renderCrm() {
@@ -574,10 +606,9 @@
     </script>
 </body>
 </html>
-"""
+'''
 
-output_filename = "plasso_marketing_sistema_completo.html"
-with open(output_filename, "w", encoding="utf-8") as f:
-    f.write(html_fixed)
+with open("plasso_marketing_sistema_completo.html", "w", encoding="utf-8") as f:
+    f.write(html_ultimate)
 
-print("Arquivo gerado com sucesso:", output_filename)
+print("Versão final com Meta Dinâmica e Notion Calendar gerada com sucesso!")
