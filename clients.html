@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clientes | Plassô</title>
+    <title>Plassô Marketing — Gestão Integrada</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -52,7 +52,7 @@
             <nav class="p-3 space-y-1.5 font-medium text-xs flex-1 overflow-y-auto">
     <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
         <i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard</span>
+        <span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard (Geral)</span>
     </a>
     <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
         <i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i>
@@ -75,6 +75,18 @@
         <span class="sidebar-text tracking-wide whitespace-nowrap">CRM</span>
     </a>
 </nav>
+        </div>
+        <div class="p-4 border-t border-dark-800/60 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-dark-800 border border-slate-700/50 flex items-center justify-center text-xs font-bold text-blue-400 shrink-0 font-mono">MB</div>
+                <div class="sidebar-text overflow-hidden font-mono">
+                    <p class="text-xs font-semibold text-slate-200 truncate">Marcelo Buzeli</p>
+                    <p class="text-[10px] text-emerald-400 flex items-center gap-1.5 mt-0.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online
+                    </p>
+                </div>
+            </div>
+        </div>
     </aside>
     
     <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
@@ -83,6 +95,7 @@
                 <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
                     <i class="fa-solid fa-network-wired text-blue-500 text-xs"></i> Gestão de Clientes
                 </h1>
+                <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/clients</p>
             </div>
             <div>
                 <button onclick="openNewClientModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer">
@@ -97,20 +110,22 @@
     </main>
 </div>
 
-<!-- Modal Cliente -->
+<!-- Modal Cliente (Z-Index 40) -->
 <div id="clientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-40 p-4">
     <div class="bg-dark-900 border border-dark-800 w-full max-w-4xl rounded-3xl p-8 shadow-2xl flex flex-col max-h-[92vh]">
         <div class="flex items-center justify-between pb-4 border-b border-dark-800">
             <div>
                 <h3 id="client-modal-name" class="text-xl font-bold text-white"></h3>
+                <p class="text-xs text-slate-400 font-mono mt-0.5">Clique em um dia com postagem para editar ou dê duplo clique em um dia vazio para criar nova postagem.</p>
             </div>
             <button onclick="closeClientModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
         
         <div class="py-6 space-y-6 overflow-y-auto flex-1 text-xs">
+            <!-- Acesso ao Portal de Aprovação -->
             <div class="bg-blue-950/30 border border-blue-500/40 rounded-2xl p-5 flex items-center justify-between">
                 <div>
-                    <h4 class="font-bold text-blue-200 text-sm">Central de Aprovação Externa (Dedicado)</h4>
+                    <h4 class="font-bold text-blue-200 text-sm">Central de Aprovação Externa</h4>
                     <p class="text-slate-400 text-[11px]">Link dedicado com calendário e cards para o cliente revisar.</p>
                 </div>
                 <button onclick="openClientApprovalPortal()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg transition cursor-pointer"><i class="fa-solid fa-external-link-alt mr-1"></i> Abrir Portal do Cliente</button>
@@ -149,6 +164,25 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Checklist</h4><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Contrato</label><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Briefing</label></div>
                 <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Processos</h4><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Estratégia</label><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Cronograma</label></div>
+            </div>
+
+            <!-- Seção Financeira e Lançamento de Pagamento no Card do Cliente -->
+            <div class="bg-dark-950 p-5 rounded-2xl border border-dark-800 space-y-4">
+                <h4 class="font-bold text-white uppercase text-xs tracking-wider flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-400"></i> Financeiro do Cliente</h4>
+                <div class="flex items-center gap-4 flex-wrap">
+                    <div class="flex-1 min-w-[180px]">
+                        <label class="block text-slate-400 mb-1">Valor do Contrato (R$)</label>
+                        <input type="number" id="client-fee-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
+                    </div>
+                    <div class="flex-1 min-w-[180px]">
+                        <label class="block text-slate-400 mb-1">Vencimento</label>
+                        <input type="date" id="client-duedate-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
+                    </div>
+                    <div class="pt-5 flex gap-2">
+                        <button onclick="registerClientPayment()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold transition cursor-pointer shadow"><i class="fa-solid fa-check mr-1"></i> Salvar Ficha</button>
+                        <button onclick="openClientPaymentModal()" class="bg-dark-900 hover:bg-dark-800 border border-emerald-500/60 text-emerald-400 px-4 py-2 rounded-xl font-semibold transition cursor-pointer shadow"><i class="fa-solid fa-wallet mr-1"></i> Lançar Pagamento</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -231,6 +265,25 @@
     </div>
 </div>
 
+<!-- Modal de Lançamento de Pagamento no Card do Cliente -->
+<div id="clientPaymentModal" class="fixed inset-0 bg-dark-950/95 backdrop-blur-md hidden items-center justify-center z-[9999] p-4">
+    <div class="bg-dark-900 border border-emerald-500/60 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
+        <h3 class="font-bold text-emerald-400 uppercase text-sm flex items-center gap-2"><i class="fa-solid fa-wallet"></i> Lançar Pagamento — <span id="cp-client-name" class="text-white"></span></h3>
+        <div>
+            <label class="block text-slate-400 mb-1">Data do Pagamento</label>
+            <input type="date" id="cp-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
+        </div>
+        <div>
+            <label class="block text-slate-400 mb-1">Valor (R$)</label>
+            <input type="number" step="0.01" id="cp-value" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono" placeholder="1500.00">
+        </div>
+        <div class="flex justify-end gap-3 pt-2">
+            <button onclick="closeClientPaymentModal()" class="text-slate-400 cursor-pointer">Cancelar</button>
+            <button onclick="submitClientPayment()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Enviar</button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Novo Cliente -->
 <div id="newClientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
     <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
@@ -283,6 +336,8 @@
         currentActiveClient = clients.find(cl => cl.id === id);
         if (!currentActiveClient) return;
         document.getElementById('client-modal-name').innerText = currentActiveClient.name;
+        document.getElementById('client-fee-input').value = currentActiveClient.fee;
+        document.getElementById('client-duedate-input').value = currentActiveClient.dueDate;
         renderClientMiniCalendar(currentActiveClient);
         document.getElementById('clientModal').classList.remove('hidden');
         document.getElementById('clientModal').classList.add('flex');
@@ -291,10 +346,8 @@
     function renderClientMiniCalendar(client) {
         const miniCal = document.getElementById('client-mini-calendar');
         miniCal.innerHTML = '';
-        const selectedYearMonth = document.getElementById('client-month-select').value; // Ex: "2026-10"
+        const selectedYearMonth = document.getElementById('client-month-select').value;
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-        
-        // FILTRAGEM RIGOROSA PELO NOME EXATO DO CLIENTE
         let clientTasks = tasks.filter(t => t.client && t.client.toLowerCase().includes(client.name.toLowerCase()));
 
         for (let i = 1; i <= 31; i++) {
@@ -404,11 +457,69 @@
         renderClientMiniCalendar(currentActiveClient);
     }
 
-    function closeClientModal() { document.getElementById('clientModal').classList.add('hidden'); document.getElementById('clientModal').classList.remove('flex'); }
+    function registerClientPayment() {
+        if (!currentActiveClient) return;
+        const fee = parseFloat(document.getElementById('client-fee-input').value);
+        const dueDate = document.getElementById('client-duedate-input').value;
+        currentActiveClient.fee = fee;
+        currentActiveClient.dueDate = dueDate;
+        currentActiveClient.isOverdue = false;
+        renderClients();
+        alert('Ficha do cliente salva com sucesso!');
+    }
+
+    // Funções de Lançamento de Pagamento no Card do Cliente
+    function openClientPaymentModal() {
+        if(!currentActiveClient) return;
+        document.getElementById('cp-client-name').innerText = currentActiveClient.name;
+        document.getElementById('cp-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('cp-value').value = currentActiveClient.fee || 1500;
+        document.getElementById('clientPaymentModal').classList.remove('hidden');
+        document.getElementById('clientPaymentModal').classList.add('flex');
+    }
+
+    function closeClientPaymentModal() {
+        document.getElementById('clientPaymentModal').classList.add('hidden');
+        document.getElementById('clientPaymentModal').classList.remove('flex');
+    }
+
+    function submitClientPayment() {
+        let payDate = document.getElementById('cp-date').value;
+        let payValue = parseFloat(document.getElementById('cp-value').value);
+
+        if(!payValue || isNaN(payValue)) {
+            alert('Insira um valor válido.');
+            return;
+        }
+
+        let entries = JSON.parse(localStorage.getItem('plasso_entries') || '[]');
+        entries.push({
+            id: 'e_' + Date.now(),
+            name: currentActiveClient.name + ' (Pagamento)',
+            value: payValue,
+            date: payDate
+        });
+        localStorage.setItem('plasso_entries', JSON.stringify(entries));
+
+        alert('Pagamento lançado com sucesso nas entradas do Financeiro!');
+        closeClientPaymentModal();
+    }
+
+    function openClientApprovalPortal() {
+        if (!currentActiveClient) return;
+        window.open('portal.html?client=' + currentActiveClient.id, '_blank');
+    }
+
+    function openNewClientModal() { document.getElementById('newClientModal').classList.remove('hidden'); document.getElementById('newClientModal').classList.add('flex'); document.getElementById('nc-duedate').valueAsDate = new Date(); }
+    function closeNewClientModal() { document.getElementById('newClientModal').classList.add('hidden'); document.getElementById('newClientModal').classList.remove('flex'); }
+    function createNewClient(e) {
+        e.preventDefault();
+        clients.push({ id: 'c_' + Date.now(), name: document.getElementById('nc-name').value, fee: parseFloat(document.getElementById('nc-fee').value), dueDate: document.getElementById('nc-duedate').value, isOverdue: false });
+        closeNewClientModal();
+        renderClients();
+    }
 
     renderClients();
 </script>
 </body>
 </html>
-clients.html
-Exibindo clients.html.
