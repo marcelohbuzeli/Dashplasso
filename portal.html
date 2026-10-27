@@ -313,48 +313,8 @@
                 closeRejectionModal();
                 openDayModal(parseInt(currentActiveDayNum));
                 renderCalendar();
-            }
-        }
-
-        // Funções de Lançamento de Pagamento
-        function openPaymentModal(dateStr) {
-            document.getElementById('pay-date').value = dateStr || new Date().toISOString().split('T')[0];
-            document.getElementById('pay-value').value = currentClient && currentClient.fee ? currentClient.fee : 1500;
-            document.getElementById('paymentModal').classList.remove('hidden');
-            document.getElementById('paymentModal').classList.add('flex');
-        }
-
-        function closePaymentModal() {
-            document.getElementById('paymentModal').classList.add('hidden');
-            document.getElementById('paymentModal').classList.remove('flex');
-        }
-
-        function submitPayment() {
-            let payDate = document.getElementById('pay-date').value;
-            let payValue = parseFloat(document.getElementById('pay-value').value);
-
-            if(!payValue || isNaN(payValue)) {
-                alert('Insira um valor válido.');
-                return;
-            }
-
-            let entries = JSON.parse(localStorage.getItem('plasso_entries') || '[]');
-            let clientName = currentClient ? currentClient.name : 'Cliente';
-            entries.push({
-                id: 'e_' + Date.now(),
-                name: clientName + ' (Pagamento)',
-                value: payValue,
-                date: payDate
-            });
-            localStorage.setItem('plasso_entries', JSON.stringify(entries));
-
-            alert('Pagamento lançado com sucesso nas entradas do Financeiro!');
-            closePaymentModal();
-        }
 
         renderCalendar();
     </script>
 </body>
 </html>
-portal.html
-Exibindo portal.html.
