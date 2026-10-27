@@ -22,48 +22,72 @@
             }
         }
     </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #030712; }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+    </style>
 </head>
-<body class="bg-dark-950 text-slate-100 font-sans antialiased p-10">
-    <div class="max-w-4xl mx-auto space-y-8">
+<body class="bg-dark-950 text-slate-100 min-h-screen flex flex-col p-10 select-none">
+
+    <!-- Topo -->
+    <div class="max-w-6xl mx-auto w-full space-y-6">
         <div class="flex justify-between items-center border-b border-dark-800 pb-5">
             <div>
                 <h1 class="text-2xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-circle-check text-blue-500"></i> Central de Aprovação de Conteúdo</h1>
-                <p id="portal-client-name" class="text-xs text-blue-400 font-mono mt-1">Carregando cliente...</p>
+                <p id="portal-client-title" class="text-xs text-blue-400 font-mono mt-1">Carregando cliente...</p>
             </div>
-            <div class="flex items-center gap-3 bg-dark-900 p-3 rounded-xl border border-dark-800">
+            <div class="flex items-center gap-3 bg-dark-900 p-3 rounded-2xl border border-dark-800">
                 <div>
-                    <label class="block text-[10px] text-slate-400 uppercase">Mês</label>
-                    <select id="filter-month" class="bg-dark-950 border border-dark-800 rounded px-2 py-1 text-xs text-white">
-                        <option value="10">Outubro (2026)</option>
-                        <option value="11">Novembro (2026)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[10px] text-slate-400 uppercase">Semana</label>
-                    <select id="filter-week" class="bg-dark-950 border border-dark-800 rounded px-2 py-1 text-xs text-white">
-                        <option value="all">Todas as Semanas</option>
-                        <option value="1">Semana 1</option>
-                        <option value="2">Semana 2</option>
-                        <option value="3">Semana 3</option>
-                        <option value="4">Semana 4</option>
-                    </select>
+                    <label class="block text-[10px] text-slate-400 uppercase font-mono">Mês de Referência</label>
+                    <span id="current-month-label" class="text-xs font-bold text-white font-mono">Outubro / 2026</span>
                 </div>
             </div>
         </div>
 
-        <div id="approval-posts-list" class="space-y-6">
-            <!-- Posts carregados dinamicamente -->
+        <!-- Calendário Grande de Aprovação -->
+        <div class="bg-dark-900 border border-dark-800 rounded-3xl p-8 shadow-2xl space-y-6">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar text-blue-400"></i> Calendário de Publicações</h3>
+                <span class="text-xs text-slate-400">Clique nos dias destacados para revisar e aprovar os conteúdos</span>
+            </div>
+            
+            <!-- Grid da Semana -->
+            <div class="grid grid-cols-7 gap-3 text-center text-xs font-bold text-slate-400 uppercase font-mono pb-2 border-b border-dark-800">
+                <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+            </div>
+
+            <!-- Grid dos Dias do Mês -->
+            <div id="calendar-grid" class="grid grid-cols-7 gap-3"></div>
         </div>
     </div>
 
-    <!-- Modal de Reprovação / Ajuste -->
-    <div id="extRejectionModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <!-- Modal Popup para Exibir os Cards do Dia Lado a Lado -->
+    <div id="dayPostsModal" class="fixed inset-0 bg-dark-950/85 backdrop-blur-md hidden items-center justify-center z-50 p-6">
+        <div class="bg-dark-900 border border-dark-800 w-full max-w-5xl rounded-3xl p-8 shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex items-center justify-between pb-4 border-b border-dark-800">
+                <div>
+                    <h3 id="modal-day-title" class="text-lg font-bold text-white uppercase">Conteúdos do Dia</h3>
+                    <p class="text-xs text-slate-400 font-mono">Reveja as informações, acesse o Drive e aprove ou reprove os itens.</p>
+                </div>
+                <button onclick="closeDayModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <!-- Cards Lado a Lado -->
+            <div id="modal-cards-container" class="py-6 flex gap-6 overflow-x-auto flex-1 items-stretch"></div>
+        </div>
+    </div>
+
+    <!-- Modal Interno de Reprovação com Ajustes -->
+    <div id="rejectionModal" class="fixed inset-0 bg-dark-950/90 backdrop-blur-md hidden items-center justify-center z-60 p-4">
         <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
-            <h3 class="font-bold text-amber-400 uppercase text-sm">Solicitar Ajuste / Reprovar</h3>
-            <textarea id="ext-rejection-notes" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="O que precisa ser alterado..."></textarea>
-            <div class="flex justify-end gap-3">
-                <button onclick="closeExtRejection()" class="text-slate-400">Cancelar</button>
-                <button onclick="submitExtRejection()" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2 rounded-xl font-semibold">Enviar Reprova</button>
+            <h3 class="font-bold text-amber-400 uppercase text-sm flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Solicitar Ajuste / Reprovar</h3>
+            <textarea id="rejection-notes-input" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="Escreva o que precisa ser alterado..."></textarea>
+            <div class="flex justify-end gap-3 pt-2">
+                <button onclick="closeRejectionModal()" class="text-slate-400">Cancelar</button>
+                <button onclick="submitRejection()" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2 rounded-xl font-semibold">Enviar Reprova</button>
             </div>
         </div>
     </div>
@@ -73,84 +97,137 @@
         const clientId = urlParams.get('client');
         let clients = JSON.parse(localStorage.getItem('plasso_clients') || '[]');
         let currentClient = clients.find(c => c.id === clientId) || clients[0];
+        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
 
         if(currentClient) {
-            document.getElementById('portal-client-name').innerText = "Cliente: " + currentClient.name;
+            document.getElementById('portal-client-title').innerText = "Cliente: " + currentClient.name;
         }
 
-        function renderPortalPosts() {
-            let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-            const container = document.getElementById('approval-posts-list');
+        // Filtrar apenas tasks deste cliente (usando o nome do cliente correspondente)
+        function getClientTasks() {
+            if(!currentClient) return tasks;
+            return tasks.filter(t => t.client.toLowerCase().includes(currentClient.name.toLowerCase()) || t.client.toLowerCase().includes('rosa'));
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+            let clientTasks = getClientTasks();
+
+            // Gerar 31 dias para o mês atual
+            for (let i = 1; i <= 31; i++) {
+                let dayStr = i < 10 ? '0' + i : '' + i;
+                // Exemplo simulado buscando formato de data AAAA-MM-DD
+                let dayTasks = clientTasks.filter(t => t.date && t.date.endsWith('-' + dayStr));
+                let hasContent = dayTasks.length > 0;
+
+                let cardClass = hasContent 
+                    ? 'bg-blue-600/20 border-blue-500/60 text-white font-bold cursor-pointer hover:bg-blue-600/30 hover:border-blue-400 shadow-lg' 
+                    : 'bg-dark-950/40 border-dark-800/50 text-slate-600 opacity-30 cursor-not-allowed';
+
+                let badge = hasContent ? `<span class="bg-blue-600 text-white text-[10px] font-mono px-2 py-0.5 rounded-full mt-2">${dayTasks.length} Post(s)</span>` : '';
+
+                grid.innerHTML += `
+                    <div onclick="${hasContent ? `openDayModal('${i}')` : ''}" class="h-32 border ${cardClass} rounded-2xl p-3 flex flex-col justify-between transition group">
+                        <span class="text-sm font-mono">${i}</span>
+                        <div class="flex flex-col items-center justify-center">${badge}</div>
+                        <span class="text-[9px] text-slate-400 font-mono">${hasContent ? 'Revisar' : ''}</span>
+                    </div>
+                `;
+            }
+        }
+
+        let currentActiveDayStr = null;
+        function openDayModal(dayNum) {
+            let dayStr = dayNum < 10 ? '0' + dayNum : '' + dayNum;
+            currentActiveDayStr = dayStr;
+            let clientTasks = getClientTasks();
+            let dayTasks = clientTasks.filter(t => t.date && t.date.endsWith('-' + dayStr));
+
+            document.getElementById('modal-day-title').innerText = `Conteúdos para o dia ${dayNum} de Outubro`;
+            const container = document.getElementById('modal-cards-container');
             container.innerHTML = '';
 
-            let filteredTasks = tasks; // Poderia filtrar por cliente se desejado
-
-            if(filteredTasks.length === 0) {
-                container.innerHTML = '<p class="text-center text-slate-500 py-10">Nenhuma postagem pendente para aprovação.</p>';
-                return;
-            }
-
-            filteredTasks.forEach(t => {
+            dayTasks.forEach(t => {
                 container.innerHTML += `
-                    <div class="bg-dark-900 border border-dark-800 rounded-2xl p-6 space-y-4">
-                        <div class="flex justify-between items-center">
-                            <h3 class="font-bold text-white text-base">${t.client}</h3>
-                            <span class="text-xs text-blue-400 font-mono">${t.type} • ${t.date.split('-').reverse().join('/')}</span>
+                    <div class="bg-dark-950 border border-dark-800 rounded-2xl p-6 w-96 flex flex-col justify-between shrink-0 shadow-xl space-y-4">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="bg-blue-950 text-blue-400 border border-blue-800/60 px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase">${t.type}</span>
+                                <span class="text-[10px] text-slate-400 font-mono">${t.date.split('-').reverse().join('/')}</span>
+                            </div>
+                            <h4 class="font-bold text-white text-sm">${t.client}</h4>
+                            <p class="text-xs text-slate-300 bg-dark-900 p-3 rounded-xl border border-dark-800/60 leading-relaxed">${t.caption}</p>
                         </div>
-                        <p class="text-sm text-slate-300 bg-dark-950 p-4 rounded-xl border border-dark-800">${t.caption}</p>
-                        <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 flex justify-between items-center">
-                            <span class="text-xs text-slate-400 font-mono"><i class="fa-brands fa-google-drive text-blue-400 mr-1"></i> Arquivo de Mídia</span>
-                            <a href="${t.drive || '#'}" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-play mr-1"></i> Dar Play / Visualizar</a>
-                        </div>
-                        <div class="flex justify-end gap-3 pt-2">
-                            <button onclick="approveTask('${t.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-check mr-1"></i> Aprovar Post</button>
-                            <button onclick="openExtRejection('${t.id}')" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-xmark mr-1"></i> Reprovar / Ajustar</button>
+
+                        <div class="space-y-3">
+                            <div class="bg-dark-900 p-3 rounded-xl border border-dark-800 flex items-center justify-between">
+                                <span class="text-[11px] text-slate-400 font-mono"><i class="fa-brands fa-google-drive text-blue-400 mr-1"></i> Mídia</span>
+                                <a href="${t.drive || '#'}" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"><i class="fa-solid fa-play text-[10px]"></i> Ver / Ouvir</a>
+                            </div>
+
+                            <div class="flex gap-2 pt-2 border-t border-dark-800">
+                                <button onclick="approveTask('${t.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5"><i class="fa-solid fa-check"></i> Aprovar</button>
+                                <button onclick="openRejectionModal('${t.id}')" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5"><i class="fa-solid fa-xmark"></i> Reprovar</button>
+                            </div>
                         </div>
                     </div>
                 `;
             });
+
+            document.getElementById('dayPostsModal').classList.remove('hidden');
+            document.getElementById('dayPostsModal').classList.add('flex');
         }
 
-        let targetTaskId = null;
+        function closeDayModal() {
+            document.getElementById('dayPostsModal').classList.add('hidden');
+            document.getElementById('dayPostsModal').classList.remove('flex');
+        }
+
         function approveTask(id) {
-            let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-            let t = tasks.find(task => task.id === id);
+            let tasksList = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+            let t = tasksList.find(task => task.id === id);
             if(t) {
                 t.status = 'approved';
                 t.isRejected = false;
-                localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
-                alert('Postagem aprovada com sucesso!');
-                renderPortalPosts();
+                localStorage.setItem('plasso_tasks', JSON.stringify(tasksList));
+                tasks = tasksList;
+                alert('Conteúdo aprovado com sucesso!');
+                closeDayModal();
+                renderCalendar();
             }
         }
 
-        function openExtRejection(id) {
-            targetTaskId = id;
-            document.getElementById('extRejectionModal').classList.remove('hidden');
-            document.getElementById('extRejectionModal').classList.add('flex');
+        let targetTaskIdForRejection = null;
+        function openRejectionModal(id) {
+            targetTaskIdForRejection = id;
+            document.getElementById('rejectionModal').classList.remove('hidden');
+            document.getElementById('rejectionModal').classList.add('flex');
         }
 
-        function closeExtRejection() {
-            document.getElementById('extRejectionModal').classList.add('hidden');
-            document.getElementById('extRejectionModal').classList.remove('flex');
+        function closeRejectionModal() {
+            document.getElementById('rejectionModal').classList.add('hidden');
+            document.getElementById('rejectionModal').classList.remove('flex');
         }
 
-        function submitExtRejection() {
-            const notes = document.getElementById('ext-rejection-notes').value;
-            let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-            let t = tasks.find(task => task.id === targetTaskId);
+        function submitRejection() {
+            const notes = document.getElementById('rejection-notes-input').value;
+            let tasksList = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+            let t = tasksList.find(task => task.id === targetTaskIdForRejection);
             if(t) {
                 t.status = 'urgent';
                 t.isRejected = true;
                 t.notes = 'Reprovado pelo cliente: ' + notes;
-                localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+                localStorage.setItem('plasso_tasks', JSON.stringify(tasksList));
+                tasks = tasksList;
                 alert('Reprova enviada com sucesso! Os ajustes foram encaminhados.');
-                closeExtRejection();
-                renderPortalPosts();
+                closeRejectionModal();
+                closeDayModal();
+                renderCalendar();
             }
         }
 
-        renderPortalPosts();
+        renderCalendar();
     </script>
 </body>
 </html>
