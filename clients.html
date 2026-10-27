@@ -52,7 +52,7 @@
             <nav class="p-3 space-y-1.5 font-medium text-xs flex-1 overflow-y-auto">
     <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
         <i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard (Geral)</span>
+        <span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard</span>
     </a>
     <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
         <i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i>
@@ -75,18 +75,6 @@
         <span class="sidebar-text tracking-wide whitespace-nowrap">CRM</span>
     </a>
 </nav>
-        </div>
-        <div class="p-4 border-t border-dark-800/60 shrink-0">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-dark-800 border border-slate-700/50 flex items-center justify-center text-xs font-bold text-blue-400 shrink-0 font-mono">MB</div>
-                <div class="sidebar-text overflow-hidden font-mono">
-                    <p class="text-xs font-semibold text-slate-200 truncate">Marcelo Buzeli</p>
-                    <p class="text-[10px] text-emerald-400 flex items-center gap-1.5 mt-0.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online
-                    </p>
-                </div>
-            </div>
-        </div>
     </aside>
     
     <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
@@ -95,7 +83,6 @@
                 <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
                     <i class="fa-solid fa-network-wired text-blue-500 text-xs"></i> Gestão de Clientes
                 </h1>
-                <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/clients</p>
             </div>
             <div>
                 <button onclick="openNewClientModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer">
@@ -110,13 +97,12 @@
     </main>
 </div>
 
-<!-- Modal Cliente (Com Mini-Calendário Integrado e Criação por Duplo Clique) -->
-<div id="clientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+<!-- Modal Cliente (Z-Index 40) -->
+<div id="clientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-40 p-4">
     <div class="bg-dark-900 border border-dark-800 w-full max-w-4xl rounded-3xl p-8 shadow-2xl flex flex-col max-h-[92vh]">
         <div class="flex items-center justify-between pb-4 border-b border-dark-800">
             <div>
                 <h3 id="client-modal-name" class="text-xl font-bold text-white"></h3>
-                <p class="text-xs text-slate-400 font-mono mt-0.5">Clique em um dia com post para editar ou dê dois cliques em dia vazio para criar postagem</p>
             </div>
             <button onclick="closeClientModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
@@ -131,11 +117,27 @@
                 <button onclick="openClientApprovalPortal()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg transition cursor-pointer"><i class="fa-solid fa-external-link-alt mr-1"></i> Abrir Portal do Cliente</button>
             </div>
 
-            <!-- Mini Calendário do Cliente -->
+            <!-- Mini Calendário do Cliente com Seletor de Mês -->
             <div class="bg-dark-950 border border-dark-800 rounded-2xl p-6 space-y-4">
-                <div class="flex justify-between items-center">
-                    <h4 class="font-bold text-white uppercase text-xs tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar text-blue-400"></i> Cronograma de Conteúdos do Mês</h4>
-                    <span class="text-[11px] text-slate-400 font-mono">1 clique para ver/editar • 2 cliques em dia vazio para novo post</span>
+                <div class="flex justify-between items-center flex-wrap gap-3">
+                    <h4 class="font-bold text-white uppercase text-xs tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar text-blue-400"></i> Cronograma de Conteúdos</h4>
+                    <div class="flex items-center gap-2">
+                        <label class="text-[11px] text-slate-400 font-mono">Mês:</label>
+                        <select id="client-month-select" onchange="renderClientMiniCalendar(currentActiveClient)" class="bg-dark-900 border border-dark-800 rounded-xl px-3 py-1.5 text-xs text-white font-mono cursor-pointer">
+                            <option value="2026-01">Janeiro de 2026</option>
+                            <option value="2026-02">Fevereiro de 2026</option>
+                            <option value="2026-03">Março de 2026</option>
+                            <option value="2026-04">Abril de 2026</option>
+                            <option value="2026-05">Maio de 2026</option>
+                            <option value="2026-06">Junho de 2026</option>
+                            <option value="2026-07">Julho de 2026</option>
+                            <option value="2026-08">Agosto de 2026</option>
+                            <option value="2026-09">Setembro de 2026</option>
+                            <option value="2026-10" selected>Outubro de 2026</option>
+                            <option value="2026-11">Novembro de 2026</option>
+                            <option value="2026-12">Dezembro de 2026</option>
+                        </select>
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-slate-400 uppercase font-mono pb-2 border-b border-dark-800">
@@ -149,51 +151,83 @@
                 <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Checklist</h4><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Contrato</label><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Briefing</label></div>
                 <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Processos</h4><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Estratégia</label><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Cronograma</label></div>
             </div>
+        </div>
+    </div>
+</div>
 
-            <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3">
-                <h4 class="font-bold text-white uppercase text-[11px]">Financeiro & Vencimento</h4>
-                <div class="flex items-center gap-4">
-                    <div class="flex-1"><label class="block text-slate-400 mb-1">Valor (R$)</label><input type="number" id="client-fee-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono"></div>
-                    <div class="flex-1"><label class="block text-slate-400 mb-1">Vencimento</label><input type="date" id="client-duedate-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono"></div>
-                    <div class="pt-5"><button onclick="registerClientPayment()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold cursor-pointer">Registrar Pagamento</button></div>
-                </div>
+<!-- Modal para Editar Postagem Existente (Z-Index 70 Acima de Tudo) -->
+<div id="editPostModal" class="fixed inset-0 bg-dark-950/90 backdrop-blur-md hidden items-center justify-center z-70 p-4">
+    <div class="bg-dark-900 border border-blue-500/50 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
+        <h3 class="font-bold text-blue-400 uppercase text-sm">Editar Conteúdo / Postagem</h3>
+        <input type="hidden" id="ep-id">
+        <div>
+            <label class="block text-slate-400 mb-1">Headline (Título) <span class="text-blue-400">*</span></label>
+            <input type="text" id="ep-headline" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-bold">
+        </div>
+        <div>
+            <label class="block text-slate-400 mb-1">Formato</label>
+            <select id="ep-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white">
+                <option value="Reels">Reels</option>
+                <option value="Carrossel">Carrossel</option>
+                <option value="Story">Story</option>
+                <option value="Foto Única">Foto Única</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-slate-400 mb-1">Link do Drive</label>
+            <input type="url" id="ep-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-blue-400 font-mono" placeholder="https://drive.google.com/...">
+        </div>
+        <div>
+            <label class="block text-slate-400 mb-1">Legenda</label>
+            <textarea id="ep-caption" rows="3" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="Legenda opcional..."></textarea>
+        </div>
+        <div>
+            <label class="block text-slate-400 mb-1">Notas / Referências</label>
+            <textarea id="ep-notes" rows="2" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-amber-300 resize-none" placeholder="Notas opcionais..."></textarea>
+        </div>
+        <div class="flex justify-between items-center pt-2">
+            <button onclick="deleteClientPost()" class="text-red-400 hover:text-red-300 font-semibold cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Excluir Post</button>
+            <div class="flex gap-3">
+                <button onclick="closeEditPostModal()" class="text-slate-400 cursor-pointer">Cancelar</button>
+                <button onclick="saveEditedClientPost()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar Alterações</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal para Edição de Task Direta no Mini Calendário -->
-<div id="editTaskModal" class="fixed inset-0 bg-dark-950/85 backdrop-blur-md hidden items-center justify-center z-60 p-4">
-    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
-        <h3 class="font-bold text-white text-sm uppercase">Editar Postagem do Dia</h3>
-        <input type="hidden" id="et-id">
-        <div><label class="block text-slate-400 mb-1">Headline</label><input type="text" id="et-headline" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-bold"></div>
-        <div><label class="block text-slate-400 mb-1">Formato</label><select id="et-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"><option value="Reels">Reels</option><option value="Carrossel">Carrossel</option><option value="Story">Story</option><option value="Foto Única">Foto Única</option></select></div>
-        <div><label class="block text-slate-400 mb-1">Link do Drive</label><input type="url" id="et-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono text-[11px]"></div>
-        <div><label class="block text-slate-400 mb-1">Legenda</label><textarea id="et-caption" rows="2" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none"></textarea></div>
-        <div><label class="block text-slate-400 mb-1">Notas / Observações</label><textarea id="et-notes" rows="2" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none"></textarea></div>
-        <div class="flex justify-between pt-2">
-            <button type="button" onclick="deleteTaskFromModal()" class="text-red-400 hover:text-red-300 font-bold cursor-pointer"><i class="fa-solid fa-trash"></i> Apagar Post</button>
-            <div class="flex gap-2">
-                <button type="button" onclick="closeEditTaskModal()" class="text-slate-400 cursor-pointer">Cancelar</button>
-                <button type="button" onclick="saveEditedTaskFromModal()" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar</button>
-            </div>
+<!-- Modal para Criar Nova Postagem no Dia Vazio (Z-Index 70 Acima de Tudo) -->
+<div id="newPostOnDayModal" class="fixed inset-0 bg-dark-950/90 backdrop-blur-md hidden items-center justify-center z-70 p-4">
+    <div class="bg-dark-900 border border-emerald-500/50 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
+        <h3 class="font-bold text-emerald-400 uppercase text-sm">Nova Postagem para o dia <span id="np-date-display" class="text-white"></span></h3>
+        <input type="hidden" id="np-date-val">
+        <div>
+            <label class="block text-slate-400 mb-1">Headline (Título) <span class="text-emerald-400">*</span></label>
+            <input type="text" id="np-headline" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-bold" placeholder="Título da postagem">
         </div>
-    </div>
-</div>
-
-<!-- Modal para Criar Postagem via Duplo Clique no Dia Vazio -->
-<div id="quickTaskModal" class="fixed inset-0 bg-dark-950/85 backdrop-blur-md hidden items-center justify-center z-60 p-4">
-    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
-        <h3 class="font-bold text-white text-sm uppercase">Nova Postagem para o Dia <span id="qt-day-label" class="text-blue-400 font-mono"></span></h3>
-        <input type="hidden" id="qt-date">
-        <div><label class="block text-slate-400 mb-1">Headline</label><input type="text" id="qt-headline" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-bold" placeholder="Título da postagem"></div>
-        <div><label class="block text-slate-400 mb-1">Formato</label><select id="qt-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"><option value="Reels">Reels</option><option value="Carrossel">Carrossel</option><option value="Story">Story</option><option value="Foto Única">Foto Única</option></select></div>
-        <div><label class="block text-slate-400 mb-1">Link do Drive</label><input type="url" id="qt-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono text-[11px]" placeholder="https://drive.google.com/..."></div>
-        <div><label class="block text-slate-400 mb-1">Legenda</label><textarea id="qt-caption" rows="2" required class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="Legenda do post..."></textarea></div>
+        <div>
+            <label class="block text-slate-400 mb-1">Formato</label>
+            <select id="np-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white">
+                <option value="Reels">Reels</option>
+                <option value="Carrossel">Carrossel</option>
+                <option value="Story">Story</option>
+                <option value="Foto Única">Foto Única</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-slate-400 mb-1">Link do Drive</label>
+            <input type="url" id="np-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-blue-400 font-mono" placeholder="https://drive.google.com/...">
+        </div>
+        <div>
+            <label class="block text-slate-400 mb-1">Legenda</label>
+            <textarea id="np-caption" rows="3" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="Legenda opcional..."></textarea>
+        </div>
+        <div>
+            <label class="block text-slate-400 mb-1">Notas / Referências</label>
+            <textarea id="np-notes" rows="2" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-amber-300 resize-none" placeholder="Notas opcionais..."></textarea>
+        </div>
         <div class="flex justify-end gap-3 pt-2">
-            <button type="button" onclick="closeQuickTaskModal()" class="text-slate-400 cursor-pointer">Cancelar</button>
-            <button type="button" onclick="saveQuickTask()" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Criar Postagem</button>
+            <button onclick="closeNewPostOnDayModal()" class="text-slate-400 cursor-pointer">Cancelar</button>
+            <button onclick="saveNewClientPost()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Criar Postagem</button>
         </div>
     </div>
 </div>
@@ -249,11 +283,7 @@
         currentActiveClient = clients.find(cl => cl.id === id);
         if (!currentActiveClient) return;
         document.getElementById('client-modal-name').innerText = currentActiveClient.name;
-        document.getElementById('client-fee-input').value = currentActiveClient.fee;
-        document.getElementById('client-duedate-input').value = currentActiveClient.dueDate;
-        
         renderClientMiniCalendar(currentActiveClient);
-
         document.getElementById('clientModal').classList.remove('hidden');
         document.getElementById('clientModal').classList.add('flex');
     }
@@ -261,105 +291,98 @@
     function renderClientMiniCalendar(client) {
         const miniCal = document.getElementById('client-mini-calendar');
         miniCal.innerHTML = '';
+        const selectedYearMonth = document.getElementById('client-month-select').value; // Ex: "2026-10"
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
         let clientTasks = tasks.filter(t => t.client.toLowerCase().includes(client.name.toLowerCase()) || t.client.toLowerCase().includes('rosa'));
 
         for (let i = 1; i <= 31; i++) {
             let dayStr = i < 10 ? '0' + i : '' + i;
-            let dayTasks = clientTasks.filter(t => t.date && t.date.endsWith('-' + dayStr));
+            let targetDate = selectedYearMonth + '-' + dayStr;
+            let dayTasks = clientTasks.filter(t => t.date === targetDate);
             let hasContent = dayTasks.length > 0;
 
-            let cardClass = hasContent ? 'bg-blue-600/20 border-blue-500/50 text-white cursor-pointer hover:border-blue-400' : 'bg-dark-900 border-dark-800 text-slate-600 opacity-40 cursor-pointer';
+            let cardClass = hasContent ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-dark-900 border-dark-800 text-slate-600 opacity-40';
             let miniCardsHTML = '';
 
             if (hasContent) {
                 dayTasks.forEach(dt => {
                     let headline = dt.headline || dt.caption || 'Headline';
-                    if(headline.length > 12) headline = headline.substring(0, 12) + '...';
-                    miniCardsHTML += `<div onclick="event.stopPropagation(); openEditTaskModal('${dt.id}')" class="bg-dark-950 border border-dark-800 rounded p-1 text-[9px] truncate flex items-center gap-1 mt-1 hover:border-blue-500 transition" title="Clique para editar">${getCategoryIcon(dt.type)} <span class="text-slate-200">${headline}</span></div>`;
+                    if(headline.length > 10) headline = headline.substring(0, 10) + '...';
+                    miniCardsHTML += `<div onclick="event.stopPropagation(); openEditPostModal('${dt.id}')" class="bg-dark-950 border border-dark-800 hover:border-blue-500 rounded p-1 text-[9px] truncate flex items-center gap-1 mt-1 cursor-pointer" title="Clique para editar">${getCategoryIcon(dt.type)} <span class="text-slate-200">${headline}</span></div>`;
                 });
             }
 
-            let fullDateStr = '2026-10-' + dayStr;
-            miniCal.innerHTML += `<div ondblclick="openQuickTaskModal('${fullDateStr}', ${i})" class="h-20 border ${cardClass} rounded-xl p-1.5 flex flex-col justify-start text-left overflow-hidden transition" title="Duplo clique para criar postagem neste dia"><span class="text-[10px] font-mono font-bold">${i}</span><div class="overflow-y-auto max-h-12">${miniCardsHTML}</div></div>`;
+            // Duplo clique no dia vazio para criar post
+            miniCal.innerHTML += `<div ondblclick="openNewPostOnDayModal('${targetDate}')" class="h-20 border ${cardClass} rounded-xl p-1.5 flex flex-col justify-start text-left overflow-hidden cursor-pointer" title="Duplo clique para criar postagem"><span class="text-[10px] font-mono font-bold">${i}</span><div class="overflow-y-auto max-h-12">${miniCardsHTML}</div></div>`;
         }
     }
 
-    function openEditTaskModal(taskId) {
+    let currentEditingPostId = null;
+    function openEditPostModal(taskId) {
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
         let t = tasks.find(task => task.id === taskId);
         if(!t) return;
-        document.getElementById('et-id').value = t.id;
-        document.getElementById('et-headline').value = t.headline || t.client || '';
-        document.getElementById('et-type').value = t.type || 'Reels';
-        document.getElementById('et-drive').value = t.drive || '';
-        document.getElementById('et-caption').value = t.caption || '';
-        document.getElementById('et-notes').value = t.notes || '';
-
-        document.getElementById('editTaskModal').classList.remove('hidden');
-        document.getElementById('editTaskModal').classList.add('flex');
+        currentEditingPostId = taskId;
+        document.getElementById('ep-headline').value = t.headline || t.client || '';
+        document.getElementById('ep-type').value = t.type || 'Reels';
+        document.getElementById('ep-drive').value = t.drive || '';
+        document.getElementById('ep-caption').value = t.caption || '';
+        document.getElementById('ep-notes').value = t.notes || '';
+        document.getElementById('editPostModal').classList.remove('hidden');
+        document.getElementById('editPostModal').classList.add('flex');
     }
+    function closeEditPostModal() { document.getElementById('editPostModal').classList.add('hidden'); document.getElementById('editPostModal').classList.remove('flex'); }
 
-    function closeEditTaskModal() {
-        document.getElementById('editTaskModal').classList.add('hidden');
-        document.getElementById('editTaskModal').classList.remove('flex');
-    }
+    function saveEditedClientPost() {
+        let headline = document.getElementById('ep-headline').value;
+        if(!headline) { alert('A Headline é obrigatória.'); return; }
 
-    function saveEditedTaskFromModal() {
-        let taskId = document.getElementById('et-id').value;
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-        let t = tasks.find(task => task.id === taskId);
+        let t = tasks.find(task => task.id === currentEditingPostId);
         if(t) {
-            t.headline = document.getElementById('et-headline').value;
-            t.type = document.getElementById('et-type').value;
-            t.drive = document.getElementById('et-drive').value;
-            t.caption = document.getElementById('et-caption').value;
-            t.notes = document.getElementById('et-notes').value;
+            t.headline = headline;
+            t.type = document.getElementById('ep-type').value;
+            t.drive = document.getElementById('ep-drive').value;
+            t.caption = document.getElementById('ep-caption').value;
+            t.notes = document.getElementById('ep-notes').value;
             localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
             alert('Postagem atualizada com sucesso!');
-            closeEditTaskModal();
+            closeEditPostModal();
             renderClientMiniCalendar(currentActiveClient);
         }
     }
 
-    function deleteTaskFromModal() {
-        if(!confirm('Deseja realmente apagar esta postagem?')) return;
-        let taskId = document.getElementById('et-id').value;
+    function deleteClientPost() {
+        if(!confirm('Deseja realmente excluir esta postagem?')) return;
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-        tasks = tasks.filter(task => task.id !== taskId);
+        tasks = tasks.filter(task => task.id !== currentEditingPostId);
         localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
-        alert('Postagem apagada!');
-        closeEditTaskModal();
+        alert('Postagem excluída!');
+        closeEditPostModal();
         renderClientMiniCalendar(currentActiveClient);
     }
 
-    function openQuickTaskModal(dateStr, dayNum) {
-        document.getElementById('qt-date').value = dateStr;
-        document.getElementById('qt-day-label').innerText = dayNum + ' de Outubro';
-        document.getElementById('qt-headline').value = '';
-        document.getElementById('qt-drive').value = '';
-        document.getElementById('qt-caption').value = '';
-
-        document.getElementById('quickTaskModal').classList.remove('hidden');
-        document.getElementById('quickTaskModal').classList.add('flex');
+    function openNewPostOnDayModal(dateStr) {
+        document.getElementById('np-date-val').value = dateStr;
+        document.getElementById('np-date-display').innerText = dateStr.split('-').reverse().join('/');
+        document.getElementById('np-headline').value = '';
+        document.getElementById('np-drive').value = '';
+        document.getElementById('np-caption').value = '';
+        document.getElementById('np-notes').value = '';
+        document.getElementById('newPostOnDayModal').classList.remove('hidden');
+        document.getElementById('newPostOnDayModal').classList.add('flex');
     }
+    function closeNewPostOnDayModal() { document.getElementById('newPostOnDayModal').classList.add('hidden'); document.getElementById('newPostOnDayModal').classList.remove('flex'); }
 
-    function closeQuickTaskModal() {
-        document.getElementById('quickTaskModal').classList.add('hidden');
-        document.getElementById('quickTaskModal').classList.remove('flex');
-    }
+    function saveNewClientPost() {
+        let dateVal = document.getElementById('np-date-val').value;
+        let headline = document.getElementById('np-headline').value;
+        let type = document.getElementById('np-type').value;
+        let drive = document.getElementById('np-drive').value;
+        let caption = document.getElementById('np-caption').value;
+        let notes = document.getElementById('np-notes').value;
 
-    function saveQuickTask() {
-        let date = document.getElementById('qt-date').value;
-        let headline = document.getElementById('qt-headline').value;
-        let type = document.getElementById('qt-type').value;
-        let drive = document.getElementById('qt-drive').value;
-        let caption = document.getElementById('qt-caption').value;
-
-        if(!headline || !caption) {
-            alert('Preencha a Headline e a Legenda.');
-            return;
-        }
+        if(!headline) { alert('A Headline é obrigatória.'); return; }
 
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
         tasks.push({
@@ -369,48 +392,18 @@
             type: type,
             caption: caption,
             drive: drive,
-            date: date,
+            date: dateVal,
             status: 'todo',
-            notes: '',
+            notes: notes,
             isRejected: false
         });
-
         localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
         alert('Nova postagem criada com sucesso!');
-        closeQuickTaskModal();
+        closeNewPostOnDayModal();
         renderClientMiniCalendar(currentActiveClient);
     }
 
     function closeClientModal() { document.getElementById('clientModal').classList.add('hidden'); document.getElementById('clientModal').classList.remove('flex'); }
-
-    function registerClientPayment() {
-        if (!currentActiveClient) return;
-        const fee = parseFloat(document.getElementById('client-fee-input').value);
-        currentActiveClient.fee = fee;
-        currentActiveClient.isOverdue = false;
-        
-        let entries = JSON.parse(localStorage.getItem('plasso_entries') || '[]');
-        entries.push({ id: 'e_' + Date.now(), name: currentActiveClient.name + ' (Mensalidade)', value: fee, date: new Date().toISOString().split('T')[0] });
-        localStorage.setItem('plasso_entries', JSON.stringify(entries));
-
-        alert('Pagamento registrado no financeiro!');
-        closeClientModal();
-        renderClients();
-    }
-
-    function openClientApprovalPortal() {
-        if (!currentActiveClient) return;
-        window.open('portal.html?client=' + currentActiveClient.id, '_blank');
-    }
-
-    function openNewClientModal() { document.getElementById('newClientModal').classList.remove('hidden'); document.getElementById('newClientModal').classList.add('flex'); document.getElementById('nc-duedate').valueAsDate = new Date(); }
-    function closeNewClientModal() { document.getElementById('newClientModal').classList.add('hidden'); document.getElementById('newClientModal').classList.remove('flex'); }
-    function createNewClient(e) {
-        e.preventDefault();
-        clients.push({ id: 'c_' + Date.now(), name: document.getElementById('nc-name').value, fee: parseFloat(document.getElementById('nc-fee').value), dueDate: document.getElementById('nc-duedate').value, isOverdue: false });
-        closeNewClientModal();
-        renderClients();
-    }
 
     renderClients();
 </script>
