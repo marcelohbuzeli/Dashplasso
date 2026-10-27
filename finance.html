@@ -1,0 +1,251 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plassô Marketing — Gestão Integrada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            950: '#030712',
+                            900: '#0b0f19',
+                            850: '#111827',
+                            800: '#1f2937'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .kanban-col { min-height: calc(100vh - 280px); }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #030712; }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #374151; }
+    </style>
+</head>
+<body class="bg-dark-950 text-slate-200 antialiased overflow-hidden selection:bg-blue-600 selection:text-white">
+<div class="flex flex-row h-screen w-screen overflow-hidden">
+
+    <aside id="sidebar" class="bg-dark-900 border-r border-dark-800 flex flex-col justify-between transition-all duration-300 w-64 z-30 overflow-hidden shrink-0 h-full">
+        <div class="flex flex-col h-full">
+            <div class="h-20 flex items-center justify-between px-4 border-b border-dark-800/60 shrink-0">
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center font-bold text-white text-lg shadow-lg shrink-0 font-mono">P</div>
+                    <div class="sidebar-text truncate flex flex-col">
+                        <span class="font-bold text-base tracking-widest text-white uppercase font-sans">Plassô</span>
+                        <span class="text-[9px] text-blue-400 font-mono tracking-wider">MARKETING</span>
+                    </div>
+                </div>
+                <button id="toggle-btn" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-dark-800 transition shrink-0">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                </button>
+            </div>
+            <nav class="p-3 space-y-1.5 font-medium text-xs flex-1 overflow-y-auto">
+    <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
+        <i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i>
+        <span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard (Geral)</span>
+    </a>
+    <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
+        <i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i>
+        <span class="sidebar-text tracking-wide whitespace-nowrap">Tasks</span>
+    </a>
+    <a href="clients.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
+        <i class="fa-solid fa-network-wired w-5 text-center text-sm shrink-0"></i>
+        <span class="sidebar-text tracking-wide whitespace-nowrap">Clientes</span>
+    </a>
+    <a href="calendar.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
+        <i class="fa-solid fa-calendar-days w-5 text-center text-sm shrink-0"></i>
+        <span class="sidebar-text tracking-wide whitespace-nowrap">Calendário</span>
+    </a>
+    <a href="finance.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer bg-blue-600 text-white">
+        <i class="fa-solid fa-wallet w-5 text-center text-sm shrink-0"></i>
+        <span class="sidebar-text tracking-wide whitespace-nowrap">Financeiro</span>
+    </a>
+    <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
+        <i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i>
+        <span class="sidebar-text tracking-wide whitespace-nowrap">CRM</span>
+    </a>
+</nav>
+        </div>
+        <div class="p-4 border-t border-dark-800/60 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-dark-800 border border-slate-700/50 flex items-center justify-center text-xs font-bold text-blue-400 shrink-0 font-mono">MB</div>
+                <div class="sidebar-text overflow-hidden font-mono">
+                    <p class="text-xs font-semibold text-slate-200 truncate">Marcelo Buzeli</p>
+                    <p class="text-[10px] text-emerald-400 flex items-center gap-1.5 mt-0.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online
+                    </p>
+                </div>
+            </div>
+        </div>
+    </aside>
+    
+    <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
+        <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
+            <div>
+                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
+                    <i class="fa-solid fa-wallet text-blue-500 text-xs"></i> Controle Financeiro
+                </h1>
+                <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/financeiro</p>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5"><p class="text-xs text-slate-400 uppercase">Entradas do Mês</p><h2 id="fin-top-actual" class="text-2xl font-bold font-mono text-emerald-400 mt-1">R$ 0,00</h2></div>
+                <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5">
+                    <div class="flex justify-between items-center"><p class="text-xs text-slate-400 uppercase">Meta do Mês</p><button onclick="editGoal()" class="text-[10px] text-blue-400 hover:underline cursor-pointer"><i class="fa-solid fa-pen"></i> Alterar</button></div>
+                    <h2 id="fin-goal-display" class="text-2xl font-bold font-mono text-white mt-1">R$ 20.000,00</h2>
+                </div>
+                <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5 flex flex-col justify-between"><div class="flex justify-between items-center"><p class="text-xs text-slate-400 uppercase">Atingimento</p><span id="fin-pct-badge" class="text-xs font-mono bg-emerald-950 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-800">0%</span></div><div class="w-full bg-dark-950 rounded-full h-2.5 overflow-hidden border border-dark-800 mt-3"><div id="fin-progress-bar" class="bg-emerald-500 h-full transition-all" style="width: 0%"></div></div></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-emerald-950/20 border-2 border-emerald-500/40 rounded-2xl p-6 flex flex-col"><div class="flex items-center justify-between mb-4 pb-3 border-b border-emerald-500/30"><h3 class="font-bold text-emerald-200 text-sm uppercase">ENTRADAS</h3><span id="fin-total-entries" class="font-mono font-bold text-emerald-400 text-lg">R$ 0,00</span></div><div class="flex justify-between items-center mb-3"><span class="text-xs text-slate-400">Duplo clique para editar/apagar</span><button onclick="openNewEntryModal()" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer"><i class="fa-solid fa-plus mr-1"></i> Nova Entrada</button></div><div id="fin-entries-list" class="space-y-2 flex-1 overflow-y-auto max-h-72"></div></div>
+                <div class="bg-red-950/20 border-2 border-red-500/40 rounded-2xl p-6 flex flex-col"><div class="flex items-center justify-between mb-4 pb-3 border-b border-red-500/30"><h3 class="font-bold text-red-200 text-sm uppercase">DESPESAS</h3><span id="fin-total-expenses" class="font-mono font-bold text-red-400 text-lg">R$ 0,00</span></div><div class="flex justify-between items-center mb-3"><span class="text-xs text-slate-400">Duplo clique para editar/apagar</span><button onclick="openNewExpenseModal()" class="bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer"><i class="fa-solid fa-plus mr-1"></i> Nova Despesa</button></div><div id="fin-expenses-list" class="space-y-2 flex-1 overflow-y-auto max-h-72"></div></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modais Financeiros -->
+<div id="newEntryModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="createNewEntry(event)" class="space-y-4 text-xs"><h3 class="text-sm font-bold text-emerald-400 uppercase">Nova Entrada</h3><input type="text" id="ne-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Descrição"><input type="number" id="ne-value" step="0.01" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" placeholder="Valor"><input type="date" id="ne-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeNewEntryModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-emerald-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button></div></form></div></div>
+<div id="newExpenseModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="createNewExpense(event)" class="space-y-4 text-xs"><h3 class="text-sm font-bold text-red-400 uppercase">Nova Despesa</h3><input type="text" id="nx-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Descrição"><input type="number" id="nx-value" step="0.01" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" placeholder="Valor"><input type="date" id="nx-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeNewExpenseModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-red-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button></div></form></div></div>
+<div id="editEntryModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="saveEditedEntry(event)" class="space-y-4 text-xs"><div class="flex justify-between items-center border-b border-dark-800 pb-3"><h3 class="text-sm font-bold text-emerald-400 uppercase">Editar Entrada</h3><button type="button" onclick="deleteCurrentEntry()" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i> Apagar</button></div><input type="hidden" id="ee-id"><input type="text" id="ee-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"><input type="number" id="ee-value" step="0.01" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><input type="date" id="ee-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeEditEntryModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-emerald-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button></div></form></div></div>
+<div id="editExpenseModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="saveEditedExpense(event)" class="space-y-4 text-xs"><div class="flex justify-between items-center border-b border-dark-800 pb-3"><h3 class="text-sm font-bold text-red-400 uppercase">Editar Despesa</h3><button type="button" onclick="deleteCurrentExpense()" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i> Apagar</button></div><input type="hidden" id="ex-id"><input type="text" id="ex-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"><input type="number" id="ex-value" step="0.01" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><input type="date" id="ex-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeEditExpenseModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-red-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button></div></form></div></div>
+
+<script>
+    let monthlyGoal = parseFloat(localStorage.getItem('plasso_goal') || 20000);
+    let entries = JSON.parse(localStorage.getItem('plasso_entries') || '[{"e1": {"name": "Mensalidade", "value": 1500, "date": "2026-10-01"}}]');
+    let expenses = JSON.parse(localStorage.getItem('plasso_expenses') || '[{"x1": {"name": "AWS", "value": 150, "date": "2026-10-10"}}]');
+
+    function renderFinance() {
+        let totalEntries = entries.reduce((acc, curr) => acc + curr.value, 0);
+        let totalExpenses = expenses.reduce((acc, curr) => acc + curr.value, 0);
+        document.getElementById('fin-top-actual').innerText = 'R$ ' + totalEntries.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById('fin-goal-display').innerText = 'R$ ' + monthlyGoal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById('fin-total-entries').innerText = 'R$ ' + totalEntries.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById('fin-total-expenses').innerText = 'R$ ' + totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        
+        let pct = Math.round((totalEntries * 100) / monthlyGoal);
+        if (pct > 100) pct = 100;
+        document.getElementById('fin-pct-badge').innerText = pct + '%';
+        document.getElementById('fin-progress-bar').style.width = pct + '%';
+
+        const elList = document.getElementById('fin-entries-list');
+        elList.innerHTML = '';
+        entries.forEach(e => { 
+            elList.innerHTML += `<div ondblclick="openEditEntry('${e.id}')" class="bg-dark-950 p-3 rounded-xl border border-dark-800 flex justify-between items-center text-xs font-mono cursor-pointer hover:border-slate-600 transition" title="Duplo clique para editar/apagar"><div><span class="font-bold text-white font-sans">${e.name}</span><p class="text-[10px] text-slate-400">${e.date.split('-').reverse().join('/')}</p></div><span class="text-emerald-400 font-bold">+ R$ ${e.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>`; 
+        });
+
+        const exList = document.getElementById('fin-expenses-list');
+        exList.innerHTML = '';
+        expenses.forEach(x => { 
+            exList.innerHTML += `<div ondblclick="openEditExpense('${x.id}')" class="bg-dark-950 p-3 rounded-xl border border-dark-800 flex justify-between items-center text-xs font-mono cursor-pointer hover:border-slate-600 transition" title="Duplo clique para editar/apagar"><div><span class="font-bold text-white font-sans">${x.name}</span><p class="text-[10px] text-slate-400">${x.date.split('-').reverse().join('/')}</p></div><span class="text-red-400 font-bold">- R$ ${x.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>`; 
+        });
+
+        localStorage.setItem('plasso_goal', monthlyGoal);
+        localStorage.setItem('plasso_entries', JSON.stringify(entries));
+        localStorage.setItem('plasso_expenses', JSON.stringify(expenses));
+    }
+
+    function editGoal() {
+        const newGoal = prompt("Digite o novo valor da meta mensal (R$):", monthlyGoal);
+        if (newGoal && !isNaN(newGoal)) {
+            monthlyGoal = parseFloat(newGoal);
+            renderFinance();
+            alert("Meta atualizada!");
+        }
+    }
+
+    function openNewEntryModal() { document.getElementById('newEntryModal').classList.remove('hidden'); document.getElementById('newEntryModal').classList.add('flex'); document.getElementById('ne-date').valueAsDate = new Date(); }
+    function closeNewEntryModal() { document.getElementById('newEntryModal').classList.add('hidden'); document.getElementById('newEntryModal').classList.remove('flex'); }
+    function createNewEntry(e) {
+        e.preventDefault();
+        entries.push({ id: 'e_' + Date.now(), name: document.getElementById('ne-name').value, value: parseFloat(document.getElementById('ne-value').value), date: document.getElementById('ne-date').value });
+        closeNewEntryModal();
+        renderFinance();
+    }
+
+    function openNewExpenseModal() { document.getElementById('newExpenseModal').classList.remove('hidden'); document.getElementById('newExpenseModal').classList.add('flex'); document.getElementById('nx-date').valueAsDate = new Date(); }
+    function closeNewExpenseModal() { document.getElementById('newExpenseModal').classList.add('hidden'); document.getElementById('newExpenseModal').classList.remove('flex'); }
+    function createNewExpense(e) {
+        e.preventDefault();
+        expenses.push({ id: 'x_' + Date.now(), name: document.getElementById('nx-name').value, value: parseFloat(document.getElementById('nx-value').value), date: document.getElementById('nx-date').value });
+        closeNewExpenseModal();
+        renderFinance();
+    }
+
+    function openEditEntry(id) {
+        const item = entries.find(i => i.id === id);
+        if(!item) return;
+        document.getElementById('ee-id').value = item.id;
+        document.getElementById('ee-name').value = item.name;
+        document.getElementById('ee-value').value = item.value;
+        document.getElementById('ee-date').value = item.date;
+        document.getElementById('editEntryModal').classList.remove('hidden');
+        document.getElementById('editEntryModal').classList.add('flex');
+    }
+    function closeEditEntryModal() { document.getElementById('editEntryModal').classList.add('hidden'); document.getElementById('editEntryModal').classList.remove('flex'); }
+    function saveEditedEntry(e) {
+        e.preventDefault();
+        const id = document.getElementById('ee-id').value;
+        const item = entries.find(i => i.id === id);
+        if(item) {
+            item.name = document.getElementById('ee-name').value;
+            item.value = parseFloat(document.getElementById('ee-value').value);
+            item.date = document.getElementById('ee-date').value;
+        }
+        closeEditEntryModal();
+        renderFinance();
+    }
+    function deleteCurrentEntry() {
+        const id = document.getElementById('ee-id').value;
+        entries = entries.filter(i => i.id !== id);
+        closeEditEntryModal();
+        renderFinance();
+    }
+
+    function openEditExpense(id) {
+        const item = expenses.find(i => i.id === id);
+        if(!item) return;
+        document.getElementById('ex-id').value = item.id;
+        document.getElementById('ex-name').value = item.name;
+        document.getElementById('ex-value').value = item.value;
+        document.getElementById('ex-date').value = item.date;
+        document.getElementById('editExpenseModal').classList.remove('hidden');
+        document.getElementById('editExpenseModal').classList.add('flex');
+    }
+    function closeEditExpenseModal() { document.getElementById('editExpenseModal').classList.add('hidden'); document.getElementById('editExpenseModal').classList.remove('flex'); }
+    function saveEditedExpense(e) {
+        e.preventDefault();
+        const id = document.getElementById('ex-id').value;
+        const item = expenses.find(i => i.id === id);
+        if(item) {
+            item.name = document.getElementById('ex-name').value;
+            item.value = parseFloat(document.getElementById('ex-value').value);
+            item.date = document.getElementById('ex-date').value;
+        }
+        closeEditExpenseModal();
+        renderFinance();
+    }
+    function deleteCurrentExpense() {
+        const id = document.getElementById('ex-id').value;
+        expenses = expenses.filter(i => i.id !== id);
+        closeEditExpenseModal();
+        renderFinance();
+    }
+
+    renderFinance();
+</script>
+</body>
+</html>

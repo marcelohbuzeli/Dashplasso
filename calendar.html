@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plassô Marketing — Gestão Integrada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            950: '#030712',
+                            900: '#0b0f19',
+                            850: '#111827',
+                            800: '#1f2937'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .kanban-col { min-height: calc(100vh - 280px); }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #030712; }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #374151; }
+    </style>
+</head>
+<body class="bg-dark-950 text-slate-200 antialiased overflow-hidden selection:bg-blue-600 selection:text-white">
+<div class="flex flex-row h-screen w-screen overflow-hidden">
+
+    <aside id="sidebar" class="bg-dark-900 border-r border-dark-800 flex flex-col justify-between transition-all duration-300 w-64 z-30 overflow-hidden shrink-0 h-full">
+        <div class="flex flex-col h-full">
+            <div class="h-20 flex items-center justify-between px-4 border-b border-dark-800/60 shrink-0">
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center font-bold text-white text-lg shadow-lg shrink-0 font-mono">P</div>
+                    <div class="sidebar-text truncate flex flex-col">
+                        <span class="font-bold text-base tracking-widest text-white uppercase font-sans">Plassô</span>
+                        <span class="text-[9px] text-blue-400 font-mono tracking-wider">MARKETING</span>
+                    </div>
+                </div>
+                <button id="toggle-btn" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-dark-800 transition shrink-0">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                </button>
+            </div>
+            <nav class="p-3 space-y-1.5 font-medium text-xs flex-1 overflow-y-auto">
+    <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
+        <i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i>
+        <span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard (Geral)</span>
+    </a>
+    <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
+        <i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i>
+        <span class="sidebar-text tracking-wide whitespace-nowrap">Tasks</span>
+    </a>
+    <a href="clients.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
+        <i class="fa-solid fa-network-wired w-5 text-center text-sm shrink-0"></i>
+        <span class="sidebar-text tracking-wide whitespace-nowrap">Clientes</span>
+    </a>
+    <a href="calendar.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer bg-blue-600 text-white">
+        <i class="fa-solid fa-calendar-days w-5 text-center text-sm shrink-0"></i>
+        <span class="sidebar-text tracking-wide whitespace-nowrap">Calendário</span>
+    </a>
+    <a href="finance.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
+        <i class="fa-solid fa-wallet w-5 text-center text-sm shrink-0"></i>
+        <span class="sidebar-text tracking-wide whitespace-nowrap">Financeiro</span>
+    </a>
+    <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
+        <i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i>
+        <span class="sidebar-text tracking-wide whitespace-nowrap">CRM</span>
+    </a>
+</nav>
+        </div>
+        <div class="p-4 border-t border-dark-800/60 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-dark-800 border border-slate-700/50 flex items-center justify-center text-xs font-bold text-blue-400 shrink-0 font-mono">MB</div>
+                <div class="sidebar-text overflow-hidden font-mono">
+                    <p class="text-xs font-semibold text-slate-200 truncate">Marcelo Buzeli</p>
+                    <p class="text-[10px] text-emerald-400 flex items-center gap-1.5 mt-0.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online
+                    </p>
+                </div>
+            </div>
+        </div>
+    </aside>
+    
+    <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
+        <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
+            <div>
+                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days text-blue-500 text-xs"></i> Calendário Operacional
+                </h1>
+                <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/calendar</p>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 space-y-6">
+            <div class="bg-dark-900 border border-dark-800 rounded-2xl p-6">
+                <h3 class="text-sm font-bold text-white mb-4 uppercase tracking-wider">Espelhamento Notion Calendar</h3>
+                <div id="calendar-view" class="grid grid-cols-7 gap-3 text-center"></div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+    function renderCalendar() {
+        const calView = document.getElementById('calendar-view');
+        if(!calView) return;
+        calView.innerHTML = '';
+        ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].forEach(d => { calView.innerHTML += '<div class="text-xs font-bold text-slate-400 uppercase py-2">' + d + '</div>'; });
+        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        for (let i = 1; i <= 31; i++) {
+            const hasTask = tasks.some(t => t.date.endsWith('-' + (i < 10 ? '0' + i : i)));
+            const bgClass = hasTask ? 'bg-blue-950/40 border-blue-500/50 text-blue-300 font-bold' : 'bg-dark-950 border-dark-800 text-slate-400';
+            calView.innerHTML += `<div class="h-24 border ${bgClass} rounded-xl p-2 flex flex-col justify-between text-left"><span class="text-xs font-mono">${i}</span>${hasTask ? '<span class="text-[9px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-mono truncate">Postagem</span>' : ''}</div>`;
+        }
+    }
+    renderCalendar();
+</script>
+</body>
+</html>
