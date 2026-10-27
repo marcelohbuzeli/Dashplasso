@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plassô | Marketing</title>
+    <title>Calendário | Plassô</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -82,45 +81,136 @@
         <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
             <div>
                 <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
-                    <i class="fa-solid fa-calendar-days text-blue-500 text-xs"></i> Calendário
+                    <i class="fa-solid fa-calendar-days text-blue-500 text-xs"></i> Calendário Operacional
                 </h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="openNewEventModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg transition cursor-pointer">
+                    <i class="fa-solid fa-plus text-[10px]"></i> Nova Agenda
+                </button>
             </div>
         </header>
 
         <div class="flex-1 overflow-y-auto p-8 space-y-6">
-            <div class="bg-dark-900 border border-dark-800 rounded-2xl p-6">
-                <h3 id="calendar-title" class="text-sm font-bold text-white mb-4 uppercase tracking-wider">Calendário — Carregando mês...</h3>
+            <div class="bg-dark-900 border border-dark-800 rounded-2xl p-6 space-y-6">
+                <!-- Seletor de Meses e Título -->
+                <div class="flex justify-between items-center flex-wrap gap-4">
+                    <h3 id="calendar-title" class="text-sm font-bold text-white uppercase tracking-wider">Calendário</h3>
+                    <div class="flex items-center gap-3">
+                        <label class="text-xs text-slate-400 font-mono">Mês:</label>
+                        <select id="cal-month-select" onchange="renderCalendar()" class="bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-xs text-white font-mono cursor-pointer">
+                            <option value="2026-01">Janeiro de 2026</option>
+                            <option value="2026-02">Fevereiro de 2026</option>
+                            <option value="2026-03">Março de 2026</option>
+                            <option value="2026-04">Abril de 2026</option>
+                            <option value="2026-05">Maio de 2026</option>
+                            <option value="2026-06">Junho de 2026</option>
+                            <option value="2026-07">Julho de 2026</option>
+                            <option value="2026-08">Agosto de 2026</option>
+                            <option value="2026-09">Setembro de 2026</option>
+                            <option value="2026-10" selected>Outubro de 2026</option>
+                            <option value="2026-11">Novembro de 2026</option>
+                            <option value="2026-12">Dezembro de 2026</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div id="calendar-view" class="grid grid-cols-7 gap-3 text-center"></div>
             </div>
         </div>
     </main>
 </div>
+
+<!-- Modal Nova Agenda -->
+<div id="newEventModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
+        <form onsubmit="createNewEvent(event)" class="space-y-4 text-xs">
+            <h3 class="text-sm font-bold text-white uppercase">Novo</h3>
+            <input type="text" id="ev-title" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Título / Nome">
+            <select id="ev-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white">
+                <option value="Post">Postagem / Task</option>
+                <option value="Followup">Follow-up CRM</option>
+                <option value="Evento">Evento / Reunião</option>
+            </select>
+            <input type="date" id="ev-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono">
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" onclick="closeNewEventModal()" class="text-slate-400">Cancelar</button>
+                <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     function renderCalendar() {
-        const calTitle = document.getElementById('calendar-title');
         const calView = document.getElementById('calendar-view');
+        const selectedYearMonth = document.getElementById('cal-month-select').value; // Ex: "2026-10"
         if(!calView) return;
-
-        // Pegar o mês e ano atual automaticamente
-        const now = new Date();
-        const options = { month: 'long', year: 'numeric' };
-        let mesAnoFormatado = now.toLocaleDateString('pt-BR', options);
-        // Deixar a primeira letra maiúscula (ex: "Outubro de 2026")
-        mesAnoFormatado = mesAnoFormatado.charAt(0).toUpperCase() + mesAnoFormatado.slice(1);
-        
-        calTitle.innerHTML = `<i class="fa-regular fa-calendar text-blue-400 mr-2"></i> Calendário — ${mesAnoFormatado}`;
-
         calView.innerHTML = '';
+        
         ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].forEach(d => { calView.innerHTML += '<div class="text-xs font-bold text-slate-400 uppercase py-2">' + d + '</div>'; });
         
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let crm = JSON.parse(localStorage.getItem('plasso_crm') || '[]');
+        let customEvents = JSON.parse(localStorage.getItem('plasso_events') || '[]');
+
         for (let i = 1; i <= 31; i++) {
-            const hasTask = tasks.some(t => t.date.endsWith('-' + (i < 10 ? '0' + i : i)));
-            const bgClass = hasTask ? 'bg-blue-950/40 border-blue-500/50 text-blue-300 font-bold' : 'bg-dark-950 border-dark-800 text-slate-400';
-            calView.innerHTML += `<div class="h-24 border ${bgClass} rounded-xl p-2 flex flex-col justify-between text-left"><span class="text-xs font-mono">${i}</span>${hasTask ? '<span class="text-[9px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-mono truncate">Postagem</span>' : ''}</div>`;
+            let dayStr = i < 10 ? '0' + i : '' + i;
+            let targetDateStr = selectedYearMonth + '-' + dayStr;
+
+            let dayTasks = tasks.filter(t => t.date === targetDateStr);
+            let dayCrm = crm.filter(l => l.date === targetDateStr);
+            let dayEvents = customEvents.filter(e => e.date === targetDateStr);
+
+            let hasPost = dayTasks.length > 0;
+            let hasFollowup = dayCrm.length > 0;
+            let hasEvent = dayEvents.length > 0;
+            let hasAny = hasPost || hasFollowup || hasEvent;
+
+            let bgClass = 'bg-dark-950 border-dark-800 text-slate-500 opacity-40';
+            let badgesHTML = '';
+
+            if (hasAny) {
+                bgClass = 'bg-dark-900 border-slate-700 text-white font-bold';
+                if(hasPost) badgesHTML += '<span class="text-[9px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-mono truncate block mt-1">Postagem</span>';
+                if(hasFollowup) badgesHTML += '<span class="text-[9px] bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded font-mono font-bold truncate block mt-1">Follow-up CRM</span>';
+                if(hasEvent) badgesHTML += '<span class="text-[9px] bg-purple-600 text-white px-1.5 py-0.5 rounded font-mono truncate block mt-1">Evento</span>';
+            }
+
+            calView.innerHTML += `<div class="h-28 border ${bgClass} rounded-xl p-2 flex flex-col justify-between text-left"><span class="text-xs font-mono">${i}</span><div class="overflow-y-auto max-h-16">${badgesHTML}</div></div>`;
         }
     }
+
+    function openNewEventModal() { document.getElementById('newEventModal').classList.remove('hidden'); document.getElementById('newEventModal').classList.add('flex'); document.getElementById('ev-date').valueAsDate = new Date(); }
+    function closeNewEventModal() { document.getElementById('newEventModal').classList.add('hidden'); document.getElementById('newEventModal').classList.remove('flex'); }
+    function createNewEvent(e) {
+        e.preventDefault();
+        let title = document.getElementById('ev-title').value;
+        let type = document.getElementById('ev-type').value;
+        let date = document.getElementById('ev-date').value;
+
+        if(type === 'Followup') {
+            let crm = JSON.parse(localStorage.getItem('plasso_crm') || '[]');
+            crm.push({ id: 'l_' + Date.now(), name: title, area: 'Geral', col: 'follow', date: date });
+            localStorage.setItem('plasso_crm', JSON.stringify(crm));
+        } else if(type === 'Post') {
+            let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+            tasks.push({ id: 't_' + Date.now(), client: title, type: 'Reels', caption: 'Agendado pelo Calendário', drive: '', date: date, status: 'todo', notes: '', isRejected: false });
+            localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+        } else {
+            let events = JSON.parse(localStorage.getItem('plasso_events') || '[]');
+            events.push({ id: 'ev_' + Date.now(), title: title, date: date });
+            localStorage.setItem('plasso_events', JSON.stringify(events));
+        }
+
+        closeNewEventModal();
+        renderCalendar();
+        alert('Agenda criada com sucesso!');
+    }
+
     renderCalendar();
 </script>
 </body>
 </html>
+calendar.html
+Exibindo calendar.html.
