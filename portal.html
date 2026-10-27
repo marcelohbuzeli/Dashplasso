@@ -98,6 +98,20 @@
     </div>
 
     <script>
+        
+    function renderCalendar() {
+        const calTitle = document.getElementById('calendar-title');
+        if(!calView) return;
+
+        // Pegar o mês e ano atual automaticamente
+        const now = new Date();
+        const options = { month: 'long', year: 'numeric' };
+        let mesAnoFormatado = now.toLocaleDateString('pt-BR', options);
+        // Deixar a primeira letra maiúscula (ex: "Outubro de 2026")
+        mesAnoFormatado = mesAnoFormatado.charAt(0).toUpperCase() + mesAnoFormatado.slice(1);
+        
+        calTitle.innerHTML = `<i class="fa-regular fa-calendar text-blue-400 mr-2"></i> Calendário — ${mesAnoFormatado}`;
+        
         const urlParams = new URLSearchParams(window.location.search);
         const clientId = urlParams.get('client');
         let clients = JSON.parse(localStorage.getItem('plasso_clients') || '[]');
