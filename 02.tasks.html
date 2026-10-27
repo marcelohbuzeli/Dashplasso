@@ -1,0 +1,192 @@
+tasks_html = common_head + get_sidebar('tasks') + '''
+    <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
+        <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
+            <div>
+                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
+                    <i class="fa-solid fa-terminal text-blue-500 text-xs"></i> Gestão de Tasks (Kanban)
+                </h1>
+                <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/tasks</p>
+            </div>
+            <div>
+                <button onclick="openNewTaskModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg transition">
+                    <i class="fa-solid fa-plus text-[10px]"></i> Nova Task / Post
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-x-auto p-8">
+            <div class="flex gap-5 h-full min-w-[1300px]">
+                <div class="flex-1 bg-red-950/20 border-2 border-red-500/40 rounded-2xl flex flex-col max-h-full">
+                    <div class="p-4 border-b border-red-500/30 flex items-center justify-between bg-red-900/20 rounded-t-2xl"><h3 class="font-bold text-red-200 text-xs tracking-wider uppercase">Urgentes (Hoje / Reprovadas)</h3><span id="count-urgent" class="text-[10px] font-mono bg-red-900/60 text-red-300 px-2.5 py-0.5 rounded-full font-bold">0</span></div>
+                    <div id="col-urgent" class="p-3.5 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="drop(event, 'urgent')"></div>
+                </div>
+                <div class="flex-1 bg-amber-950/20 border-2 border-amber-500/40 rounded-2xl flex flex-col max-h-full">
+                    <div class="p-4 border-b border-amber-500/30 flex items-center justify-between bg-amber-900/20 rounded-t-2xl"><h3 class="font-bold text-amber-200 text-xs tracking-wider uppercase">A Fazer</h3><span id="count-todo" class="text-[10px] font-mono bg-amber-900/60 text-amber-300 px-2.5 py-0.5 rounded-full font-bold">0</span></div>
+                    <div id="col-todo" class="p-3.5 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="drop(event, 'todo')"></div>
+                </div>
+                <div class="flex-1 bg-blue-950/20 border-2 border-blue-500/40 rounded-2xl flex flex-col max-h-full">
+                    <div class="p-4 border-b border-blue-500/30 flex items-center justify-between bg-blue-900/20 rounded-t-2xl"><h3 class="font-bold text-blue-200 text-xs tracking-wider uppercase">Pronto (Para Aprovação)</h3><span id="count-ready" class="text-[10px] font-mono bg-blue-900/60 text-blue-300 px-2.5 py-0.5 rounded-full font-bold">0</span></div>
+                    <div id="col-ready" class="p-3.5 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="drop(event, 'ready')"></div>
+                </div>
+                <div class="flex-1 bg-emerald-950/20 border-2 border-emerald-500/40 rounded-2xl flex flex-col max-h-full">
+                    <div class="p-4 border-b border-emerald-500/30 flex items-center justify-between bg-emerald-900/20 rounded-t-2xl"><h3 class="font-bold text-emerald-200 text-xs tracking-wider uppercase">Aprovadas (Prontas para Postar)</h3><span id="count-approved" class="text-[10px] font-mono bg-emerald-900/60 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold">0</span></div>
+                    <div id="col-approved" class="p-3.5 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="drop(event, 'approved')"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal Nova Task -->
+<div id="newTaskModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
+        <form onsubmit="createNewTask(event)" class="space-y-4 text-xs">
+            <h3 class="text-sm font-bold text-white uppercase">Nova Task / Postagem</h3>
+            <input type="text" id="nt-client" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Título / Cliente">
+            <select id="nt-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white">
+                <option value="Reels">Reels</option>
+                <option value="Carrossel">Carrossel</option>
+                <option value="Story">Story</option>
+                <option value="Foto Única">Foto Única</option>
+            </select>
+            <textarea id="nt-caption" rows="3" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white resize-none" placeholder="Legenda / Descrição"></textarea>
+            <input type="url" id="nt-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono text-[11px]" placeholder="Link do Google Drive">
+            <input type="date" id="nt-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono">
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" onclick="closeNewTaskModal()" class="text-slate-400">Cancelar</button>
+                <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar Task</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Detalhes Task -->
+<div id="taskDetailModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <div class="bg-dark-900 border border-dark-800 w-full max-w-2xl rounded-2xl p-6 shadow-2xl flex flex-col max-h-[90vh]">
+        <div class="flex items-center justify-between pb-4 border-b border-dark-800">
+            <div class="flex items-center gap-3"><span id="modal-task-icon" class="text-lg"></span><h3 id="modal-task-title" class="text-base font-bold text-white"></h3></div>
+            <button onclick="closeTaskDetail()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div class="py-4 space-y-4 overflow-y-auto flex-1 text-xs">
+            <div><span class="text-slate-400 font-semibold uppercase">Cliente:</span><p id="modal-task-client" class="text-white font-bold text-sm mt-1"></p></div>
+            <div><span class="text-slate-400 font-semibold uppercase">Legenda:</span><p id="modal-task-caption" class="text-slate-200 mt-1 bg-dark-950 p-3 rounded-xl border border-dark-800"></p></div>
+            <div><span class="text-slate-400 font-semibold uppercase">Google Drive:</span><div class="mt-1 flex items-center gap-2"><input type="text" id="modal-task-drive" class="flex-1 bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-blue-400 font-mono text-xs" readonly><a id="modal-task-drive-btn" href="#" target="_blank" class="bg-blue-600 text-white px-3.5 py-2 rounded-xl font-semibold"><i class="fa-solid fa-play"></i> Play Mídia</a></div></div>
+            <div><label class="block text-slate-400 font-semibold uppercase mb-2">Notas (Notion Style):</label><textarea id="modal-task-notes" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="Anotações..."></textarea></div>
+        </div>
+        <div class="flex justify-end gap-3 pt-3 border-t border-dark-800"><button onclick="closeTaskDetail()" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar & Fechar</button></div>
+    </div>
+</div>
+
+<script>
+    let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+    if(tasks.length === 0) {
+        tasks = [
+            { id: '1', client: 'Rosa Pink - Reels', type: 'Reels', caption: 'Lançamento nova coleção.', drive: 'https://drive.google.com/file/d/exemplo1/view', date: new Date().toISOString().split('T')[0], status: 'urgent', notes: 'Revisar cor.', isRejected: true },
+            { id: '2', client: 'Umuclean - Sofá', type: 'Carrossel', caption: 'Higienização impermeabilizada.', drive: 'https://drive.google.com/file/d/exemplo2/view', date: '2026-10-30', status: 'todo', notes: '' }
+        ];
+        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+    }
+    let currentActiveTaskDetailId = null;
+
+    function getCategoryIcon(type) {
+        switch(type) {
+            case 'Carrossel': return '<i class="fa-solid fa-layer-group text-purple-400"></i>';
+            case 'Reels': return '<i class="fa-solid fa-video text-blue-400"></i>';
+            case 'Story': return '<i class="fa-solid fa-mobile-screen text-amber-400"></i>';
+            case 'Foto Única': return '<i class="fa-solid fa-image text-emerald-400"></i>';
+            default: return '<i class="fa-solid fa-file text-slate-400"></i>';
+        }
+    }
+
+    function renderTasks() {
+        const cols = { urgent: document.getElementById('col-urgent'), todo: document.getElementById('col-todo'), ready: document.getElementById('col-ready'), approved: document.getElementById('col-approved') };
+        const counts = { urgent: 0, todo: 0, ready: 0, approved: 0 };
+        Object.values(cols).forEach(c => { if(c) c.innerHTML = ''; });
+
+        tasks.forEach(task => {
+            if(counts[task.status] !== undefined) counts[task.status]++;
+            const card = document.createElement('div');
+            card.className = 'bg-dark-900 border border-dark-800 hover:border-slate-700 rounded-xl p-3.5 cursor-grab shadow-md transition group';
+            card.draggable = true;
+            card.ondragstart = (e) => e.dataTransfer.setData('text/plain', task.id);
+            card.onclick = () => openTaskDetail(task.id);
+
+            let headerBadge = task.isRejected ? '<span class="text-[9px] bg-red-950 text-red-400 px-2 py-0.5 rounded font-mono font-bold">REPROVADA</span>' : (task.status === 'urgent' ? '<span class="text-[9px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded font-mono font-bold">VENCE HOJE</span>' : '');
+
+            card.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2 overflow-hidden"><span class="text-sm shrink-0">${getCategoryIcon(task.type)}</span><span class="text-xs font-bold text-white truncate">${task.client}</span></div>
+                    ${headerBadge}
+                </div>
+                <p class="text-[11px] text-slate-400 mb-3 line-clamp-2">${task.caption}</p>
+                <div class="flex items-center justify-between pt-2.5 border-t border-dark-800/60 text-[10px]"><span class="font-mono text-slate-400">${task.type}</span><span class="font-mono text-slate-400"><i class="fa-regular fa-calendar mr-1"></i>${task.date.split('-').reverse().join('/')}</span></div>
+            `;
+            if(cols[task.status]) cols[task.status].appendChild(card);
+        });
+        document.getElementById('count-urgent').innerText = counts.urgent;
+        document.getElementById('count-todo').innerText = counts.todo;
+        document.getElementById('count-ready').innerText = counts.ready;
+        document.getElementById('count-approved').innerText = counts.approved;
+        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+    }
+
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drop(ev, newStatus) {
+        ev.preventDefault();
+        const taskId = ev.dataTransfer.getData('text/plain');
+        const task = tasks.find(t => t.id === taskId);
+        if (task) { task.status = newStatus; if (newStatus !== 'urgent') task.isRejected = false; renderTasks(); }
+    }
+
+    function openTaskDetail(id) {
+        const task = tasks.find(t => t.id === id);
+        if (!task) return;
+        currentActiveTaskDetailId = id;
+        document.getElementById('modal-task-icon').innerHTML = getCategoryIcon(task.type);
+        document.getElementById('modal-task-title').innerText = task.type + ' — ' + task.date;
+        document.getElementById('modal-task-client').innerText = task.client;
+        document.getElementById('modal-task-caption').innerText = task.caption;
+        document.getElementById('modal-task-drive').value = task.drive || '';
+        document.getElementById('modal-task-drive-btn').href = task.drive || '#';
+        document.getElementById('modal-task-notes').value = task.notes || '';
+        document.getElementById('taskDetailModal').classList.remove('hidden');
+        document.getElementById('taskDetailModal').classList.add('flex');
+    }
+
+    function closeTaskDetail() {
+        const task = tasks.find(t => t.id === currentActiveTaskDetailId);
+        if (task) task.notes = document.getElementById('modal-task-notes').value;
+        document.getElementById('taskDetailModal').classList.add('hidden');
+        document.getElementById('taskDetailModal').classList.remove('flex');
+        renderTasks();
+    }
+
+    function openNewTaskModal() { document.getElementById('newTaskModal').classList.remove('hidden'); document.getElementById('newTaskModal').classList.add('flex'); document.getElementById('nt-date').valueAsDate = new Date(); }
+    function closeNewTaskModal() { document.getElementById('newTaskModal').classList.add('hidden'); document.getElementById('newTaskModal').classList.remove('flex'); }
+    function createNewTask(e) {
+        e.preventDefault();
+        tasks.push({
+            id: 't_' + Date.now(),
+            client: document.getElementById('nt-client').value,
+            type: document.getElementById('nt-type').value,
+            caption: document.getElementById('nt-caption').value,
+            drive: document.getElementById('nt-drive').value,
+            date: document.getElementById('nt-date').value,
+            status: 'todo',
+            notes: '',
+            isRejected: false
+        });
+        closeNewTaskModal();
+        renderTasks();
+    }
+
+    renderTasks();
+</script>
+</body>
+</html>
+'''
+
+with open("tasks.html", "w", encoding="utf-8") as f:
+    f.write(tasks_html)
+
+print("tasks.html gerado com sucesso!")
