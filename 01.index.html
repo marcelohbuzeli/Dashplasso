@@ -1,0 +1,132 @@
+    <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
+        <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
+            <div>
+                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-blue-500 text-xs"></i> Dashboard Geral
+                </h1>
+            </div>
+            <div>
+                <a href="tasks.html" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg transition">
+                    <i class="fa-solid fa-plus text-[10px]"></i> Ir para Tasks
+                </a>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Demandas Urgentes -->
+                <div class="bg-dark-900/80 border border-dark-800 rounded-2xl p-5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Demandas & Urgentes</h3>
+                        <span id="dash-urgent-count" class="text-xs font-mono bg-amber-950 text-amber-300 px-2.5 py-0.5 rounded-full border border-amber-800">0</span>
+                    </div>
+                    <div id="dash-urgent-list" class="space-y-2 max-h-40 overflow-y-auto"></div>
+                </div>
+                <!-- Follow-ups CRM -->
+                <div class="bg-dark-900/80 border border-dark-800 rounded-2xl p-5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2"><i class="fa-solid fa-user-clock"></i> CRM: Follow-ups Hoje</h3>
+                        <span id="dash-crm-count" class="text-xs font-mono bg-blue-950 text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-800">0</span>
+                    </div>
+                    <div id="dash-crm-list" class="space-y-2 max-h-40 overflow-y-auto"></div>
+                </div>
+                <!-- Financeiro / Meta -->
+                <div class="bg-dark-900/80 border border-dark-800 rounded-2xl p-5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2"><i class="fa-solid fa-wallet"></i> Financeiro / Meta</h3>
+                        <span id="dash-goal-pct" class="text-xs font-mono bg-emerald-950 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-800">0%</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-xs font-mono"><span class="text-slate-400">Entrada Atual:</span><span id="dash-fin-actual" class="text-white font-bold">R$ 0,00</span></div>
+                        <div class="flex justify-between text-xs font-mono"><span class="text-slate-400">Meta Mensal:</span><span id="dash-fin-goal-display" class="text-slate-200">R$ 20.000,00</span></div>
+                        <div class="w-full bg-dark-950 rounded-full h-2 overflow-hidden border border-dark-800"><div id="dash-progress-bar" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notion Calendar Integration -->
+            <div class="bg-dark-900/80 border border-dark-800 rounded-2xl p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar-days text-blue-400"></i> Notion Calendar Integration</h3>
+                    <span class="text-xs text-slate-400 font-mono">Sincronizado</span>
+                </div>
+                <div id="notion-embed-container" class="bg-dark-950 border border-dark-800 rounded-xl p-4 min-h-[280px] flex flex-col items-center justify-center text-center">
+                    <div id="notion-placeholder" class="space-y-3">
+                        <i class="fa-solid fa-calendar-check text-3xl text-blue-500 animate-pulse"></i>
+                        <p class="text-sm font-medium text-slate-200">Conecte sua Agenda do Notion Calendar</p>
+                        <p class="text-xs text-slate-400 max-w-md">Cole o link público de embed do Notion Calendar abaixo:</p>
+                        <div class="flex gap-2 mt-2 max-w-lg mx-auto">
+                            <input type="url" id="notion-url-input" class="flex-1 bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-xs text-white font-mono" placeholder="https://calendar.notion.so/...">
+                            <button onclick="connectNotionCalendar()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Integrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+    function loadData() {
+        let goal = localStorage.getItem('plasso_goal') || 20000;
+        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let entries = JSON.parse(localStorage.getItem('plasso_entries') || '[]');
+        let crm = JSON.parse(localStorage.getItem('plasso_crm') || '[]');
+        
+        // Renderizar Urgentes
+        let urgentList = document.getElementById('dash-urgent-list');
+        urgentList.innerHTML = '';
+        let urgentCount = 0;
+        const today = new Date().toISOString().split('T')[0];
+        tasks.forEach(t => {
+            if (t.status === 'urgent' || t.date === today || t.isRejected) {
+                urgentCount++;
+                urgentList.innerHTML += `<div class="bg-dark-950 p-2.5 rounded-xl border border-dark-800 flex justify-between items-center text-xs"><span class="font-bold text-white">${t.client}</span><span class="text-[9px] px-2 py-0.5 rounded font-mono bg-amber-950 text-amber-400">Urgente</span></div>`;
+            }
+        });
+        document.getElementById('dash-urgent-count').innerText = urgentCount;
+        if(urgentCount === 0) urgentList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Nenhuma demanda urgente.</p>';
+
+        // Renderizar CRM Hoje
+        let crmList = document.getElementById('dash-crm-list');
+        crmList.innerHTML = '';
+        let crmCount = 0;
+        crm.forEach(l => {
+            if (l.date === today && (l.col === 'follow' || l.col === 'meeting')) {
+                crmCount++;
+                crmList.innerHTML += `<div class="bg-dark-950 p-2.5 rounded-xl border border-dark-800 flex justify-between items-center text-xs"><span class="font-bold text-white">${l.name}</span><span class="text-[9px] px-2 py-0.5 rounded font-mono bg-blue-950 text-blue-400 uppercase">${l.col}</span></div>`;
+            }
+        });
+        document.getElementById('dash-crm-count').innerText = crmCount;
+        if(crmCount === 0) crmList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Nenhum follow-up hoje.</p>';
+
+        // Financeiro
+        let totalEntries = entries.reduce((acc, curr) => acc + curr.value, 0);
+        let pct = Math.round((totalEntries * 100) / goal);
+        if(pct > 100) pct = 100;
+        document.getElementById('dash-fin-actual').innerText = 'R$ ' + totalEntries.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById('dash-fin-goal-display').innerText = 'R$ ' + parseFloat(goal).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById('dash-goal-pct').innerText = pct + '%';
+        document.getElementById('dash-progress-bar').style.width = pct + '%';
+    }
+
+    function connectNotionCalendar() {
+        const url = document.getElementById('notion-url-input').value;
+        if(!url) { alert("Insira um link válido."); return; }
+        localStorage.setItem('plasso_notion_url', url);
+        document.getElementById('notion-embed-container').innerHTML = `<iframe src="${url}" class="w-full h-[320px] rounded-xl border-0"></iframe>`;
+    }
+
+    window.onload = function() {
+        loadData();
+        const savedNotion = localStorage.getItem('plasso_notion_url');
+        if(savedNotion) {
+            document.getElementById('notion-embed-container').innerHTML = `<iframe src="${savedNotion}" class="w-full h-[320px] rounded-xl border-0"></iframe>`;
+        }
+    };
+</script>
+</body>
+</html>
+'''
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(dashboard_html)
