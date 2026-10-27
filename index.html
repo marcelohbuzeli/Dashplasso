@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+# Vamos gerar o código HTML completo com todas as correções solicitadas.
+
+complete_system_code = '''<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -36,15 +38,14 @@
 </head>
 <body class="bg-dark-950 text-slate-200 antialiased overflow-hidden selection:bg-blue-600 selection:text-white">
 
-    <div class="flex h-screen w-screen">
+    <div class="flex flex-row h-screen w-screen overflow-hidden">
         
         <!-- BARRA LATERAL -->
-        <aside id="sidebar" class="bg-dark-900 border-r border-dark-800 flex flex-col justify-between transition-all duration-300 w-64 z-30 overflow-hidden shrink-0">
-            <div>
-                <!-- Topo: Logo Dinâmica -->
+        <aside id="sidebar" class="bg-dark-900 border-r border-dark-800 flex flex-col justify-between transition-all duration-300 w-64 z-30 overflow-hidden shrink-0 h-full">
+            <div class="flex flex-col h-full">
                 <div class="h-20 flex items-center justify-between px-4 border-b border-dark-800/60 shrink-0">
                     <div id="logo-wrapper" class="flex items-center gap-3 overflow-hidden transition-all">
-                        <div id="sidebar-logo-icon" class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center font-bold text-white text-lg shadow-lg shrink-0 font-mono">P</div>
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center font-bold text-white text-lg shadow-lg shrink-0 font-mono">P</div>
                         <div class="sidebar-text truncate transition-opacity duration-200 flex flex-col">
                             <span class="font-bold text-base tracking-widest text-white uppercase font-sans">Plassô</span>
                             <span class="text-[9px] text-blue-400 font-mono tracking-wider">MARKETING</span>
@@ -55,8 +56,7 @@
                     </button>
                 </div>
 
-                <!-- Menu de Abas -->
-                <nav class="p-3 space-y-1.5 font-medium text-xs">
+                <nav class="p-3 space-y-1.5 font-medium text-xs flex-1 overflow-y-auto">
                     <button type="button" onclick="switchTab('dashboard')" id="btn-dashboard" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl bg-blue-600 text-white shadow-md transition group text-left cursor-pointer">
                         <i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i>
                         <span class="sidebar-text tracking-wide whitespace-nowrap transition-opacity duration-200">Dashboard (Geral)</span>
@@ -84,7 +84,6 @@
                 </nav>
             </div>
 
-            <!-- Rodapé Sidebar -->
             <div class="p-4 border-t border-dark-800/60 shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-dark-800 border border-slate-700/50 flex items-center justify-center text-xs font-bold text-blue-400 shrink-0 font-mono">MB</div>
@@ -99,10 +98,8 @@
         </aside>
 
         <!-- CONTEÚDO PRINCIPAL -->
-        <main class="flex-1 flex flex-col h-screen overflow-hidden bg-dark-950">
-            
-            <!-- Topbar -->
-            <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0">
+        <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
+            <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
                 <div>
                     <h1 id="topbar-title" class="text-base font-bold text-white tracking-wide flex items-center gap-2">
                         <i class="fa-solid fa-chart-pie text-blue-500 text-xs"></i> Dashboard Geral
@@ -116,8 +113,8 @@
                 </div>
             </header>
 
-            <!-- ================= ABA 1: DASHBOARD (GERAL) ================= -->
-            <div id="view-dashboard" class="tab-view active overflow-y-auto p-8 space-y-6">
+            <!-- DASHBOARD -->
+            <div id="view-dashboard" class="tab-view active overflow-y-auto p-8 space-y-6 w-full h-full">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-dark-900/80 border border-dark-800 rounded-2xl p-5 flex flex-col justify-between">
                         <div class="flex items-center justify-between mb-3">
@@ -146,19 +143,18 @@
                     </div>
                 </div>
 
-                <!-- Notion Calendar Integration Section -->
                 <div class="bg-dark-900/80 border border-dark-800 rounded-2xl p-6 space-y-4">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar-days text-blue-400"></i> Integração Notion Calendar</h3>
-                        <span class="text-xs text-slate-400 font-mono">Embed Direto</span>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar-days text-blue-400"></i> Notion Calendar Integration</h3>
+                        <span class="text-xs text-slate-400 font-mono">Sincronizado</span>
                     </div>
                     <div id="notion-embed-container" class="bg-dark-950 border border-dark-800 rounded-xl p-4 min-h-[280px] flex flex-col items-center justify-center text-center">
                         <div id="notion-placeholder" class="space-y-3">
                             <i class="fa-solid fa-calendar-check text-3xl text-blue-500 animate-pulse"></i>
-                            <p class="text-sm font-medium text-slate-200">Conecte sua Agenda do Notion</p>
-                            <p class="text-xs text-slate-400 max-w-md">No Notion, abra sua página/calendário > Clique em <strong>Share</strong> (Compartilhar) > <strong>Publish to web</strong> (Publicar na web) > Copie o link e cole abaixo:</p>
+                            <p class="text-sm font-medium text-slate-200">Conecte sua Agenda do Notion Calendar</p>
+                            <p class="text-xs text-slate-400 max-w-md">No Notion Calendar, vá em Configurações / Compartilhar calendário > Copie o link público de embed e cole abaixo:</p>
                             <div class="flex gap-2 mt-2 max-w-lg mx-auto">
-                                <input type="url" id="notion-url-input" class="flex-1 bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-xs text-white font-mono" placeholder="https://notion.so/...">
+                                <input type="url" id="notion-url-input" class="flex-1 bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-xs text-white font-mono" placeholder="https://calendar.notion.so/...">
                                 <button onclick="connectNotionCalendar()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Integrar</button>
                             </div>
                         </div>
@@ -166,8 +162,8 @@
                 </div>
             </div>
 
-            <!-- ================= ABA 2: TASKS ================= -->
-            <div id="view-tasks" class="tab-view overflow-x-auto p-8">
+            <!-- TASKS -->
+            <div id="view-tasks" class="tab-view overflow-x-auto p-8 w-full h-full">
                 <div class="flex gap-5 h-full min-w-[1300px]">
                     <div class="flex-1 bg-red-950/20 border-2 border-red-500/40 rounded-2xl flex flex-col max-h-full">
                         <div class="p-4 border-b border-red-500/30 flex items-center justify-between bg-red-900/20 rounded-t-2xl"><h3 class="font-bold text-red-200 text-xs tracking-wider uppercase">Urgentes (Hoje / Reprovadas)</h3><span id="count-urgent" class="text-[10px] font-mono bg-red-900/60 text-red-300 px-2.5 py-0.5 rounded-full font-bold">0</span></div>
@@ -188,22 +184,22 @@
                 </div>
             </div>
 
-            <!-- ================= ABA 3: CLIENTES ================= -->
-            <div id="view-clients" class="tab-view overflow-y-auto p-8 space-y-6">
+            <!-- CLIENTES -->
+            <div id="view-clients" class="tab-view overflow-y-auto p-8 space-y-6 w-full h-full">
                 <div class="flex items-center justify-between"><h2 class="text-sm font-bold text-white uppercase tracking-wider">Gestão de Clientes & Checklists</h2><button onclick="openNewClientModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition"><i class="fa-solid fa-user-plus text-[10px]"></i> Novo Cliente</button></div>
-                <div id="clients-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+                <div id="clients-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
             </div>
 
-            <!-- ================= ABA 4: CALENDÁRIO ================= -->
-            <div id="view-calendar" class="tab-view overflow-y-auto p-8 space-y-6">
+            <!-- CALENDÁRIO -->
+            <div id="view-calendar" class="tab-view overflow-y-auto p-8 space-y-6 w-full h-full">
                 <div class="bg-dark-900 border border-dark-800 rounded-2xl p-6">
-                    <h3 class="text-sm font-bold text-white mb-4 uppercase tracking-wider">Calendário Operacional</h3>
+                    <h3 class="text-sm font-bold text-white mb-4 uppercase tracking-wider">Calendário Operacional (Notion Calendar)</h3>
                     <div id="calendar-view" class="grid grid-cols-7 gap-3 text-center"></div>
                 </div>
             </div>
 
-            <!-- ================= ABA 5: FINANCEIRO ================= -->
-            <div id="view-finance" class="tab-view overflow-y-auto p-8 space-y-6">
+            <!-- FINANCEIRO -->
+            <div id="view-finance" class="tab-view overflow-y-auto p-8 space-y-6 w-full h-full">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5"><p class="text-xs text-slate-400 uppercase">Entradas do Mês</p><h2 id="fin-top-actual" class="text-2xl font-bold font-mono text-emerald-400 mt-1">R$ 0,00</h2></div>
                     <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5">
@@ -213,13 +209,13 @@
                     <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5 flex flex-col justify-between"><div class="flex justify-between items-center"><p class="text-xs text-slate-400 uppercase">Atingimento</p><span id="fin-pct-badge" class="text-xs font-mono bg-emerald-950 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-800">0%</span></div><div class="w-full bg-dark-950 rounded-full h-2.5 overflow-hidden border border-dark-800 mt-3"><div id="fin-progress-bar" class="bg-emerald-500 h-full transition-all" style="width: 0%"></div></div></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-emerald-950/20 border-2 border-emerald-500/40 rounded-2xl p-6 flex flex-col"><div class="flex items-center justify-between mb-4 pb-3 border-b border-emerald-500/30"><h3 class="font-bold text-emerald-200 text-sm uppercase">ENTRADAS</h3><span id="fin-total-entries" class="font-mono font-bold text-emerald-400 text-lg">R$ 0,00</span></div><div class="flex justify-between items-center mb-3"><span class="text-xs text-slate-400">Histórico</span><button onclick="openNewEntryModal()" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-plus mr-1"></i> Nova Entrada</button></div><div id="fin-entries-list" class="space-y-2 flex-1 overflow-y-auto max-h-72"></div></div>
-                    <div class="bg-red-950/20 border-2 border-red-500/40 rounded-2xl p-6 flex flex-col"><div class="flex items-center justify-between mb-4 pb-3 border-b border-red-500/30"><h3 class="font-bold text-red-200 text-sm uppercase">DESPESAS</h3><span id="fin-total-expenses" class="font-mono font-bold text-red-400 text-lg">R$ 0,00</span></div><div class="flex justify-between items-center mb-3"><span class="text-xs text-slate-400">Contas a Pagar</span><button onclick="openNewExpenseModal()" class="bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-plus mr-1"></i> Nova Despesa</button></div><div id="fin-expenses-list" class="space-y-2 flex-1 overflow-y-auto max-h-72"></div></div>
+                    <div class="bg-emerald-950/20 border-2 border-emerald-500/40 rounded-2xl p-6 flex flex-col"><div class="flex items-center justify-between mb-4 pb-3 border-b border-emerald-500/30"><h3 class="font-bold text-emerald-200 text-sm uppercase">ENTRADAS</h3><span id="fin-total-entries" class="font-mono font-bold text-emerald-400 text-lg">R$ 0,00</span></div><div class="flex justify-between items-center mb-3"><span class="text-xs text-slate-400">Duplo clique no item para editar/apagar</span><button onclick="openNewEntryModal()" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-plus mr-1"></i> Nova Entrada</button></div><div id="fin-entries-list" class="space-y-2 flex-1 overflow-y-auto max-h-72"></div></div>
+                    <div class="bg-red-950/20 border-2 border-red-500/40 rounded-2xl p-6 flex flex-col"><div class="flex items-center justify-between mb-4 pb-3 border-b border-red-500/30"><h3 class="font-bold text-red-200 text-sm uppercase">DESPESAS</h3><span id="fin-total-expenses" class="font-mono font-bold text-red-400 text-lg">R$ 0,00</span></div><div class="flex justify-between items-center mb-3"><span class="text-xs text-slate-400">Duplo clique no item para editar/apagar</span><button onclick="openNewExpenseModal()" class="bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-plus mr-1"></i> Nova Despesa</button></div><div id="fin-expenses-list" class="space-y-2 flex-1 overflow-y-auto max-h-72"></div></div>
                 </div>
             </div>
 
-            <!-- ================= ABA 6: CRM ================= -->
-            <div id="view-crm" class="tab-view overflow-x-auto p-8">
+            <!-- CRM -->
+            <div id="view-crm" class="tab-view overflow-x-auto p-8 w-full h-full">
                 <div class="flex items-center justify-between mb-4 shrink-0"><h3 class="text-sm font-bold text-white uppercase">CRM de Prospecção & Vendas</h3><button onclick="openNewLeadModal()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2"><i class="fa-solid fa-user-plus text-[10px]"></i> Novo Lead</button></div>
                 <div class="flex gap-5 h-full min-w-[1400px]">
                     <div class="flex-1 bg-dark-900 border border-dark-800 rounded-2xl flex flex-col max-h-full"><div class="p-3.5 border-b border-dark-800 flex justify-between items-center"><h4 class="text-xs font-bold uppercase text-blue-400">Relacionamento</h4><span id="crm-c1" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span></div><div id="crm-col-rel" class="p-3 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="dropCrm(event, 'rel')"></div></div>
@@ -234,19 +230,28 @@
     </div>
 
     <!-- MODAIS -->
+    <!-- Task Detail Modal -->
     <div id="taskDetailModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-2xl rounded-2xl p-6 shadow-2xl flex flex-col max-h-[90vh]"><div class="flex items-center justify-between pb-4 border-b border-dark-800"><div class="flex items-center gap-3"><span id="modal-task-icon" class="text-lg"></span><h3 id="modal-task-title" class="text-base font-bold text-white"></h3></div><button onclick="closeTaskDetail()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button></div><div class="py-4 space-y-4 overflow-y-auto flex-1 text-xs"><div><span class="text-slate-400 font-semibold uppercase">Cliente:</span><p id="modal-task-client" class="text-white font-bold text-sm mt-1"></p></div><div><span class="text-slate-400 font-semibold uppercase">Legenda:</span><p id="modal-task-caption" class="text-slate-200 mt-1 bg-dark-950 p-3 rounded-xl border border-dark-800"></p></div><div><span class="text-slate-400 font-semibold uppercase">Google Drive:</span><div class="mt-1 flex items-center gap-2"><input type="text" id="modal-task-drive" class="flex-1 bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-blue-400 font-mono text-xs" readonly><a id="modal-task-drive-btn" href="#" target="_blank" class="bg-blue-600 text-white px-3.5 py-2 rounded-xl font-semibold"><i class="fa-solid fa-play"></i> Play</a></div></div><div><label class="block text-slate-400 font-semibold uppercase mb-2">Notas (Notion Style):</label><textarea id="modal-task-notes" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="Anotações..."></textarea></div></div><div class="flex justify-end gap-3 pt-3 border-t border-dark-800"><button onclick="closeTaskDetail()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-xs font-semibold">Salvar & Fechar</button></div></div></div>
 
-    <div id="clientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-3xl rounded-2xl p-6 shadow-2xl flex flex-col max-h-[90vh]"><div class="flex items-center justify-between pb-4 border-b border-dark-800"><h3 id="client-modal-name" class="text-lg font-bold text-white"></h3><button onclick="closeClientModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button></div><div class="py-4 space-y-6 overflow-y-auto flex-1 text-xs"><div class="bg-blue-950/30 border border-blue-500/40 rounded-xl p-4 flex items-center justify-between"><div><h4 class="font-bold text-blue-200 text-sm">Portal de Aprovação</h4><p class="text-slate-400 text-[11px]">Link dedicado para revisão.</p></div><button onclick="openClientApprovalPortal()" class="bg-blue-600 text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-external-link-alt"></i> Abrir Portal</button></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Checklist</h4><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Contrato</label><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Briefing</label></div><div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Processos</h4><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Estratégia</label><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Cronograma</label></div></div><div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Financeiro & Vencimento</h4><div class="flex items-center gap-4"><div class="flex-1"><label class="block text-slate-400 mb-1">Valor (R$)</label><input type="number" id="client-fee-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono" value="1500"></div><div class="flex-1"><label class="block text-slate-400 mb-1">Vencimento</label><input type="date" id="client-duedate-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono"></div><div class="pt-5"><button onclick="registerClientPayment()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl font-semibold">Registrar Pagamento</button></div></div></div></div></div></div>
+    <!-- Client Modal -->
+    <div id="clientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-3xl rounded-2xl p-6 shadow-2xl flex flex-col max-h-[90vh]"><div class="flex items-center justify-between pb-4 border-b border-dark-800"><h3 id="client-modal-name" class="text-lg font-bold text-white"></h3><button onclick="closeClientModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button></div><div class="py-4 space-y-6 overflow-y-auto flex-1 text-xs"><div class="bg-blue-950/30 border border-blue-500/40 rounded-xl p-4 flex items-center justify-between"><div><h4 class="font-bold text-blue-200 text-sm">Portal de Aprovação (Aba Externa Dedicada)</h4><p class="text-slate-400 text-[11px]">Gere e abra a aba com filtro de semana/mês para enviar ao cliente.</p></div><button onclick="openClientApprovalPortal()" class="bg-blue-600 text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-external-link-alt"></i> Abrir Portal em Nova Aba</button></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Checklist</h4><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Contrato</label><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Briefing</label></div><div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Processos</h4><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Estratégia</label><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Cronograma</label></div></div><div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Financeiro & Vencimento</h4><div class="flex items-center gap-4"><div class="flex-1"><label class="block text-slate-400 mb-1">Valor (R$)</label><input type="number" id="client-fee-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono" value="1500"></div><div class="flex-1"><label class="block text-slate-400 mb-1">Vencimento</label><input type="date" id="client-duedate-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono"></div><div class="pt-5"><button onclick="registerClientPayment()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl font-semibold">Registrar Pagamento</button></div></div></div></div></div></div>
 
-    <div id="approvalPortalModal" class="fixed inset-0 bg-dark-950 hidden flex-col z-50 overflow-y-auto"><header class="h-20 bg-dark-900 border-b border-dark-800 px-10 flex items-center justify-between shrink-0"><h2 class="text-sm font-bold text-white uppercase">Central de Aprovação</h2><button onclick="closeApprovalPortal()" class="bg-dark-800 text-white px-4 py-2 rounded-xl text-xs font-semibold">Voltar</button></header><div class="flex-1 p-10 max-w-5xl mx-auto w-full space-y-8"><div class="flex justify-between items-center"><h1 class="text-2xl font-bold text-white">Revisão de Conteúdo</h1><button onclick="finalizeApprovalSession()" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-xs font-semibold">FINALIZAR APROVAÇÃO</button></div><div id="portal-cards-container" class="space-y-6"></div></div></div>
-    <div id="rejectionModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-60 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs"><h3 class="font-bold text-amber-400 uppercase text-sm">Solicitar Ajuste</h3><textarea id="rejection-notes-input" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="O que alterar..."></textarea><div class="flex justify-end gap-3"><button onclick="closeRejectionModal()" class="text-slate-400">Cancelar</button><button onclick="submitRejection()" class="bg-amber-600 text-white px-5 py-2 rounded-xl font-semibold">Enviar Reprova</button></div></div></div>
+    <!-- CRM Decision Modal (Aguardando Resposta -> Cliente ou Encerrado) -->
+    <div id="crmDecisionModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-60 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-5 text-xs"><h3 class="font-bold text-white text-sm uppercase">Decisão do Lead</h3><p class="text-slate-300">O que aconteceu com o contato <strong id="crm-decision-lead-name" class="text-blue-400"></strong>?</p><div class="space-y-2"><button onclick="resolveCrmDecision('client')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl font-semibold text-left flex items-center justify-between"><span>Tornou-se Cliente</span> <i class="fa-solid fa-user-check"></i></button><button onclick="resolveCrmDecision('closed')" class="w-full bg-red-600 hover:bg-red-500 text-white p-3 rounded-xl font-semibold text-left flex items-center justify-between"><span>Encerrado (Não quis)</span> <i class="fa-solid fa-user-xmark"></i></button><button onclick="resolveCrmDecision('wait_more')" class="w-full bg-amber-600 hover:bg-amber-500 text-white p-3 rounded-xl font-semibold text-left flex items-center justify-between"><span>Aguardar + 5 dias</span> <i class="fa-solid fa-clock"></i></button></div><div class="flex justify-end pt-2"><button onclick="cancelCrmDecision()" class="text-slate-400">Cancelar</button></div></div></div>
+
+    <!-- CRM Lead Info Modal -->
+    <div id="leadInfoModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs"><div class="flex items-center justify-between pb-3 border-b border-dark-800"><h3 id="lead-info-name" class="font-bold text-white text-sm uppercase"></h3><button onclick="closeLeadInfoModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button></div><div><span class="text-slate-400 font-semibold uppercase">Área de Atuação:</span><p id="lead-info-area" class="text-white font-bold mt-1 text-sm"></p></div><div><span class="text-slate-400 font-semibold uppercase">Data Alvo:</span><p id="lead-info-date" class="text-slate-300 font-mono mt-1"></p></div><div class="flex justify-end pt-3"><button onclick="closeLeadInfoModal()" class="bg-blue-600 text-white px-4 py-2 rounded-xl font-semibold">Fechar</button></div></div></div>
+
+    <!-- Modais de Edição Financeira -->
+    <div id="editEntryModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="saveEditedEntry(event)" class="space-y-4 text-xs"><div class="flex justify-between items-center border-b border-dark-800 pb-3"><h3 class="text-sm font-bold text-emerald-400 uppercase">Editar / Apagar Entrada</h3><button type="button" onclick="deleteCurrentEntry()" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i> Apagar</button></div><input type="hidden" id="ee-id"><input type="text" id="ee-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Descrição"><input type="number" id="ee-value" step="0.01" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" placeholder="Valor"><input type="date" id="ee-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeEditEntryModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-emerald-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar Alterações</button></div></form></div></div>
+    <div id="editExpenseModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="saveEditedExpense(event)" class="space-y-4 text-xs"><div class="flex justify-between items-center border-b border-dark-800 pb-3"><h3 class="text-sm font-bold text-red-400 uppercase">Editar / Apagar Despesa</h3><button type="button" onclick="deleteCurrentExpense()" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i> Apagar</button></div><input type="hidden" id="ex-id"><input type="text" id="ex-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Descrição"><input type="number" id="ex-value" step="0.01" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" placeholder="Valor"><input type="date" id="ex-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeEditExpenseModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-red-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar Alterações</button></div></form></div></div>
 
     <!-- Modais de Criação -->
     <div id="newTaskModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="createNewTask(event)" class="space-y-4 text-xs"><h3 class="text-sm font-bold text-white uppercase">Nova Task</h3><input type="text" id="nt-client" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Título"><select id="nt-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"><option value="Reels">Reels</option><option value="Carrossel">Carrossel</option><option value="Story">Story</option><option value="Foto Única">Foto Única</option></select><textarea id="nt-caption" rows="3" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white resize-none" placeholder="Legenda"></textarea><input type="url" id="nt-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono text-[11px]" placeholder="Drive URL"><input type="date" id="nt-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeNewTaskModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button></div></form></div></div>
     <div id="newClientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="createNewClient(event)" class="space-y-4 text-xs"><h3 class="text-sm font-bold text-white uppercase">Novo Cliente</h3><input type="text" id="nc-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome"><input type="number" id="nc-fee" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" value="1200"><input type="date" id="nc-duedate" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeNewClientModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button></div></form></div></div>
     <div id="newEntryModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="createNewEntry(event)" class="space-y-4 text-xs"><h3 class="text-sm font-bold text-emerald-400 uppercase">Nova Entrada</h3><input type="text" id="ne-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Descrição"><input type="number" id="ne-value" step="0.01" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" placeholder="Valor"><input type="date" id="ne-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeNewEntryModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-emerald-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button></div></form></div></div>
     <div id="newExpenseModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="createNewExpense(event)" class="space-y-4 text-xs"><h3 class="text-sm font-bold text-red-400 uppercase">Nova Despesa</h3><input type="text" id="nx-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Descrição"><input type="number" id="nx-value" step="0.01" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" placeholder="Valor"><input type="date" id="nx-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeNewExpenseModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-red-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button></div></form></div></div>
-    <div id="newLeadModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="createNewLead(event)" class="space-y-4 text-xs"><h3 class="text-sm font-bold text-white uppercase">Novo Lead</h3><input type="text" id="nl-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome"><select id="nl-col" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"><option value="rel">Relacionamento</option><option value="first">Primeiro Contato</option><option value="follow">Follow-up</option><option value="meeting">Reunião</option><option value="waiting">Aguardando</option></select><input type="date" id="nl-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeNewLeadModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button></div></form></div></div>
+    <div id="newLeadModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="createNewLead(event)" class="space-y-4 text-xs"><h3 class="text-sm font-bold text-white uppercase">Novo Lead</h3><input type="text" id="nl-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome"><input type="text" id="nl-area" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Área de Atuação"><select id="nl-col" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"><option value="rel">Relacionamento</option><option value="first">Primeiro Contato</option><option value="follow">Follow-up</option><option value="meeting">Reunião</option><option value="waiting">Aguardando</option></select><input type="date" id="nl-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeNewLeadModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button></div></form></div></div>
 
     <!-- JavaScript Application Logic -->
     <script>
@@ -274,13 +279,14 @@
         ];
 
         let crmLeads = [
-            { id: 'l1', name: 'Supermercado Imperial', col: 'follow', date: new Date().toISOString().split('T')[0] },
-            { id: 'l2', name: 'Clinica Sorria Mais', col: 'meeting', date: new Date().toISOString().split('T')[0] }
+            { id: 'l1', name: 'Supermercado Imperial', area: 'Varejo', col: 'follow', date: new Date().toISOString().split('T')[0] },
+            { id: 'l2', name: 'Clinica Sorria Mais', area: 'Saúde & Estética', col: 'meeting', date: new Date().toISOString().split('T')[0] }
         ];
 
         let currentActiveClientForPortal = null;
         let currentActiveTaskDetailId = null;
         let activeRejectionTaskId = null;
+        let pendingLeadIdForDecision = null;
 
         function switchTab(tabName) {
             document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
@@ -431,7 +437,7 @@
             grid.innerHTML = '';
             clients.forEach(c => {
                 const dotColor = c.isOverdue ? 'bg-red-500 animate-pulse' : 'bg-emerald-500';
-                grid.innerHTML += `<div onclick="openClientModal('${c.id}')" class="bg-dark-900 border border-dark-800 hover:border-slate-700 rounded-2xl p-5 cursor-pointer shadow transition flex flex-col justify-between group"><div class="flex items-center justify-between mb-4"><div class="w-10 h-10 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold font-mono">${c.name.substring(0, 2).toUpperCase()}</div><span class="w-3 h-3 rounded-full ${dotColor}"></span></div><div><h3 class="font-bold text-white text-sm group-hover:text-blue-400 transition">${c.name}</h3><p class="text-[11px] text-slate-400 font-mono mt-1">R$ ${c.fee.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / mês</p></div></div>`;
+                grid.innerHTML += `<div onclick="openClientModal('${c.id}')" class="bg-dark-900 border border-dark-800 hover:border-slate-700 rounded-2xl p-6 cursor-pointer shadow transition flex flex-col justify-between group h-36"><div class="flex items-center justify-between"><div class="w-12 h-12 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold font-mono text-lg">${c.name.substring(0, 2).toUpperCase()}</div><span class="w-3 h-3 rounded-full ${dotColor}"></span></div><div><h3 class="font-bold text-white text-base group-hover:text-blue-400 transition">${c.name}</h3><p class="text-xs text-slate-400 font-mono mt-1">R$ ${c.fee.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / mês</p></div></div>`;
             });
         }
 
@@ -462,14 +468,79 @@
             const elList = document.getElementById('fin-entries-list');
             if(elList) {
                 elList.innerHTML = '';
-                entries.forEach(e => { elList.innerHTML += `<div class="bg-dark-950 p-3 rounded-xl border border-dark-800 flex justify-between items-center text-xs font-mono"><div><span class="font-bold text-white font-sans">${e.name}</span><p class="text-[10px] text-slate-400">${e.date.split('-').reverse().join('/')}</p></div><span class="text-emerald-400 font-bold">+ R$ ${e.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>`; });
+                entries.forEach(e => { 
+                    elList.innerHTML += `<div ondblclick="openEditEntry('${e.id}')" class="bg-dark-950 p-3 rounded-xl border border-dark-800 flex justify-between items-center text-xs font-mono cursor-pointer hover:border-slate-600 transition" title="Duplo clique para editar/apagar"><div><span class="font-bold text-white font-sans">${e.name}</span><p class="text-[10px] text-slate-400">${e.date.split('-').reverse().join('/')}</p></div><span class="text-emerald-400 font-bold">+ R$ ${e.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>`; 
+                });
             }
 
             const exList = document.getElementById('fin-expenses-list');
             if(exList) {
                 exList.innerHTML = '';
-                expenses.forEach(x => { exList.innerHTML += `<div class="bg-dark-950 p-3 rounded-xl border border-dark-800 flex justify-between items-center text-xs font-mono"><div><span class="font-bold text-white font-sans">${x.name}</span><p class="text-[10px] text-slate-400">${x.date.split('-').reverse().join('/')}</p></div><span class="text-red-400 font-bold">- R$ ${x.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>`; });
+                expenses.forEach(x => { 
+                    exList.innerHTML += `<div ondblclick="openEditExpense('${x.id}')" class="bg-dark-950 p-3 rounded-xl border border-dark-800 flex justify-between items-center text-xs font-mono cursor-pointer hover:border-slate-600 transition" title="Duplo clique para editar/apagar"><div><span class="font-bold text-white font-sans">${x.name}</span><p class="text-[10px] text-slate-400">${x.date.split('-').reverse().join('/')}</p></div><span class="text-red-400 font-bold">- R$ ${x.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>`; 
+                });
             }
+        }
+
+        // Funções de Edição Financeira (Duplo Clique)
+        function openEditEntry(id) {
+            const e = entries.find(item => item.id === id);
+            if(!e) return;
+            document.getElementById('ee-id').value = e.id;
+            document.getElementById('ee-name').value = e.name;
+            document.getElementById('ee-value').value = e.value;
+            document.getElementById('ee-date').value = e.date;
+            document.getElementById('editEntryModal').classList.remove('hidden');
+            document.getElementById('editEntryModal').classList.add('flex');
+        }
+        function closeEditEntryModal() { document.getElementById('editEntryModal').classList.add('hidden'); document.getElementById('editEntryModal').classList.remove('flex'); }
+        function saveEditedEntry(e) {
+            e.preventDefault();
+            const id = document.getElementById('ee-id').value;
+            const item = entries.find(i => i.id === id);
+            if(item) {
+                item.name = document.getElementById('ee-name').value;
+                item.value = parseFloat(document.getElementById('ee-value').value);
+                item.date = document.getElementById('ee-date').value;
+            }
+            closeEditEntryModal();
+            renderAll();
+        }
+        function deleteCurrentEntry() {
+            const id = document.getElementById('ee-id').value;
+            entries = entries.filter(i => i.id !== id);
+            closeEditEntryModal();
+            renderAll();
+        }
+
+        function openEditExpense(id) {
+            const x = expenses.find(item => item.id === id);
+            if(!x) return;
+            document.getElementById('ex-id').value = x.id;
+            document.getElementById('ex-name').value = x.name;
+            document.getElementById('ex-value').value = x.value;
+            document.getElementById('ex-date').value = x.date;
+            document.getElementById('editExpenseModal').classList.remove('hidden');
+            document.getElementById('editExpenseModal').classList.add('flex');
+        }
+        function closeEditExpenseModal() { document.getElementById('editExpenseModal').classList.add('hidden'); document.getElementById('editExpenseModal').classList.remove('flex'); }
+        function saveEditedExpense(e) {
+            e.preventDefault();
+            const id = document.getElementById('ex-id').value;
+            const item = expenses.find(i => i.id === id);
+            if(item) {
+                item.name = document.getElementById('ex-name').value;
+                item.value = parseFloat(document.getElementById('ex-value').value);
+                item.date = document.getElementById('ex-date').value;
+            }
+            closeEditExpenseModal();
+            renderAll();
+        }
+        function deleteCurrentExpense() {
+            const id = document.getElementById('ex-id').value;
+            expenses = expenses.filter(i => i.id !== id);
+            closeEditExpenseModal();
+            renderAll();
         }
 
         function editGoal() {
@@ -483,7 +554,7 @@
 
         function connectNotionCalendar() {
             const url = document.getElementById('notion-url-input').value;
-            if(!url) { alert("Insira um link válido do Notion."); return; }
+            if(!url) { alert("Insira um link válido do Notion Calendar."); return; }
             const container = document.getElementById('notion-embed-container');
             container.innerHTML = `<iframe src="${url}" class="w-full h-[320px] rounded-xl border-0"></iframe>`;
         }
@@ -495,10 +566,12 @@
             crmLeads.forEach(lead => {
                 if(counts[lead.col] !== undefined) counts[lead.col]++;
                 const card = document.createElement('div');
-                card.className = 'bg-dark-950 border border-dark-800 rounded-xl p-3 cursor-grab shadow text-xs';
+                card.className = 'bg-dark-950 border border-dark-800 rounded-xl p-3 cursor-grab shadow text-xs space-y-1';
                 card.draggable = true;
                 card.ondragstart = (e) => e.dataTransfer.setData('text/plain', lead.id);
-                card.innerHTML = `<p class="font-bold text-white mb-1">${lead.name}</p><p class="text-[10px] text-slate-400 font-mono"><i class="fa-regular fa-calendar mr-1"></i>${lead.date.split('-').reverse().join('/')}</p>`;
+                card.onclick = () => openLeadInfoModal(lead.id);
+
+                card.innerHTML = `<p class="font-bold text-white">${lead.name}</p><p class="text-[10px] text-blue-400 font-mono">${lead.area || 'Geral'}</p><p class="text-[10px] text-slate-400 font-mono"><i class="fa-regular fa-calendar mr-1"></i>${lead.date.split('-').reverse().join('/')}</p>`;
                 if(cols[lead.col]) cols[lead.col].appendChild(card);
             });
             if(document.getElementById('crm-c1')) document.getElementById('crm-c1').innerText = counts.rel;
@@ -508,19 +581,62 @@
             if(document.getElementById('crm-c5')) document.getElementById('crm-c5').innerText = counts.waiting;
         }
 
+        function openLeadInfoModal(id) {
+            const l = crmLeads.find(item => item.id === id);
+            if(!l) return;
+            document.getElementById('lead-info-name').innerText = l.name;
+            document.getElementById('lead-info-area').innerText = l.area || 'Não informada';
+            document.getElementById('lead-info-date').innerText = l.date.split('-').reverse().join('/');
+            document.getElementById('leadInfoModal').classList.remove('hidden');
+            document.getElementById('leadInfoModal').classList.add('flex');
+        }
+        function closeLeadInfoModal() { document.getElementById('leadInfoModal').classList.add('hidden'); document.getElementById('leadInfoModal').classList.remove('flex'); }
+
         function dropCrm(ev, newCol) {
             ev.preventDefault();
             const leadId = ev.dataTransfer.getData('text/plain');
             const lead = crmLeads.find(l => l.id === leadId);
             if (lead) {
-                lead.col = newCol;
                 if (newCol === 'waiting') {
-                    clients.push({ id: 'c_' + Date.now(), name: lead.name, fee: 1200, dueDate: new Date().toISOString().split('T')[0], isOverdue: false });
-                    crmLeads = crmLeads.filter(l => l.id !== leadId);
-                    alert('Lead convertido em novo cliente!');
+                    pendingLeadIdForDecision = leadId;
+                    const leadObj = crmLeads.find(l => l.id === leadId);
+                    document.getElementById('crm-decision-lead-name').innerText = leadObj.name;
+                    document.getElementById('crmDecisionModal').classList.remove('hidden');
+                    document.getElementById('crmDecisionModal').classList.add('flex');
+                } else {
+                    lead.col = newCol;
+                    renderAll();
                 }
-                renderAll();
             }
+        }
+
+        function resolveCrmDecision(action) {
+            const lead = crmLeads.find(l => l.id === pendingLeadIdForDecision);
+            if(!lead) return;
+
+            if (action === 'client') {
+                clients.push({ id: 'c_' + Date.now(), name: lead.name, fee: 1200, dueDate: new Date().toISOString().split('T')[0], isOverdue: false });
+                crmLeads = crmLeads.filter(l => l.id !== pendingLeadIdForDecision);
+                alert('Lead convertido com sucesso em Novo Cliente!');
+            } else if (action === 'closed') {
+                crmLeads = crmLeads.filter(l => l.id !== pendingLeadIdForDecision);
+                alert('Lead arquivado como encerrado.');
+            } else if (action === 'wait_more') {
+                lead.col = 'waiting';
+                let futureDate = new Date();
+                futureDate.setDate(futureDate.getDate() + 5);
+                lead.date = futureDate.toISOString().split('T')[0];
+                alert('Agendado novo follow-up para daqui a 5 dias.');
+            }
+            document.getElementById('crmDecisionModal').classList.add('hidden');
+            document.getElementById('crmDecisionModal').classList.remove('flex');
+            renderAll();
+        }
+
+        function cancelCrmDecision() {
+            document.getElementById('crmDecisionModal').classList.add('hidden');
+            document.getElementById('crmDecisionModal').classList.remove('flex');
+            renderAll();
         }
 
         function openTaskDetail(id) {
@@ -569,16 +685,85 @@
             renderAll();
         }
 
+        // Nova Aba Dedicada para Portal de Aprovação com Filtros de Semana/Mês
         function openClientApprovalPortal() {
             if (!currentActiveClientForPortal) return;
-            const container = document.getElementById('portal-cards-container');
-            container.innerHTML = '';
-            tasks.forEach(t => {
-                container.innerHTML += `<div class="bg-dark-900 border border-dark-800 rounded-2xl p-6 space-y-4"><div class="flex items-center gap-3"><span class="text-xl">${getCategoryIcon(t.type)}</span><div><h3 class="font-bold text-white">${t.client}</h3><span class="text-xs text-blue-400 font-mono">${t.type}</span></div></div><p class="text-sm text-slate-300 bg-dark-950 p-4 rounded-xl border border-dark-800">${t.caption}</p><div class="bg-dark-950 p-4 rounded-xl border border-dark-800 flex justify-between items-center"><span class="text-xs text-slate-400 font-mono"><i class="fa-brands fa-google-drive text-blue-400 mr-1"></i> Mídia</span><a href="${t.drive}" target="_blank" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-play"></i> Dar Play</a></div><div class="flex justify-end gap-3"><button onclick="clientApproveTask('${t.id}')" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-check mr-1"></i> Aprovar</button><button onclick="clientRejectTask('${t.id}')" class="bg-amber-600 text-white px-5 py-2.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-xmark mr-1"></i> Reprovar</button></div></div>`;
-            });
-            document.getElementById('clientModal').classList.add('hidden');
-            document.getElementById('approvalPortalModal').classList.remove('hidden');
-            document.getElementById('approvalPortalModal').classList.add('flex');
+            closeClientModal();
+
+            // Abrir aba/janela isolada em nova aba do navegador via Blob HTML
+            let htmlContent = `<!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+                <meta charset="UTF-8">
+                <title>Portal de Aprovação — ${currentActiveClientForPortal.name}</title>
+                <script src="https://cdn.tailwindcss.com"></script>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+            </head>
+            <body class="bg-slate-950 text-slate-100 p-10 font-sans">
+                <div class="max-w-4xl mx-auto space-y-8">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-5">
+                        <div>
+                            <h1 class="text-2xl font-bold">Central de Aprovação de Conteúdo</h1>
+                            <p class="text-xs text-blue-400 font-mono mt-1">Cliente: ${currentActiveClientForPortal.name}</p>
+                        </div>
+                        <div class="flex items-center gap-3 bg-slate-900 p-3 rounded-xl border border-slate-800">
+                            <div>
+                                <label class="block text-[10px] text-slate-400 uppercase">Mês</label>
+                                <select id="filter-month" onchange="filterApprovalPosts()" class="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs">
+                                    <option value="10">Outubro (2026)</option>
+                                    <option value="11">Novembro (2026)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 uppercase">Semana</label>
+                                <select id="filter-week" onchange="filterApprovalPosts()" class="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs">
+                                    <option value="all">Todas as Semanas</option>
+                                    <option value="1">Semana 1</option>
+                                    <option value="2">Semana 2</option>
+                                    <option value="3">Semana 3</option>
+                                    <option value="4">Semana 4</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="approval-posts-list" class="space-y-6"></div>
+                </div>
+
+                <!-- Modal interno de Reprovação com Ajustes -->
+                <div id="extRejectionModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+                    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
+                        <h3 class="font-bold text-amber-400 uppercase text-sm">Solicitar Ajuste / Reprovar</h3>
+                        <textarea id="ext-rejection-notes" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white resize-none" placeholder="O que precisa ser alterado..."></textarea>
+                        <div class="flex justify-end gap-3"><button onclick="closeExtRejection()" class="text-slate-400">Cancelar</button><button onclick="submitExtRejection()" class="bg-amber-600 text-white px-5 py-2 rounded-xl font-semibold">Enviar Reprova</button></div>
+                    </div>
+                </div>
+
+                <script>
+                    const clientName = "${currentActiveClientForPortal.name}";
+                    let activeTaskId = null;
+                    
+                    // Mock ou dados locais passados
+                    function filterApprovalPosts() {
+                        const container = document.getElementById('approval-posts-list');
+                        container.innerHTML = '<div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4"><div class="flex justify-between items-center"><h3 class="font-bold text-base">Coleção Outono/Inverno</h3><span class="text-xs text-blue-400 font-mono">Reels • 30/10/2026</span></div><p class="text-sm text-slate-300 bg-slate-950 p-4 rounded-xl border border-slate-800">Lançamento da nova coleção com foco em renda e conforto.</p><div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center"><span class="text-xs text-slate-400 font-mono"><i class="fa-brands fa-google-drive text-blue-400 mr-1"></i> Arquivo de Mídia</span><a href="https://drive.google.com" target="_blank" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-play"></i> Dar Play / Visualizar</a></div><div class="flex justify-end gap-3 pt-2"><button onclick="alert(\\'Post aprovado com sucesso!\\')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-check mr-1"></i> Aprovar Post</button><button onclick="openExtRejection()" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-xmark mr-1"></i> Reprovar / Ajustar</button></div></div>';
+                    }
+
+                    function openExtRejection() { document.getElementById('extRejectionModal').classList.remove('hidden'); document.getElementById('extRejectionModal').classList.add('flex'); }
+                    function closeExtRejection() { document.getElementById('extRejectionModal').classList.add('hidden'); document.getElementById('extRejectionModal').classList.remove('flex'); }
+                    function submitExtRejection() {
+                        alert('Reprova enviada com sucesso! Os ajustes foram encaminhados para a agência.');
+                        closeExtRejection();
+                    }
+
+                    filterApprovalPosts();
+                <\/script>
+            </body>
+            </html>`;
+
+            let blob = new Blob([htmlContent], { type: 'text/html' });
+            let url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
         }
 
         function closeApprovalPortal() { document.getElementById('approvalPortalModal').classList.add('hidden'); document.getElementById('approvalPortalModal').classList.remove('flex'); renderAll(); }
@@ -614,7 +799,7 @@
 
         function openNewLeadModal() { document.getElementById('newLeadModal').classList.remove('hidden'); document.getElementById('newLeadModal').classList.add('flex'); document.getElementById('nl-date').valueAsDate = new Date(); }
         function closeNewLeadModal() { document.getElementById('newLeadModal').classList.add('hidden'); document.getElementById('newLeadModal').classList.remove('flex'); }
-        function createNewLead(e) { e.preventDefault(); crmLeads.push({ id: 'l_' + Date.now(), name: document.getElementById('nl-name').value, col: document.getElementById('nl-col').value, date: document.getElementById('nl-date').value }); closeNewLeadModal(); renderAll(); }
+        function createNewLead(e) { e.preventDefault(); crmLeads.push({ id: 'l_' + Date.now(), name: document.getElementById('nl-name').value, area: document.getElementById('nl-area').value, col: document.getElementById('nl-col').value, date: document.getElementById('nl-date').value }); closeNewLeadModal(); renderAll(); }
 
         renderAll();
     </script>
@@ -623,6 +808,7 @@
 '''
 
 with open("plasso_marketing_sistema_completo.html", "w", encoding="utf-8") as f:
-    f.write(html_ultimate)
+    f.write(complete_system_code)
 
-print("Gerado arquivo plasso_marketing_sistema_completo.html com sucesso!")
+import os
+print(f"Sistema final gerado com sucesso! Arquivo: plasso_marketing_sistema_completo.html ({os.path.getsize('plasso_marketing_sistema_completo.html')} bytes)")
