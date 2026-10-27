@@ -179,8 +179,8 @@
                         <input type="date" id="client-duedate-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
                     </div>
                     <div class="pt-5 flex gap-2">
-                        <button onclick="registerClientPayment()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold transition cursor-pointer shadow"><i class="fa-solid fa-check mr-1"></i> Salvar Ficha</button>
-                        <button onclick="openClientPaymentModal()" class="bg-dark-900 hover:bg-dark-800 border border-emerald-500/60 text-emerald-400 px-4 py-2 rounded-xl font-semibold transition cursor-pointer shadow"><i class="fa-solid fa-wallet mr-1"></i> Lançar Pagamento</button>
+                        <button onclick="registerClientPayment()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold transition cursor-pointer shadow"><i class="fa-solid fa-check mr-1"></i> Lançar</button>
+                        
                     </div>
                 </div>
             </div>
@@ -265,23 +265,7 @@
     </div>
 </div>
 
-<!-- Modal de Lançamento de Pagamento no Card do Cliente -->
-<div id="clientPaymentModal" class="fixed inset-0 bg-dark-950/95 backdrop-blur-md hidden items-center justify-center z-[9999] p-4">
-    <div class="bg-dark-900 border border-emerald-500/60 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
-        <h3 class="font-bold text-emerald-400 uppercase text-sm flex items-center gap-2"><i class="fa-solid fa-wallet"></i> Lançar Pagamento — <span id="cp-client-name" class="text-white"></span></h3>
-        <div>
-            <label class="block text-slate-400 mb-1">Data do Pagamento</label>
-            <input type="date" id="cp-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
-        </div>
-        <div>
-            <label class="block text-slate-400 mb-1">Valor (R$)</label>
-            <input type="number" step="0.01" id="cp-value" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono" placeholder="1500.00">
-        </div>
-        <div class="flex justify-end gap-3 pt-2">
-            <button onclick="closeClientPaymentModal()" class="text-slate-400 cursor-pointer">Cancelar</button>
-            <button onclick="submitClientPayment()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Enviar</button>
-        </div>
-    </div>
+
 </div>
 
 <!-- Modal Novo Cliente -->
@@ -468,16 +452,6 @@
         alert('Ficha do cliente salva com sucesso!');
     }
 
-    // Funções de Lançamento de Pagamento no Card do Cliente
-    function openClientPaymentModal() {
-        if(!currentActiveClient) return;
-        document.getElementById('cp-client-name').innerText = currentActiveClient.name;
-        document.getElementById('cp-date').value = new Date().toISOString().split('T')[0];
-        document.getElementById('cp-value').value = currentActiveClient.fee || 1500;
-        document.getElementById('clientPaymentModal').classList.remove('hidden');
-        document.getElementById('clientPaymentModal').classList.add('flex');
-    }
-
     function closeClientPaymentModal() {
         document.getElementById('clientPaymentModal').classList.add('hidden');
         document.getElementById('clientPaymentModal').classList.remove('flex');
@@ -523,3 +497,5 @@
 </script>
 </body>
 </html>
+clients.html
+Exibindo clients.html.
