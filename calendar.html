@@ -126,11 +126,10 @@
     <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
         <form onsubmit="createNewEvent(event)" class="space-y-4 text-xs">
             <h3 class="text-sm font-bold text-white uppercase">Novo</h3>
-            <input type="text" id="ev-title" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Título / Nome">
+            <input type="text" id="ev-title" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome">
             <select id="ev-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white">
-                <option value="Post">Postagem / Task</option>
-                <option value="Followup">Follow-up CRM</option>
-                <option value="Evento">Evento / Reunião</option>
+                <option value="Followup">Follow-up</option>
+                <option value="Evento">Evento ou Reunião</option>
             </select>
             <input type="date" id="ev-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono">
             <div class="flex justify-end gap-3 pt-2">
