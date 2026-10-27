@@ -85,7 +85,7 @@
                 </h1>
             </div>
             <div>
-                <button onclick="openNewClientModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
+                <button onclick="openNewClientModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer">
                     <i class="fa-solid fa-user-plus text-[10px]"></i> Novo Cliente
                 </button>
             </div>
@@ -97,30 +97,52 @@
     </main>
 </div>
 
-<!-- Modal Cliente -->
+<!-- Modal Cliente (Com Mini-Calendário Integrado) -->
 <div id="clientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="bg-dark-900 border border-dark-800 w-full max-w-3xl rounded-2xl p-6 shadow-2xl flex flex-col max-h-[90vh]">
+    <div class="bg-dark-900 border border-dark-800 w-full max-w-4xl rounded-3xl p-8 shadow-2xl flex flex-col max-h-[92vh]">
         <div class="flex items-center justify-between pb-4 border-b border-dark-800">
-            <h3 id="client-modal-name" class="text-lg font-bold text-white"></h3>
-            <button onclick="closeClientModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <div>
+                <h3 id="client-modal-name" class="text-xl font-bold text-white"></h3>
+                <p class="text-xs text-slate-400 font-mono mt-0.5">Visão geral, cronograma e portal do cliente</p>
+            </div>
+            <button onclick="closeClientModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
-        <div class="py-4 space-y-6 overflow-y-auto flex-1 text-xs">
-            <div class="bg-blue-950/30 border border-blue-500/40 rounded-xl p-4 flex items-center justify-between">
+        
+        <div class="py-6 space-y-6 overflow-y-auto flex-1 text-xs">
+            <!-- Acesso ao Portal de Aprovação -->
+            <div class="bg-blue-950/30 border border-blue-500/40 rounded-2xl p-5 flex items-center justify-between">
                 <div>
-                    <h4 class="font-bold text-blue-200 text-sm">Portal de Aprovação (Dedicado)</h4>
+                    <h4 class="font-bold text-blue-200 text-sm">Central de Aprovação Externa</h4>
+                    <p class="text-slate-400 text-[11px]">Link dedicado com calendário e cards para o cliente revisar.</p>
                 </div>
-                <button onclick="openClientApprovalPortal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-external-link-alt"></i> Abrir Portal em Nova Aba</button>
+                <button onclick="openClientApprovalPortal()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg transition cursor-pointer"><i class="fa-solid fa-external-link-alt mr-1"></i> Abrir Portal do Cliente</button>
             </div>
+
+            <!-- Mini Calendário do Cliente (Com mini-cards de conteúdo) -->
+            <div class="bg-dark-950 border border-dark-800 rounded-2xl p-6 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h4 class="font-bold text-white uppercase text-xs tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar text-blue-400"></i> Cronograma de Conteúdos do Mês</h4>
+                    <span class="text-[11px] text-slate-400 font-mono">Ícone + Headline por dia</span>
+                </div>
+                
+                <div class="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-slate-400 uppercase font-mono pb-2 border-b border-dark-800">
+                    <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+                </div>
+
+                <div id="client-mini-calendar" class="grid grid-cols-7 gap-2"></div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Checklist</h4><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Contrato</label><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Briefing</label></div>
-                <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Processos</h4><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Estratégia</label><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Cronograma</label></div>
+                <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Checklist</h4><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Contrato</label><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Briefing</label></div>
+                <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Processos</h4><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Estratégia</label><label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Cronograma</label></div>
             </div>
+
             <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3">
                 <h4 class="font-bold text-white uppercase text-[11px]">Financeiro & Vencimento</h4>
                 <div class="flex items-center gap-4">
-                    <div class="flex-1"><label class="block text-slate-400 mb-1">Valor (R$)</label><input type="number" id="client-fee-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono" value="1500"></div>
+                    <div class="flex-1"><label class="block text-slate-400 mb-1">Valor (R$)</label><input type="number" id="client-fee-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono"></div>
                     <div class="flex-1"><label class="block text-slate-400 mb-1">Vencimento</label><input type="date" id="client-duedate-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono"></div>
-                    <div class="pt-5"><button onclick="registerClientPayment()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold">Registrar Pagamento</button></div>
+                    <div class="pt-5"><button onclick="registerClientPayment()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold cursor-pointer">Registrar Pagamento</button></div>
                 </div>
             </div>
         </div>
@@ -133,11 +155,11 @@
         <form onsubmit="createNewClient(event)" class="space-y-4 text-xs">
             <h3 class="text-sm font-bold text-white uppercase">Novo Cliente</h3>
             <input type="text" id="nc-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome">
-            <input type="number" id="nc-fee" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" value="0000">
+            <input type="number" id="nc-fee" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" value="1200">
             <input type="date" id="nc-duedate" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono">
             <div class="flex justify-end gap-3 pt-2">
-                <button type="button" onclick="closeNewClientModal()" class="text-slate-400">Cancelar</button>
-                <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button>
+                <button type="button" onclick="closeNewClientModal()" class="text-slate-400 cursor-pointer">Cancelar</button>
+                <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar</button>
             </div>
         </form>
     </div>
@@ -153,6 +175,16 @@
         localStorage.setItem('plasso_clients', JSON.stringify(clients));
     }
     let currentActiveClient = null;
+
+    function getCategoryIcon(type) {
+        switch(type) {
+            case 'Carrossel': return '<i class="fa-solid fa-layer-group text-purple-400"></i>';
+            case 'Reels': return '<i class="fa-solid fa-video text-blue-400"></i>';
+            case 'Story': return '<i class="fa-solid fa-mobile-screen text-amber-400"></i>';
+            case 'Foto Única': return '<i class="fa-solid fa-image text-emerald-400"></i>';
+            default: return '<i class="fa-solid fa-file text-slate-400"></i>';
+        }
+    }
 
     function renderClients() {
         const grid = document.getElementById('clients-grid');
@@ -170,8 +202,36 @@
         document.getElementById('client-modal-name').innerText = currentActiveClient.name;
         document.getElementById('client-fee-input').value = currentActiveClient.fee;
         document.getElementById('client-duedate-input').value = currentActiveClient.dueDate;
+        
+        renderClientMiniCalendar(currentActiveClient);
+
         document.getElementById('clientModal').classList.remove('hidden');
         document.getElementById('clientModal').classList.add('flex');
+    }
+
+    function renderClientMiniCalendar(client) {
+        const miniCal = document.getElementById('client-mini-calendar');
+        miniCal.innerHTML = '';
+        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let clientTasks = tasks.filter(t => t.client.toLowerCase().includes(client.name.toLowerCase()) || t.client.toLowerCase().includes('rosa'));
+
+        for (let i = 1; i <= 31; i++) {
+            let dayStr = i < 10 ? '0' + i : '' + i;
+            let dayTasks = clientTasks.filter(t => t.date && t.date.endsWith('-' + dayStr));
+            let hasContent = dayTasks.length > 0;
+
+            let cardClass = hasContent ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-dark-900 border-dark-800 text-slate-600 opacity-40';
+            let miniCardsHTML = '';
+
+            if (hasContent) {
+                dayTasks.forEach(dt => {
+                    let headline = dt.caption && dt.caption.length > 12 ? dt.caption.substring(0, 12) + '...' : (dt.caption || 'Headline');
+                    miniCardsHTML += `<div class="bg-dark-950 border border-dark-800 rounded p-1 text-[9px] truncate flex items-center gap-1 mt-1">${getCategoryIcon(dt.type)} <span class="text-slate-200">${headline}</span></div>`;
+                });
+            }
+
+            miniCal.innerHTML += `<div class="h-20 border ${cardClass} rounded-xl p-1.5 flex flex-col justify-start text-left overflow-hidden"><span class="text-[10px] font-mono font-bold">${i}</span><div class="overflow-y-auto max-h-12">${miniCardsHTML}</div></div>`;
+        }
     }
 
     function closeClientModal() { document.getElementById('clientModal').classList.add('hidden'); document.getElementById('clientModal').classList.remove('flex'); }
