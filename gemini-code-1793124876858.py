@@ -1,0 +1,202 @@
+# 3. clients.html
+clients_html = common_head + get_sidebar('clients') + '''
+    <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
+        <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
+            <div>
+                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
+                    <i class="fa-solid fa-network-wired text-blue-500 text-xs"></i> Gestão de Clientes
+                </h1>
+                <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/clients</p>
+            </div>
+            <div>
+                <button onclick="openNewClientModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
+                    <i class="fa-solid fa-user-plus text-[10px]"></i> Novo Cliente
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 space-y-6">
+            <div id="clients-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal Cliente -->
+<div id="clientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <div class="bg-dark-900 border border-dark-800 w-full max-w-3xl rounded-2xl p-6 shadow-2xl flex flex-col max-h-[90vh]">
+        <div class="flex items-center justify-between pb-4 border-b border-dark-800">
+            <h3 id="client-modal-name" class="text-lg font-bold text-white"></h3>
+            <button onclick="closeClientModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div class="py-4 space-y-6 overflow-y-auto flex-1 text-xs">
+            <div class="bg-blue-950/30 border border-blue-500/40 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                    <h4 class="font-bold text-blue-200 text-sm">Portal de Aprovação (Dedicado)</h4>
+                    <p class="text-slate-400 text-[11px]">Abra a aba de aprovação com filtros de semana e mês para este cliente.</p>
+                </div>
+                <button onclick="openClientApprovalPortal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-external-link-alt"></i> Abrir Portal em Nova Aba</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Checklist</h4><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Contrato</label><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Briefing</label></div>
+                <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Processos</h4><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Estratégia</label><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Cronograma</label></div>
+            </div>
+            <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3">
+                <h4 class="font-bold text-white uppercase text-[11px]">Financeiro & Vencimento</h4>
+                <div class="flex items-center gap-4">
+                    <div class="flex-1"><label class="block text-slate-400 mb-1">Valor (R$)</label><input type="number" id="client-fee-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono" value="1500"></div>
+                    <div class="flex-1"><label class="block text-slate-400 mb-1">Vencimento</label><input type="date" id="client-duedate-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono"></div>
+                    <div class="pt-5"><button onclick="registerClientPayment()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold">Registrar Pagamento</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Novo Cliente -->
+<div id="newClientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
+        <form onsubmit="createNewClient(event)" class="space-y-4 text-xs">
+            <h3 class="text-sm font-bold text-white uppercase">Novo Cliente</h3>
+            <input type="text" id="nc-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome">
+            <input type="number" id="nc-fee" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" value="1200">
+            <input type="date" id="nc-duedate" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono">
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" onclick="closeNewClientModal()" class="text-slate-400">Cancelar</button>
+                <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let clients = JSON.parse(localStorage.getItem('plasso_clients') || '[]');
+    if(clients.length === 0) {
+        clients = [
+            { id: 'c1', name: 'Rosa Pink Lingerie', fee: 1500, dueDate: '2026-10-25', isOverdue: true },
+            { id: 'c2', name: 'Umuclean Higienização', fee: 1200, dueDate: '2026-11-05', isOverdue: false }
+        ];
+        localStorage.setItem('plasso_clients', JSON.stringify(clients));
+    }
+    let currentActiveClient = null;
+
+    function renderClients() {
+        const grid = document.getElementById('clients-grid');
+        grid.innerHTML = '';
+        clients.forEach(c => {
+            const dotColor = c.isOverdue ? 'bg-red-500 animate-pulse' : 'bg-emerald-500';
+            grid.innerHTML += `<div onclick="openClientModal('${c.id}')" class="bg-dark-900 border border-dark-800 hover:border-slate-700 rounded-2xl p-6 cursor-pointer shadow transition flex flex-col justify-between group h-36"><div class="flex items-center justify-between"><div class="w-12 h-12 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold font-mono text-lg">${c.name.substring(0, 2).toUpperCase()}</div><span class="w-3 h-3 rounded-full ${dotColor}"></span></div><div><h3 class="font-bold text-white text-base group-hover:text-blue-400 transition">${c.name}</h3><p class="text-xs text-slate-400 font-mono mt-1">R$ ${c.fee.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / mês</p></div></div>`;
+        });
+        localStorage.setItem('plasso_clients', JSON.stringify(clients));
+    }
+
+    function openClientModal(id) {
+        currentActiveClient = clients.find(cl => cl.id === id);
+        if (!currentActiveClient) return;
+        document.getElementById('client-modal-name').innerText = currentActiveClient.name;
+        document.getElementById('client-fee-input').value = currentActiveClient.fee;
+        document.getElementById('client-duedate-input').value = currentActiveClient.dueDate;
+        document.getElementById('clientModal').classList.remove('hidden');
+        document.getElementById('clientModal').classList.add('flex');
+    }
+
+    function closeClientModal() { document.getElementById('clientModal').classList.add('hidden'); document.getElementById('clientModal').classList.remove('flex'); }
+
+    function registerClientPayment() {
+        if (!currentActiveClient) return;
+        const fee = parseFloat(document.getElementById('client-fee-input').value);
+        currentActiveClient.fee = fee;
+        currentActiveClient.isOverdue = false;
+        
+        let entries = JSON.parse(localStorage.getItem('plasso_entries') || '[]');
+        entries.push({ id: 'e_' + Date.now(), name: currentActiveClient.name + ' (Mensalidade)', value: fee, date: new Date().toISOString().split('T')[0] });
+        localStorage.setItem('plasso_entries', JSON.stringify(entries));
+
+        alert('Pagamento registrado no financeiro!');
+        closeClientModal();
+        renderClients();
+    }
+
+    function openClientApprovalPortal() {
+        if (!currentActiveClient) return;
+        let htmlContent = `<!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <title>Portal de Aprovação — ${currentActiveClient.name}</title>
+            <script src="https://cdn.tailwindcss.com"><\\/script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        </head>
+        <body class="bg-slate-950 text-slate-100 p-10 font-sans">
+            <div class="max-w-4xl mx-auto space-y-8">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-5">
+                    <div>
+                        <h1 class="text-2xl font-bold">Central de Aprovação de Conteúdo</h1>
+                        <p class="text-xs text-blue-400 font-mono mt-1">Cliente: ${currentActiveClient.name}</p>
+                    </div>
+                    <div class="flex items-center gap-3 bg-slate-900 p-3 rounded-xl border border-slate-800">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 uppercase">Mês</label>
+                            <select class="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs">
+                                <option value="10">Outubro (2026)</option>
+                                <option value="11">Novembro (2026)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 uppercase">Semana</label>
+                            <select class="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs">
+                                <option value="all">Todas as Semanas</option>
+                                <option value="1">Semana 1</option>
+                                <option value="2">Semana 2</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                        <div class="flex justify-between items-center"><h3 class="font-bold text-base">Postagem para ${currentActiveClient.name}</h3><span class="text-xs text-blue-400 font-mono">Reels • 30/10/2026</span></div>
+                        <p class="text-sm text-slate-300 bg-slate-950 p-4 rounded-xl border border-slate-800">Lançamento da nova campanha semanal programada.</p>
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center"><span class="text-xs text-slate-400 font-mono"><i class="fa-brands fa-google-drive text-blue-400 mr-1"></i> Mídia</span><a href="https://drive.google.com" target="_blank" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-play"></i> Dar Play</a></div>
+                        <div class="flex justify-end gap-3 pt-2"><button onclick="alert('Post aprovado!')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-check mr-1"></i> Aprovar</button><button onclick="openRej()" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2.5 rounded-xl text-xs font-semibold"><i class="fa-solid fa-xmark mr-1"></i> Reprovar</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="rejModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+                <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
+                    <h3 class="font-bold text-amber-400 uppercase text-sm">Solicitar Ajuste</h3>
+                    <textarea rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white resize-none" placeholder="O que alterar..."></textarea>
+                    <div class="flex justify-end gap-3"><button onclick="closeRej()" class="text-slate-400">Cancelar</button><button onclick="alert('Reprova enviada com sucesso!'); closeRej();" class="bg-amber-600 text-white px-5 py-2 rounded-xl font-semibold">Enviar</button></div>
+                </div>
+            </div>
+            <script>
+                function openRej() { document.getElementById('rejModal').classList.remove('hidden'); document.getElementById('rejModal').classList.add('flex'); }
+                function closeRej() { document.getElementById('rejModal').classList.add('hidden'); document.getElementById('rejModal').classList.remove('flex'); }
+            <\\/script>
+        </body>
+        </html>`;
+
+        let blob = new Blob([htmlContent], { type: 'text/html' });
+        let url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+    }
+
+    function openNewClientModal() { document.getElementById('newClientModal').classList.remove('hidden'); document.getElementById('newClientModal').classList.add('flex'); document.getElementById('nc-duedate').valueAsDate = new Date(); }
+    function closeNewClientModal() { document.getElementById('newClientModal').classList.add('hidden'); document.getElementById('newClientModal').classList.remove('flex'); }
+    function createNewClient(e) {
+        e.preventDefault();
+        clients.push({ id: 'c_' + Date.now(), name: document.getElementById('nc-name').value, fee: parseFloat(document.getElementById('nc-fee').value), dueDate: document.getElementById('nc-duedate').value, isOverdue: false });
+        closeNewClientModal();
+        renderClients();
+    }
+
+    renderClients();
+</script>
+</body>
+</html>
+'''
+
+with open("clients.html", "w", encoding="utf-8") as f:
+    f.write(clients_html)
+
+print("clients.html gerado com sucesso!")
