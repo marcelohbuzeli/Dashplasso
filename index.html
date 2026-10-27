@@ -1,9 +1,10 @@
-<!DOCTYPE html>
+# Correção da variável para gerar o arquivo corretamente
+code_to_copy = '''<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plassô Marketing</title>
+    <title>Plassô Marketing — Gestão Integrada</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -57,9 +58,9 @@
                 <nav class="p-3 space-y-1.5 font-medium text-xs flex-1 overflow-y-auto">
                     <button type="button" onclick="switchTab('dashboard')" id="btn-dashboard" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl bg-blue-600 text-white shadow-md transition group text-left cursor-pointer">
                         <i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i>
-                        <span class="sidebar-text tracking-wide whitespace-nowrap transition-opacity duration-200">Dashboard</span>
+                        <span class="sidebar-text tracking-wide whitespace-nowrap transition-opacity duration-200">Dashboard (Geral)</span>
                     </button>
-                    <button type="button" onclick="switchTab('view-tasks')" id="btn-tasks" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-dark-800/40 transition group text-left cursor-pointer">
+                    <button type="button" onclick="switchTab('tasks')" id="btn-tasks" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-dark-800/40 transition group text-left cursor-pointer">
                         <i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i>
                         <span class="sidebar-text tracking-wide whitespace-nowrap transition-opacity duration-200">Tasks</span>
                     </button>
@@ -769,4 +770,9 @@
         renderAll();
     </script>
 </body>
-</html>
+</html>'''
+
+with open("plasso_marketing_sistema_completo.html", "w", encoding="utf-8") as f:
+    f.write(code_to_copy)
+
+print("Arquivo gerado com sucesso!")
