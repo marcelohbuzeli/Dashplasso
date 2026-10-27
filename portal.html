@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plassô Marketing — Central de Aprovação</title>
+    <title>Central de Aprovação | Plassô</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -54,9 +54,10 @@
         <!-- Calendário Grande de Aprovação -->
         <div class="bg-dark-900 border border-dark-800 rounded-3xl p-8 shadow-2xl space-y-6">
             <div class="flex justify-between items-center">
-                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar text-blue-400"></i> Calendário de Publicações</h3>
-                <span class="text-xs text-slate-400">Verde = Aprovado | Vermelho = Ajuste Solicitado | Azul = Pendente</span>
+                <h3 id="calendar-title" class="text-sm font-bold text-white mb-4 uppercase tracking-wider">Calendário — Carregando mês...</h3>
+                <div id="calendar-view" class="grid grid-cols-7 gap-3 text-center"></div>
             </div>
+        </div>
             
             <!-- Grid da Semana -->
             <div class="grid grid-cols-7 gap-3 text-center text-xs font-bold text-slate-400 uppercase font-mono pb-2 border-b border-dark-800">
@@ -88,7 +89,7 @@
     <div id="rejectionModal" class="fixed inset-0 bg-dark-950/95 backdrop-blur-lg hidden items-center justify-center z-50 p-4">
         <div class="bg-dark-900 border border-amber-500/50 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
             <h3 class="font-bold text-amber-400 uppercase text-sm flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Motivo da Recusa / Ajuste</h3>
-            <p class="text-slate-400">Descreva o que precisa ser alterado para que a agência possa corrigir:</p>
+            <p class="text-slate-400">Descreva o que precisa ser alterado:</p>
             <textarea id="rejection-notes-input" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="Ex: Mudar a cor da fonte, ajustar o CTA..."></textarea>
             <div class="flex justify-end gap-3 pt-2">
                 <button onclick="closeRejectionModal()" class="text-slate-400 cursor-pointer">Cancelar</button>
