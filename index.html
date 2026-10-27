@@ -7,31 +7,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
-        tailwind.config = {{
-            theme: {{
-                extend: {{
-                    colors: {{
-                        dark: {{
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
                             950: '#030712',
                             900: '#0b0f19',
                             850: '#111827',
                             800: '#1f2937'
-                        }}
-                    }}
-                }}
-            }}
-        }}
+                        }
+                    }
+                }
+            }
+        }
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-        body {{ font-family: 'Plus Jakarta Sans', sans-serif; }}
-        .kanban-col {{ min-height: calc(100vh - 260px); }}
-        ::-webkit-scrollbar {{ width: 4px; height: 4px; }}
-        ::-webkit-scrollbar-track {{ background: #030712; }}
-        ::-webkit-scrollbar-thumb {{ background: #1f2937; border-radius: 4px; }}
-        ::-webkit-scrollbar-thumb:hover {{ background: #374151; }}
-        .tab-content {{ display: none; }}
-        .tab-content.active {{ display: flex; }}
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .kanban-col { min-height: calc(100vh - 280px); }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #030712; }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #374151; }
+        /* Garantir ocultação perfeita das abas */
+        .tab-view { display: none; }
+        .tab-view.active { display: flex; flex-direction: column; flex: 1; height: 100%; overflow: hidden; }
     </style>
 </head>
 <body class="bg-dark-950 text-slate-200 antialiased overflow-hidden selection:bg-blue-600 selection:text-white">
@@ -44,9 +45,10 @@
                 <!-- Topo: Logo Dinâmica -->
                 <div class="h-20 flex items-center justify-between px-4 border-b border-dark-800/60 shrink-0">
                     <div id="logo-wrapper" class="flex items-center gap-3 overflow-hidden transition-all">
-                        <img id="sidebar-logo-img" src="data:image/png;base64,{logo_icon_b64}" class="w-10 h-10 object-contain rounded-lg shrink-0" alt="Logo">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white text-lg shadow-lg shrink-0">P</div>
                         <div class="sidebar-text truncate transition-opacity duration-200">
-                            <img src="data:image/png;base64,{logo_full_b64}" class="h-8 object-contain filter invert" alt="Plasso">
+                            <span class="font-bold text-sm tracking-widest text-white uppercase">Plassô</span>
+                            <span class="text-[10px] block text-blue-400 font-mono tracking-wider">SYSTEM v2.0</span>
                         </div>
                     </div>
                     <button id="toggle-btn" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-dark-800 transition shrink-0">
@@ -86,9 +88,7 @@
             <!-- Rodapé Sidebar -->
             <div class="p-4 border-t border-dark-800/60 shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-dark-800 border border-slate-700/50 flex items-center justify-center text-xs font-bold text-blue-400 shrink-0 font-mono">
-                        MB
-                    </div>
+                    <div class="w-8 h-8 rounded-lg bg-dark-800 border border-slate-700/50 flex items-center justify-center text-xs font-bold text-blue-400 shrink-0 font-mono">MB</div>
                     <div class="sidebar-text overflow-hidden font-mono transition-opacity duration-200">
                         <p class="text-xs font-semibold text-slate-200 truncate">Marcelo Buzeli</p>
                         <p class="text-[10px] text-emerald-400 flex items-center gap-1.5 mt-0.5">
@@ -111,17 +111,16 @@
                     <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/gestao</p>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button onclick="openNewTaskModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg shadow-blue-600/10 transition">
+                    <button onclick="openNewTaskModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg transition">
                         <i class="fa-solid fa-plus text-[10px]"></i> Nova Task / Post
                     </button>
                 </div>
             </header>
 
             <!-- ================= ABA 1: DASHBOARD (GERAL) ================= -->
-            <div id="tab-dashboard" class="tab-content active flex-1 flex-col overflow-y-auto p-8 space-y-6">
-                <!-- Top Metrics / Resumo -->
+            <div id="view-dashboard" class="tab-view active overflow-y-auto p-8 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Demandas do Dia / Atrasadas -->
+                    <!-- Demandas do Dia -->
                     <div class="bg-dark-900/80 border border-dark-800 rounded-2xl p-5 flex flex-col justify-between">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
@@ -129,25 +128,21 @@
                             </h3>
                             <span id="dash-urgent-count" class="text-xs font-mono bg-amber-950 text-amber-300 px-2.5 py-0.5 rounded-full border border-amber-800">0</span>
                         </div>
-                        <div id="dash-urgent-list" class="space-y-2 max-h-36 overflow-y-auto">
-                            <!-- Injetado via JS -->
-                        </div>
+                        <div id="dash-urgent-list" class="space-y-2 max-h-40 overflow-y-auto"></div>
                     </div>
 
-                    <!-- Follow-ups do Dia & Reuniões -->
+                    <!-- Follow-ups do Dia -->
                     <div class="bg-dark-900/80 border border-dark-800 rounded-2xl p-5 flex flex-col justify-between">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
-                                <i class="fa-solid fa-user-clock"></i> CRM: Follow-ups & Reuniões Hoje
+                                <i class="fa-solid fa-user-clock"></i> CRM: Follow-ups Hoje
                             </h3>
                             <span id="dash-crm-count" class="text-xs font-mono bg-blue-950 text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-800">0</span>
                         </div>
-                        <div id="dash-crm-list" class="space-y-2 max-h-36 overflow-y-auto">
-                            <!-- Injetado via JS -->
-                        </div>
+                        <div id="dash-crm-list" class="space-y-2 max-h-40 overflow-y-auto"></div>
                     </div>
 
-                    <!-- Despesas a Vencer + Meta -->
+                    <!-- Financeiro & Meta -->
                     <div class="bg-dark-900/80 border border-dark-800 rounded-2xl p-5 flex flex-col justify-between">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
@@ -162,7 +157,7 @@
                             </div>
                             <div class="flex justify-between text-xs font-mono">
                                 <span class="text-slate-400">Meta Mensal:</span>
-                                <span id="dash-fin-goal" class="text-slate-200">R$ 20.000,00</span>
+                                <span class="text-slate-200">R$ 20.000,00</span>
                             </div>
                             <div class="w-full bg-dark-950 rounded-full h-2 overflow-hidden border border-dark-800">
                                 <div id="dash-progress-bar" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
@@ -171,108 +166,80 @@
                     </div>
                 </div>
 
-                <!-- Notion Calendar Integration Section -->
+                <!-- Notion Calendar Integration -->
                 <div class="bg-dark-900/80 border border-dark-800 rounded-2xl p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
                             <i class="fa-regular fa-calendar-days text-blue-400"></i> Agenda Notion Calendar (Espelhamento do Dia)
                         </h3>
-                        <span class="text-xs text-slate-400 font-mono">Sincronizado em tempo real</span>
+                        <span class="text-xs text-slate-400 font-mono">Sincronizado</span>
                     </div>
-                    <div class="bg-dark-950 border border-dark-800 rounded-xl p-4 min-h-[220px] flex flex-col items-center justify-center text-center">
-                        <i class="fa-solid fa-calendar-check text-3xl text-blue-500 mb-3 animate-pulse"></i>
-                        <p class="text-sm font-medium text-slate-200">Próximos Eventos e Compromissos do Dia</p>
-                        <p class="text-xs text-slate-400 mt-1">Conecte sua agenda do Notion para visualizar reuniões e postagens agendadas.</p>
-                        <button onclick="alert('Para integrar o Notion Calendar, insira o link de compartilhamento público ou embed na configuração da conta.')" class="mt-4 bg-dark-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition border border-slate-700">
-                            <i class="fa-solid fa-link mr-1.5"></i> Conectar Notion Calendar
-                        </button>
+                    <div class="bg-dark-950 border border-dark-800 rounded-xl p-4 min-h-[180px] flex flex-col items-center justify-center text-center">
+                        <i class="fa-solid fa-calendar-check text-2xl text-blue-500 mb-2"></i>
+                        <p class="text-sm font-medium text-slate-200">Nenhum compromisso pendente no Notion para hoje.</p>
                     </div>
                 </div>
             </div>
 
             <!-- ================= ABA 2: TASKS ================= -->
-            <div id="tab-tasks" class="tab-content flex-1 flex-col overflow-x-auto p-8">
+            <div id="view-tasks" class="tab-view overflow-x-auto p-8">
                 <div class="flex gap-5 h-full min-w-[1300px]">
-                    
-                    <!-- Coluna: URGENTES -->
+                    <!-- Urgentes -->
                     <div class="flex-1 bg-red-950/20 border-2 border-red-500/40 rounded-2xl flex flex-col max-h-full">
                         <div class="p-4 border-b border-red-500/30 flex items-center justify-between bg-red-900/20 rounded-t-2xl">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-3 h-3 rounded-full bg-red-500 shadow-md shadow-red-500/80 animate-ping"></div>
-                                <h3 class="font-bold text-red-200 text-xs tracking-wider uppercase">Urgentes (Hoje / Reprovadas)</h3>
-                            </div>
-                            <span id="count-urgent" class="text-[10px] font-mono bg-red-900/60 text-red-300 px-2.5 py-0.5 rounded-full font-bold border border-red-500/40">0</span>
+                            <h3 class="font-bold text-red-200 text-xs tracking-wider uppercase">Urgentes (Hoje / Reprovadas)</h3>
+                            <span id="count-urgent" class="text-[10px] font-mono bg-red-900/60 text-red-300 px-2 py-0.5 rounded-full font-bold">0</span>
                         </div>
                         <div id="col-urgent" class="p-3.5 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="drop(event, 'urgent')"></div>
                     </div>
-
-                    <!-- Coluna: A FAZER -->
+                    <!-- A Fazer -->
                     <div class="flex-1 bg-amber-950/20 border-2 border-amber-500/40 rounded-2xl flex flex-col max-h-full">
                         <div class="p-4 border-b border-amber-500/30 flex items-center justify-between bg-amber-900/20 rounded-t-2xl">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-3 h-3 rounded-full bg-amber-400 shadow-md"></div>
-                                <h3 class="font-bold text-amber-200 text-xs tracking-wider uppercase">A Fazer</h3>
-                            </div>
-                            <span id="count-todo" class="text-[10px] font-mono bg-amber-900/60 text-amber-300 px-2.5 py-0.5 rounded-full font-bold border border-amber-500/40">0</span>
+                            <h3 class="font-bold text-amber-200 text-xs tracking-wider uppercase">A Fazer</h3>
+                            <span id="count-todo" class="text-[10px] font-mono bg-amber-900/60 text-amber-300 px-2.5 py-0.5 rounded-full font-bold">0</span>
                         </div>
                         <div id="col-todo" class="p-3.5 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="drop(event, 'todo')"></div>
                     </div>
-
-                    <!-- Coluna: PRONTO -->
+                    <!-- Pronto -->
                     <div class="flex-1 bg-blue-950/20 border-2 border-blue-500/40 rounded-2xl flex flex-col max-h-full">
                         <div class="p-4 border-b border-blue-500/30 flex items-center justify-between bg-blue-900/20 rounded-t-2xl">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-3 h-3 rounded-full bg-blue-400 shadow-md"></div>
-                                <h3 class="font-bold text-blue-200 text-xs tracking-wider uppercase">Pronto (Para Aprovação)</h3>
-                            </div>
-                            <span id="count-ready" class="text-[10px] font-mono bg-blue-900/60 text-blue-300 px-2.5 py-0.5 rounded-full font-bold border border-blue-500/40">0</span>
+                            <h3 class="font-bold text-blue-200 text-xs tracking-wider uppercase">Pronto (Para Aprovação)</h3>
+                            <span id="count-ready" class="text-[10px] font-mono bg-blue-900/60 text-blue-300 px-2.5 py-0.5 rounded-full font-bold">0</span>
                         </div>
                         <div id="col-ready" class="p-3.5 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="drop(event, 'ready')"></div>
                     </div>
-
-                    <!-- Coluna: APROVADAS -->
+                    <!-- Aprovadas -->
                     <div class="flex-1 bg-emerald-950/20 border-2 border-emerald-500/40 rounded-2xl flex flex-col max-h-full">
                         <div class="p-4 border-b border-emerald-500/30 flex items-center justify-between bg-emerald-900/20 rounded-t-2xl">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-3 h-3 rounded-full bg-emerald-400 shadow-md"></div>
-                                <h3 class="font-bold text-emerald-200 text-xs tracking-wider uppercase">Aprovadas (Prontas para Postar)</h3>
-                            </div>
-                            <span id="count-approved" class="text-[10px] font-mono bg-emerald-900/60 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold border border-emerald-500/40">0</span>
+                            <h3 class="font-bold text-emerald-200 text-xs tracking-wider uppercase">Aprovadas (Prontas para Postar)</h3>
+                            <span id="count-approved" class="text-[10px] font-mono bg-emerald-900/60 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold">0</span>
                         </div>
                         <div id="col-approved" class="p-3.5 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="drop(event, 'approved')"></div>
                     </div>
-
                 </div>
             </div>
 
             <!-- ================= ABA 3: CLIENTES ================= -->
-            <div id="tab-clients" class="tab-content flex-1 flex-col overflow-y-auto p-8 space-y-6">
+            <div id="view-clients" class="tab-view overflow-y-auto p-8 space-y-6">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-bold text-white uppercase tracking-wider">Gestão de Clientes & Checklists</h2>
                     <button onclick="openNewClientModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
                         <i class="fa-solid fa-user-plus text-[10px]"></i> Novo Cliente
                     </button>
                 </div>
-                <div id="clients-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-                    <!-- Injetado via JS -->
-                </div>
+                <div id="clients-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
             </div>
 
             <!-- ================= ABA 4: CALENDÁRIO ================= -->
-            <div id="tab-calendar" class="tab-content flex-1 flex-col overflow-y-auto p-8 space-y-6">
+            <div id="view-calendar" class="tab-view overflow-y-auto p-8 space-y-6">
                 <div class="bg-dark-900 border border-dark-800 rounded-2xl p-6">
-                    <h3 class="text-sm font-bold text-white mb-4 uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-calendar-week text-blue-400"></i> Calendário Operacional (Notion + Postagens)
-                    </h3>
-                    <div id="calendar-view" class="grid grid-cols-7 gap-3 text-center">
-                        <!-- Gerado via JS -->
-                    </div>
+                    <h3 class="text-sm font-bold text-white mb-4 uppercase tracking-wider">Calendário Operacional</h3>
+                    <div id="calendar-view" class="grid grid-cols-7 gap-3 text-center"></div>
                 </div>
             </div>
 
             <!-- ================= ABA 5: FINANCEIRO ================= -->
-            <div id="tab-finance" class="tab-content flex-1 flex-col overflow-y-auto p-8 space-y-6">
-                <!-- Top Metrics -->
+            <div id="view-finance" class="tab-view overflow-y-auto p-8 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5">
                         <p class="text-xs text-slate-400 uppercase tracking-wider">Entradas do Mês</p>
@@ -285,7 +252,7 @@
                     <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5 flex flex-col justify-between">
                         <div class="flex justify-between items-center">
                             <p class="text-xs text-slate-400 uppercase tracking-wider">Atingimento da Meta</p>
-                            <span id="fin-pct-badge" class="text-xs font-mono bg-emerald-950 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-800">0%</span>
+                            <span id="fin-pct-badge" class="text-xs font-mono bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-800">0%</span>
                         </div>
                         <div class="w-full bg-dark-950 rounded-full h-2.5 overflow-hidden border border-dark-800 mt-3">
                             <div id="fin-progress-bar" class="bg-emerald-500 h-full transition-all" style="width: 0%"></div>
@@ -293,9 +260,8 @@
                     </div>
                 </div>
 
-                <!-- Entradas & Despesas Tables -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Entradas Card -->
+                    <!-- Entradas -->
                     <div class="bg-emerald-950/20 border-2 border-emerald-500/40 rounded-2xl p-6 flex flex-col">
                         <div class="flex items-center justify-between mb-4 pb-3 border-b border-emerald-500/30">
                             <h3 class="font-bold text-emerald-200 text-sm uppercase tracking-wider">ENTRADAS</h3>
@@ -307,12 +273,10 @@
                                 <i class="fa-solid fa-plus mr-1"></i> Nova Entrada
                             </button>
                         </div>
-                        <div id="fin-entries-list" class="space-y-2 flex-1 overflow-y-auto max-h-72">
-                            <!-- Injetado via JS -->
-                        </div>
+                        <div id="fin-entries-list" class="space-y-2 flex-1 overflow-y-auto max-h-72"></div>
                     </div>
 
-                    <!-- Despesas Card -->
+                    <!-- Despesas -->
                     <div class="bg-red-950/20 border-2 border-red-500/40 rounded-2xl p-6 flex flex-col">
                         <div class="flex items-center justify-between mb-4 pb-3 border-b border-red-500/30">
                             <h3 class="font-bold text-red-200 text-sm uppercase tracking-wider">DESPESAS</h3>
@@ -324,15 +288,13 @@
                                 <i class="fa-solid fa-plus mr-1"></i> Nova Despesa
                             </button>
                         </div>
-                        <div id="fin-expenses-list" class="space-y-2 flex-1 overflow-y-auto max-h-72">
-                            <!-- Injetado via JS -->
-                        </div>
+                        <div id="fin-expenses-list" class="space-y-2 flex-1 overflow-y-auto max-h-72"></div>
                     </div>
                 </div>
             </div>
 
             <!-- ================= ABA 6: CRM ================= -->
-            <div id="tab-crm" class="tab-content flex-1 flex-col overflow-x-auto p-8">
+            <div id="view-crm" class="tab-view overflow-x-auto p-8">
                 <div class="flex items-center justify-between mb-4 shrink-0">
                     <h3 class="text-sm font-bold text-white uppercase tracking-wider">CRM de Prospecção & Vendas</h3>
                     <button onclick="openNewLeadModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
@@ -340,44 +302,24 @@
                     </button>
                 </div>
                 <div class="flex gap-5 h-full min-w-[1400px]">
-                    <!-- Coluna 1: Relacionamento -->
                     <div class="flex-1 bg-dark-900 border border-dark-800 rounded-2xl flex flex-col max-h-full">
-                        <div class="p-3.5 border-b border-dark-800 flex justify-between items-center">
-                            <h4 class="text-xs font-bold uppercase text-blue-400">Relacionamento</h4>
-                            <span id="crm-c1" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span>
-                        </div>
+                        <div class="p-3.5 border-b border-dark-800 flex justify-between items-center"><h4 class="text-xs font-bold uppercase text-blue-400">Relacionamento</h4><span id="crm-c1" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span></div>
                         <div id="crm-col-rel" class="p-3 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="dropCrm(event, 'rel')"></div>
                     </div>
-                    <!-- Coluna 2: Primeiro Contato -->
                     <div class="flex-1 bg-dark-900 border border-dark-800 rounded-2xl flex flex-col max-h-full">
-                        <div class="p-3.5 border-b border-dark-800 flex justify-between items-center">
-                            <h4 class="text-xs font-bold uppercase text-purple-400">Primeiro Contato</h4>
-                            <span id="crm-c2" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span>
-                        </div>
+                        <div class="p-3.5 border-b border-dark-800 flex justify-between items-center"><h4 class="text-xs font-bold uppercase text-purple-400">Primeiro Contato</h4><span id="crm-c2" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span></div>
                         <div id="crm-col-first" class="p-3 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="dropCrm(event, 'first')"></div>
                     </div>
-                    <!-- Coluna 3: Follow-up -->
                     <div class="flex-1 bg-dark-900 border border-dark-800 rounded-2xl flex flex-col max-h-full">
-                        <div class="p-3.5 border-b border-dark-800 flex justify-between items-center">
-                            <h4 class="text-xs font-bold uppercase text-amber-400">Follow-up (Hoje)</h4>
-                            <span id="crm-c3" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span>
-                        </div>
+                        <div class="p-3.5 border-b border-dark-800 flex justify-between items-center"><h4 class="text-xs font-bold uppercase text-amber-400">Follow-up</h4><span id="crm-c3" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span></div>
                         <div id="crm-col-follow" class="p-3 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="dropCrm(event, 'follow')"></div>
                     </div>
-                    <!-- Coluna 4: Reunião -->
                     <div class="flex-1 bg-dark-900 border border-dark-800 rounded-2xl flex flex-col max-h-full">
-                        <div class="p-3.5 border-b border-dark-800 flex justify-between items-center">
-                            <h4 class="text-xs font-bold uppercase text-emerald-400">Reunião</h4>
-                            <span id="crm-c4" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span>
-                        </div>
+                        <div class="p-3.5 border-b border-dark-800 flex justify-between items-center"><h4 class="text-xs font-bold uppercase text-emerald-400">Reunião</h4><span id="crm-c4" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span></div>
                         <div id="crm-col-meeting" class="p-3 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="dropCrm(event, 'meeting')"></div>
                     </div>
-                    <!-- Coluna 5: Aguardando Resposta -->
                     <div class="flex-1 bg-dark-900 border border-dark-800 rounded-2xl flex flex-col max-h-full">
-                        <div class="p-3.5 border-b border-dark-800 flex justify-between items-center">
-                            <h4 class="text-xs font-bold uppercase text-indigo-400">Aguardando Resposta</h4>
-                            <span id="crm-c5" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span>
-                        </div>
+                        <div class="p-3.5 border-b border-dark-800 flex justify-between items-center"><h4 class="text-xs font-bold uppercase text-indigo-400">Aguardando Resposta</h4><span id="crm-c5" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span></div>
                         <div id="crm-col-waiting" class="p-3 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="dropCrm(event, 'waiting')"></div>
                     </div>
                 </div>
@@ -386,899 +328,66 @@
         </main>
     </div>
 
-    <!-- MODAL DE DETALHES DA TASK (ESTILO NOTION) -->
+    <!-- MODAL TASK DETAIL -->
     <div id="taskDetailModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
         <div class="bg-dark-900 border border-dark-800 w-full max-w-2xl rounded-2xl p-6 shadow-2xl flex flex-col max-h-[90vh]">
             <div class="flex items-center justify-between pb-4 border-b border-dark-800">
-                <div class="flex items-center gap-3">
-                    <span id="modal-task-icon" class="text-lg"></span>
-                    <h3 id="modal-task-title" class="text-base font-bold text-white"></h3>
-                </div>
+                <div class="flex items-center gap-3"><span id="modal-task-icon" class="text-lg"></span><h3 id="modal-task-title" class="text-base font-bold text-white"></h3></div>
                 <button onclick="closeTaskDetail()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="py-4 space-y-4 overflow-y-auto flex-1 text-xs">
-                <div>
-                    <span class="text-slate-400 font-semibold uppercase tracking-wider">Cliente / Título:</span>
-                    <p id="modal-task-client" class="text-white font-bold text-sm mt-1"></p>
-                </div>
-                <div>
-                    <span class="text-slate-400 font-semibold uppercase tracking-wider">Legenda / Descrição:</span>
-                    <p id="modal-task-caption" class="text-slate-200 mt-1 leading-relaxed bg-dark-950 p-3 rounded-xl border border-dark-800"></p>
-                </div>
-                <div>
-                    <span class="text-slate-400 font-semibold uppercase tracking-wider">Link do Google Drive (Mídia):</span>
-                    <div class="mt-1 flex items-center gap-2">
-                        <input type="text" id="modal-task-drive" class="flex-1 bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-blue-400 font-mono text-xs" readonly>
-                        <a id="modal-task-drive-btn" href="#" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-xl font-semibold flex items-center gap-1.5 transition">
-                            <i class="fa-solid fa-play"></i> Reproduzir Mídia
-                        </a>
-                    </div>
-                </div>
-                <div class="border-t border-dark-800 pt-4">
-                    <label class="block text-slate-400 font-semibold uppercase tracking-wider mb-2">Notas da Task (Estilo Notion):</label>
-                    <textarea id="modal-task-notes" rows="5" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white focus:outline-none focus:border-blue-500 font-sans resize-none" placeholder="Escreva observações, anotações ou histórico de alterações..."></textarea>
-                </div>
+                <div><span class="text-slate-400 font-semibold uppercase">Cliente / Título:</span><p id="modal-task-client" class="text-white font-bold text-sm mt-1"></p></div>
+                <div><span class="text-slate-400 font-semibold uppercase">Legenda:</span><p id="modal-task-caption" class="text-slate-200 mt-1 bg-dark-950 p-3 rounded-xl border border-dark-800"></p></div>
+                <div><span class="text-slate-400 font-semibold uppercase">Google Drive:</span><div class="mt-1 flex items-center gap-2"><input type="text" id="modal-task-drive" class="flex-1 bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-blue-400 font-mono text-xs" readonly><a id="modal-task-drive-btn" href="#" target="_blank" class="bg-blue-600 text-white px-3.5 py-2 rounded-xl font-semibold"><i class="fa-solid fa-play"></i> Play</a></div></div>
+                <div><label class="block text-slate-400 font-semibold uppercase mb-2">Notas (Notion Style):</label><textarea id="modal-task-notes" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="Anotações..."></textarea></div>
             </div>
-            <div class="flex justify-end gap-3 pt-3 border-t border-dark-800">
-                <button onclick="closeTaskDetail()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-xs font-semibold transition">Salvar & Fechar</button>
-            </div>
+            <div class="flex justify-end gap-3 pt-3 border-t border-dark-800"><button onclick="closeTaskDetail()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-xs font-semibold">Salvar & Fechar</button></div>
         </div>
     </div>
 
-    <!-- MODAL DE CLIENTE & LINK DE APROVAÇÃO EXTERNA -->
+    <!-- MODAL CLIENTE -->
     <div id="clientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
         <div class="bg-dark-900 border border-dark-800 w-full max-w-3xl rounded-2xl p-6 shadow-2xl flex flex-col max-h-[90vh]">
             <div class="flex items-center justify-between pb-4 border-b border-dark-800">
-                <div class="flex items-center gap-3">
-                    <span id="client-modal-status-dot" class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                    <h3 id="client-modal-name" class="text-lg font-bold text-white"></h3>
-                </div>
+                <h3 id="client-modal-name" class="text-lg font-bold text-white"></h3>
                 <button onclick="closeClientModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="py-4 space-y-6 overflow-y-auto flex-1 text-xs">
-                <!-- Ações & Link de Aprovação -->
                 <div class="bg-blue-950/30 border border-blue-500/40 rounded-xl p-4 flex items-center justify-between">
-                    <div>
-                        <h4 class="font-bold text-blue-200 text-sm">Portal de Aprovação do Cliente</h4>
-                        <p class="text-slate-400 text-[11px] mt-0.5">Gere e envie o link dedicado para o cliente revisar as postagens da semana.</p>
-                    </div>
-                    <button onclick="openClientApprovalPortal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl font-semibold flex items-center gap-2 shadow-lg transition">
-                        <i class="fa-solid fa-external-link-alt text-xs"></i> Abrir Portal do Cliente
-                    </button>
+                    <div><h4 class="font-bold text-blue-200 text-sm">Portal de Aprovação</h4><p class="text-slate-400 text-[11px]">Link dedicado para revisão da semana.</p></div>
+                    <button onclick="openClientApprovalPortal()" class="bg-blue-600 text-white px-4 py-2 rounded-xl font-semibold"><i class="fa-solid fa-external-link-alt"></i> Abrir Portal</button>
                 </div>
-
-                <!-- Checklists e Processos -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3">
-                        <h4 class="font-bold text-white uppercase tracking-wider text-[11px]">Checklist Novo Cliente</h4>
-                        <label class="flex items-center gap-2 text-slate-300 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Contrato assinado</label>
-                        <label class="flex items-center gap-2 text-slate-300 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Briefing alinhado</label>
-                        <label class="flex items-center gap-2 text-slate-300 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Acessos às redes sociais liberados</label>
-                    </div>
-                    <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3">
-                        <h4 class="font-bold text-white uppercase tracking-wider text-[11px]">Processos Internos</h4>
-                        <label class="flex items-center gap-2 text-slate-300 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Estratégia de conteúdo definida</label>
-                        <label class="flex items-center gap-2 text-slate-300 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Captação de imagens programada</label>
-                        <label class="flex items-center gap-2 text-slate-300 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Cronograma semanal montado</label>
-                    </div>
+                    <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Checklist</h4><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Contrato assinado</label><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Briefing alinhado</label></div>
+                    <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3"><h4 class="font-bold text-white uppercase text-[11px]">Processos</h4><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Estratégia definida</label><label class="flex items-center gap-2"><input type="checkbox" class="rounded accent-blue-600"> Cronograma montado</label></div>
                 </div>
-
-                <!-- Vencimento & Financeiro do Cliente -->
                 <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-3">
-                    <h4 class="font-bold text-white uppercase tracking-wider text-[11px]">Financeiro & Vencimento</h4>
+                    <h4 class="font-bold text-white uppercase text-[11px]">Financeiro & Vencimento</h4>
                     <div class="flex items-center gap-4">
-                        <div class="flex-1">
-                            <label class="block text-slate-400 mb-1">Valor Mensalidade (R$)</label>
-                            <input type="number" id="client-fee-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono" value="1500">
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-slate-400 mb-1">Data de Vencimento</label>
-                            <input type="date" id="client-duedate-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
-                        </div>
-                        <div class="pt-5">
-                            <button onclick="registerClientPayment()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold transition">
-                                <i class="fa-solid fa-check mr-1"></i> Registrar Pagamento
-                            </button>
-                        </div>
+                        <div class="flex-1"><label class="block text-slate-400 mb-1">Valor (R$)</label><input type="number" id="client-fee-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono" value="1500"></div>
+                        <div class="flex-1"><label class="block text-slate-400 mb-1">Vencimento</label><input type="date" id="client-duedate-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono"></div>
+                        <div class="pt-5"><button onclick="registerClientPayment()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl font-semibold">Registrar Pagamento</button></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL PORTAL DE APROVAÇÃO DO CLIENTE (SIMULAÇÃO DE SITE EXTERNO) -->
+    <!-- MODAL PORTAL DE APROVAÇÃO -->
     <div id="approvalPortalModal" class="fixed inset-0 bg-dark-950 hidden flex-col z-50 overflow-y-auto">
         <header class="h-20 bg-dark-900 border-b border-dark-800 px-10 flex items-center justify-between shrink-0">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white">P</div>
-                <div>
-                    <h2 class="text-sm font-bold text-white uppercase tracking-wider">Plassô Marketing — Central de Aprovação</h2>
-                    <p id="portal-client-subtitle" class="text-xs text-slate-400 font-mono">Cliente: --</p>
-                </div>
-            </div>
-            <button onclick="closeApprovalPortal()" class="bg-dark-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition">
-                <i class="fa-solid fa-arrow-left mr-1"></i> Voltar ao Sistema
-            </button>
+            <h2 class="text-sm font-bold text-white uppercase">Central de Aprovação</h2>
+            <button onclick="closeApprovalPortal()" class="bg-dark-800 text-white px-4 py-2 rounded-xl text-xs font-semibold">Voltar</button>
         </header>
         <div class="flex-1 p-10 max-w-5xl mx-auto w-full space-y-8">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-2xl font-bold text-white">Aprovação da Semana de Conteúdo</h1>
-                    <p class="text-slate-400 text-xs mt-1">Revise os arquivos de mídia, legendas, horários e aprove ou solicite ajustes.</p>
-                </div>
-                <button onclick="finalizeApprovalSession()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-semibold shadow-lg transition">
-                    <i class="fa-solid fa-check-double mr-1.5"></i> FINALIZAR APROVAÇÃO
-                </button>
-            </div>
-
-            <!-- Cards de Conteúdo para Aprovação -->
-            <div id="portal-cards-container" class="space-y-6">
-                <!-- Injetado via JS -->
-            </div>
+            <div class="flex justify-between items-center"><h1 class="text-2xl font-bold text-white">Revisão de Conteúdo</h1><button onclick="finalizeApprovalSession()" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-xs font-semibold">FINALIZAR APROVAÇÃO</button></div>
+            <div id="portal-cards-container" class="space-y-6"></div>
         </div>
     </div>
 
-    <!-- MODAL DE REPROVAÇÃO COM OBSERVAÇÕES -->
+    <!-- MODAL REPROVAÇÃO -->
     <div id="rejectionModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-60 p-4">
         <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
-            <div class="flex items-center justify-between pb-3 border-b border-dark-800">
-                <h3 class="font-bold text-white text-sm uppercase tracking-wider text-amber-400">Solicitar Ajuste / Reprovar</h3>
-                <button onclick="closeRejectionModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div>
-                <label class="block text-slate-400 mb-1 font-semibold uppercase tracking-wider text-[10px]">O que precisa ser alterado?</label>
-                <textarea id="rejection-notes-input" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white focus:outline-none focus:border-blue-500 resize-none" placeholder="Descreva os ajustes necessários na legenda, vídeo ou imagem..."></textarea>
-            </div>
-            <div class="flex justify-end gap-3 pt-2">
-                <button onclick="closeRejectionModal()" class="px-4 py-2 rounded-xl text-slate-400 font-semibold">Cancelar</button>
-                <button onclick="submitRejection()" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2 rounded-xl font-semibold shadow-lg transition">Enviar Reprova</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL NOVA TASK -->
-    <div id="newTaskModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-        <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
-            <div class="flex items-center justify-between mb-5 border-b border-dark-800 pb-3">
-                <h3 class="text-sm font-bold text-white tracking-wide uppercase flex items-center gap-2">
-                    <i class="fa-solid fa-plus text-blue-500 text-xs"></i> Nova Publicação / Task
-                </h3>
-                <button onclick="closeNewTaskModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form onsubmit="createNewTask(event)" class="space-y-4 text-xs">
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Título / Cliente</label>
-                    <input type="text" id="nt-client" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-blue-500" placeholder="Ex: Rosa Pink - Coleção">
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Formato</label>
-                    <select id="nt-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-blue-500">
-                        <option value="Reels">Reels</option>
-                        <option value="Carrossel">Carrossel</option>
-                        <option value="Story">Story</option>
-                        <option value="Foto Única">Foto Única</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Legenda</label>
-                    <textarea id="nt-caption" rows="3" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-blue-500 resize-none" placeholder="Legenda do post..."></textarea>
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Link do Google Drive</label>
-                    <input type="url" id="nt-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-blue-500 font-mono text-[11px]" placeholder="https://drive.google.com/...">
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Data Alvo (Prazo)</label>
-                    <input type="date" id="nt-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-blue-500 font-mono">
-                </div>
-                <div class="flex justify-end gap-3 pt-2">
-                    <button type="button" onclick="closeNewTaskModal()" class="px-4 py-2 text-slate-400 font-semibold">Cancelar</button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-semibold shadow-lg">Salvar Task</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL NOVO CLIENTE -->
-    <div id="newClientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-        <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
-            <div class="flex items-center justify-between mb-5 border-b border-dark-800 pb-3">
-                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Novo Cliente</h3>
-                <button onclick="closeNewClientModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form onsubmit="createNewClient(event)" class="space-y-4 text-xs">
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Nome do Cliente / Empresa</label>
-                    <input type="text" id="nc-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none" placeholder="Ex: Umuclean">
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Valor da Mensalidade (R$)</label>
-                    <input type="number" id="nc-fee" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none font-mono" value="1200">
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Data de Vencimento</label>
-                    <input type="date" id="nc-duedate" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none font-mono">
-                </div>
-                <div class="flex justify-end gap-3 pt-2">
-                    <button type="button" onclick="closeNewClientModal()" class="px-4 py-2 text-slate-400 font-semibold">Cancelar</button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-semibold shadow-lg">Cadastrar Cliente</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL NOVA ENTRADA FINANCEIRA -->
-    <div id="newEntryModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-        <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
-            <div class="flex items-center justify-between mb-5 border-b border-dark-800 pb-3">
-                <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Nova Entrada Financeira</h3>
-                <button onclick="closeNewEntryModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form onsubmit="createNewEntry(event)" class="space-y-4 text-xs">
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Descrição / Cliente</label>
-                    <input type="text" id="ne-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none" placeholder="Ex: Projeto Extra / Mensalidade">
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Valor (R$)</label>
-                    <input type="number" id="ne-value" step="0.01" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none font-mono" placeholder="1500.00">
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Data</label>
-                    <input type="date" id="ne-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none font-mono">
-                </div>
-                <div class="flex justify-end gap-3 pt-2">
-                    <button type="button" onclick="closeNewEntryModal()" class="px-4 py-2 text-slate-400 font-semibold">Cancelar</button>
-                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl font-semibold shadow-lg">Salvar Entrada</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL NOVA DESPESA -->
-    <div id="newExpenseModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-        <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
-            <div class="flex items-center justify-between mb-5 border-b border-dark-800 pb-3">
-                <h3 class="text-sm font-bold text-red-400 uppercase tracking-wider">Nova Despesa / Conta a Pagar</h3>
-                <button onclick="closeNewExpenseModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form onsubmit="createNewExpense(event)" class="space-y-4 text-xs">
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Descrição da Despesa</label>
-                    <input type="text" id="nx-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none" placeholder="Ex: Servidor / Ferramentas / Assinaturas">
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Valor (R$)</label>
-                    <input type="number" id="nx-value" step="0.01" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none font-mono" placeholder="250.00">
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Data de Vencimento</label>
-                    <input type="date" id="nx-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none font-mono">
-                </div>
-                <div class="flex justify-end gap-3 pt-2">
-                    <button type="button" onclick="closeNewExpenseModal()" class="px-4 py-2 text-slate-400 font-semibold">Cancelar</button>
-                    <button type="submit" class="bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded-xl font-semibold shadow-lg">Salvar Despesa</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL NOVO LEAD CRM -->
-    <div id="newLeadModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-        <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
-            <div class="flex items-center justify-between mb-5 border-b border-dark-800 pb-3">
-                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Novo Lead CRM</h3>
-                <button onclick="closeNewLeadModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form onsubmit="createNewLead(event)" class="space-y-4 text-xs">
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Nome do Contato / Empresa</label>
-                    <input type="text" id="nl-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none" placeholder="Ex: Café Central">
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Coluna Inicial</label>
-                    <select id="nl-col" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none">
-                        <option value="rel">Relacionamento</option>
-                        <option value="first">Primeiro Contato</option>
-                        <option value="follow">Follow-up</option>
-                        <option value="meeting">Reunião</option>
-                        <option value="waiting">Aguardando Resposta</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-400 mb-1 uppercase tracking-wider text-[10px]">Data Alvo (Follow-up / Reunião)</label>
-                    <input type="date" id="nl-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none font-mono">
-                </div>
-                <div class="flex justify-end gap-3 pt-2">
-                    <button type="button" onclick="closeNewLeadModal()" class="px-4 py-2 text-slate-400 font-semibold">Cancelar</button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-semibold shadow-lg">Adicionar Lead</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- JavaScript Application Logic -->
-    <script>
-        // Dados Iniciais do Sistema
-        let tasks = [
-            { id: '1', client: 'Rosa Pink - Reels', type: 'Reels', caption: 'Lançamento nova coleção outono/inverno.', drive: 'https://drive.google.com/file/d/exemplo1/view', date: new Date().toISOString().split('T')[0], status: 'urgent', notes: 'Revisar cor do fundo.', isRejected: true },
-            { id: '2', client: 'Umuclean - Antes e Depois', type: 'Carrossel', caption: 'Higienização de sofá impermeabilizado.', drive: 'https://drive.google.com/file/d/exemplo2/view', date: '2026-10-30', status: 'todo', notes: '' },
-            { id: '3', client: 'Cardoso - Bastidores', type: 'Story', caption: 'Bastidores café especial da manhã.', drive: 'https://drive.google.com/file/d/exemplo3/view', date: '2026-10-27', status: 'ready', notes: '' },
-            { id: '4', client: 'Dra. Carla - Preenchimento', type: 'Foto Única', caption: 'Mitos e verdades preenchimento labial.', drive: 'https://drive.google.com/file/d/exemplo4/view', date: '2026-11-02', status: 'approved', notes: '' }
-        ];
-
-        let clients = [
-            { id: 'c1', name: 'Rosa Pink Lingerie', fee: 1500, dueDate: '2026-10-25', isOverdue: true },
-            { id: 'c2', name: 'Umuclean Higienização', fee: 1200, dueDate: '2026-11-05', isOverdue: false },
-            { id: 'c3', name: 'Cardoso Cafeteria', fee: 900, dueDate: '2026-11-10', isOverdue: false }
-        ];
-
-        let entries = [
-            { id: 'e1', name: 'Rosa Pink Lingerie (Mensalidade)', value: 1500, date: '2026-10-01' }
-        ];
-
-        let expenses = [
-            { id: 'x1', name: 'Servidor AWS & Vercel', value: 150, date: '2026-10-10' },
-            { id: 'x2', name: 'Adobe Creative Cloud', value: 124, date: '2026-10-15' }
-        ];
-
-        let crmLeads = [
-            { id: 'l1', name: 'Supermercado Imperial', col: 'follow', date: new Date().toISOString().split('T')[0] },
-            { id: 'l2', name: 'Clinica Sorria Mais', col: 'meeting', date: new Date().toISOString().split('T')[0] }
-        ];
-
-        let currentActiveClientForPortal = null;
-        let currentActiveTaskDetailId = null;
-        let activeRejectionTaskId = null;
-
-        // Controle de Abas
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('nav button').forEach(el => {
-                el.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
-                el.classList.add('text-slate-400', 'hover:text-slate-200', 'hover:bg-dark-800/40');
-            });
-            document.getElementById('tab-' + tabName).classList.add('active');
-            const activeBtn = document.getElementById('btn-' + tabName);
-            activeBtn.classList.remove('text-slate-400', 'hover:text-slate-200', 'hover:bg-dark-800/40');
-            activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
-
-            const titles = {
-                dashboard: 'Dashboard Geral',
-                tasks: 'Gestão de Tasks (Kanban)',
-                clients: 'Gestão de Clientes',
-                calendar: 'Calendário Operacional',
-                finance: 'Controle Financeiro',
-                crm: 'CRM de Vendas'
-            };
-            document.getElementById('topbar-title').innerHTML = `<i class="fa-solid fa-code-branch text-blue-500 text-xs"></i> ${titles[tabName]}`;
-
-            renderAll();
-        }
-
-        // Sidebar Collapse Control
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggle-btn');
-        const sidebarTexts = document.querySelectorAll('.sidebar-text');
-        const logoWrapper = document.getElementById('logo-wrapper');
-        const sidebarLogoImg = document.getElementById('sidebar-logo-img');
-        let isCollapsed = false;
-
-        toggleBtn.addEventListener('click', () => {
-            isCollapsed = !isCollapsed;
-            if (isCollapsed) {
-                sidebar.style.width = '76px';
-                sidebarTexts.forEach(el => { el.style.opacity = '0'; el.style.width = '0'; el.style.overflow = 'hidden'; });
-                sidebarLogoImg.src = "data:image/png;base64," + "{logo_icon_b64}";
-                toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-right text-xs"></i>';
-            } else {
-                sidebar.style.width = '256px';
-                sidebarTexts.forEach(el => { el.style.opacity = '1'; el.style.width = 'auto'; el.style.overflow = 'visible'; });
-                toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-left text-xs"></i>';
-            }
-        });
-
-        function getCategoryIcon(type) {
-            switch(type) {
-                case 'Carrossel': return '<i class="fa-solid fa-layer-group text-purple-400"></i>';
-                case 'Reels': return '<i class="fa-solid fa-video text-blue-400"></i>';
-                case 'Story': return '<i class="fa-solid fa-mobile-screen text-amber-400"></i>';
-                case 'Foto Única': return '<i class="fa-solid fa-image text-emerald-400"></i>';
-                default: return '<i class="fa-solid fa-file text-slate-400"></i>';
-            }
-        }
-
-        // Renderização Geral
-        function renderAll() {
-            renderTasks();
-            renderDashboard();
-            renderClients();
-            renderCalendar();
-            renderFinance();
-            renderCrm();
-        }
-
-        // Renderizar Tasks
-        function renderTasks() {
-            const cols = {
-                urgent: document.getElementById('col-urgent'),
-                todo: document.getElementById('col-todo'),
-                ready: document.getElementById('col-ready'),
-                approved: document.getElementById('col-approved')
-            };
-            const counts = { urgent: 0, todo: 0, ready: 0, approved: 0 };
-            Object.values(cols).forEach(c => c.innerHTML = '');
-
-            tasks.forEach(task => {
-                counts[task.status]++;
-                const card = document.createElement('div');
-                card.className = 'bg-dark-900 border border-dark-800 hover:border-slate-700 rounded-xl p-3.5 cursor-grab active:cursor-grabbing shadow-md transition group';
-                card.draggable = true;
-                card.ondragstart = (e) => e.dataTransfer.setData('text/plain', task.id);
-                card.onclick = () => openTaskDetail(task.id);
-
-                let headerBadge = '';
-                if (task.isRejected) {
-                    headerBadge = '<span class="text-[9px] bg-red-950 text-red-400 px-2 py-0.5 rounded font-mono border border-red-800 font-bold">REPROVADA</span>';
-                } else if (task.status === 'urgent') {
-                    headerBadge = '<span class="text-[9px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded font-mono border border-amber-800 font-bold">VENCE HOJE</span>';
-                }
-
-                card.innerHTML = `
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-2 overflow-hidden">
-                            <span class="text-sm shrink-0">${getCategoryIcon(task.type)}</span>
-                            <span class="text-xs font-bold text-white tracking-wide truncate">${task.client}</span>
-                        </div>
-                        ${headerBadge}
-                    </div>
-                    <p class="text-[11px] text-slate-400 mb-3 line-clamp-2 leading-relaxed">${task.caption}</p>
-                    <div class="flex items-center justify-between pt-2.5 border-t border-dark-800/60 text-[10px]">
-                        <span class="font-mono text-slate-400">${task.type}</span>
-                        <span class="font-mono text-slate-400"><i class="fa-regular fa-calendar mr-1"></i>${task.date.split('-').reverse().join('/')}</span>
-                    </div>
-                `;
-                cols[task.status].appendChild(card);
-            });
-
-            document.getElementById('count-urgent').innerText = counts.urgent;
-            document.getElementById('count-todo').innerText = counts.todo;
-            document.getElementById('count-ready').innerText = counts.ready;
-            document.getElementById('count-approved').innerText = counts.approved;
-        }
-
-        function allowDrop(ev) { ev.preventDefault(); }
-        function drop(ev, newStatus) {
-            ev.preventDefault();
-            const taskId = ev.dataTransfer.getData('text/plain');
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.status = newStatus;
-                if (newStatus !== 'urgent') task.isRejected = false;
-                renderAll();
-            }
-        }
-
-        // Dashboard Render
-        function renderDashboard() {
-            const today = new Date().toISOString().split('T')[0];
-            const urgentList = document.getElementById('dash-urgent-list');
-            urgentList.innerHTML = '';
-            let urgentCount = 0;
-
-            tasks.forEach(t => {
-                if (t.status === 'urgent' || t.date === today || t.isRejected) {
-                    urgentCount++;
-                    urgentList.innerHTML += `
-                        <div class="bg-dark-950 p-2.5 rounded-xl border border-dark-800 flex justify-between items-center text-xs">
-                            <div>
-                                <span class="font-bold text-white">${t.client}</span>
-                                <p class="text-[10px] text-slate-400">${t.caption}</p>
-                            </div>
-                            <span class="text-[9px] px-2 py-0.5 rounded font-mono bg-amber-950 text-amber-400 border border-amber-800">Urgente</span>
-                        </div>
-                    `;
-                }
-            });
-            document.getElementById('dash-urgent-count').innerText = urgentCount;
-            if (urgentCount === 0) urgentList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Nenhuma demanda urgente para hoje.</p>';
-
-            // CRM Follow-ups
-            const crmList = document.getElementById('dash-crm-list');
-            crmList.innerHTML = '';
-            let crmCount = 0;
-            crmLeads.forEach(l => {
-                if (l.date === today && (l.col === 'follow' || l.col === 'meeting')) {
-                    crmCount++;
-                    crmList.innerHTML += `
-                        <div class="bg-dark-950 p-2.5 rounded-xl border border-dark-800 flex justify-between items-center text-xs">
-                            <span class="font-bold text-white">${l.name}</span>
-                            <span class="text-[9px] px-2 py-0.5 rounded font-mono bg-blue-950 text-blue-400 border border-blue-800 uppercase">${l.col}</span>
-                        </div>
-                    `;
-                }
-            });
-            document.getElementById('dash-crm-count').innerText = crmCount;
-            if (crmCount === 0) crmList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Nenhum follow-up agendado para hoje.</p>';
-
-            // Finance & Goal
-            let totalEntries = entries.reduce((acc, curr) => acc + curr.value, 0);
-            const goal = 20000;
-            let pct = Math.round((totalEntries * 100) / goal);
-            if (pct > 100) pct = 100;
-
-            document.getElementById('dash-fin-actual').innerText = 'R$ ' + totalEntries.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-            document.getElementById('dash-goal-pct').innerText = pct + '%';
-            document.getElementById('dash-progress-bar').style.width = pct + '%';
-        }
-
-        // Clientes Render
-        function renderClients() {
-            const grid = document.getElementById('clients-grid');
-            grid.innerHTML = '';
-            clients.forEach(c => {
-                const dotColor = c.isOverdue ? 'bg-red-500 animate-pulse' : 'bg-emerald-500';
-                grid.innerHTML += `
-                    <div onclick="openClientModal('${c.id}')" class="bg-dark-900 border border-dark-800 hover:border-slate-700 rounded-2xl p-5 cursor-pointer shadow transition flex flex-col justify-between group">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-10 h-10 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold text-base font-mono">
-                                ${c.name.substring(0, 2).toUpperCase()}
-                            </div>
-                            <span class="w-3 h-3 rounded-full ${dotColor}" title="${c.isOverdue ? 'Inadimplente / Vencido' : 'Em Dia'}"></span>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-white text-sm tracking-wide group-hover:text-blue-400 transition">${c.name}</h3>
-                            <p class="text-[11px] text-slate-400 font-mono mt-1">R$ ${c.fee.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / mês</p>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        // Calendário Render
-        function renderCalendar() {
-            const calView = document.getElementById('calendar-view');
-            calView.innerHTML = '';
-            const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-            days.forEach(d => {
-                calView.innerHTML += `<div class="text-xs font-bold text-slate-400 uppercase py-2">${d}</div>`;
-            });
-
-            for (let i = 1; i <= 31; i++) {
-                const hasTask = tasks.some(t => t.date.endsWith('-' + (i < 10 ? '0' + i : i)));
-                const bgClass = hasTask ? 'bg-blue-950/40 border-blue-500/50 text-blue-300 font-bold' : 'bg-dark-950 border-dark-800 text-slate-400';
-                calView.innerHTML += `
-                    <div class="h-24 border ${bgClass} rounded-xl p-2 flex flex-col justify-between text-left">
-                        <span class="text-xs font-mono">${i}</span>
-                        ${hasTask ? '<span class="text-[9px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-mono truncate">Postagem</span>' : ''}
-                    </div>
-                `;
-            }
-        }
-
-        // Financeiro Render
-        function renderFinance() {
-            let totalEntries = entries.reduce((acc, curr) => acc + curr.value, 0);
-            let totalExpenses = expenses.reduce((acc, curr) => acc + curr.value, 0);
-
-            document.getElementById('fin-top-actual').innerText = 'R$ ' + totalEntries.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-            document.getElementById('fin-total-entries').innerText = 'R$ ' + totalEntries.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-            document.getElementById('fin-total-expenses').innerText = 'R$ ' + totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-
-            const goal = 20000;
-            let pct = Math.round((totalEntries * 100) / goal);
-            if (pct > 100) pct = 100;
-            document.getElementById('fin-pct-badge').innerText = pct + '%';
-            document.getElementById('fin-progress-bar').style.width = pct + '%';
-
-            const elList = document.getElementById('fin-entries-list');
-            elList.innerHTML = '';
-            entries.forEach(e => {
-                elList.innerHTML += `
-                    <div class="bg-dark-950 p-3 rounded-xl border border-dark-800 flex justify-between items-center text-xs font-mono">
-                        <div>
-                            <span class="font-bold text-white font-sans">${e.name}</span>
-                            <p class="text-[10px] text-slate-400">${e.date.split('-').reverse().join('/')}</p>
-                        </div>
-                        <span class="text-emerald-400 font-bold">+ R$ ${e.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                    </div>
-                `;
-            });
-
-            const exList = document.getElementById('fin-expenses-list');
-            exList.innerHTML = '';
-            expenses.forEach(x => {
-                exList.innerHTML += `
-                    <div class="bg-dark-950 p-3 rounded-xl border border-dark-800 flex justify-between items-center text-xs font-mono">
-                        <div>
-                            <span class="font-bold text-white font-sans">${x.name}</span>
-                            <p class="text-[10px] text-slate-400">${x.date.split('-').reverse().join('/')}</p>
-                        </div>
-                        <span class="text-red-400 font-bold">- R$ ${x.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                    </div>
-                `;
-            });
-        }
-
-        // CRM Render
-        function renderCrm() {
-            const cols = {
-                rel: document.getElementById('crm-col-rel'),
-                first: document.getElementById('crm-col-first'),
-                follow: document.getElementById('crm-col-follow'),
-                meeting: document.getElementById('crm-col-meeting'),
-                waiting: document.getElementById('crm-col-waiting')
-            };
-            const counts = { rel: 0, first: 0, follow: 0, meeting: 0, waiting: 0 };
-            Object.values(cols).forEach(c => c.innerHTML = '');
-
-            crmLeads.forEach(lead => {
-                counts[lead.col]++;
-                const card = document.createElement('div');
-                card.className = 'bg-dark-950 border border-dark-800 rounded-xl p-3 cursor-grab shadow text-xs';
-                card.draggable = true;
-                card.ondragstart = (e) => e.dataTransfer.setData('text/plain', lead.id);
-
-                card.innerHTML = `
-                    <p class="font-bold text-white mb-1">${lead.name}</p>
-                    <p class="text-[10px] text-slate-400 font-mono"><i class="fa-regular fa-calendar mr-1"></i>${lead.date.split('-').reverse().join('/')}</p>
-                `;
-                cols[lead.col].appendChild(card);
-            });
-
-            document.getElementById('crm-c1').innerText = counts.rel;
-            document.getElementById('crm-c2').innerText = counts.first;
-            document.getElementById('crm-c3').innerText = counts.follow;
-            document.getElementById('crm-c4').innerText = counts.meeting;
-            document.getElementById('crm-c5').innerText = counts.waiting;
-        }
-
-        function dropCrm(ev, newCol) {
-            ev.preventDefault();
-            const leadId = ev.dataTransfer.getData('text/plain');
-            const lead = crmLeads.find(l => l.id === leadId);
-            if (lead) {
-                lead.col = newCol;
-                if (newCol === 'waiting') {
-                    // Converter automaticamente em cliente se resposta positiva
-                    clients.push({ id: 'c_' + Date.now(), name: lead.name, fee: 1200, dueDate: new Date().toISOString().split('T')[0], isOverdue: false });
-                    crmLeads = crmLeads.filter(l => l.id !== leadId);
-                    alert('Lead convertido com sucesso em Cliente!');
-                }
-                renderAll();
-            }
-        }
-
-        // Funções de Modais & Detalhes
-        function openTaskDetail(id) {
-            const task = tasks.find(t => t.id === id);
-            if (!task) return;
-            currentActiveTaskDetailId = id;
-            document.getElementById('modal-task-icon').innerHTML = getCategoryIcon(task.type);
-            document.getElementById('modal-task-title').innerText = task.type + ' — ' + task.date;
-            document.getElementById('modal-task-client').innerText = task.client;
-            document.getElementById('modal-task-caption').innerText = task.caption;
-            document.getElementById('modal-task-drive').value = task.drive || 'Nenhum link informado';
-            document.getElementById('modal-task-drive-btn').href = task.drive || '#';
-            document.getElementById('modal-task-notes').value = task.notes || '';
-            document.getElementById('taskDetailModal').classList.remove('hidden');
-            document.getElementById('taskDetailModal').classList.add('flex');
-        }
-
-        function closeTaskDetail() {
-            const task = tasks.find(t => t.id === currentActiveTaskDetailId);
-            if (task) {
-                task.notes = document.getElementById('modal-task-notes').value;
-            }
-            document.getElementById('taskDetailModal').classList.add('hidden');
-            document.getElementById('taskDetailModal').classList.remove('flex');
-            renderAll();
-        }
-
-        function openClientModal(id) {
-            const c = clients.find(cl => cl.id === id);
-            if (!c) return;
-            currentActiveClientForPortal = c;
-            document.getElementById('client-modal-name').innerText = c.name;
-            document.getElementById('client-fee-input').value = c.fee;
-            document.getElementById('client-duedate-input').value = c.dueDate;
-            document.getElementById('clientModal').classList.remove('hidden');
-            document.getElementById('clientModal').classList.add('flex');
-        }
-
-        function closeClientModal() {
-            document.getElementById('clientModal').classList.add('hidden');
-            document.getElementById('clientModal').classList.remove('flex');
-        }
-
-        function registerClientPayment() {
-            if (!currentActiveClientForPortal) return;
-            const fee = parseFloat(document.getElementById('client-fee-input').value);
-            const dueDate = document.getElementById('client-duedate-input').value;
-            currentActiveClientForPortal.fee = fee;
-            currentActiveClientForPortal.dueDate = dueDate;
-            currentActiveClientForPortal.isOverdue = false;
-
-            entries.push({ id: 'e_' + Date.now(), name: currentActiveClientForPortal.name + ' (Mensalidade)', value: fee, date: new Date().toISOString().split('T')[0] });
-            alert('Pagamento registrado com sucesso e enviado ao Financeiro!');
-            closeClientModal();
-            renderAll();
-        }
-
-        // Portal de Aprovação Externo
-        function openClientApprovalPortal() {
-            if (!currentActiveClientForPortal) return;
-            document.getElementById('portal-client-subtitle').innerText = 'Cliente: ' + currentActiveClientForPortal.name;
-            const container = document.getElementById('portal-cards-container');
-            container.innerHTML = '';
-
-            tasks.forEach(t => {
-                container.innerHTML += `
-                    <div class="bg-dark-900 border border-dark-800 rounded-2xl p-6 space-y-4 shadow-xl">
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xl">${getCategoryIcon(t.type)}</span>
-                                <div>
-                                    <h3 class="font-bold text-white text-base">${t.client}</h3>
-                                    <span class="text-xs text-blue-400 font-mono">${t.type} • Agendado para: ${t.date.split('-').reverse().join('/')}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="text-sm text-slate-300 leading-relaxed bg-dark-950 p-4 rounded-xl border border-dark-800">${t.caption}</p>
-                        <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 flex items-center justify-between">
-                            <span class="text-xs text-slate-400 font-mono"><i class="fa-brands fa-google-drive text-blue-400 mr-1"></i> Arquivo de Mídia (Drive)</span>
-                            <a href="${t.drive}" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
-                                <i class="fa-solid fa-play"></i> Dar Play / Visualizar Mídia
-                            </a>
-                        </div>
-                        <div class="flex justify-end gap-3 pt-2">
-                            <button onclick="clientApproveTask('${t.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-semibold shadow transition">
-                                <i class="fa-solid fa-check mr-1"></i> Aprovar Post
-                            </button>
-                            <button onclick="clientRejectTask('${t.id}')" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2.5 rounded-xl text-xs font-semibold shadow transition">
-                                <i class="fa-solid fa-xmark mr-1"></i> Reprovar / Ajustar
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-
-            document.getElementById('clientModal').classList.add('hidden');
-            document.getElementById('approvalPortalModal').classList.remove('hidden');
-            document.getElementById('approvalPortalModal').classList.add('flex');
-        }
-
-        function closeApprovalPortal() {
-            document.getElementById('approvalPortalModal').classList.add('hidden');
-            document.getElementById('approvalPortalModal').classList.remove('flex');
-            renderAll();
-        }
-
-        function clientApproveTask(taskId) {
-            const t = tasks.find(task => task.id === taskId);
-            if (t) {
-                t.status = 'approved';
-                t.isRejected = false;
-                alert('Post aprovado com sucesso!');
-                openClientApprovalPortal();
-            }
-        }
-
-        function clientRejectTask(taskId) {
-            activeRejectionTaskId = taskId;
-            document.getElementById('rejectionModal').classList.remove('hidden');
-            document.getElementById('rejectionModal').classList.add('flex');
-        }
-
-        function closeRejectionModal() {
-            document.getElementById('rejectionModal').classList.add('hidden');
-            document.getElementById('rejectionModal').classList.remove('flex');
-        }
-
-        function submitRejection() {
-            const notes = document.getElementById('rejection-notes-input').value;
-            const t = tasks.find(task => task.id === activeRejectionTaskId);
-            if (t) {
-                t.status = 'urgent';
-                t.isRejected = true;
-                t.notes = 'Reprovado pelo cliente: ' + notes;
-            }
-            closeRejectionModal();
-            alert('Reprova enviada com sucesso! A task retornou para o Kanban em URGENTES.');
-            openClientApprovalPortal();
-        }
-
-        function finalizeApprovalSession() {
-            alert('Aprovação finalizada! Tudo certo por aqui.');
-            closeApprovalPortal();
-        }
-
-        // Modais de Criação
-        function openNewTaskModal() { document.getElementById('newTaskModal').classList.remove('hidden'); document.getElementById('newTaskModal').classList.add('flex'); document.getElementById('nt-date').valueAsDate = new Date(); }
-        function closeNewTaskModal() { document.getElementById('newTaskModal').classList.add('hidden'); document.getElementById('newTaskModal').classList.remove('flex'); }
-        function createNewTask(e) {
-            e.preventDefault();
-            tasks.push({
-                id: 't_' + Date.now(),
-                client: document.getElementById('nt-client').value,
-                type: document.getElementById('nt-type').value,
-                caption: document.getElementById('nt-caption').value,
-                drive: document.getElementById('nt-drive').value,
-                date: document.getElementById('nt-date').value,
-                status: 'todo',
-                notes: '',
-                isRejected: false
-            });
-            closeNewTaskModal();
-            renderAll();
-        }
-
-        function openNewClientModal() { document.getElementById('newClientModal').classList.remove('hidden'); document.getElementById('newClientModal').classList.add('flex'); document.getElementById('nc-duedate').valueAsDate = new Date(); }
-        function closeNewClientModal() { document.getElementById('newClientModal').classList.add('hidden'); document.getElementById('newClientModal').classList.remove('flex'); }
-        function createNewClient(e) {
-            e.preventDefault();
-            clients.push({
-                id: 'c_' + Date.now(),
-                name: document.getElementById('nc-name').value,
-                fee: parseFloat(document.getElementById('nc-fee').value),
-                dueDate: document.getElementById('nc-duedate').value,
-                isOverdue: false
-            });
-            closeNewClientModal();
-            renderAll();
-        }
-
-        function openNewEntryModal() { document.getElementById('newEntryModal').classList.remove('hidden'); document.getElementById('newEntryModal').classList.add('flex'); document.getElementById('ne-date').valueAsDate = new Date(); }
-        function closeNewEntryModal() { document.getElementById('newEntryModal').classList.add('hidden'); document.getElementById('newEntryModal').classList.remove('flex'); }
-        function createNewEntry(e) {
-            e.preventDefault();
-            entries.push({
-                id: 'e_' + Date.now(),
-                name: document.getElementById('ne-name').value,
-                value: parseFloat(document.getElementById('ne-value').value),
-                date: document.getElementById('ne-date').value
-            });
-            closeNewEntryModal();
-            renderAll();
-        }
-
-        function openNewExpenseModal() { document.getElementById('newExpenseModal').classList.remove('hidden'); document.getElementById('newExpenseModal').classList.add('flex'); document.getElementById('nx-date').valueAsDate = new Date(); }
-        function closeNewExpenseModal() { document.getElementById('newExpenseModal').classList.add('hidden'); document.getElementById('newExpenseModal').classList.remove('flex'); }
-        function createNewExpense(e) {
-            e.preventDefault();
-            expenses.push({
-                id: 'x_' + Date.now(),
-                name: document.getElementById('nx-name').value,
-                value: parseFloat(document.getElementById('nx-value').value),
-                date: document.getElementById('nx-date').value
-            });
-            closeNewExpenseModal();
-            renderAll();
-        }
-
-        function openNewLeadModal() { document.getElementById('newLeadModal').classList.remove('hidden'); document.getElementById('newLeadModal').classList.add('flex'); document.getElementById('nl-date').valueAsDate = new Date(); }
-        function closeNewLeadModal() { document.getElementById('newLeadModal').classList.add('hidden'); document.getElementById('newLeadModal').classList.remove('flex'); }
-        function createNewLead(e) {
-            e.preventDefault();
-            crmLeads.push({
-                id: 'l_' + Date.now(),
-                name: document.getElementById('nl-name').value,
-                col: document.getElementById('nl-col').value,
-                date: document.getElementById('nl-date').value
-            });
-            closeNewLeadModal();
-            renderAll();
-        }
-
-        // Inicializar aplicação
-        renderAll();
-    </script>
-</body>
-</html>
-'''
-
-output_filename = "plasso_marketing_sistema_completo.html"
-with open(output_filename, "w", encoding="utf-8") as f:
-    f.write(complete_html)
-
-print(f"Sistema completo gerado com sucesso: {output_filename}")
+            <h3 class="font-bold text-amber-400 uppercase text-sm">Solicitar Ajuste</h3>
+            <textarea id="rejection-notes-input" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="O que alterar..."></textarea>
+            <div class="flex justify-end gap-3"><button onclick="closeRejectionModal()" class="text-
