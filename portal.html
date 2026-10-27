@@ -32,7 +32,6 @@
 </head>
 <body class="bg-dark-950 text-slate-100 min-h-screen flex flex-col p-10 select-none">
 
-    <!-- Topo -->
     <div class="max-w-6xl mx-auto w-full space-y-6">
         <div class="flex justify-between items-center border-b border-dark-800 pb-5">
             <div>
@@ -51,7 +50,6 @@
             </div>
         </div>
 
-        <!-- Calendário Grande de Aprovação -->
         <div class="bg-dark-900 border border-dark-800 rounded-3xl p-8 shadow-2xl space-y-6">
             <div class="flex justify-between items-center">
                 <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar text-blue-400"></i> Calendário de Publicações</h3>
@@ -72,22 +70,20 @@
             <div class="flex items-center justify-between pb-4 border-b border-dark-800">
                 <div>
                     <h3 id="modal-day-title" class="text-lg font-bold text-white uppercase">Conteúdos do Dia</h3>
-                    <p class="text-xs text-slate-400 font-mono">Reveja as informações estruturadas, acesse o Drive e aprove ou reprove os itens.</p>
+                    <p class="text-xs text-slate-400 font-mono">Edite a Headline ou o Link do Drive diretamente, e salve as alterações.</p>
                 </div>
                 <button onclick="closeDayModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             
-            <!-- Cards em Linha Horizontal -->
             <div id="modal-cards-container" class="py-6 flex gap-6 overflow-x-auto flex-1 items-stretch"></div>
         </div>
     </div>
 
-    <!-- Modal Instantâneo de Reprovação (Z-Index Acima de Tudo) -->
+    <!-- Modal Instantâneo de Reprovação -->
     <div id="rejectionModal" class="fixed inset-0 bg-dark-950/95 backdrop-blur-lg hidden items-center justify-center z-50 p-4">
         <div class="bg-dark-900 border border-amber-500/50 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
             <h3 class="font-bold text-amber-400 uppercase text-sm flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Motivo da Recusa / Ajuste</h3>
-            <p class="text-slate-400">Descreva o que precisa ser alterado para que a agência possa corrigir:</p>
-            <textarea id="rejection-notes-input" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="Ex: Mudar a cor da fonte, ajustar o CTA..."></textarea>
+            <textarea id="rejection-notes-input" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="Descreva o que precisa ser alterado..."></textarea>
             <div class="flex justify-end gap-3 pt-2">
                 <button onclick="closeRejectionModal()" class="text-slate-400 cursor-pointer">Cancelar</button>
                 <button onclick="submitRejection()" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Enviar Recusa</button>
@@ -182,11 +178,10 @@
                 let isRejected = t.isRejected;
                 let cardBorder = isRejected ? 'border-red-500/60 bg-red-950/20' : (isAlreadyApproved ? 'border-emerald-500/60 bg-emerald-950/20' : 'border-dark-800 bg-dark-950');
 
-                // Extraindo as 6 informações estruturadas solicitadas:
                 let headline = t.headline || t.client || 'Headline';
                 let formato = t.type || 'Carrossel';
                 let dataPost = t.date ? t.date.split('-').reverse().join('/') : 'Não definida';
-                let driveLink = t.drive || '#';
+                let driveLink = t.drive || '';
                 let legenda = t.caption || 'Sem legenda informada.';
                 let notas = t.notes || 'Nenhuma observação ou link de referência.';
 
@@ -198,27 +193,28 @@
                                 <span class="text-[10px] text-slate-400 font-mono"><i class="fa-regular fa-calendar mr-1"></i>${dataPost}</span>
                             </div>
                             
-                            <!-- 1. Headline -->
+                            <!-- Headline Editável -->
                             <div>
-                                <span class="text-[10px] text-slate-400 font-mono uppercase">Headline:</span>
-                                <h4 class="font-bold text-white text-sm mt-0.5">${headline}</h4>
+                                <label class="block text-[10px] text-slate-400 font-mono uppercase">Headline (Editável):</label>
+                                <input type="text" id="input-headline-${t.id}" value="${headline}" onchange="updateTaskField('${t.id}', 'headline', this.value)" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-bold text-sm mt-0.5 outline-none focus:border-blue-500">
                             </div>
 
-                            <!-- 2. Formato e 3. Data já exibidos no topo -->
-
-                            <!-- 4. Link do Drive -->
-                            <div class="bg-dark-900 p-2.5 rounded-xl border border-dark-800 flex items-center justify-between">
-                                <span class="text-[11px] text-slate-400 font-mono"><i class="fa-brands fa-google-drive text-blue-400 mr-1"></i> Drive</span>
-                                <a href="${driveLink}" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"><i class="fa-solid fa-play text-[10px]"></i> Ver Mídia</a>
+                            <!-- Link do Drive Editável -->
+                            <div>
+                                <label class="block text-[10px] text-slate-400 font-mono uppercase">Link do Drive (Editável):</label>
+                                <div class="mt-0.5 flex items-center gap-2">
+                                    <input type="url" id="input-drive-${t.id}" value="${driveLink}" onchange="updateTaskField('${t.id}', 'drive', this.value)" class="flex-1 bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-blue-400 font-mono text-xs outline-none focus:border-blue-500" placeholder="https://drive.google.com/...">
+                                    <a href="${driveLink || '#'}" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-semibold shrink-0"><i class="fa-solid fa-play"></i></a>
+                                </div>
                             </div>
 
-                            <!-- 5. Legenda do Post -->
+                            <!-- Legenda do Post -->
                             <div>
                                 <span class="text-[10px] text-slate-400 font-mono uppercase">Legenda:</span>
-                                <p class="text-xs text-slate-300 bg-dark-900 p-3 rounded-xl border border-dark-800/60 leading-relaxed max-h-28 overflow-y-auto mt-0.5">${legenda}</p>
+                                <p class="text-xs text-slate-300 bg-dark-900 p-3 rounded-xl border border-dark-800/60 leading-relaxed max-h-24 overflow-y-auto mt-0.5">${legenda}</p>
                             </div>
 
-                            <!-- 6. Notas (Observações) -->
+                            <!-- Notas (Observações) -->
                             <div>
                                 <span class="text-[10px] text-slate-400 font-mono uppercase">Notas / Referências:</span>
                                 <p class="text-[11px] text-amber-300 bg-amber-950/30 p-2.5 rounded-xl border border-amber-800/50 mt-0.5">${notas}</p>
@@ -237,6 +233,16 @@
 
             document.getElementById('dayPostsModal').classList.remove('hidden');
             document.getElementById('dayPostsModal').classList.add('flex');
+        }
+
+        function updateTaskField(taskId, field, value) {
+            let tasksList = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+            let t = tasksList.find(task => task.id === taskId);
+            if(t) {
+                t[field] = value;
+                localStorage.setItem('plasso_tasks', JSON.stringify(tasksList));
+                tasks = tasksList;
+            }
         }
 
         function closeDayModal() {
