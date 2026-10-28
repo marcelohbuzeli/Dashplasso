@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks | Plassô</title>
+    <title>Plassô Marketing — Gestão Integrada</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -45,19 +45,30 @@
                 </div>
             </div>
             <nav class="p-3 space-y-1.5 font-medium text-xs flex-1 overflow-y-auto">
-                <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard</span></a>
+                <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard (Geral)</span></a>
                 <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer bg-blue-600 text-white"><i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Tasks</span></a>
                 <a href="clients.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-network-wired w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Clientes</span></a>
                 <a href="calendar.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-calendar-days w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Calendário</span></a>
-                                <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">CRM</span></a>
                 <a href="finance.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-wallet w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Financeiro</span></a>
+                <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">CRM</span></a>
             </nav>
+        </div>
+        <div class="p-4 border-t border-dark-800/60 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-dark-800 border border-slate-700/50 flex items-center justify-center text-xs font-bold text-blue-400 shrink-0 font-mono">MB</div>
+                <div class="sidebar-text overflow-hidden font-mono">
+                    <p class="text-xs font-semibold text-slate-200 truncate">Marcelo Buzeli</p>
+                    <p class="text-[10px] text-emerald-400 flex items-center gap-1.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online</p>
+                </div>
+            </div>
+        </div>
     </aside>
     
     <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
         <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
             <div>
                 <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2"><i class="fa-solid fa-terminal text-blue-500 text-xs"></i> Gestão de Tarefas (Kanban)</h1>
+                <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/tasks</p>
             </div>
             <div>
                 <button onclick="openNewTaskModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-lg">
@@ -68,11 +79,11 @@
 
         <div class="flex-1 overflow-x-auto p-8 flex gap-6 items-start">
             <div class="w-80 bg-gradient-to-b from-red-950/30 to-dark-900 border border-red-500/30 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-red-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Urgente</h3><span id="count-urgent" class="text-xs font-mono bg-dark-950 text-red-400 px-2 py-0.5 rounded-full border border-red-800/50">0</span></div>
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-red-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Urgente (>48h / Reprovadas)</h3><span id="count-urgent" class="text-xs font-mono bg-dark-950 text-red-400 px-2 py-0.5 rounded-full border border-red-800/50">0</span></div>
                 <div id="col-urgent" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'urgent')"></div>
             </div>
             <div class="w-80 bg-gradient-to-b from-amber-950/30 to-dark-900 border border-amber-500/30 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-amber-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span> A Fazer</h3><span id="count-afazer" class="text-xs font-mono bg-dark-950 text-amber-400 px-2 py-0.5 rounded-full border border-amber-800/50">0</span></div>
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-amber-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span> A Fazer (<48h)</h3><span id="count-afazer" class="text-xs font-mono bg-dark-950 text-amber-400 px-2 py-0.5 rounded-full border border-amber-800/50">0</span></div>
                 <div id="col-afazer" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'afazer')"></div>
             </div>
             <div class="w-80 bg-gradient-to-b from-emerald-950/30 to-dark-900 border border-emerald-500/30 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
@@ -87,34 +98,80 @@
     </main>
 </div>
 
-<!-- Modal Detalhes / Edição de Task -->
+<!-- Modal Detalhes / Edição de Task (Minimalista e Focado) -->
 <div id="taskDetailModal" class="fixed inset-0 bg-dark-950/85 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 text-xs">
+    <div class="bg-dark-900 border border-dark-800 w-full max-w-lg rounded-3xl p-8 shadow-2xl space-y-5 text-xs max-h-[92vh] overflow-y-auto">
         <div class="flex justify-between items-center pb-3 border-b border-dark-800">
-            <h3 class="text-base font-bold text-white uppercase">Informações da Postagem</h3>
+            <h3 class="text-base font-bold text-white uppercase tracking-wide">Detalhes da Postagem</h3>
             <button onclick="closeTaskDetailModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
         <input type="hidden" id="dt-id">
-        <div><label class="block text-slate-400 mb-1">Headline</label><input type="text" id="dt-headline" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-bold"></div>
-        <div><label class="block text-slate-400 mb-1">Cliente</label><input type="text" id="dt-client" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"></div>
-        <div><label class="block text-slate-400 mb-1">Formato</label><select id="dt-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"><option value="Reels">Reels</option><option value="Carrossel">Carrossel</option><option value="Story">Story</option><option value="Foto Única">Foto Única</option></select></div>
-        <div><label class="block text-slate-400 mb-1">Data da Postagem</label><input type="date" id="dt-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"></div>
-        <div><label class="block text-slate-400 mb-1">Link do Drive</label><input type="url" id="dt-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-blue-400 font-mono"></div>
-        <div><label class="block text-slate-400 mb-1">Legenda</label><textarea id="dt-caption" rows="3" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none"></textarea></div>
-        <div><label class="block text-slate-400 mb-1">Notas / Observações</label><textarea id="dt-notes" rows="2" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-amber-300 resize-none"></textarea></div>
-        <div class="flex justify-between items-center pt-2">
+        
+        <!-- 1. Headline (Destaque Principal) -->
+        <div class="space-y-1">
+            <label class="block text-[11px] text-blue-400 font-bold uppercase tracking-wider">Headline (Título)</label>
+            <input type="text" id="dt-headline" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-4 py-3 text-white font-bold text-sm focus:border-blue-500 outline-none">
+        </div>
+
+        <!-- 2. Cabeçalho Menor Intermediário (Data, Formato, Cliente, Link do Drive) -->
+        <div class="bg-dark-950 p-4 rounded-2xl border border-dark-800/80 space-y-3">
+            <p class="text-[10px] text-slate-400 font-mono uppercase font-bold tracking-wider mb-2"><i class="fa-solid fa-info-circle mr-1 text-blue-400"></i> Informações do Cabeçalho</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[10px] text-slate-400 mb-1">Cliente</label>
+                    <input type="text" id="dt-client" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-slate-400 mb-1">Formato</label>
+                    <select id="dt-type" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white">
+                        <option value="Reels">Reels</option>
+                        <option value="Carrossel">Carrossel</option>
+                        <option value="Story">Story</option>
+                        <option value="Foto Única">Foto Única</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] text-slate-400 mb-1">Data da Postagem</label>
+                    <input type="date" id="dt-date" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-slate-400 mb-1">Link do Drive</label>
+                    <input type="url" id="dt-drive" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-blue-400 font-mono" placeholder="https://...">
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Roteiro / Conteúdo Principal (Destaque) -->
+        <div class="space-y-1">
+            <label class="block text-[11px] text-emerald-400 font-bold uppercase tracking-wider">Roteiro / Conteúdo</label>
+            <textarea id="dt-roteiro" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3.5 text-white resize-none leading-relaxed focus:border-emerald-500 outline-none" placeholder="Escreva o roteiro ou texto principal do post..."></textarea>
+        </div>
+
+        <!-- 4. Legenda (Destaque) -->
+        <div class="space-y-1">
+            <label class="block text-[11px] text-purple-400 font-bold uppercase tracking-wider">Legenda</label>
+            <textarea id="dt-caption" rows="3" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3.5 text-white resize-none leading-relaxed focus:border-purple-500 outline-none" placeholder="Escreva a legenda para o Instagram..."></textarea>
+        </div>
+
+        <!-- 5. Observações (Posicionado ao final) -->
+        <div class="space-y-1 pt-2 border-t border-dark-800">
+            <label class="block text-[10px] text-amber-400 font-bold uppercase tracking-wider">Observações</label>
+            <textarea id="dt-observacoes" rows="2" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-amber-300 resize-none" placeholder="Observações finais..."></textarea>
+        </div>
+
+        <div class="flex justify-between items-center pt-3 border-t border-dark-800">
             <button onclick="deleteTaskFromModal()" class="text-red-400 hover:text-red-300 font-semibold cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Excluir Task</button>
-            <button onclick="saveTaskDetails()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar Alterações</button>
+            <button onclick="saveTaskDetails()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl font-semibold cursor-pointer shadow-lg">Salvar Alterações</button>
         </div>
     </div>
 </div>
 
 <!-- Modal Nova Task -->
 <div id="newTaskModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
+    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4">
         <form onsubmit="createNewTask(event)" class="space-y-4 text-xs">
-            <h3 class="text-sm font-bold text-white uppercase">Nova Tarefa / Postagem</h3>
-            <div><label class="block text-slate-400 mb-1">Headline (Título)</label><input type="text" id="nt-headline" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-bold" placeholder="Título do post"></div>
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Nova Tarefa / Postagem</h3>
+            <div><label class="block text-slate-400 mb-1 font-bold">Headline (Título)</label><input type="text" id="nt-headline" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-bold" placeholder="Título do post"></div>
             <div><label class="block text-slate-400 mb-1">Cliente</label><input type="text" id="nt-client" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome do cliente"></div>
             <div><label class="block text-slate-400 mb-1">Formato</label><select id="nt-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"><option value="Reels">Reels</option><option value="Carrossel">Carrossel</option><option value="Story">Story</option><option value="Foto Única">Foto Única</option></select></div>
             <div><label class="block text-slate-400 mb-1">Data da Postagem</label><input type="date" id="nt-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"></div>
@@ -134,7 +191,6 @@
         let now = new Date();
 
         pureTasks.forEach(t => {
-            // Se estiver na coluna 'pronto' ou 'aprovadas', respeitamos o status atual
             if (t.status !== 'aprovadas' && t.status !== 'pronto') {
                 if (t.date) {
                     let postDate = new Date(t.date + 'T23:59:59');
@@ -174,7 +230,7 @@
                             <span class="text-blue-400 font-medium truncate">${clientName}</span>
                             <span class="text-slate-400 font-mono text-[9px]">${dateFormatted}</span>
                         </div>
-                        ${t.notes && t.notes.startsWith('Reprovado') ? `<p class="text-[10px] text-amber-400 bg-amber-950/30 p-1.5 rounded border border-amber-800/50 mt-1">${t.notes}</p>` : ''}
+                        ${t.observacoes ? `<p class="text-[10px] text-amber-400 bg-amber-950/30 p-1.5 rounded border border-amber-800/50 mt-1">${t.observacoes}</p>` : ''}
                     </div>
                 `;
             });
@@ -192,8 +248,9 @@
         document.getElementById('dt-type').value = t.type || 'Reels';
         document.getElementById('dt-date').value = t.date || '';
         document.getElementById('dt-drive').value = t.drive || '';
-        document.getElementById('dt-caption').value = t.caption || '';
-        document.getElementById('dt-notes').value = t.notes || '';
+        document.getElementById('dt-roteiro').value = t.roteiro || t.caption || '';
+        document.getElementById('dt-caption').value = t.legenda || t.caption || '';
+        document.getElementById('dt-observacoes').value = t.observacoes || t.notes || '';
         document.getElementById('taskDetailModal').classList.remove('hidden');
         document.getElementById('taskDetailModal').classList.add('flex');
     }
@@ -211,8 +268,11 @@
             t.type = document.getElementById('dt-type').value;
             t.date = document.getElementById('dt-date').value;
             t.drive = document.getElementById('dt-drive').value;
+            t.roteiro = document.getElementById('dt-roteiro').value;
+            t.legenda = document.getElementById('dt-caption').value;
             t.caption = document.getElementById('dt-caption').value;
-            t.notes = document.getElementById('dt-notes').value;
+            t.observacoes = document.getElementById('dt-observacoes').value;
+            t.notes = document.getElementById('dt-observacoes').value;
             localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
             alert('Task atualizada com sucesso!');
             closeTaskDetailModal();
@@ -238,9 +298,9 @@
         if(t) {
             t.status = status;
             if (status === 'pronto') {
-                // Ao mover para pronto (após ajuste), limpa a rejeição e libera no portal
                 t.isRejected = false;
                 t.notes = '';
+                t.observacoes = '';
                 t.manuallyMovedToPronto = true;
             } else if (status === 'urgent') {
                 t.isRejected = true;
@@ -265,6 +325,9 @@
             date: document.getElementById('nt-date').value,
             drive: document.getElementById('nt-drive').value,
             status: 'afazer',
+            roteiro: '',
+            legenda: '',
+            observacoes: '',
             notes: '',
             isRejected: false,
             manuallyMovedToPronto: false
