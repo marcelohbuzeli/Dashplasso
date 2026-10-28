@@ -53,6 +53,7 @@
         <div class="bg-dark-900 border border-dark-800 rounded-3xl p-8 shadow-2xl space-y-6">
             <div class="flex justify-between items-center">
                 <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar text-blue-400"></i> Calendário de Publicações</h3>
+                <span class="text-xs text-slate-400">Verde = Aprovado | Vermelho = Ajuste Solicitado | Azul = Pendente</span>
             </div>
             
             <div class="grid grid-cols-7 gap-3 text-center text-xs font-bold text-slate-400 uppercase font-mono pb-2 border-b border-dark-800">
@@ -69,6 +70,7 @@
             <div class="flex items-center justify-between pb-4 border-b border-dark-800 shrink-0">
                 <div>
                     <h3 id="modal-day-title" class="text-lg font-bold text-white uppercase">Conteúdos do Dia</h3>
+                    <p class="text-xs text-slate-400 font-mono">Reveja os posts, aprove ou reprove. Cada post só pode ser decidido uma única vez.</p>
                 </div>
                 <button onclick="closeDayModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
@@ -326,11 +328,32 @@
                 t.notes = 'Reprovado pelo cliente: ' + notes;
                 localStorage.setItem('plasso_tasks', JSON.stringify(tasksList));
                 tasks = tasksList;
-                alert('Recusa enviada com sucesso! O post retornou para ajuste.');
+                alert('Recusa enviada com sucesso! O post retornou como ajuste.');
                 closeRejectionModal();
                 openDayModal(parseInt(currentActiveDayNum));
                 renderCalendar();
             }
+        }
+
+        
+
+        
+
+        
+
+            let entries = JSON.parse(localStorage.getItem('plasso_entries') || '[]');
+            let clientName = currentClient ? currentClient.name : 'Cliente';
+            entries.push({
+                id: 'e_' + Date.now(),
+                name: clientName + ' (Pagamento)',
+                value: payValue,
+                date: payDate
+            });
+            localStorage.setItem('plasso_entries', JSON.stringify(entries));
+
+            alert('Pagamento lançado com sucesso nas entradas do Financeiro!');
+            closePaymentModal();
+        }
 
         renderCalendar();
     </script>
