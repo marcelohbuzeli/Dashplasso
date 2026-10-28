@@ -182,10 +182,10 @@
             document.getElementById('count-' + col).innerText = colLeads.length;
 
             colLeads.forEach(l => {
-                let historyHTML = '';
+                let lastUpdateHTML = '';
                 if (l.historyArray && l.historyArray.length > 0) {
-                    historyHTML = '<div class="text-[10px] text-emerald-400 font-mono mt-1 pt-1 border-t border-dark-800 space-y-0.5">' + 
-                        l.historyArray.map(item => `<div>• ${item}</div>`).join('') + '</div>';
+                    let latest = l.historyArray[l.historyArray.length - 1];
+                    lastUpdateHTML = `<p class="text-[10px] text-emerald-400 font-mono mt-1 pt-1 border-t border-dark-800">• ${latest}</p>`;
                 }
 
                 container.innerHTML += `
@@ -196,7 +196,7 @@
                         </div>
                         ${l.insta ? `<p class="text-[11px] text-blue-400"><i class="fa-brands fa-instagram mr-1"></i>${l.insta}</p>` : ''}
                         ${l.link ? `<a href="${l.link}" target="_blank" onclick="event.stopPropagation()" class="text-[10px] text-slate-400 hover:underline block truncate"><i class="fa-solid fa-link mr-1"></i>${l.link}</a>` : ''}
-                        ${historyHTML}
+                        ${lastUpdateHTML}
                     </div>
                 `;
             });
