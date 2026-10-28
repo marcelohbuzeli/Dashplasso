@@ -77,27 +77,22 @@
         </header>
 
         <div class="flex-1 overflow-x-auto p-8 flex gap-6 items-start">
-            <!-- Coluna 1: Novo Lead -->
             <div ondblclick="openNewLeadModal()" class="w-80 bg-gradient-to-b from-blue-950/30 to-dark-900 border border-blue-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] cursor-pointer shadow-xl" title="Dê duplo clique para adicionar novo contato">
                 <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-blue-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Novo Lead</h3><span id="count-novolead" class="text-xs font-mono bg-dark-950 text-blue-400 px-2 py-0.5 rounded-full border border-blue-800/50">0</span></div>
                 <div id="col-novolead" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'novolead')"></div>
             </div>
-            <!-- Coluna 2: Relacionamento -->
             <div class="w-80 bg-gradient-to-b from-purple-950/30 to-dark-900 border border-purple-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] shadow-xl">
                 <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-purple-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Relacionamento</h3><span id="count-relacionamento" class="text-xs font-mono bg-dark-950 text-purple-400 px-2 py-0.5 rounded-full border border-purple-800/50">0</span></div>
                 <div id="col-relacionamento" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'relacionamento')"></div>
             </div>
-            <!-- Coluna 3: Follow Up -->
             <div class="w-80 bg-gradient-to-b from-amber-950/30 to-dark-900 border border-amber-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] shadow-xl">
                 <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-amber-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Follow Up</h3><span id="count-follow" class="text-xs font-mono bg-dark-950 text-amber-400 px-2 py-0.5 rounded-full border border-amber-800/50">0</span></div>
                 <div id="col-follow" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'follow')"></div>
             </div>
-            <!-- Coluna 4: Reunião -->
             <div class="w-80 bg-gradient-to-b from-emerald-950/30 to-dark-900 border border-emerald-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] shadow-xl">
                 <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-emerald-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Reunião</h3><span id="count-reuniao" class="text-xs font-mono bg-dark-950 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-800/50">0</span></div>
                 <div id="col-reuniao" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'reuniao')"></div>
             </div>
-            <!-- Coluna 5: Aguardando Resposta -->
             <div class="w-80 bg-gradient-to-b from-indigo-950/30 to-dark-900 border border-indigo-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] shadow-xl">
                 <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Aguardando Resposta</h3><span id="count-aguardando" class="text-xs font-mono bg-dark-950 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-800/50">0</span></div>
                 <div id="col-aguardando" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'aguardando')"></div>
@@ -106,7 +101,7 @@
     </main>
 </div>
 
-<!-- Modal Detalhes do Lead (Ao Clicar no Card) -->
+<!-- Modal Detalhes do Lead -->
 <div id="leadDetailModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
     <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 text-xs">
         <div class="flex justify-between items-center pb-3 border-b border-dark-800">
@@ -116,7 +111,7 @@
         <div class="space-y-3">
             <div><label class="block text-slate-400 mb-1">@ do Instagram</label><input type="text" id="ld-insta" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2 text-white"></div>
             <div><label class="block text-slate-400 mb-1">Link do Perfil</label><input type="url" id="ld-link" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2 text-blue-400 font-mono"></div>
-            <div><label class="block text-slate-400 mb-1">Histórico de Registros e Datas</label><div id="ld-history" class="bg-dark-950 p-3 rounded-xl border border-dark-800 text-emerald-400 font-mono text-[11px] space-y-1 max-h-32 overflow-y-auto"></div></div>
+            <div><label class="block text-slate-400 mb-1">Histórico de Registros e Datas</label><div id="ld-history" class="bg-dark-950 p-3 rounded-xl border border-dark-800 text-emerald-400 font-mono text-[11px] space-y-1 max-h-36 overflow-y-auto"></div></div>
         </div>
         <div class="flex justify-between items-center pt-2">
             <button onclick="deleteLeadFromModal()" class="text-red-400 hover:text-red-300 font-semibold cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Excluir Lead</button>
@@ -187,6 +182,12 @@
             document.getElementById('count-' + col).innerText = colLeads.length;
 
             colLeads.forEach(l => {
+                let historyHTML = '';
+                if (l.historyArray && l.historyArray.length > 0) {
+                    historyHTML = '<div class="text-[10px] text-emerald-400 font-mono mt-1 pt-1 border-t border-dark-800 space-y-0.5">' + 
+                        l.historyArray.map(item => `<div>• ${item}</div>`).join('') + '</div>';
+                }
+
                 container.innerHTML += `
                     <div draggable="true" ondragstart="drag(event, '${l.id}')" onclick="openLeadDetail('${l.id}')" class="bg-dark-950 border border-dark-800 rounded-xl p-3.5 shadow space-y-2 cursor-pointer hover:border-blue-500/50 transition">
                         <div class="flex justify-between items-start">
@@ -195,7 +196,7 @@
                         </div>
                         ${l.insta ? `<p class="text-[11px] text-blue-400"><i class="fa-brands fa-instagram mr-1"></i>${l.insta}</p>` : ''}
                         ${l.link ? `<a href="${l.link}" target="_blank" onclick="event.stopPropagation()" class="text-[10px] text-slate-400 hover:underline block truncate"><i class="fa-solid fa-link mr-1"></i>${l.link}</a>` : ''}
-                        ${l.history ? `<p class="text-[10px] text-emerald-400 font-mono mt-1 pt-1 border-t border-dark-800">${l.history}</p>` : ''}
+                        ${historyHTML}
                     </div>
                 `;
             });
@@ -211,7 +212,10 @@
         document.getElementById('ld-title').innerText = l.name;
         document.getElementById('ld-insta').value = l.insta || '';
         document.getElementById('ld-link').value = l.link || '';
-        document.getElementById('ld-history').innerHTML = l.history ? `<div>• ${l.history}</div>` : '<div class="text-slate-500">Nenhum registro de data.</div>';
+        
+        let histList = l.historyArray || [];
+        document.getElementById('ld-history').innerHTML = histList.length > 0 ? histList.map(h => `<div>• ${h}</div>`).join('') : '<div class="text-slate-500">Nenhum histórico registrado.</div>';
+        
         document.getElementById('leadDetailModal').classList.remove('hidden');
         document.getElementById('leadDetailModal').classList.add('flex');
     }
@@ -246,10 +250,12 @@
         if(!lead) return;
 
         let todayStr = new Date().toLocaleDateString('pt-BR');
+        if(!lead.historyArray) lead.historyArray = [];
 
         if (targetCol === 'relacionamento') {
             lead.col = 'relacionamento';
-            lead.history = `Relacionamento iniciado em ${todayStr}`;
+            let msg = `Relacionamento iniciado em: ${todayStr}`;
+            lead.historyArray.push(msg);
             renderCRM();
         } else if (targetCol === 'follow') {
             pendingLeadId = lead.id;
@@ -272,7 +278,8 @@
             document.getElementById('meetingModal').classList.add('flex');
         } else if (targetCol === 'aguardando') {
             lead.col = 'aguardando';
-            lead.history = `Em aguardando resposta em ${todayStr}`;
+            let msg = `Em aguardando resposta em ${todayStr}`;
+            lead.historyArray.push(msg);
             if(confirm(`O lead "${lead.name}" fechou contrato e se tornou cliente?`)) {
                 let clients = JSON.parse(localStorage.getItem('plasso_clients') || '[]');
                 clients.push({ id: 'c_' + Date.now(), name: lead.name, fee: 1500, dueDate: new Date().toISOString().split('T')[0], isOverdue: false });
@@ -308,10 +315,12 @@
         
         if(!dateVal) { alert('Selecione uma data.'); return; }
 
+        let formattedDate = dateVal.split('-').reverse().join('/');
         lead.col = 'follow';
-        lead.history = `Follow-up agendado para ${dateVal.split('-').reverse().join('/')} às ${timeVal}`;
+        if(!lead.historyArray) lead.historyArray = [];
+        let histMsg = `Follow agendado para: ${formattedDate} às ${timeVal}`;
+        lead.historyArray.push(histMsg);
         
-        // GRAVAÇÃO GARANTIDA NO CALENDÁRIO (unificado em plasso_tasks)
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
         tasks.push({
             id: 't_' + Date.now(),
@@ -327,7 +336,7 @@
 
         closeFollowModal();
         renderCRM();
-        alert('Follow-up agendado e registrado no Calendário com sucesso!');
+        alert('Follow-up agendado e registrado no Calendário!');
     }
 
     function cancelFollow() { closeFollowModal(); renderCRM(); }
@@ -339,12 +348,15 @@
         if(!dateVal || !timeVal) { alert('Preencha data e hora.'); return; }
 
         let lead = leads.find(l => l.id === pendingLeadId);
-        lead.col = 'reuniao';
-        lead.history = `Reunião marcada para ${dateVal.split('-').reverse().join('/')} às ${timeVal}`;
-
-        // GRAVAÇÃO GARANTIDA NO CALENDÁRIO (unificado em plasso_tasks)
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let formattedDate = dateVal.split('-').reverse().join('/');
         let hourFormatted = timeVal.split(':')[0] + 'h';
+
+        lead.col = 'reuniao';
+        if(!lead.historyArray) lead.historyArray = [];
+        let histMsg = `Reunião agendada para: ${formattedDate} às ${timeVal}`;
+        lead.historyArray.push(histMsg);
+
+        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
         tasks.push({
             id: 't_' + Date.now(),
             client: lead.name,
@@ -374,7 +386,7 @@
         let insta = document.getElementById('nl-insta').value;
         let link = document.getElementById('nl-link').value;
 
-        leads.push({ id: 'l_' + Date.now(), name: name, insta: insta, link: link, col: 'novolead', history: `Lead criado em ${new Date().toLocaleDateString('pt-BR')}` });
+        leads.push({ id: 'l_' + Date.now(), name: name, insta: insta, link: link, col: 'novolead', historyArray: [`Lead criado em ${new Date().toLocaleDateString('pt-BR')}`] });
         closeNewLeadModal();
         renderCRM();
     }
