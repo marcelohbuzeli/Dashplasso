@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plassô | Marketing</title>
+    <title>Plassô Marketing — CRM & Prospecção</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -26,11 +25,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .kanban-col { min-height: calc(100vh - 280px); }
+        .crm-col { min-height: calc(100vh - 240px); }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: #030712; }
         ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #374151; }
     </style>
 </head>
 <body class="bg-dark-950 text-slate-200 antialiased overflow-hidden selection:bg-blue-600 selection:text-white">
@@ -46,224 +44,342 @@
                         <span class="text-[9px] text-blue-400 font-mono tracking-wider">MARKETING</span>
                     </div>
                 </div>
-                <button id="toggle-btn" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-dark-800 transition shrink-0">
-                    <i class="fa-solid fa-chevron-left text-xs"></i>
-                </button>
             </div>
             <nav class="p-3 space-y-1.5 font-medium text-xs flex-1 overflow-y-auto">
-    <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard</span>
-    </a>
-    <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Tasks</span>
-    </a>
-    <a href="clients.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-network-wired w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Clientes</span>
-    </a>
-    <a href="calendar.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-calendar-days w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Calendário</span>
-    </a>
-    <a href="finance.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-wallet w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Financeiro</span>
-    </a>
-    <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer bg-blue-600 text-white">
-        <i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">CRM</span>
-    </a>
-</nav>
+                <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Dashboard</span></a>
+                <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Tasks</span></a>
+                <a href="clients.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-network-wired w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Clientes</span></a>
+                <a href="calendar.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-calendar-days w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Calendário</span></a>
+                <a href="finance.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-wallet w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Financeiro</span></a>
+                <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer bg-blue-600 text-white"><i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">CRM</span></a>
+            </nav>
+        </div>
     </aside>
-    
+
     <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
         <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
             <div>
-                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
-                    <i class="fa-solid fa-users-viewfinder text-blue-500 text-xs"></i> CRM de Prospecção & Vendas
-                </h1>
-                <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/crm</p>
-            </div>
-            <div>
-                <button onclick="openNewLeadModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
-                    <i class="fa-solid fa-user-plus text-[10px]"></i> Novo Lead
-                </button>
+                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2"><i class="fa-solid fa-users-viewfinder text-blue-500 text-xs"></i> CRM & Prospecção de Leads</h1>
+                <p class="text-[11px] text-slate-400 font-mono mt-0.5">Arraste os cards entre as colunas para gerenciar o funil</p>
             </div>
         </header>
 
-        <div class="flex-1 overflow-x-auto p-8">
-            <div class="flex gap-5 h-full min-w-[1400px]">
-                <div class="flex-1 bg-dark-900 border border-dark-800 rounded-2xl flex flex-col max-h-full"><div class="p-3.5 border-b border-dark-800 flex justify-between items-center"><h4 class="text-xs font-bold uppercase text-blue-400">Relacionamento</h4><span id="crm-c1" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span></div><div id="crm-col-rel" class="p-3 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="dropCrm(event, 'rel')"></div></div>
-                <div class="flex-1 bg-dark-900 border border-dark-800 rounded-2xl flex flex-col max-h-full"><div class="p-3.5 border-b border-dark-800 flex justify-between items-center"><h4 class="text-xs font-bold uppercase text-purple-400">Primeiro Contato</h4><span id="crm-c2" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span></div><div id="crm-col-first" class="p-3 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="dropCrm(event, 'first')"></div></div>
-                <div class="flex-1 bg-dark-900 border border-dark-800 rounded-2xl flex flex-col max-h-full"><div class="p-3.5 border-b border-dark-800 flex justify-between items-center"><h4 class="text-xs font-bold uppercase text-amber-400">Follow-up</h4><span id="crm-c3" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span></div><div id="crm-col-follow" class="p-3 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="dropCrm(event, 'follow')"></div></div>
-                <div class="flex-1 bg-dark-900 border border-dark-800 rounded-2xl flex flex-col max-h-full"><div class="p-3.5 border-b border-dark-800 flex justify-between items-center"><h4 class="text-xs font-bold uppercase text-emerald-400">Reunião</h4><span id="crm-c4" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span></div><div id="crm-col-meeting" class="p-3 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="dropCrm(event, 'meeting')"></div></div>
-                <div class="flex-1 bg-dark-900 border border-dark-800 rounded-2xl flex flex-col max-h-full"><div class="p-3.5 border-b border-dark-800 flex justify-between items-center"><h4 class="text-xs font-bold uppercase text-indigo-400">Aguardando Resposta</h4><span id="crm-c5" class="text-[10px] font-mono bg-dark-800 px-2 py-0.5 rounded text-slate-300">0</span></div><div id="crm-col-waiting" class="p-3 flex-1 overflow-y-auto space-y-3 kanban-col" ondragover="allowDrop(event)" ondrop="dropCrm(event, 'waiting')"></div></div>
+        <!-- Kanban Board com 4 colunas: Novo Lead, Relacionamento, Follow Up, Reunião, Aguardando Resposta -->
+        <div class="flex-1 overflow-x-auto overflow-y-auto p-8 flex gap-6">
+            
+            <!-- Coluna 1: Novo lead (com duplo clique para criar contato) -->
+            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
+                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Novo Lead</h3><span id="count-novo" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
+                <div id="col-novo" ondragover="allowDrop(event)" ondrop="drop(event, 'novo')" ondblclick="openNewLeadModal()" class="crm-col p-4 space-y-3 overflow-y-auto cursor-pointer" title="Dê duplo clique para adicionar novo contato"></div>
             </div>
+
+            <!-- Coluna 2: Relacionamento -->
+            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
+                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Relacionamento</h3><span id="count-relacionamento" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
+                <div id="col-relacionamento" ondragover="allowDrop(event)" ondrop="drop(event, 'relacionamento')" class="crm-col p-4 space-y-3 overflow-y-auto"></div>
+            </div>
+
+            <!-- Coluna 3: Follow Up -->
+            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
+                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Follow Up</h3><span id="count-follow" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
+                <div id="col-follow" ondragover="allowDrop(event)" ondrop="drop(event, 'follow')" class="crm-col p-4 space-y-3 overflow-y-auto"></div>
+            </div>
+
+            <!-- Coluna 4: Reunião -->
+            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
+                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Reunião</h3><span id="count-reuniao" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
+                <div id="col-reuniao" ondragover="allowDrop(event)" ondrop="drop(event, 'reuniao')" class="crm-col p-4 space-y-3 overflow-y-auto"></div>
+            </div>
+
+            <!-- Coluna 5: Aguardando Resposta -->
+            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
+                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Aguardando Resposta</h3><span id="count-aguardando" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
+                <div id="col-aguardando" ondragover="allowDrop(event)" ondrop="drop(event, 'aguardando')" class="crm-col p-4 space-y-3 overflow-y-auto"></div>
+            </div>
+
         </div>
     </main>
 </div>
 
-<!-- Modal Novo Lead -->
+<!-- Modal Criar Novo Lead -->
 <div id="newLeadModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
-        <form onsubmit="createNewLead(event)" class="space-y-4 text-xs">
-            <h3 class="text-sm font-bold text-white uppercase">Novo Lead</h3>
-            <input type="text" id="nl-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome do Contato">
-            <input type="text" id="nl-area" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Área de Atuação">
-            <select id="nl-col" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white">
-                <option value="rel">Relacionamento</option>
-                <option value="first">Primeiro Contato</option>
-                <option value="follow">Follow-up</option>
-                <option value="meeting">Reunião</option>
-                <option value="waiting">Aguardando Resposta</option>
-            </select>
-            <input type="date" id="nl-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono">
-            <div class="flex justify-end gap-3 pt-2">
-                <button type="button" onclick="closeNewLeadModal()" class="text-slate-400">Cancelar</button>
-                <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar Lead</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Modal Decisão CRM -->
-<div id="crmDecisionModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-60 p-4">
-    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-5 text-xs">
-        <h3 class="font-bold text-white text-sm uppercase">Decisão do Lead</h3>
-        <p class="text-slate-300">O que aconteceu com o contato <strong id="crm-decision-lead-name" class="text-blue-400"></strong>?</p>
-        <div class="space-y-2">
-            <button onclick="resolveCrmDecision('client')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl font-semibold text-left flex items-center justify-between"><span>Tornou-se Cliente</span> <i class="fa-solid fa-user-check"></i></button>
-            <button onclick="resolveCrmDecision('closed')" class="w-full bg-red-600 hover:bg-red-500 text-white p-3 rounded-xl font-semibold text-left flex items-center justify-between"><span>Encerrado (Não quis)</span> <i class="fa-solid fa-user-xmark"></i></button>
-            <button onclick="resolveCrmDecision('wait_more')" class="w-full bg-amber-600 hover:bg-amber-500 text-white p-3 rounded-xl font-semibold text-left flex items-center justify-between"><span>Aguardar + 5 dias</span> <i class="fa-solid fa-clock"></i></button>
-        </div>
-        <div class="flex justify-end pt-2"><button onclick="cancelCrmDecision()" class="text-slate-400">Cancelar</button></div>
-    </div>
-</div>
-
-<!-- Modal Info Lead -->
-<div id="leadInfoModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
     <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
-        <div class="flex items-center justify-between pb-3 border-b border-dark-800"><h3 id="lead-info-name" class="font-bold text-white text-sm uppercase"></h3><button onclick="closeLeadInfoModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button></div>
-        <div><span class="text-slate-400 font-semibold uppercase">Área de Atuação:</span><p id="lead-info-area" class="text-white font-bold mt-1 text-sm"></p></div>
-        <div><span class="text-slate-400 font-semibold uppercase">Data FollowUp:</span><p id="lead-info-date" class="text-slate-300 font-mono mt-1"></p></div>
-        <div class="flex justify-end pt-3"><button onclick="closeLeadInfoModal()" class="bg-blue-600 text-white px-4 py-2 rounded-xl font-semibold">Fechar</button></div>
+        <h3 class="font-bold text-white uppercase">Adicionar Novo Contato / Lead</h3>
+        <input type="text" id="nl-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome do Contato / Empresa">
+        <input type="text" id="nl-insta" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="@ do Instagram (ex: @plassomarketing)">
+        <input type="url" id="nl-link" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-blue-400 font-mono" placeholder="Link do Perfil">
+        <div class="flex justify-end gap-3 pt-2">
+            <button onclick="closeNewLeadModal()" class="text-slate-400 cursor-pointer">Cancelar</button>
+            <button onclick="saveNewLead()" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Adicionar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Follow Up (5 dias úteis ou customizado) -->
+<div id="followUpModal" class="fixed inset-0 bg-dark-950/90 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <div class="bg-dark-900 border border-amber-500/50 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
+        <h3 class="font-bold text-amber-400 uppercase text-sm">Agendar Follow-up</h3>
+        <p id="follow-suggestion-text" class="text-slate-300"></p>
+        
+        <div id="custom-follow-box" class="hidden space-y-3 pt-2 border-t border-dark-800">
+            <div>
+                <label class="block text-slate-400 mb-1">Escolher Dia:</label>
+                <input type="date" id="cf-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
+            </div>
+            <div>
+                <label class="block text-slate-400 mb-1">Escolher Horário:</label>
+                <select id="cf-time" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
+                    <option value="09:00">09:00</option>
+                    <option value="10:00">10:00</option>
+                    <option value="11:00">11:00</option>
+                    <option value="14:00">14:00</option>
+                    <option value="15:00">15:00</option>
+                    <option value="16:00">16:00</option>
+                    <option value="17:00">17:00</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-dark-800">
+            <button onclick="cancelFollowMove()" class="text-slate-400 cursor-pointer">Cancelar</button>
+            <button onclick="chooseCustomFollow()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl font-semibold cursor-pointer">Agendar outro dia</button>
+            <button onclick="confirmSuggestedFollow()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold cursor-pointer">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Reunião -->
+<div id="meetingModal" class="fixed inset-0 bg-dark-950/90 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <div class="bg-dark-900 border border-emerald-500/50 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
+        <h3 class="font-bold text-emerald-400 uppercase text-sm">Agendar Reunião</h3>
+        <div>
+            <label class="block text-slate-400 mb-1">Data da Reunião:</label>
+            <input type="date" id="m-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
+        </div>
+        <div>
+            <label class="block text-slate-400 mb-1">Horário da Reunião:</label>
+            <input type="time" id="m-time" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono" value="10:00">
+        </div>
+        <div class="flex justify-end gap-3 pt-2">
+            <button onclick="cancelMeetingMove()" class="text-slate-400 cursor-pointer">Cancelar</button>
+            <button onclick="confirmMeeting()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Confirmar Reunião</button>
+        </div>
     </div>
 </div>
 
 <script>
-    let crmLeads = JSON.parse(localStorage.getItem('plasso_crm') || '[]');
-    if(crmLeads.length === 0) {
-        crmLeads = [
-            { id: 'l1', name: 'Supermercado Imperial', area: 'Varejo', col: 'follow', date: new Date().toISOString().split('T')[0] }
+    let leads = JSON.parse(localStorage.getItem('plasso_crm') || '[]');
+    if(leads.length === 0) {
+        leads = [
+            { id: 'l1', name: 'João da Silva', insta: '@joaosilva', link: 'https://instagram.com', col: 'novo', history: 'Criado em 28/10/2026' }
         ];
-        localStorage.setItem('plasso_crm', JSON.stringify(crmLeads));
+        localStorage.setItem('plasso_crm', JSON.stringify(leads));
     }
-    let pendingLeadIdForDecision = null;
 
-    function renderCrm() {
-        const cols = { rel: document.getElementById('crm-col-rel'), first: document.getElementById('crm-col-first'), follow: document.getElementById('crm-col-follow'), meeting: document.getElementById('crm-col-meeting'), waiting: document.getElementById('crm-col-waiting') };
-        const counts = { rel: 0, first: 0, follow: 0, meeting: 0, waiting: 0 };
-        Object.values(cols).forEach(c => { if(c) c.innerHTML = ''; });
-        
-        crmLeads.forEach(lead => {
-            if(counts[lead.col] !== undefined) counts[lead.col]++;
-            const card = document.createElement('div');
-            card.className = 'bg-dark-950 border border-dark-800 rounded-xl p-3 cursor-grab shadow text-xs space-y-1';
-            card.draggable = true;
-            card.ondragstart = (e) => e.dataTransfer.setData('text/plain', lead.id);
-            card.onclick = () => openLeadInfoModal(lead.id);
+    function renderCRM() {
+        ['novo', 'relacionamento', 'follow', 'reuniao', 'aguardando'].forEach(col => {
+            const container = document.getElementById('col-' + col);
+            container.innerHTML = '';
+            let colLeads = leads.filter(l => l.col === col);
+            document.getElementById('count-' + col).innerText = colLeads.length;
 
-            card.innerHTML = `<p class="font-bold text-white">${lead.name}</p><p class="text-[10px] text-blue-400 font-mono">${lead.area || 'Geral'}</p><p class="text-[10px] text-slate-400 font-mono"><i class="fa-regular fa-calendar mr-1"></i>${lead.date.split('-').reverse().join('/')}</p>`;
-            if(cols[lead.col]) cols[lead.col].appendChild(card);
+            colLeads.forEach(l => {
+                container.innerHTML += `
+                    <div draggable="true" ondragstart="drag(event, '${l.id}')" class="bg-dark-950 border border-dark-800 rounded-xl p-4 space-y-3 cursor-grab shadow">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-white text-sm">${l.name}</h4>
+                                ${l.insta ? `<a href="${l.link || '#'}" target="_blank" class="text-xs text-blue-400 hover:underline"><i class="fa-brands fa-instagram mr-1"></i>${l.insta}</a>` : ''}
+                            </div>
+                            <button onclick="deleteLead('${l.id}')" class="text-slate-500 hover:text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                        <p class="text-[10px] text-slate-400 font-mono bg-dark-900 px-2 py-1 rounded border border-dark-800">${l.history || 'Lead recente'}</p>
+                    </div>
+                `;
+            });
         });
-        
-        document.getElementById('crm-c1').innerText = counts.rel;
-        document.getElementById('crm-c2').innerText = counts.first;
-        document.getElementById('crm-c3').innerText = counts.follow;
-        document.getElementById('crm-c4').innerText = counts.meeting;
-        document.getElementById('crm-c5').innerText = counts.waiting;
-        localStorage.setItem('plasso_crm', JSON.stringify(crmLeads));
+        localStorage.setItem('plasso_crm', JSON.stringify(leads));
     }
 
     function allowDrop(ev) { ev.preventDefault(); }
-    function dropCrm(ev, newCol) {
-        ev.preventDefault();
-        const leadId = ev.dataTransfer.getData('text/plain');
-        const lead = crmLeads.find(l => l.id === leadId);
-        if (lead) {
-            if (newCol === 'waiting') {
-                pendingLeadIdForDecision = leadId;
-                document.getElementById('crm-decision-lead-name').innerText = lead.name;
-                document.getElementById('crmDecisionModal').classList.remove('hidden');
-                document.getElementById('crmDecisionModal').classList.add('flex');
-            } else {
-                lead.col = newCol;
-                renderCrm();
-            }
-        }
-    }
+    let draggedId = null;
+    function drag(ev, id) { draggedId = id; }
 
-    function resolveCrmDecision(action) {
-        const lead = crmLeads.find(l => l.id === pendingLeadIdForDecision);
+    let pendingTargetCol = null;
+    function drop(ev, targetCol) {
+        ev.preventDefault();
+        if(!draggedId) return;
+        let lead = leads.find(l => l.id === draggedId);
         if(!lead) return;
 
-        if (action === 'client') {
-            let clients = JSON.parse(localStorage.getItem('plasso_clients') || '[]');
-            clients.push({ id: 'c_' + Date.now(), name: lead.name, fee: 1200, dueDate: new Date().toISOString().split('T')[0], isOverdue: false });
-            localStorage.setItem('plasso_clients', JSON.stringify(clients));
+        let todayStr = new Date().toLocaleDateString('pt-BR');
+
+        if (targetCol === 'relacionamento') {
+            lead.col = targetCol;
+            lead.history = `Relacionamento iniciado em ${todayStr}`;
+            renderCRM();
+        } else if (targetCol === 'follow') {
+            pendingTargetCol = targetCol;
+            // Calcular 5 dias úteis à frente
+            let targetDate = addBusinessDays(new Date(), 5);
+            let dateFormatted = targetDate.toLocaleDateString('pt-BR');
+            let dateIso = targetDate.toISOString().split('T')[0];
             
-            crmLeads = crmLeads.filter(l => l.id !== pendingLeadIdForDecision);
-            alert('Lead convertido com sucesso em Novo Cliente!');
-        } else if (action === 'closed') {
-            crmLeads = crmLeads.filter(l => l.id !== pendingLeadIdForDecision);
-            alert('Lead arquivado como encerrado.');
-        } else if (action === 'wait_more') {
-            lead.col = 'waiting';
-            let futureDate = new Date();
-            futureDate.setDate(futureDate.getDate() + 5);
-            lead.date = futureDate.toISOString().split('T')[0];
-            alert('Agendado novo follow-up para daqui a 5 dias.');
+            lead.tempFollowDate = dateIso;
+            document.getElementById('follow-suggestion-text').innerText = `O follow será agendado para ${dateFormatted} (5 dias úteis após a movimentação). Confirma essa data?`;
+            document.getElementById('custom-follow-box').classList.add('hidden');
+            document.getElementById('followUpModal').classList.remove('hidden');
+            document.getElementById('followUpModal').classList.add('flex');
+        } else if (targetCol === 'reuniao') {
+            pendingTargetCol = targetCol;
+            document.getElementById('m-date').valueAsDate = new Date();
+            document.getElementById('meetingModal').classList.remove('hidden');
+            document.getElementById('meetingModal').classList.add('flex');
+        } else if (targetCol === 'aguardando') {
+            lead.col = targetCol;
+            lead.history = `Aguardando resposta em ${todayStr}`;
+            
+            // Pergunta se deseja converter em Cliente
+            if(confirm(`O lead ${lead.name} está em 'Aguardando Resposta'. Deseja torná-lo cliente oficial da Plassô?`)) {
+                // Adiciona na base de Clientes
+                let clients = JSON.parse(localStorage.getItem('plasso_clients') || '[]');
+                if(!clients.some(c => c.name.toLowerCase() === lead.name.toLowerCase())) {
+                    clients.push({ id: 'c_' + Date.now(), name: lead.name, fee: 1500, dueDate: new Date().toISOString().split('T')[0], isOverdue: false });
+                    localStorage.setItem('plasso_clients', JSON.stringify(clients));
+                }
+                // Remove definitivamente do CRM
+                leads = leads.filter(l => l.id !== draggedId);
+                alert(`Parabéns! ${lead.name} foi convertido em cliente e removido do CRM.`);
+            }
+            renderCRM();
+        } else {
+            lead.col = targetCol;
+            lead.history = `Movido em ${todayStr}`;
+            renderCRM();
         }
-        document.getElementById('crmDecisionModal').classList.add('hidden');
-        document.getElementById('crmDecisionModal').classList.remove('flex');
-        renderCrm();
     }
 
-    function cancelCrmDecision() {
-        document.getElementById('crmDecisionModal').classList.add('hidden');
-        document.getElementById('crmDecisionModal').classList.remove('flex');
-        renderCrm();
+    // Função auxiliar para calcular 5 dias úteis (ignorando finais de semana)
+    function addBusinessDays(startDate, days) {
+        let count = 0;
+        let currentDate = new Date(startDate);
+        while (count < days) {
+            currentDate.setDate(currentDate.getDate() + 1);
+            let dayOfWeek = currentDate.getDay();
+            if (dayOfWeek !== 0 && dayOfWeek !== 6) { // 0 = Domingo, 6 = Sábado
+                count++;
+            }
+        }
+        return currentDate;
     }
 
-    function openLeadInfoModal(id) {
-        const l = crmLeads.find(item => item.id === id);
-        if(!l) return;
-        document.getElementById('lead-info-name').innerText = l.name;
-        document.getElementById('lead-info-area').innerText = l.area || 'Não informada';
-        document.getElementById('lead-info-date').innerText = l.date.split('-').reverse().join('/');
-        document.getElementById('leadInfoModal').classList.remove('hidden');
-        document.getElementById('leadInfoModal').classList.add('flex');
-    }
-    function closeLeadInfoModal() { document.getElementById('leadInfoModal').classList.add('hidden'); document.getElementById('leadInfoModal').classList.remove('flex'); }
+    function confirmSuggestedFollow() {
+        let lead = leads.find(l => l.id === draggedId);
+        if(lead) {
+            lead.col = pendingTargetCol;
+            lead.history = `Follow agendado para ${lead.tempFollowDate.split('-').reverse().join('/')} às 09:00`;
+            
+            // Registrar automaticamente no Calendário
+            let customEvents = JSON.parse(localStorage.getItem('plasso_events') || '[]');
+            customEvents.push({ id: 'ev_' + Date.now(), title: `Follow-up: ${lead.name} (09:00)`, date: lead.tempFollowDate });
+            localStorage.setItem('plasso_events', JSON.stringify(customEvents));
 
-    function openNewLeadModal() { document.getElementById('newLeadModal').classList.remove('hidden'); document.getElementById('newLeadModal').classList.add('flex'); document.getElementById('nl-date').valueAsDate = new Date(); }
-    function closeNewLeadModal() { document.getElementById('newLeadModal').classList.add('hidden'); document.getElementById('newLeadModal').classList.remove('flex'); }
-    function createNewLead(e) {
-        e.preventDefault();
-        crmLeads.push({
+            renderCRM();
+        }
+        closeFollowModal();
+    }
+
+    function chooseCustomFollow() {
+        document.getElementById('custom-follow-box').classList.remove('hidden');
+        document.getElementById('cf-date').valueAsDate = new Date();
+    }
+
+    function confirmCustomFollow() {
+        let cDate = document.getElementById('cf-date').value;
+        let cTime = document.getElementById('cf-time').value;
+        if(!cDate) { alert('Escolha uma data.'); return; }
+
+        let lead = leads.find(l => l.id === draggedId);
+        if(lead) {
+            lead.col = pendingTargetCol;
+            lead.history = `Follow agendado para ${cDate.split('-').reverse().join('/')} às ${cTime}`;
+            
+            let customEvents = JSON.parse(localStorage.getItem('plasso_events') || '[]');
+            customEvents.push({ id: 'ev_' + Date.now(), title: `Follow-up: ${lead.name} (${cTime})`, date: cDate });
+            localStorage.setItem('plasso_events', JSON.stringify(customEvents));
+
+            renderCRM();
+        }
+        closeFollowModal();
+    }
+
+    function cancelFollowMove() { closeFollowModal(); renderCRM(); }
+    function closeFollowModal() {
+        document.getElementById('followUpModal').classList.add('hidden');
+        document.getElementById('followUpModal').classList.remove('flex');
+    }
+
+    function confirmMeeting() {
+        let mDate = document.getElementById('m-date').value;
+        let mTime = document.getElementById('m-time').value;
+        if(!mDate) { alert('Escolha a data da reunião.'); return; }
+
+        let lead = leads.find(l => l.id === draggedId);
+        if(lead) {
+            lead.col = pendingTargetCol;
+            lead.history = `Reunião agendada para ${mDate.split('-').reverse().join('/')} às ${mTime}`;
+            
+            let customEvents = JSON.parse(localStorage.getItem('plasso_events') || '[]');
+            customEvents.push({ id: 'ev_' + Date.now(), title: `Reunião: ${lead.name} (${mTime})`, date: mDate });
+            localStorage.setItem('plasso_events', JSON.stringify(customEvents));
+
+            renderCRM();
+        }
+        closeMeetingModal();
+        renderCRM();
+    }
+
+    function cancelMeetingMove() { closeMeetingModal(); renderCRM(); }
+    function closeMeetingModal() {
+        document.getElementById('meetingModal').classList.add('hidden');
+        document.getElementById('meetingModal').classList.remove('flex');
+    }
+
+    function openNewLeadModal() {
+        document.getElementById('nl-name').value = '';
+        document.getElementById('nl-insta').value = '';
+        document.getElementById('nl-link').value = '';
+        document.getElementById('newLeadModal').classList.remove('hidden');
+        document.getElementById('newLeadModal').classList.add('flex');
+    }
+    function closeNewLeadModal() {
+        document.getElementById('newLeadModal').classList.add('hidden');
+        document.getElementById('newLeadModal').classList.remove('flex');
+    }
+    function saveNewLead() {
+        let name = document.getElementById('nl-name').value;
+        if(!name) { alert('Nome obrigatório'); return; }
+        leads.push({
             id: 'l_' + Date.now(),
-            name: document.getElementById('nl-name').value,
-            area: document.getElementById('nl-area').value,
-            col: document.getElementById('nl-col').value,
-            date: document.getElementById('nl-date').value
+            name: name,
+            insta: document.getElementById('nl-insta').value,
+            link: document.getElementById('nl-link').value,
+            col: 'novo',
+            history: 'Novo lead adicionado em ' + new Date().toLocaleDateString('pt-BR')
         });
         closeNewLeadModal();
-        renderCrm();
+        renderCRM();
     }
 
-    renderCrm();
+    function deleteLead(id) {
+        if(!confirm('Excluir contato do CRM?')) return;
+        leads = leads.filter(l => l.id !== id);
+        renderCRM();
+    }
+
+    renderCRM();
 </script>
 </body>
 </html>
+crm.html
+Exibindo crm.html.
