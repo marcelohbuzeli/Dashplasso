@@ -66,7 +66,9 @@
     <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
         <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
             <div>
-                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2"><i class="fa-solid fa-calendar-days text-blue-500 text-xs"></i> Calendário Operacional</h1>
+                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days text-blue-500 text-xs"></i> Calendário Operacional
+                </h1>
                 <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/calendar</p>
             </div>
             <div class="flex items-center gap-4">
@@ -79,16 +81,22 @@
         <div class="flex-1 overflow-y-auto p-8 space-y-6">
             <div class="bg-dark-900 border border-dark-800 rounded-2xl p-6 space-y-6">
                 <div class="flex justify-between items-center flex-wrap gap-4">
-                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Calendário Operacional</h3>
+                    <h3 id="calendar-title" class="text-sm font-bold text-white uppercase tracking-wider">Calendário Operacional</h3>
                     <div class="flex items-center gap-3">
                         <label class="text-xs text-slate-400 font-mono">Mês:</label>
                         <select id="cal-month-select" onchange="renderCalendar()" class="bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-xs text-white font-mono cursor-pointer">
-                            <option value="2026-01">Janeiro de 2026</option><option value="2026-02">Fevereiro de 2026</option>
-                            <option value="2026-03">Março de 2026</option><option value="2026-04">Abril de 2026</option>
-                            <option value="2026-05">Maio de 2026</option><option value="2026-06">Junho de 2026</option>
-                            <option value="2026-07">Julho de 2026</option><option value="2026-08">Agosto de 2026</option>
-                            <option value="2026-09">Setembro de 2026</option><option value="2026-10" selected>Outubro de 2026</option>
-                            <option value="2026-11">Novembro de 2026</option><option value="2026-12">Dezembro de 2026</option>
+                            <option value="2026-01">Janeiro de 2026</option>
+                            <option value="2026-02">Fevereiro de 2026</option>
+                            <option value="2026-03">Março de 2026</option>
+                            <option value="2026-04">Abril de 2026</option>
+                            <option value="2026-05">Maio de 2026</option>
+                            <option value="2026-06">Junho de 2026</option>
+                            <option value="2026-07">Julho de 2026</option>
+                            <option value="2026-08">Agosto de 2026</option>
+                            <option value="2026-09">Setembro de 2026</option>
+                            <option value="2026-10" selected>Outubro de 2026</option>
+                            <option value="2026-11">Novembro de 2026</option>
+                            <option value="2026-12">Dezembro de 2026</option>
                         </select>
                     </div>
                 </div>
@@ -97,6 +105,25 @@
             </div>
         </div>
     </main>
+</div>
+
+<!-- Modal para Editar Evento / Task do Calendário (Ao Clicar no Card) -->
+<div id="calendarEditModal" class="fixed inset-0 bg-dark-950/85 backdrop-blur-md hidden items-center justify-center z-[9999] p-4">
+    <div class="bg-dark-900 border border-blue-500/60 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 text-xs">
+        <div class="flex justify-between items-center pb-3 border-b border-dark-800">
+            <h3 class="text-base font-bold text-white uppercase">Editar Agendamento</h3>
+            <button onclick="closeCalendarEditModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <input type="hidden" id="ce-id">
+        <div><label class="block text-slate-400 mb-1">Título / Nome</label><input type="text" id="ce-headline" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-bold"></div>
+        <div><label class="block text-slate-400 mb-1">Data</label><input type="date" id="ce-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"></div>
+        <div><label class="block text-slate-400 mb-1">Link do Drive</label><input type="url" id="ce-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-blue-400 font-mono" placeholder="https://..."></div>
+        <div><label class="block text-slate-400 mb-1">Observações / Legenda</label><textarea id="ce-caption" rows="3" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none"></textarea></div>
+        <div class="flex justify-between items-center pt-2">
+            <button onclick="deleteCalendarEvent()" class="text-red-400 hover:text-red-300 font-semibold cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Apagar Agendamento</button>
+            <button onclick="saveCalendarEvent()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar Alterações</button>
+        </div>
+    </div>
 </div>
 
 <!-- Modal Nova Agenda -->
@@ -108,7 +135,7 @@
             <select id="ev-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white">
                 <option value="Post">Postagem / Task</option>
                 <option value="Followup">Follow-up CRM</option>
-                <option value="Evento">Evento / Reunião</option>
+                <option value="Reuniao">Reunião CRM</option>
             </select>
             <input type="date" id="ev-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono">
             <div class="flex justify-end gap-3 pt-2">
@@ -122,7 +149,7 @@
 <script>
     function renderCalendar() {
         const calView = document.getElementById('calendar-view');
-        const selectedYearMonth = document.getElementById('cal-month-select').value;
+        const selectedYearMonth = document.getElementById('cal-month-select').value; // Ex: "2026-10"
         if(!calView) return;
         calView.innerHTML = '';
         
@@ -144,18 +171,64 @@
                 bgClass = 'bg-dark-900 border-slate-700 text-white font-bold';
                 dayTasks.forEach(dt => {
                     let titleText = dt.headline || dt.client || 'Post';
-                    if(dt.notes === 'followup_tag') {
-                        badgesHTML += `<span class="text-[9px] bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded font-mono font-bold truncate block mt-1" title="${titleText}">${titleText}</span>`;
-                    } else if(dt.notes === 'meeting_tag') {
-                        badgesHTML += `<span class="text-[9px] bg-purple-600 text-white px-1.5 py-0.5 rounded font-mono font-bold truncate block mt-1" title="${titleText}">${titleText}</span>`;
-                    } else {
-                        badgesHTML += `<span class="text-[9px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-mono truncate block mt-1" title="${titleText}">${titleText}</span>`;
+                    let tagColor = 'bg-blue-600 text-white'; // Azul para Postagens
+
+                    if (dt.notes === 'crm_follow' || titleText.includes('Follow Up')) {
+                        tagColor = 'bg-amber-400 text-slate-950 font-extrabold'; // Amarela para Follow Up
+                    } else if (dt.notes === 'crm_meeting' || titleText.includes('Reunião')) {
+                        tagColor = 'bg-purple-600 text-white font-bold'; // Roxa para Reunião
                     }
+
+                    badgesHTML += `<span onclick="event.stopPropagation(); openCalendarEditModal('${dt.id}')" class="text-[9px] ${tagColor} px-1.5 py-0.5 rounded font-mono truncate block mt-1 cursor-pointer hover:opacity-80 transition" title="Clique para editar">${titleText}</span>`;
                 });
             }
 
-            calView.innerHTML += `<div class="h-28 border ${bgClass} rounded-xl p-2 flex flex-col justify-between text-left overflow-hidden"><span class="text-xs font-mono">${i}</span><div class="overflow-y-auto max-h-16 space-y-1">${badgesHTML}</div></div>`;
+            calView.innerHTML += `<div class="h-32 border ${bgClass} rounded-xl p-2 flex flex-col justify-between text-left"><span class="text-xs font-mono">${i}</span><div class="overflow-y-auto max-h-20 space-y-1">${badgesHTML}</div></div>`;
         }
+    }
+
+    let activeEditCalendarId = null;
+    function openCalendarEditModal(id) {
+        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let t = tasks.find(task => task.id === id);
+        if(!t) return;
+        activeEditCalendarId = id;
+        document.getElementById('ce-id').value = t.id;
+        document.getElementById('ce-headline').value = t.headline || t.client || '';
+        document.getElementById('ce-date').value = t.date || '';
+        document.getElementById('ce-drive').value = t.drive || '';
+        document.getElementById('ce-caption').value = t.caption || t.notes || '';
+        document.getElementById('calendarEditModal').classList.remove('hidden');
+        document.getElementById('calendarEditModal').classList.add('flex');
+    }
+
+    function closeCalendarEditModal() {
+        document.getElementById('calendarEditModal').classList.add('hidden');
+        document.getElementById('calendarEditModal').classList.remove('flex');
+    }
+
+    function saveCalendarEvent() {
+        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let t = tasks.find(task => task.id === activeEditCalendarId);
+        if(t) {
+            t.headline = document.getElementById('ce-headline').value;
+            t.date = document.getElementById('ce-date').value;
+            t.drive = document.getElementById('ce-drive').value;
+            t.caption = document.getElementById('ce-caption').value;
+            localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+            alert('Agendamento atualizado com sucesso!');
+            closeCalendarEditModal();
+            renderCalendar();
+        }
+    }
+
+    function deleteCalendarEvent() {
+        if(!confirm('Deseja excluir este agendamento?')) return;
+        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        tasks = tasks.filter(task => task.id !== activeEditCalendarId);
+        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+        closeCalendarEditModal();
+        renderCalendar();
     }
 
     function openNewEventModal() { document.getElementById('newEventModal').classList.remove('hidden'); document.getElementById('newEventModal').classList.add('flex'); document.getElementById('ev-date').valueAsDate = new Date(); }
@@ -166,18 +239,19 @@
         let type = document.getElementById('ev-type').value;
         let date = document.getElementById('ev-date').value;
 
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-        let noteType = 'Post';
         let headlineText = title;
+        let noteType = 'event';
+
         if(type === 'Followup') {
-            noteType = 'followup_tag';
-            headlineText = `Follow-up: Follow ${title}`;
-        } else if(type === 'Evento') {
-            noteType = 'meeting_tag';
-            headlineText = `Reunião: 09:00 Reunião ${title}`;
+            headlineText = `Follow Up: Follow (${title})`;
+            noteType = 'crm_follow';
+        } else if(type === 'Reuniao') {
+            headlineText = `[09h] Reunião ${title}`;
+            noteType = 'crm_meeting';
         }
 
-        tasks.push({ id: 't_' + Date.now(), client: title, headline: headlineText, type: 'Reels', caption: 'Criado pelo Calendário', date: date, status: 'todo', notes: noteType });
+        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        tasks.push({ id: 't_' + Date.now(), client: title, headline: headlineText, type: 'Reels', caption: '', drive: '', date: date, status: 'todo', notes: noteType, isRejected: false });
         localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
 
         closeNewEventModal();
