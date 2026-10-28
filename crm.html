@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plassô Marketing — CRM & Prospecção</title>
+    <title>Plassô Marketing — CRM de Prospecção</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -25,7 +25,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .crm-col { min-height: calc(100vh - 240px); }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: #030712; }
         ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
@@ -33,7 +32,6 @@
 </head>
 <body class="bg-dark-950 text-slate-200 antialiased overflow-hidden selection:bg-blue-600 selection:text-white">
 <div class="flex flex-row h-screen w-screen overflow-hidden">
-
     <aside id="sidebar" class="bg-dark-900 border-r border-dark-800 flex flex-col justify-between transition-all duration-300 w-64 z-30 overflow-hidden shrink-0 h-full">
         <div class="flex flex-col h-full">
             <div class="h-20 flex items-center justify-between px-4 border-b border-dark-800/60 shrink-0">
@@ -46,154 +44,158 @@
                 </div>
             </div>
             <nav class="p-3 space-y-1.5 font-medium text-xs flex-1 overflow-y-auto">
-                <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Dashboard</span></a>
-                <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Tasks</span></a>
-                <a href="clients.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-network-wired w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Clientes</span></a>
-                <a href="calendar.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-calendar-days w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Calendário</span></a>
-                <a href="finance.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-wallet w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Financeiro</span></a>
-                <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer bg-blue-600 text-white"><i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">CRM</span></a>
+                <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard (Geral)</span></a>
+                <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Tasks</span></a>
+                <a href="clients.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-network-wired w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Clientes</span></a>
+                <a href="calendar.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-calendar-days w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Calendário</span></a>
+                <a href="finance.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-wallet w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Financeiro</span></a>
+                <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer bg-blue-600 text-white"><i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">CRM</span></a>
             </nav>
         </div>
+        <div class="p-4 border-t border-dark-800/60 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-dark-800 border border-slate-700/50 flex items-center justify-center text-xs font-bold text-blue-400 shrink-0 font-mono">MB</div>
+                <div class="sidebar-text overflow-hidden font-mono">
+                    <p class="text-xs font-semibold text-slate-200 truncate">Marcelo Buzeli</p>
+                    <p class="text-[10px] text-emerald-400 flex items-center gap-1.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online</p>
+                </div>
+            </div>
+        </div>
     </aside>
-
+    
     <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
         <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
             <div>
-                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2"><i class="fa-solid fa-users-viewfinder text-blue-500 text-xs"></i> CRM & Prospecção de Leads</h1>
-                <p class="text-[11px] text-slate-400 font-mono mt-0.5">Arraste os cards entre as colunas para gerenciar o funil</p>
+                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2"><i class="fa-solid fa-users-viewfinder text-blue-500 text-xs"></i> CRM de Prospecção</h1>
+                <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/crm</p>
+            </div>
+            <div>
+                <button onclick="openNewLeadModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-lg">
+                    <i class="fa-solid fa-user-plus text-[10px]"></i> Novo Lead
+                </button>
             </div>
         </header>
 
-        <!-- Kanban Board com 4 colunas: Novo Lead, Relacionamento, Follow Up, Reunião, Aguardando Resposta -->
-        <div class="flex-1 overflow-x-auto overflow-y-auto p-8 flex gap-6">
-            
-            <!-- Coluna 1: Novo lead (com duplo clique para criar contato) -->
-            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
-                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Novo Lead</h3><span id="count-novo" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
-                <div id="col-novo" ondragover="allowDrop(event)" ondrop="drop(event, 'novo')" ondblclick="openNewLeadModal()" class="crm-col p-4 space-y-3 overflow-y-auto cursor-pointer" title="Dê duplo clique para adicionar novo contato"></div>
+        <div class="flex-1 overflow-x-auto p-8 flex gap-6 items-start">
+            <!-- Coluna 1: Novo Lead -->
+            <div ondblclick="openNewLeadModal()" class="w-80 bg-gradient-to-b from-blue-950/30 to-dark-900 border border-blue-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] cursor-pointer shadow-xl" title="Dê duplo clique para adicionar novo contato">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-blue-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Novo Lead</h3><span id="count-novolead" class="text-xs font-mono bg-dark-950 text-blue-400 px-2 py-0.5 rounded-full border border-blue-800/50">0</span></div>
+                <div id="col-novolead" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'novolead')"></div>
             </div>
-
             <!-- Coluna 2: Relacionamento -->
-            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
-                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Relacionamento</h3><span id="count-relacionamento" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
-                <div id="col-relacionamento" ondragover="allowDrop(event)" ondrop="drop(event, 'relacionamento')" class="crm-col p-4 space-y-3 overflow-y-auto"></div>
+            <div class="w-80 bg-gradient-to-b from-purple-950/30 to-dark-900 border border-purple-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] shadow-xl">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-purple-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Relacionamento</h3><span id="count-relacionamento" class="text-xs font-mono bg-dark-950 text-purple-400 px-2 py-0.5 rounded-full border border-purple-800/50">0</span></div>
+                <div id="col-relacionamento" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'relacionamento')"></div>
             </div>
-
             <!-- Coluna 3: Follow Up -->
-            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
-                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Follow Up</h3><span id="count-follow" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
-                <div id="col-follow" ondragover="allowDrop(event)" ondrop="drop(event, 'follow')" class="crm-col p-4 space-y-3 overflow-y-auto"></div>
+            <div class="w-80 bg-gradient-to-b from-amber-950/30 to-dark-900 border border-amber-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] shadow-xl">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-amber-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Follow Up</h3><span id="count-follow" class="text-xs font-mono bg-dark-950 text-amber-400 px-2 py-0.5 rounded-full border border-amber-800/50">0</span></div>
+                <div id="col-follow" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'follow')"></div>
             </div>
-
             <!-- Coluna 4: Reunião -->
-            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
-                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Reunião</h3><span id="count-reuniao" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
-                <div id="col-reuniao" ondragover="allowDrop(event)" ondrop="drop(event, 'reuniao')" class="crm-col p-4 space-y-3 overflow-y-auto"></div>
+            <div class="w-80 bg-gradient-to-b from-emerald-950/30 to-dark-900 border border-emerald-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] shadow-xl">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-emerald-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Reunião</h3><span id="count-reuniao" class="text-xs font-mono bg-dark-950 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-800/50">0</span></div>
+                <div id="col-reuniao" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'reuniao')"></div>
             </div>
-
             <!-- Coluna 5: Aguardando Resposta -->
-            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
-                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Aguardando Resposta</h3><span id="count-aguardando" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
-                <div id="col-aguardando" ondragover="allowDrop(event)" ondrop="drop(event, 'aguardando')" class="crm-col p-4 space-y-3 overflow-y-auto"></div>
+            <div class="w-80 bg-gradient-to-b from-indigo-950/30 to-dark-900 border border-indigo-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] shadow-xl">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Aguardando Resposta</h3><span id="count-aguardando" class="text-xs font-mono bg-dark-950 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-800/50">0</span></div>
+                <div id="col-aguardando" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'aguardando')"></div>
             </div>
-
         </div>
     </main>
 </div>
 
-<!-- Modal Criar Novo Lead -->
-<div id="newLeadModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
-        <h3 class="font-bold text-white uppercase">Adicionar Novo Contato / Lead</h3>
-        <input type="text" id="nl-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome do Contato / Empresa">
-        <input type="text" id="nl-insta" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="@ do Instagram (ex: @plassomarketing)">
-        <input type="url" id="nl-link" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-blue-400 font-mono" placeholder="Link do Perfil">
-        <div class="flex justify-end gap-3 pt-2">
-            <button onclick="closeNewLeadModal()" class="text-slate-400 cursor-pointer">Cancelar</button>
-            <button onclick="saveNewLead()" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Adicionar</button>
+<!-- Modal Detalhes do Lead (Ao Clicar no Card) -->
+<div id="leadDetailModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 text-xs">
+        <div class="flex justify-between items-center pb-3 border-b border-dark-800">
+            <h3 id="ld-title" class="text-base font-bold text-white"></h3>
+            <button onclick="closeLeadDetailModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div class="space-y-3">
+            <div><label class="block text-slate-400 mb-1">@ do Instagram</label><input type="text" id="ld-insta" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2 text-white"></div>
+            <div><label class="block text-slate-400 mb-1">Link do Perfil</label><input type="url" id="ld-link" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2 text-blue-400 font-mono"></div>
+            <div><label class="block text-slate-400 mb-1">Histórico de Registros e Datas</label><div id="ld-history" class="bg-dark-950 p-3 rounded-xl border border-dark-800 text-emerald-400 font-mono text-[11px] space-y-1 max-h-32 overflow-y-auto"></div></div>
+        </div>
+        <div class="flex justify-between items-center pt-2">
+            <button onclick="deleteLeadFromModal()" class="text-red-400 hover:text-red-300 font-semibold cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Excluir Lead</button>
+            <button onclick="saveLeadDetails()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar Alterações</button>
         </div>
     </div>
 </div>
 
-<!-- Modal Follow Up (5 dias úteis ou customizado) -->
-<div id="followUpModal" class="fixed inset-0 bg-dark-950/90 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+<!-- Modal Novo Lead -->
+<div id="newLeadModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
+        <form onsubmit="createNewLead(event)" class="space-y-4 text-xs">
+            <h3 class="text-sm font-bold text-white uppercase">Adicionar Novo Lead</h3>
+            <div><label class="block text-slate-400 mb-1">Nome / Contato</label><input type="text" id="nl-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome do Lead"></div>
+            <div><label class="block text-slate-400 mb-1">@ do Instagram</label><input type="text" id="nl-insta" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="@usuario"></div>
+            <div><label class="block text-slate-400 mb-1">Link do Perfil</label><input type="url" id="nl-link" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="https://instagram.com/..."></div>
+            <div class="flex justify-end gap-3 pt-2"><button type="button" onclick="closeNewLeadModal()" class="text-slate-400 cursor-pointer">Cancelar</button><button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Follow Up -->
+<div id="followModal" class="fixed inset-0 bg-dark-950/90 backdrop-blur-md hidden items-center justify-center z-[9999] p-4">
     <div class="bg-dark-900 border border-amber-500/50 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
-        <h3 class="font-bold text-amber-400 uppercase text-sm">Agendar Follow-up</h3>
-        <p id="follow-suggestion-text" class="text-slate-300"></p>
-        
-        <div id="custom-follow-box" class="hidden space-y-3 pt-2 border-t border-dark-800">
+        <h3 class="font-bold text-amber-400 uppercase text-sm"><i class="fa-solid fa-calendar-days mr-1"></i> Agendamento de Follow Up</h3>
+        <p id="follow-msg" class="text-slate-300 leading-relaxed"></p>
+        <div id="follow-custom-date-box" class="hidden space-y-3 pt-2 border-t border-dark-800">
+            <div><label class="block text-slate-400 mb-1">Escolha a Data</label><input type="date" id="fc-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2 text-white font-mono"></div>
             <div>
-                <label class="block text-slate-400 mb-1">Escolher Dia:</label>
-                <input type="date" id="cf-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
-            </div>
-            <div>
-                <label class="block text-slate-400 mb-1">Escolher Horário:</label>
-                <select id="cf-time" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
-                    <option value="09:00">09:00</option>
-                    <option value="10:00">10:00</option>
-                    <option value="11:00">11:00</option>
-                    <option value="14:00">14:00</option>
-                    <option value="15:00">15:00</option>
-                    <option value="16:00">16:00</option>
-                    <option value="17:00">17:00</option>
+                <label class="block text-slate-400 mb-1">Escolha o Horário</label>
+                <select id="fc-time" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2 text-white font-mono">
+                    <option value="09:00">09:00</option><option value="10:00">10:00</option><option value="11:00">11:00</option>
+                    <option value="14:00">14:00</option><option value="15:00">15:00</option><option value="16:00">16:00</option><option value="17:00">17:00</option>
                 </select>
             </div>
         </div>
-
-        <div class="flex justify-end gap-3 pt-4 border-t border-dark-800">
-            <button onclick="cancelFollowMove()" class="text-slate-400 cursor-pointer">Cancelar</button>
-            <button onclick="chooseCustomFollow()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl font-semibold cursor-pointer">Agendar outro dia</button>
-            <button onclick="confirmSuggestedFollow()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold cursor-pointer">Confirmar</button>
+        <div class="flex justify-between items-center pt-2">
+            <button onclick="toggleFollowCustom()" id="btn-yellow-other" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl font-semibold cursor-pointer">Agendar outro dia</button>
+            <div class="flex gap-2">
+                <button onclick="cancelFollow()" class="text-slate-400 px-3 py-2 cursor-pointer">Cancelar</button>
+                <button onclick="confirmFollowDefault()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Confirmar</button>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Modal Reunião -->
-<div id="meetingModal" class="fixed inset-0 bg-dark-950/90 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="bg-dark-900 border border-emerald-500/50 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
-        <h3 class="font-bold text-emerald-400 uppercase text-sm">Agendar Reunião</h3>
-        <div>
-            <label class="block text-slate-400 mb-1">Data da Reunião:</label>
-            <input type="date" id="m-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
-        </div>
-        <div>
-            <label class="block text-slate-400 mb-1">Horário da Reunião:</label>
-            <input type="time" id="m-time" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono" value="10:00">
-        </div>
-        <div class="flex justify-end gap-3 pt-2">
-            <button onclick="cancelMeetingMove()" class="text-slate-400 cursor-pointer">Cancelar</button>
-            <button onclick="confirmMeeting()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Confirmar Reunião</button>
-        </div>
+<div id="meetingModal" class="fixed inset-0 bg-dark-950/90 backdrop-blur-md hidden items-center justify-center z-[9999] p-4">
+    <div class="bg-dark-900 border border-purple-500/50 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
+        <h3 class="font-bold text-purple-400 uppercase text-sm"><i class="fa-solid fa-handshake mr-1"></i> Agendamento de Reunião</h3>
+        <div><label class="block text-slate-400 mb-1">Data da Reunião</label><input type="date" id="mt-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"></div>
+        <div><label class="block text-slate-400 mb-1">Horário</label><input type="time" id="mt-time" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" value="10:00"></div>
+        <div class="flex justify-end gap-3 pt-2"><button onclick="cancelMeeting()" class="text-slate-400 cursor-pointer">Cancelar</button><button onclick="confirmMeeting()" class="bg-purple-600 hover:bg-purple-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Agendar Reunião</button></div>
     </div>
 </div>
 
 <script>
     let leads = JSON.parse(localStorage.getItem('plasso_crm') || '[]');
-    if(leads.length === 0) {
-        leads = [
-            { id: 'l1', name: 'João da Silva', insta: '@joaosilva', link: 'https://instagram.com', col: 'novo', history: 'Criado em 28/10/2026' }
-        ];
-        localStorage.setItem('plasso_crm', JSON.stringify(leads));
-    }
+    let draggedLeadId = null;
+    let pendingLeadId = null;
+    let pendingTargetCol = null;
 
     function renderCRM() {
-        ['novo', 'relacionamento', 'follow', 'reuniao', 'aguardando'].forEach(col => {
+        ['novolead', 'relacionamento', 'follow', 'reuniao', 'aguardando'].forEach(col => {
             const container = document.getElementById('col-' + col);
             container.innerHTML = '';
-            let colLeads = leads.filter(l => l.col === col);
+            const colLeads = leads.filter(l => l.col === col);
             document.getElementById('count-' + col).innerText = colLeads.length;
 
             colLeads.forEach(l => {
                 container.innerHTML += `
-                    <div draggable="true" ondragstart="drag(event, '${l.id}')" class="bg-dark-950 border border-dark-800 rounded-xl p-4 space-y-3 cursor-grab shadow">
+                    <div draggable="true" ondragstart="drag(event, '${l.id}')" onclick="openLeadDetail('${l.id}')" class="bg-dark-950 border border-dark-800 rounded-xl p-3.5 shadow space-y-2 cursor-pointer hover:border-blue-500/50 transition">
                         <div class="flex justify-between items-start">
-                            <div>
-                                <h4 class="font-bold text-white text-sm">${l.name}</h4>
-                                ${l.insta ? `<a href="${l.link || '#'}" target="_blank" class="text-xs text-blue-400 hover:underline"><i class="fa-brands fa-instagram mr-1"></i>${l.insta}</a>` : ''}
-                            </div>
-                            <button onclick="deleteLead('${l.id}')" class="text-slate-500 hover:text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
+                            <h4 class="font-bold text-white text-sm">${l.name}</h4>
+                            <button onclick="event.stopPropagation(); deleteLead('${l.id}')" class="text-slate-500 hover:text-red-400"><i class="fa-solid fa-xmark text-xs"></i></button>
                         </div>
-                        <p class="text-[10px] text-slate-400 font-mono bg-dark-900 px-2 py-1 rounded border border-dark-800">${l.history || 'Lead recente'}</p>
+                        ${l.insta ? `<p class="text-[11px] text-blue-400"><i class="fa-brands fa-instagram mr-1"></i>${l.insta}</p>` : ''}
+                        ${l.link ? `<a href="${l.link}" target="_blank" onclick="event.stopPropagation()" class="text-[10px] text-slate-400 hover:underline block truncate"><i class="fa-solid fa-link mr-1"></i>${l.link}</a>` : ''}
+                        ${l.history ? `<p class="text-[10px] text-emerald-400 font-mono mt-1 pt-1 border-t border-dark-800">${l.history}</p>` : ''}
                     </div>
                 `;
             });
@@ -201,178 +203,183 @@
         localStorage.setItem('plasso_crm', JSON.stringify(leads));
     }
 
-    function allowDrop(ev) { ev.preventDefault(); }
-    let draggedId = null;
-    function drag(ev, id) { draggedId = id; }
+    let activeDetailLeadId = null;
+    function openLeadDetail(id) {
+        let l = leads.find(lead => lead.id === id);
+        if(!l) return;
+        activeDetailLeadId = id;
+        document.getElementById('ld-title').innerText = l.name;
+        document.getElementById('ld-insta').value = l.insta || '';
+        document.getElementById('ld-link').value = l.link || '';
+        document.getElementById('ld-history').innerHTML = l.history ? `<div>• ${l.history}</div>` : '<div class="text-slate-500">Nenhum registro de data.</div>';
+        document.getElementById('leadDetailModal').classList.remove('hidden');
+        document.getElementById('leadDetailModal').classList.add('flex');
+    }
+    function closeLeadDetailModal() { document.getElementById('leadDetailModal').classList.add('hidden'); document.getElementById('leadDetailModal').classList.remove('flex'); }
 
-    let pendingTargetCol = null;
+    function saveLeadDetails() {
+        let l = leads.find(lead => lead.id === activeDetailLeadId);
+        if(l) {
+            l.insta = document.getElementById('ld-insta').value;
+            l.link = document.getElementById('ld-link').value;
+            localStorage.setItem('plasso_crm', JSON.stringify(leads));
+            alert('Dados do lead atualizados!');
+            closeLeadDetailModal();
+            renderCRM();
+        }
+    }
+
+    function deleteLeadFromModal() {
+        if(!confirm('Excluir este lead?')) return;
+        leads = leads.filter(l => l.id !== activeDetailLeadId);
+        closeLeadDetailModal();
+        renderCRM();
+    }
+
+    function drag(ev, id) { draggedLeadId = id; }
+    function allowDrop(ev) { ev.preventDefault(); }
+
     function drop(ev, targetCol) {
         ev.preventDefault();
-        if(!draggedId) return;
-        let lead = leads.find(l => l.id === draggedId);
+        if(!draggedLeadId) return;
+        let lead = leads.find(l => l.id === draggedLeadId);
         if(!lead) return;
 
         let todayStr = new Date().toLocaleDateString('pt-BR');
 
         if (targetCol === 'relacionamento') {
-            lead.col = targetCol;
+            lead.col = 'relacionamento';
             lead.history = `Relacionamento iniciado em ${todayStr}`;
             renderCRM();
         } else if (targetCol === 'follow') {
-            pendingTargetCol = targetCol;
-            // Calcular 5 dias úteis à frente
-            let targetDate = addBusinessDays(new Date(), 5);
-            let dateFormatted = targetDate.toLocaleDateString('pt-BR');
-            let dateIso = targetDate.toISOString().split('T')[0];
+            pendingLeadId = lead.id;
+            pendingTargetCol = 'follow';
+            let d = new Date();
+            d.setDate(d.getDate() + 5);
+            let calculatedDateStr = d.toISOString().split('T')[0];
+            let formattedDisplay = calculatedDateStr.split('-').reverse().join('/');
             
-            lead.tempFollowDate = dateIso;
-            document.getElementById('follow-suggestion-text').innerText = `O follow será agendado para ${dateFormatted} (5 dias úteis após a movimentação). Confirma essa data?`;
-            document.getElementById('custom-follow-box').classList.add('hidden');
-            document.getElementById('followUpModal').classList.remove('hidden');
-            document.getElementById('followUpModal').classList.add('flex');
+            document.getElementById('follow-msg').innerHTML = `O follow será agendado para <strong>${formattedDisplay}</strong> (5 dias após a movimentação). Deseja confirmar essa data às 9h?`;
+            document.getElementById('follow-custom-date-box').classList.add('hidden');
+            document.getElementById('fc-date').value = calculatedDateStr;
+            document.getElementById('followModal').classList.remove('hidden');
+            document.getElementById('followModal').classList.add('flex');
         } else if (targetCol === 'reuniao') {
-            pendingTargetCol = targetCol;
-            document.getElementById('m-date').valueAsDate = new Date();
+            pendingLeadId = lead.id;
+            pendingTargetCol = 'reuniao';
+            document.getElementById('mt-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('meetingModal').classList.remove('hidden');
             document.getElementById('meetingModal').classList.add('flex');
         } else if (targetCol === 'aguardando') {
-            lead.col = targetCol;
-            lead.history = `Aguardando resposta em ${todayStr}`;
-            
-            // Pergunta se deseja converter em Cliente
-            if(confirm(`O lead ${lead.name} está em 'Aguardando Resposta'. Deseja torná-lo cliente oficial da Plassô?`)) {
-                // Adiciona na base de Clientes
+            lead.col = 'aguardando';
+            lead.history = `Em aguardando resposta em ${todayStr}`;
+            if(confirm(`O lead "${lead.name}" fechou contrato e se tornou cliente?`)) {
                 let clients = JSON.parse(localStorage.getItem('plasso_clients') || '[]');
-                if(!clients.some(c => c.name.toLowerCase() === lead.name.toLowerCase())) {
-                    clients.push({ id: 'c_' + Date.now(), name: lead.name, fee: 1500, dueDate: new Date().toISOString().split('T')[0], isOverdue: false });
-                    localStorage.setItem('plasso_clients', JSON.stringify(clients));
-                }
-                // Remove definitivamente do CRM
-                leads = leads.filter(l => l.id !== draggedId);
-                alert(`Parabéns! ${lead.name} foi convertido em cliente e removido do CRM.`);
+                clients.push({ id: 'c_' + Date.now(), name: lead.name, fee: 1500, dueDate: new Date().toISOString().split('T')[0], isOverdue: false });
+                localStorage.setItem('plasso_clients', JSON.stringify(clients));
+                leads = leads.filter(l => l.id !== lead.id);
+                alert(`Parabéns! "${lead.name}" foi movido definitivamente para a aba Clientes e removido do CRM.`);
             }
             renderCRM();
         } else {
             lead.col = targetCol;
-            lead.history = `Movido em ${todayStr}`;
             renderCRM();
         }
     }
 
-    // Função auxiliar para calcular 5 dias úteis (ignorando finais de semana)
-    function addBusinessDays(startDate, days) {
-        let count = 0;
-        let currentDate = new Date(startDate);
-        while (count < days) {
-            currentDate.setDate(currentDate.getDate() + 1);
-            let dayOfWeek = currentDate.getDay();
-            if (dayOfWeek !== 0 && dayOfWeek !== 6) { // 0 = Domingo, 6 = Sábado
-                count++;
-            }
+    let isCustomFollow = false;
+    function toggleFollowCustom() {
+        let box = document.getElementById('follow-custom-date-box');
+        if(box.classList.contains('hidden')) {
+            box.classList.remove('hidden');
+            isCustomFollow = true;
+            document.getElementById('btn-yellow-other').innerText = "Voltar ao padrão (5 dias)";
+        } else {
+            box.classList.add('hidden');
+            isCustomFollow = false;
+            document.getElementById('btn-yellow-other').innerText = "Agendar outro dia";
         }
-        return currentDate;
     }
 
-    function confirmSuggestedFollow() {
-        let lead = leads.find(l => l.id === draggedId);
-        if(lead) {
-            lead.col = pendingTargetCol;
-            lead.history = `Follow agendado para ${lead.tempFollowDate.split('-').reverse().join('/')} às 09:00`;
-            
-            // Registrar automaticamente no Calendário
-            let customEvents = JSON.parse(localStorage.getItem('plasso_events') || '[]');
-            customEvents.push({ id: 'ev_' + Date.now(), title: `Follow-up: ${lead.name} (09:00)`, date: lead.tempFollowDate });
-            localStorage.setItem('plasso_events', JSON.stringify(customEvents));
+    function confirmFollowDefault() {
+        let lead = leads.find(l => l.id === pendingLeadId);
+        let dateVal = document.getElementById('fc-date').value;
+        let timeVal = isCustomFollow ? document.getElementById('fc-time').value : '09:00';
+        
+        if(!dateVal) { alert('Selecione uma data.'); return; }
 
-            renderCRM();
-        }
+        lead.col = 'follow';
+        lead.history = `Follow-up agendado para ${dateVal.split('-').reverse().join('/')} às ${timeVal}`;
+        
+        // GRAVAÇÃO GARANTIDA NO CALENDÁRIO (unificado em plasso_tasks)
+        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        tasks.push({
+            id: 't_' + Date.now(),
+            client: lead.name,
+            headline: `Follow-up: ${lead.name}`,
+            type: 'Story',
+            caption: `Follow-up agendado às ${timeVal}`,
+            date: dateVal,
+            status: 'todo',
+            notes: 'Follow-up CRM'
+        });
+        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+
         closeFollowModal();
+        renderCRM();
+        alert('Follow-up agendado e registrado no Calendário com sucesso!');
     }
 
-    function chooseCustomFollow() {
-        document.getElementById('custom-follow-box').classList.remove('hidden');
-        document.getElementById('cf-date').valueAsDate = new Date();
-    }
-
-    function confirmCustomFollow() {
-        let cDate = document.getElementById('cf-date').value;
-        let cTime = document.getElementById('cf-time').value;
-        if(!cDate) { alert('Escolha uma data.'); return; }
-
-        let lead = leads.find(l => l.id === draggedId);
-        if(lead) {
-            lead.col = pendingTargetCol;
-            lead.history = `Follow agendado para ${cDate.split('-').reverse().join('/')} às ${cTime}`;
-            
-            let customEvents = JSON.parse(localStorage.getItem('plasso_events') || '[]');
-            customEvents.push({ id: 'ev_' + Date.now(), title: `Follow-up: ${lead.name} (${cTime})`, date: cDate });
-            localStorage.setItem('plasso_events', JSON.stringify(customEvents));
-
-            renderCRM();
-        }
-        closeFollowModal();
-    }
-
-    function cancelFollowMove() { closeFollowModal(); renderCRM(); }
-    function closeFollowModal() {
-        document.getElementById('followUpModal').classList.add('hidden');
-        document.getElementById('followUpModal').classList.remove('flex');
-    }
+    function cancelFollow() { closeFollowModal(); renderCRM(); }
+    function closeFollowModal() { document.getElementById('followModal').classList.add('hidden'); document.getElementById('followModal').classList.remove('flex'); isCustomFollow = false; }
 
     function confirmMeeting() {
-        let mDate = document.getElementById('m-date').value;
-        let mTime = document.getElementById('m-time').value;
-        if(!mDate) { alert('Escolha a data da reunião.'); return; }
+        let dateVal = document.getElementById('mt-date').value;
+        let timeVal = document.getElementById('mt-time').value;
+        if(!dateVal || !timeVal) { alert('Preencha data e hora.'); return; }
 
-        let lead = leads.find(l => l.id === draggedId);
-        if(lead) {
-            lead.col = pendingTargetCol;
-            lead.history = `Reunião agendada para ${mDate.split('-').reverse().join('/')} às ${mTime}`;
-            
-            let customEvents = JSON.parse(localStorage.getItem('plasso_events') || '[]');
-            customEvents.push({ id: 'ev_' + Date.now(), title: `Reunião: ${lead.name} (${mTime})`, date: mDate });
-            localStorage.setItem('plasso_events', JSON.stringify(customEvents));
+        let lead = leads.find(l => l.id === pendingLeadId);
+        lead.col = 'reuniao';
+        lead.history = `Reunião marcada para ${dateVal.split('-').reverse().join('/')} às ${timeVal}`;
 
-            renderCRM();
-        }
+        // GRAVAÇÃO GARANTIDA NO CALENDÁRIO (unificado em plasso_tasks)
+        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        tasks.push({
+            id: 't_' + Date.now(),
+            client: lead.name,
+            headline: `Reunião: ${lead.name}`,
+            type: 'Reels',
+            caption: `Reunião agendada às ${timeVal}`,
+            date: dateVal,
+            status: 'todo',
+            notes: 'Reunião CRM'
+        });
+        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+
         closeMeetingModal();
         renderCRM();
+        alert('Reunião agendada e registrada no Calendário!');
     }
 
-    function cancelMeetingMove() { closeMeetingModal(); renderCRM(); }
-    function closeMeetingModal() {
-        document.getElementById('meetingModal').classList.add('hidden');
-        document.getElementById('meetingModal').classList.remove('flex');
-    }
+    function cancelMeeting() { closeMeetingModal(); renderCRM(); }
+    function closeMeetingModal() { document.getElementById('meetingModal').classList.add('hidden'); document.getElementById('meetingModal').classList.remove('flex'); }
 
-    function openNewLeadModal() {
-        document.getElementById('nl-name').value = '';
-        document.getElementById('nl-insta').value = '';
-        document.getElementById('nl-link').value = '';
-        document.getElementById('newLeadModal').classList.remove('hidden');
-        document.getElementById('newLeadModal').classList.add('flex');
-    }
-    function closeNewLeadModal() {
-        document.getElementById('newLeadModal').classList.add('hidden');
-        document.getElementById('newLeadModal').classList.remove('flex');
-    }
-    function saveNewLead() {
+    function openNewLeadModal() { document.getElementById('newLeadModal').classList.remove('hidden'); document.getElementById('newLeadModal').classList.add('flex'); }
+    function closeNewLeadModal() { document.getElementById('newLeadModal').classList.add('hidden'); document.getElementById('newLeadModal').classList.remove('flex'); }
+
+    function createNewLead(e) {
+        e.preventDefault();
         let name = document.getElementById('nl-name').value;
-        if(!name) { alert('Nome obrigatório'); return; }
-        leads.push({
-            id: 'l_' + Date.now(),
-            name: name,
-            insta: document.getElementById('nl-insta').value,
-            link: document.getElementById('nl-link').value,
-            col: 'novo',
-            history: 'Novo lead adicionado em ' + new Date().toLocaleDateString('pt-BR')
-        });
+        let insta = document.getElementById('nl-insta').value;
+        let link = document.getElementById('nl-link').value;
+
+        leads.push({ id: 'l_' + Date.now(), name: name, insta: insta, link: link, col: 'novolead', history: `Lead criado em ${new Date().toLocaleDateString('pt-BR')}` });
         closeNewLeadModal();
         renderCRM();
     }
 
     function deleteLead(id) {
-        if(!confirm('Excluir contato do CRM?')) return;
+        if(!confirm('Excluir este lead?')) return;
         leads = leads.filter(l => l.id !== id);
         renderCRM();
     }
