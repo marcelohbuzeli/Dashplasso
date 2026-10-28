@@ -78,25 +78,18 @@
         </header>
 
         <div class="flex-1 overflow-x-auto p-8 flex gap-6 items-start">
-            <!-- 1. URGENTE (Vermelho) -->
             <div class="w-80 bg-gradient-to-b from-red-950/30 to-dark-900 border border-red-500/30 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-red-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Urgente | Reprovadas</h3><span id="count-urgent" class="text-xs font-mono bg-dark-950 text-red-400 px-2 py-0.5 rounded-full border border-red-800/50">0</span></div>
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-red-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Urgente (>48h / Reprovadas)</h3><span id="count-urgent" class="text-xs font-mono bg-dark-950 text-red-400 px-2 py-0.5 rounded-full border border-red-800/50">0</span></div>
                 <div id="col-urgent" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'urgent')"></div>
             </div>
-
-            <!-- 2. A FAZER (Amarela <48h) -->
             <div class="w-80 bg-gradient-to-b from-amber-950/30 to-dark-900 border border-amber-500/30 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-amber-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span> A Fazer</h3><span id="count-afazer" class="text-xs font-mono bg-dark-950 text-amber-400 px-2 py-0.5 rounded-full border border-amber-800/50">0</span></div>
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-amber-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span> A Fazer (<48h)</h3><span id="count-afazer" class="text-xs font-mono bg-dark-950 text-amber-400 px-2 py-0.5 rounded-full border border-amber-800/50">0</span></div>
                 <div id="col-afazer" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'afazer')"></div>
             </div>
-
-            <!-- 3. PRONTO (Verde) -->
             <div class="w-80 bg-gradient-to-b from-emerald-950/30 to-dark-900 border border-emerald-500/30 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
                 <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-emerald-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Pronto</h3><span id="count-pronto" class="text-xs font-mono bg-dark-950 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-800/50">0</span></div>
                 <div id="col-pronto" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'pronto')"></div>
             </div>
-
-            <!-- 4. APROVADAS (Azul) -->
             <div class="w-80 bg-gradient-to-b from-blue-950/30 to-dark-900 border border-blue-500/30 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
                 <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-blue-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Aprovadas</h3><span id="count-aprovadas" class="text-xs font-mono bg-dark-950 text-blue-400 px-2 py-0.5 rounded-full border border-blue-800/50">0</span></div>
                 <div id="col-aprovadas" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'aprovadas')"></div>
@@ -150,12 +143,22 @@
     function renderKanban() {
         let pureTasks = tasks.filter(t => t.notes !== 'crm_follow' && t.notes !== 'crm_meeting');
 
-        // Mapear status antigos (todo, progress, approval, scheduled, urgent) para as novas 4 colunas se necessário
+        let now = new Date();
+
         pureTasks.forEach(t => {
-            if(!t.status || t.status === 'todo' || t.status === 'progress') t.status = 'afazer';
-            if(t.status === 'approval' || t.status === 'scheduled') t.status = 'pronto';
-            if(t.status === 'approved') t.status = 'aprovadas';
-            if(t.isRejected) t.status = 'urgent';
+            if (t.status !== 'aprovadas' && t.status !== 'pronto') {
+                if (t.date) {
+                    let postDate = new Date(t.date + 'T23:59:59');
+                    let diffHours = (postDate - now) / (1000 * 60 * 60);
+                    if (diffHours <= 48 || t.isRejected) {
+                        t.status = 'urgent';
+                    } else {
+                        t.status = 'afazer';
+                    }
+                } else {
+                    t.status = 'afazer';
+                }
+            }
         });
 
         ['urgent', 'afazer', 'pronto', 'aprovadas'].forEach(col => {
@@ -163,7 +166,6 @@
             container.innerHTML = '';
             let colTasks = pureTasks.filter(t => t.status === col);
 
-            // Se for a coluna "A Fazer", ordenar por data de entrega da mais próxima para a mais distante
             if (col === 'afazer') {
                 colTasks.sort((a, b) => new Date(a.date || '2099-12-31') - new Date(b.date || '2099-12-31'));
             }
