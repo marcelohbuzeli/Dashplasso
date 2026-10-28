@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plassô Marketing — Gestão Integrada</title>
+    <title>Plassô Marketing — Central de Aprovação</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -30,403 +30,351 @@
         ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
     </style>
 </head>
-<body class="bg-dark-950 text-slate-200 antialiased overflow-hidden selection:bg-blue-600 selection:text-white">
-<div class="flex flex-row h-screen w-screen overflow-hidden">
-    <aside id="sidebar" class="bg-dark-900 border-r border-dark-800 flex flex-col justify-between transition-all duration-300 w-64 z-30 overflow-hidden shrink-0 h-full">
-        <div class="flex flex-col h-full">
-            <div class="h-20 flex items-center justify-between px-4 border-b border-dark-800/60 shrink-0">
-                <div class="flex items-center gap-3 overflow-hidden">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center font-bold text-white text-lg shadow-lg shrink-0 font-mono">P</div>
-                    <div class="sidebar-text truncate flex flex-col">
-                        <span class="font-bold text-base tracking-widest text-white uppercase font-sans">Plassô</span>
-                        <span class="text-[9px] text-blue-400 font-mono tracking-wider">MARKETING</span>
-                    </div>
-                </div>
-            </div>
-            <nav class="p-3 space-y-1.5 font-medium text-xs flex-1 overflow-y-auto">
-                <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard (Geral)</span></a>
-                <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Tasks</span></a>
-                <a href="clients.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer bg-blue-600 text-white"><i class="fa-solid fa-network-wired w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Clientes</span></a>
-                <a href="calendar.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-calendar-days w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Calendário</span></a>
-                <a href="finance.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-wallet w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Financeiro</span></a>
-                <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">CRM</span></a>
-            </nav>
-        </div>
-        <div class="p-4 border-t border-dark-800/60 shrink-0">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-dark-800 border border-slate-700/50 flex items-center justify-center text-xs font-bold text-blue-400 shrink-0 font-mono">MB</div>
-                <div class="sidebar-text overflow-hidden font-mono">
-                    <p class="text-xs font-semibold text-slate-200 truncate">Marcelo Buzeli</p>
-                    <p class="text-[10px] text-emerald-400 flex items-center gap-1.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online</p>
-                </div>
-            </div>
-        </div>
-    </aside>
-    
-    <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
-        <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
-            <div>
-                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2"><i class="fa-solid fa-network-wired text-blue-500 text-xs"></i> Gestão de Clientes</h1>
-                <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/clients</p>
-            </div>
-            <div>
-                <button onclick="openNewClientModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer">
-                    <i class="fa-solid fa-user-plus text-[10px]"></i> Novo Cliente
-                </button>
-            </div>
-        </header>
+<body class="bg-dark-950 text-slate-100 min-h-screen flex flex-col p-10 select-none">
 
-        <div class="flex-1 overflow-y-auto p-8 space-y-6">
-            <div id="clients-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
-        </div>
-    </main>
-</div>
-
-<!-- Modal Cliente -->
-<div id="clientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-40 p-4">
-    <div class="bg-dark-900 border border-dark-800 w-full max-w-4xl rounded-3xl p-8 shadow-2xl flex flex-col max-h-[92vh]">
-        <div class="flex items-center justify-between pb-4 border-b border-dark-800">
+    <div class="max-w-6xl mx-auto w-full space-y-6">
+        <div class="flex justify-between items-center border-b border-dark-800 pb-5">
             <div>
-                <h3 id="client-modal-name" class="text-xl font-bold text-white"></h3>
-                <p class="text-xs text-slate-400 font-mono mt-0.5">Clique em um dia com postagem para editar ou dê duplo clique em um dia vazio para criar nova postagem.</p>
+                <h1 class="text-2xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-circle-check text-blue-500"></i> Central de Aprovação de Conteúdo</h1>
+                <p id="portal-client-title" class="text-xs text-blue-400 font-mono mt-1">Carregando cliente...</p>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="promptDeleteClient()" class="bg-red-600/20 hover:bg-red-600/30 border border-red-500/50 text-red-400 px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Apagar Cliente</button>
-                <button onclick="closeClientModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-        </div>
-        
-        <div class="py-6 space-y-6 overflow-y-auto flex-1 text-xs">
-            <div class="bg-blue-950/30 border border-blue-500/40 rounded-2xl p-5 flex items-center justify-between">
+            <div class="flex items-center gap-3 bg-dark-900 p-3 rounded-2xl border border-dark-800">
                 <div>
-                    <h4 class="font-bold text-blue-200 text-sm">Central de Aprovação Externa</h4>
-                    <p class="text-slate-400 text-[11px]">Link dedicado com calendário e cards para o cliente revisar.</p>
-                </div>
-                <button onclick="openClientApprovalPortal()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg transition cursor-pointer"><i class="fa-solid fa-external-link-alt mr-1"></i> Abrir Portal do Cliente</button>
-            </div>
-
-            <div class="bg-dark-950 border border-dark-800 rounded-2xl p-6 space-y-4">
-                <div class="flex justify-between items-center flex-wrap gap-3">
-                    <h4 class="font-bold text-white uppercase text-xs tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar text-blue-400"></i> Cronograma de Conteúdos</h4>
-                    <div class="flex items-center gap-2">
-                        <label class="text-[11px] text-slate-400 font-mono">Mês:</label>
-                        <select id="client-month-select" onchange="renderClientMiniCalendar(currentActiveClient)" class="bg-dark-900 border border-dark-800 rounded-xl px-3 py-1.5 text-xs text-white font-mono cursor-pointer">
-                            <option value="2026-01">Janeiro de 2026</option>
-                            <option value="2026-02">Fevereiro de 2026</option>
-                            <option value="2026-03">Março de 2026</option>
-                            <option value="2026-04">Abril de 2026</option>
-                            <option value="2026-05">Maio de 2026</option>
-                            <option value="2026-06">Junho de 2026</option>
-                            <option value="2026-07">Julho de 2026</option>
-                            <option value="2026-08">Agosto de 2026</option>
-                            <option value="2026-09">Setembro de 2026</option>
-                            <option value="2026-10" selected>Outubro de 2026</option>
-                            <option value="2026-11">Novembro de 2026</option>
-                            <option value="2026-12">Dezembro de 2026</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-slate-400 uppercase font-mono pb-2 border-b border-dark-800">
-                    <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
-                </div>
-
-                <div id="client-mini-calendar" class="grid grid-cols-7 gap-2"></div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-2.5">
-                    <h4 class="font-bold text-white uppercase text-[11px] mb-2 tracking-wider">Checklist</h4>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Contrato assinado</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Grupo no WhatsApp</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Pasta no Drive</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Briefing</label>
-                </div>
-                <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-2.5">
-                    <h4 class="font-bold text-white uppercase text-[11px] mb-2 tracking-wider">Processos</h4>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Objetivos</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Análise de Marca</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Análise SWOT</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Análise de Mercado</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Estruturação da estratégia</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="rounded accent-blue-600"> Criação</label>
-                </div>
-            </div>
-
-            <div class="bg-dark-950 p-5 rounded-2xl border border-dark-800 space-y-4">
-                <h4 class="font-bold text-white uppercase text-xs tracking-wider flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-400"></i> Financeiro do Cliente</h4>
-                <div class="flex items-center gap-4 flex-wrap">
-                    <div class="flex-1 min-w-[180px]">
-                        <label class="block text-slate-400 mb-1">Valor do Contrato (R$)</label>
-                        <input type="number" id="client-fee-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
-                    </div>
-                    <div class="flex-1 min-w-[180px]">
-                        <label class="block text-slate-400 mb-1">Vencimento</label>
-                        <input type="date" id="client-duedate-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
-                    </div>
-                    <div class="pt-5 flex gap-2">
-                        <button onclick="registerClientPayment()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold transition cursor-pointer shadow"><i class="fa-solid fa-check mr-1"></i> Lançar</button>
-                    </div>
+                    <label class="block text-[10px] text-slate-400 uppercase font-mono">Filtrar Mês</label>
+                    <select id="filter-month" onchange="renderCalendar()" class="bg-dark-950 border border-dark-800 rounded px-3 py-1.5 text-xs text-white font-mono cursor-pointer">
+                        <option value="10">Outubro (2026)</option>
+                        <option value="11">Novembro (2026)</option>
+                        <option value="12">Dezembro (2026)</option>
+                    </select>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Modal Editar Post -->
-<div id="editPostModal" class="fixed inset-0 bg-dark-950/95 backdrop-blur-md hidden items-center justify-center z-[9999] p-4">
-    <div class="bg-dark-900 border border-blue-500/60 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
-        <h3 class="font-bold text-blue-400 uppercase text-sm">Editar Conteúdo / Postagem</h3>
-        <input type="hidden" id="ep-id">
-        <div><label class="block text-slate-400 mb-1">Headline (Título) <span class="text-blue-400">*</span></label><input type="text" id="ep-headline" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-bold"></div>
-        <div><label class="block text-slate-400 mb-1">Formato</label><select id="ep-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white"><option value="Reels">Reels</option><option value="Carrossel">Carrossel</option><option value="Story">Story</option><option value="Foto Única">Foto Única</option></select></div>
-        <div><label class="block text-slate-400 mb-1">Link do Drive</label><input type="url" id="ep-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-blue-400 font-mono"></div>
-        <div><label class="block text-slate-400 mb-1">Legenda</label><textarea id="ep-caption" rows="3" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none"></textarea></div>
-        <div><label class="block text-slate-400 mb-1">Notas / Referências</label><textarea id="ep-notes" rows="2" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-amber-300 resize-none"></textarea></div>
-        <div class="flex justify-between items-center pt-2">
-            <button onclick="deleteClientPost()" class="text-red-400 hover:text-red-300 font-semibold cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Excluir Post</button>
-            <div class="flex gap-3"><button onclick="closeEditPostModal()" class="text-slate-400 cursor-pointer">Cancelar</button><button onclick="saveEditedClientPost()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar</button></div>
+        <div class="bg-dark-900 border border-dark-800 rounded-3xl p-8 shadow-2xl space-y-6">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar text-blue-400"></i> Calendário de Publicações</h3>
+                <span class="text-xs text-slate-400">Verde = Aprovado | Vermelho = Ajuste Solicitado | Azul = Pendente</span>
+            </div>
+            
+            <div class="grid grid-cols-7 gap-3 text-center text-xs font-bold text-slate-400 uppercase font-mono pb-2 border-b border-dark-800">
+                <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+            </div>
+
+            <div id="calendar-grid" class="grid grid-cols-7 gap-3"></div>
         </div>
     </div>
-</div>
 
-<!-- Modal Nova Postagem no Dia Vazio -->
-<div id="newPostOnDayModal" class="fixed inset-0 bg-dark-950/95 backdrop-blur-md hidden items-center justify-center z-[9999] p-4">
-    <div class="bg-dark-900 border border-emerald-500/60 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
-        <h3 class="font-bold text-emerald-400 uppercase text-sm">Nova Postagem para o dia <span id="np-date-display" class="text-white"></span></h3>
-        <input type="hidden" id="np-date-val">
-        <div><label class="block text-slate-400 mb-1">Headline (Título) <span class="text-emerald-400">*</span></label><input type="text" id="np-headline" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-bold" placeholder="Título"></div>
-        <div><label class="block text-slate-400 mb-1">Formato</label><select id="np-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white"><option value="Reels">Reels</option><option value="Carrossel">Carrossel</option><option value="Story">Story</option><option value="Foto Única">Foto Única</option></select></div>
-        <div><label class="block text-slate-400 mb-1">Link do Drive</label><input type="url" id="np-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-blue-400 font-mono" placeholder="https://..."></div>
-        <div><label class="block text-slate-400 mb-1">Legenda</label><textarea id="np-caption" rows="3" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="Opcional"></textarea></div>
-        <div><label class="block text-slate-400 mb-1">Notas / Referências</label><textarea id="np-notes" rows="2" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-amber-300 resize-none" placeholder="Opcional"></textarea></div>
-        <div class="flex justify-end gap-3 pt-2"><button onclick="closeNewPostOnDayModal()" class="text-slate-400 cursor-pointer">Cancelar</button><button onclick="saveNewClientPost()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Criar</button></div>
+    <!-- Modal Popup Variável e Centralizado para os Cards do Dia -->
+    <div id="dayPostsModal" class="fixed inset-0 bg-dark-950/85 backdrop-blur-md hidden items-center justify-center z-40 p-6">
+        <div id="modal-box-wrapper" class="bg-dark-900 border border-dark-800 rounded-3xl p-8 shadow-2xl flex flex-col max-h-[90vh] transition-all duration-300">
+            <div class="flex items-center justify-between pb-4 border-b border-dark-800 shrink-0">
+                <div>
+                    <h3 id="modal-day-title" class="text-lg font-bold text-white uppercase">Conteúdos do Dia</h3>
+                    <p class="text-xs text-slate-400 font-mono">Reveja os posts, aprove ou reprove. Cada post só pode ser decidido uma única vez.</p>
+                </div>
+                <button onclick="closeDayModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <!-- Cards em Linha Horizontal Dinâmica -->
+            <div id="modal-cards-container" class="py-6 flex gap-6 overflow-x-auto flex-1 items-center justify-center"></div>
+        </div>
     </div>
-</div>
 
-<!-- Modal Novo Cliente -->
-<div id="newClientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
-        <form onsubmit="createNewClient(event)" class="space-y-4 text-xs">
-            <h3 class="text-sm font-bold text-white uppercase">Novo Cliente</h3>
-            <input type="text" id="nc-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome">
-            <input type="number" id="nc-fee" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" value="1200">
-            <input type="date" id="nc-duedate" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono">
-            <div class="flex justify-end gap-3 pt-2"><button type="button" onclick="closeNewClientModal()" class="text-slate-400 cursor-pointer">Cancelar</button><button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar</button></div>
-        </form>
+    <!-- Modal de Reprovação -->
+    <div id="rejectionModal" class="fixed inset-0 bg-dark-950/95 backdrop-blur-lg hidden items-center justify-center z-50 p-4">
+        <div class="bg-dark-900 border border-amber-500/50 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
+            <h3 class="font-bold text-amber-400 uppercase text-sm flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Motivo da Recusa / Ajuste</h3>
+            <textarea id="rejection-notes-input" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="Descreva o que precisa ser alterado..."></textarea>
+            <div class="flex justify-end gap-3 pt-2">
+                <button onclick="closeRejectionModal()" class="text-slate-400 cursor-pointer">Cancelar</button>
+                <button onclick="submitRejection()" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Enviar Recusa</button>
+            </div>
+        </div>
     </div>
-</div>
 
-<script>
-    let clients = JSON.parse(localStorage.getItem('plasso_clients') || '[]');
-    if(clients.length === 0) {
-        clients = [
-            { id: 'c1', name: 'Rosa Pink Lingerie', fee: 1500, dueDate: '2026-10-25', isOverdue: true },
-            { id: 'c2', name: 'Umuclean Higienização', fee: 1200, dueDate: '2026-11-05', isOverdue: false },
-            { id: 'c3', name: 'Paullyne', fee: 1400, dueDate: '2026-11-10', isOverdue: false }
-        ];
-        localStorage.setItem('plasso_clients', JSON.stringify(clients));
-    }
-    let currentActiveClient = null;
-
-    function getCategoryIcon(type) {
-        switch(type) {
-            case 'Carrossel': return '<i class="fa-solid fa-layer-group text-purple-400"></i>';
-            case 'Reels': return '<i class="fa-solid fa-video text-blue-400"></i>';
-            case 'Story': return '<i class="fa-solid fa-mobile-screen text-amber-400"></i>';
-            case 'Foto Única': return '<i class="fa-solid fa-image text-emerald-400"></i>';
-            default: return '<i class="fa-solid fa-file text-slate-400"></i>';
-        }
-    }
-
-    function renderClients() {
-        const grid = document.getElementById('clients-grid');
-        grid.innerHTML = '';
-        clients.forEach(c => {
-            const dotColor = c.isOverdue ? 'bg-red-500 animate-pulse' : 'bg-emerald-500';
-            grid.innerHTML += `<div onclick="openClientModal('${c.id}')" class="bg-dark-900 border border-dark-800 hover:border-slate-700 rounded-2xl p-6 cursor-pointer shadow transition flex flex-col justify-between group h-36"><div class="flex items-center justify-between"><div class="w-12 h-12 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold font-mono text-lg">${c.name.substring(0, 2).toUpperCase()}</div><span class="w-3 h-3 rounded-full ${dotColor}"></span></div><div><h3 class="font-bold text-white text-base group-hover:text-blue-400 transition">${c.name}</h3><p class="text-xs text-slate-400 font-mono mt-1">R$ ${c.fee.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / mês</p></div></div>`;
-        });
-        localStorage.setItem('plasso_clients', JSON.stringify(clients));
-    }
-
-    function openClientModal(id) {
-        currentActiveClient = clients.find(cl => cl.id === id);
-        if (!currentActiveClient) return;
-        document.getElementById('client-modal-name').innerText = currentActiveClient.name;
-        document.getElementById('client-fee-input').value = currentActiveClient.fee;
-        document.getElementById('client-duedate-input').value = currentActiveClient.dueDate;
-        renderClientMiniCalendar(currentActiveClient);
-        document.getElementById('clientModal').classList.remove('hidden');
-        document.getElementById('clientModal').classList.add('flex');
-    }
-
-    function promptDeleteClient() {
-        const senha = prompt("Digite a senha mestre para apagar este cliente:");
-        if (senha === "plasso2026") {
-            clients = clients.filter(c => c.id !== currentActiveClient.id);
-            localStorage.setItem('plasso_clients', JSON.stringify(clients));
-            alert("Cliente apagado com sucesso!");
-            closeClientModal();
-            renderClients();
-        } else if (senha !== null) {
-            alert("Senha incorreta!");
-        }
-    }
-
-    function renderClientMiniCalendar(client) {
-        const miniCal = document.getElementById('client-mini-calendar');
-        miniCal.innerHTML = '';
-        const selectedYearMonth = document.getElementById('client-month-select').value; // Ex: "2026-10"
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientId = urlParams.get('client');
+        let clients = JSON.parse(localStorage.getItem('plasso_clients') || '[]');
+        let currentClient = clients.find(c => c.id === clientId) || clients[0];
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-        let clientTasks = tasks.filter(t => t.client && t.client.toLowerCase().includes(client.name.toLowerCase()));
 
-        let [year, month] = selectedYearMonth.split('-').map(Number);
-        let firstDayIndex = new Date(year, month - 1, 1).getDay();
-        let totalDays = new Date(year, month, 0).getDate();
-
-        // Espaços vazios
-        for (let b = 0; b < firstDayIndex; b++) {
-            miniCal.innerHTML += `<div class="h-20 border border-dark-900 bg-dark-950/20 rounded-xl opacity-10"></div>`;
+        if(currentClient) {
+            document.getElementById('portal-client-title').innerText = "Cliente: " + currentClient.name;
         }
 
-        for (let i = 1; i <= totalDays; i++) {
-            let dayStr = i < 10 ? '0' + i : '' + i;
-            let targetDate = selectedYearMonth + '-' + dayStr;
-            let dayTasks = clientTasks.filter(t => t.date === targetDate);
-            let hasContent = dayTasks.length > 0;
+        function getClientTasks() {
+            if(!currentClient) return tasks;
+            return tasks.filter(t => t.client && t.client.toLowerCase().includes(currentClient.name.toLowerCase()));
+        }
 
-            let cardClass = hasContent ? 'bg-blue-600/20 border-blue-500/50 text-white' : 'bg-dark-900 border-dark-800 text-slate-600 opacity-40';
-            let miniCardsHTML = '';
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+            let clientTasks = getClientTasks();
+            const selectedMonth = document.getElementById('filter-month').value; // Ex: "10" (Outubro)
 
-            if (hasContent) {
-                dayTasks.forEach(dt => {
-                    let headline = dt.headline || dt.caption || 'Headline';
-                    if(headline.length > 10) headline = headline.substring(0, 10) + '...';
-                    miniCardsHTML += `<div onclick="event.stopPropagation(); openEditPostModal('${dt.id}')" class="bg-dark-950 border border-dark-800 hover:border-blue-500 rounded p-1 text-[9px] truncate flex items-center gap-1 mt-1 cursor-pointer" title="Clique para editar">${getCategoryIcon(dt.type)} <span class="text-slate-200">${headline}</span></div>`;
-                });
+            let year = 2026;
+            let month = parseInt(selectedMonth);
+            let firstDayIndex = new Date(year, month - 1, 1).getDay();
+            let totalDays = new Date(year, month, 0).getDate();
+
+            // Espaços vazios
+            for (let b = 0; b < firstDayIndex; b++) {
+                grid.innerHTML += `<div class="h-32 border border-dark-900 bg-dark-950/20 rounded-2xl opacity-10"></div>`;
             }
 
-            miniCal.innerHTML += `<div ondblclick="openNewPostOnDayModal('${targetDate}')" class="h-20 border ${cardClass} rounded-xl p-1.5 flex flex-col justify-start text-left overflow-hidden cursor-pointer" title="Duplo clique para criar postagem"><span class="text-[10px] font-mono font-bold">${i}</span><div class="overflow-y-auto max-h-12">${miniCardsHTML}</div></div>`;
+            for (let i = 1; i <= totalDays; i++) {
+                let dayStr = i < 10 ? '0' + i : '' + i;
+                let dayTasks = clientTasks.filter(t => {
+                    if(!t.date) return false;
+                    let parts = t.date.split('-');
+                    if(parts.length < 3) return false;
+                    return parts[1] === selectedMonth && parts[2] === dayStr;
+                });
+
+                let hasContent = dayTasks.length > 0;
+                let allApproved = hasContent && dayTasks.every(t => t.status === 'aprovadas' || t.status === 'approved');
+                let hasRejected = hasContent && dayTasks.some(t => t.isRejected || t.status === 'urgent');
+
+                let cardClass = 'bg-dark-950/40 border-dark-800/50 text-slate-600 opacity-30 cursor-not-allowed';
+                let badge = '';
+                let statusLabel = '';
+
+                if (hasContent) {
+                    if (hasRejected) {
+                        cardClass = 'bg-red-600/20 border-red-500/60 text-white font-bold cursor-pointer hover:bg-red-600/30 hover:border-red-400 shadow-lg';
+                        badge = `<span class="bg-red-600 text-white text-[10px] font-mono px-2 py-0.5 rounded-full mt-2"><i class="fa-solid fa-xmark mr-1"></i> Ajuste</span>`;
+                        statusLabel = 'Ajuste Pendente';
+                    } else if (allApproved) {
+                        cardClass = 'bg-emerald-600/20 border-emerald-500/60 text-white font-bold cursor-pointer hover:bg-emerald-600/30 hover:border-emerald-400 shadow-lg';
+                        badge = `<span class="bg-emerald-600 text-white text-[10px] font-mono px-2 py-0.5 rounded-full mt-2"><i class="fa-solid fa-check mr-1"></i> Aprovado</span>`;
+                        statusLabel = 'Aprovado';
+                    } else {
+                        cardClass = 'bg-blue-600/20 border-blue-500/60 text-white font-bold cursor-pointer hover:bg-blue-600/30 hover:border-blue-400 shadow-lg';
+                        badge = `<span class="bg-blue-600 text-white text-[10px] font-mono px-2 py-0.5 rounded-full mt-2">${dayTasks.length} Post(s)</span>`;
+                        statusLabel = 'Revisar';
+                    }
+                }
+
+                grid.innerHTML += `
+                    <div onclick="${hasContent ? `openDayModal('${i}')` : ''}" class="h-32 border ${cardClass} rounded-2xl p-3 flex flex-col justify-between transition group">
+                        <span class="text-sm font-mono">${i}</span>
+                        <div class="flex flex-col items-center justify-center">${badge}</div>
+                        <span class="text-[9px] text-slate-400 font-mono">${statusLabel}</span>
+                    </div>
+                `;
+            }
         }
-    }
 
-    let currentEditingPostId = null;
-    function openEditPostModal(taskId) {
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-        let t = tasks.find(task => task.id === taskId);
-        if(!t) return;
-        currentEditingPostId = taskId;
-        document.getElementById('ep-headline').value = t.headline || t.client || '';
-        document.getElementById('ep-type').value = t.type || 'Reels';
-        document.getElementById('ep-drive').value = t.drive || '';
-        document.getElementById('ep-caption').value = t.caption || '';
-        document.getElementById('ep-notes').value = t.notes || '';
-        document.getElementById('editPostModal').classList.remove('hidden');
-        document.getElementById('editPostModal').classList.add('flex');
-    }
-    function closeEditPostModal() { document.getElementById('editPostModal').classList.add('hidden'); document.getElementById('editPostModal').classList.remove('flex'); }
+        let currentActiveDayNum = null;
+        function openDayModal(dayNum) {
+            currentActiveDayNum = dayNum;
+            let dayStr = dayNum < 10 ? '0' + dayNum : '' + dayNum;
+            let clientTasks = getClientTasks();
+            const selectedMonth = document.getElementById('filter-month').value;
 
-    function saveEditedClientPost() {
-        let headline = document.getElementById('ep-headline').value;
-        if(!headline) { alert('A Headline é obrigatória.'); return; }
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-        let t = tasks.find(task => task.id === currentEditingPostId);
-        if(t) {
-            t.headline = headline;
-            t.type = document.getElementById('ep-type').value;
-            t.drive = document.getElementById('ep-drive').value;
-            t.caption = document.getElementById('ep-caption').value;
-            t.notes = document.getElementById('ep-notes').value;
-            localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
-            alert('Postagem atualizada!');
-            closeEditPostModal();
-            renderClientMiniCalendar(currentActiveClient);
+            let dayTasks = clientTasks.filter(t => {
+                if(!t.date) return false;
+                let parts = t.date.split('-');
+                return parts[1] === selectedMonth && parts[2] === dayStr;
+            });
+
+            document.getElementById('modal-day-title').innerText = `Conteúdos para o dia ${dayNum}`;
+            const container = document.getElementById('modal-cards-container');
+            const wrapper = document.getElementById('modal-box-wrapper');
+            container.innerHTML = '';
+
+            if (dayTasks.length === 1) {
+                wrapper.style.maxWidth = '460px';
+            } else {
+                wrapper.style.maxWidth = '1100px';
+            }
+
+            dayTasks.forEach(t => {
+                let isAlreadyApproved = t.status === 'aprovadas' || t.status === 'approved';
+                let isRejected = t.isRejected || (t.status === 'urgent' && t.notes && t.notes.startsWith('Reprovado'));
+                
+                let cardBorder = isRejected ? 'border-red-500/60 bg-red-950/30' : (isAlreadyApproved ? 'border-emerald-500/60 bg-emerald-950/30' : 'border-dark-800 bg-dark-950');
+
+                let headline = t.headline || t.client || 'Headline';
+                let formato = t.type || 'Carrossel';
+                let dataPost = t.date ? t.date.split('-').reverse().join('/') : 'Não definida';
+                let driveLink = t.drive || '';
+                let legenda = t.caption || 'Sem legenda informada.';
+                let notas = t.notes || 'Nenhuma observação ou link de referência.';
+
+                let cardContentHTML = '';
+
+                if (isAlreadyApproved) {
+                    // APROVADO: Mostra informações, mas sem botões e com marcação verde
+                    cardContentHTML = `
+                        <div class="space-y-3 flex-1">
+                            <div class="flex justify-between items-center">
+                                <span class="bg-blue-950 text-blue-400 border border-blue-800/60 px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase font-bold">${formato}</span>
+                                <span class="text-[10px] text-slate-400 font-mono"><i class="fa-regular fa-calendar mr-1"></i>${dataPost}</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-mono uppercase">Headline:</span>
+                                <p class="text-sm font-bold text-white mt-0.5">${headline}</p>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-mono uppercase">Link do Drive:</span>
+                                <p class="text-xs text-blue-400 font-mono truncate mt-0.5">${driveLink || 'Não informado'}</p>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-mono uppercase">Legenda:</span>
+                                <p class="text-xs text-slate-300 bg-dark-900 p-3 rounded-xl border border-dark-800/60 leading-relaxed max-h-20 overflow-y-auto mt-0.5">${legenda}</p>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-dark-800 flex items-center justify-center gap-2 bg-emerald-950/40 p-3 rounded-xl border border-emerald-500/40">
+                            <span class="text-lg">✅</span>
+                            <span class="font-bold text-emerald-400 text-xs uppercase tracking-wider">Aprovado</span>
+                        </div>
+                    `;
+                } else if (isRejected) {
+                    // REPROVADO: Mostra informações, mas sem botões e com marcação vermelha
+                    cardContentHTML = `
+                        <div class="space-y-3 flex-1">
+                            <div class="flex justify-between items-center">
+                                <span class="bg-blue-950 text-blue-400 border border-blue-800/60 px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase font-bold">${formato}</span>
+                                <span class="text-[10px] text-slate-400 font-mono"><i class="fa-regular fa-calendar mr-1"></i>${dataPost}</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-mono uppercase">Headline:</span>
+                                <p class="text-sm font-bold text-white mt-0.5">${headline}</p>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-mono uppercase">Notas / Motivo da Recusa:</span>
+                                <p class="text-xs text-red-300 bg-red-950/40 p-3 rounded-xl border border-red-800/50 leading-relaxed mt-0.5">${notas}</p>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-dark-800 flex items-center justify-center gap-2 bg-red-950/40 p-3 rounded-xl border border-red-500/40">
+                            <span class="text-lg">⚠️</span>
+                            <span class="font-bold text-red-400 text-xs uppercase tracking-wider">Aguardando Ajuste da Agência</span>
+                        </div>
+                    `;
+                } else {
+                    // PENDENTE: Exibe todas as informações e botões ativos
+                    cardContentHTML = `
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="bg-blue-950 text-blue-400 border border-blue-800/60 px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase font-bold">${formato}</span>
+                                <span class="text-[10px] text-slate-400 font-mono"><i class="fa-regular fa-calendar mr-1"></i>${dataPost}</span>
+                            </div>
+                            
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-mono uppercase">Headline:</span>
+                                <input type="text" value="${headline}" onchange="updateTaskField('${t.id}', 'headline', this.value)" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-bold text-sm mt-0.5 focus:border-blue-500 outline-none">
+                            </div>
+
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-mono uppercase">Link do Drive:</span>
+                                <div class="mt-0.5 flex gap-2">
+                                    <input type="url" value="${driveLink}" onchange="updateTaskField('${t.id}', 'drive', this.value)" class="flex-1 bg-dark-900 border border-dark-800 rounded-xl px-3 py-1.5 text-xs text-blue-400 font-mono focus:border-blue-500 outline-none" placeholder="https://drive.google.com/...">
+                                    <a href="${driveLink || '#'}" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center justify-center shrink-0 transition" title="Testar Link"><i class="fa-solid fa-play text-[10px]"></i></a>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-mono uppercase">Legenda:</span>
+                                <p class="text-xs text-slate-300 bg-dark-900 p-3 rounded-xl border border-dark-800/60 leading-relaxed max-h-20 overflow-y-auto mt-0.5">${legenda}</p>
+                            </div>
+
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-mono uppercase">Notas / Referências:</span>
+                                <p class="text-[11px] text-amber-300 bg-amber-950/30 p-2.5 rounded-xl border border-amber-800/50 mt-0.5">${notas}</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 pt-2 border-t border-dark-800">
+                            <div class="flex gap-2">
+                                <button onclick="approveTask('${t.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer"><i class="fa-solid fa-check"></i> Aprovar</button>
+                                <button onclick="openRejectionModal('${t.id}')" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer"><i class="fa-solid fa-xmark"></i> Reprovar</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML += `
+                    <div class="border ${cardBorder} rounded-2xl p-6 w-[380px] flex flex-col justify-between shrink-0 shadow-xl space-y-4" id="card-task-${t.id}">
+                        ${cardContentHTML}
+                    </div>
+                `;
+            });
+
+            document.getElementById('dayPostsModal').classList.remove('hidden');
+            document.getElementById('dayPostsModal').classList.add('flex');
         }
-    }
 
-    function deleteClientPost() {
-        if(!confirm('Deseja realmente excluir esta postagem?')) return;
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-        tasks = tasks.filter(task => task.id !== currentEditingPostId);
-        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
-        alert('Postagem excluída!');
-        closeEditPostModal();
-        renderClientMiniCalendar(currentActiveClient);
-    }
+        function closeDayModal() {
+            document.getElementById('dayPostsModal').classList.add('hidden');
+            document.getElementById('dayPostsModal').classList.remove('flex');
+            renderCalendar();
+        }
 
-    function openNewPostOnDayModal(dateStr) {
-        document.getElementById('np-date-val').value = dateStr;
-        document.getElementById('np-date-display').innerText = dateStr.split('-').reverse().join('/');
-        document.getElementById('np-headline').value = '';
-        document.getElementById('np-drive').value = '';
-        document.getElementById('np-caption').value = '';
-        document.getElementById('np-notes').value = '';
-        document.getElementById('newPostOnDayModal').classList.remove('hidden');
-        document.getElementById('newPostOnDayModal').classList.add('flex');
-    }
-    function closeNewPostOnDayModal() { document.getElementById('newPostOnDayModal').classList.add('hidden'); document.getElementById('newPostOnDayModal').classList.remove('flex'); }
+        function updateTaskField(id, field, value) {
+            let tasksList = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+            let t = tasksList.find(task => task.id === id);
+            if(t) {
+                t[field] = value;
+                localStorage.setItem('plasso_tasks', JSON.stringify(tasksList));
+                tasks = tasksList;
+            }
+        }
 
-    function saveNewClientPost() {
-        let dateVal = document.getElementById('np-date-val').value;
-        let headline = document.getElementById('np-headline').value;
-        let type = document.getElementById('np-type').value;
-        let drive = document.getElementById('np-drive').value;
-        let caption = document.getElementById('np-caption').value;
-        let notes = document.getElementById('np-notes').value;
+        function approveTask(id) {
+            let tasksList = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+            let t = tasksList.find(task => task.id === id);
+            if(t) {
+                t.status = 'aprovadas';
+                t.isRejected = false;
+                localStorage.setItem('plasso_tasks', JSON.stringify(tasksList));
+                tasks = tasksList;
+                alert('Conteúdo aprovado com sucesso! Movido para a aba Aprovadas.');
+                openDayModal(parseInt(currentActiveDayNum));
+                renderCalendar();
+            }
+        }
 
-        if(!headline) { alert('A Headline é obrigatória.'); return; }
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-        tasks.push({
-            id: 't_' + Date.now(),
-            client: currentActiveClient.name,
-            headline: headline,
-            type: type,
-            caption: caption,
-            drive: drive,
-            date: dateVal,
-            status: 'todo',
-            notes: notes,
-            isRejected: false
-        });
-        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
-        alert('Nova postagem criada!');
-        closeNewPostOnDayModal();
-        renderClientMiniCalendar(currentActiveClient);
-    }
+        let targetTaskIdForRejection = null;
+        function openRejectionModal(id) {
+            targetTaskIdForRejection = id;
+            document.getElementById('rejection-notes-input').value = '';
+            document.getElementById('rejectionModal').classList.remove('hidden');
+            document.getElementById('rejectionModal').classList.add('flex');
+        }
 
-    function registerClientPayment() {
-        if (!currentActiveClient) return;
-        const fee = parseFloat(document.getElementById('client-fee-input').value);
-        const dueDate = document.getElementById('client-duedate-input').value;
-        currentActiveClient.fee = fee;
-        currentActiveClient.dueDate = dueDate;
-        currentActiveClient.isOverdue = false;
-        renderClients();
-        alert('Ficha do cliente salva com sucesso!');
-    }
+        function closeRejectionModal() {
+            document.getElementById('rejectionModal').classList.add('hidden');
+            document.getElementById('rejectionModal').classList.remove('flex');
+        }
 
-    function closeClientModal() { 
-        document.getElementById('clientModal').classList.add('hidden'); 
-        document.getElementById('clientModal').classList.remove('flex'); 
-    }
+        function submitRejection() {
+            const notes = document.getElementById('rejection-notes-input5') || document.getElementById('rejection-notes-input').value;
+            const textNotes = document.getElementById('rejection-notes-input').value;
+            if(!textNotes.trim()) {
+                alert('Por favor, escreva o motivo da recusa.');
+                return;
+            }
+            let tasksList = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+            let t = tasksList.find(task => task.id === targetTaskIdForRejection);
+            if(t) {
+                t.status = 'urgent';
+                t.isRejected = true;
+                t.notes = 'Reprovado pelo cliente: ' + textNotes;
+                localStorage.setItem('plasso_tasks', JSON.stringify(tasksList));
+                tasks = tasksList;
+                alert('Recusa enviada com sucesso! O post retornou como ajuste.');
+                closeRejectionModal();
+                openDayModal(parseInt(currentActiveDayNum));
+                renderCalendar();
+            }
+        }
 
-    function openClientApprovalPortal() {
-        if (!currentActiveClient) return;
-        window.open('portal.html?client=' + currentActiveClient.id, '_blank');
-    }
-
-    function openNewClientModal() { document.getElementById('newClientModal').classList.remove('hidden'); document.getElementById('newClientModal').classList.add('flex'); document.getElementById('nc-duedate').valueAsDate = new Date(); }
-    function closeNewClientModal() { document.getElementById('newClientModal').classList.add('hidden'); document.getElementById('newClientModal').classList.remove('flex'); }
-    function createNewClient(e) {
-        e.preventDefault();
-        clients.push({ id: 'c_' + Date.now(), name: document.getElementById('nc-name').value, fee: parseFloat(document.getElementById('nc-fee').value), dueDate: document.getElementById('nc-duedate').value, isOverdue: false });
-        closeNewClientModal();
-        renderClients();
-    }
-
-    renderClients();
-</script>
+        renderCalendar();
+    </script>
 </body>
 </html>
-clients.html
-Exibindo clients.html.
+portal.html
+Exibindo portal.html.
