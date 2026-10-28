@@ -110,7 +110,7 @@
     </main>
 </div>
 
-<!-- Modal Cliente (Z-Index 40) -->
+<!-- Modal Cliente -->
 <div id="clientModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-40 p-4">
     <div class="bg-dark-900 border border-dark-800 w-full max-w-4xl rounded-3xl p-8 shadow-2xl flex flex-col max-h-[92vh]">
         <div class="flex items-center justify-between pb-4 border-b border-dark-800">
@@ -122,7 +122,6 @@
         </div>
         
         <div class="py-6 space-y-6 overflow-y-auto flex-1 text-xs">
-            <!-- Acesso ao Portal de Aprovação -->
             <div class="bg-blue-950/30 border border-blue-500/40 rounded-2xl p-5 flex items-center justify-between">
                 <div>
                     <h4 class="font-bold text-blue-200 text-sm">Central de Aprovação Externa</h4>
@@ -161,7 +160,6 @@
                 <div id="client-mini-calendar" class="grid grid-cols-7 gap-2"></div>
             </div>
 
-            <!-- Checklist e Processos Atualizados -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-dark-950 p-4 rounded-xl border border-dark-800 space-y-2.5">
                     <h4 class="font-bold text-white uppercase text-[11px] mb-2 tracking-wider">Checklist</h4>
@@ -181,21 +179,24 @@
                 </div>
             </div>
 
-            <!-- Seção Financeira -->
+            <!-- Seção Financeira e Botão Excluir Protegido por Senha -->
             <div class="bg-dark-950 p-5 rounded-2xl border border-dark-800 space-y-4">
                 <h4 class="font-bold text-white uppercase text-xs tracking-wider flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-400"></i> Financeiro do Cliente</h4>
-                <div class="flex items-center gap-4 flex-wrap">
-                    <div class="flex-1 min-w-[180px]">
+                <div class="flex items-center gap-4 flex-wrap justify-between">
+                    <div class="flex-1 min-w-[160px]">
                         <label class="block text-slate-400 mb-1">Valor do Contrato (R$)</label>
                         <input type="number" id="client-fee-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
                     </div>
-                    <div class="flex-1 min-w-[180px]">
+                    <div class="flex-1 min-w-[160px]">
                         <label class="block text-slate-400 mb-1">Vencimento</label>
                         <input type="date" id="client-duedate-input" class="w-full bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
                     </div>
                     <div class="pt-5 flex gap-2">
                         <button onclick="registerClientPayment()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-semibold transition cursor-pointer shadow"><i class="fa-solid fa-check mr-1"></i> Lançar</button>
                     </div>
+                </div>
+                <div class="pt-4 border-t border-dark-800 flex justify-end">
+                    <button onclick="deleteClientSecured()" class="bg-red-950/40 hover:bg-red-900/60 border border-red-500/50 text-red-400 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Apagar Cliente (Protegido por senha)</button>
                 </div>
             </div>
         </div>
@@ -461,6 +462,23 @@
         currentActiveClient.isOverdue = false;
         renderClients();
         alert('Ficha do cliente salva com sucesso!');
+    }
+
+    // Proteção por senha para apagar cliente
+    function deleteClientSecured() {
+        if(!currentActiveClient) return;
+        let pass = prompt("Digite a senha de segurança para apagar o cliente:");
+        if(pass === "plasso2026") {
+            if(confirm(`Tem certeza que deseja apagar permanentemente o cliente ${currentActiveClient.name}?`)) {
+                clients = clients.filter(c => c.id !== currentActiveClient.id);
+                localStorage.setItem('plasso_clients', JSON.stringify(clients));
+                closeClientModal();
+                renderClients();
+                alert("Cliente apagado com sucesso.");
+            }
+        } else if(pass !== null) {
+            alert("Senha incorreta!");
+        }
     }
 
     function closeClientModal() { 
