@@ -112,9 +112,19 @@
             const grid = document.getElementById('calendar-grid');
             grid.innerHTML = '';
             let clientTasks = getClientTasks();
-            const selectedMonth = document.getElementById('filter-month').value;
+            const selectedMonth = document.getElementById('filter-month').value; // Ex: "10" (Outubro)
 
-            for (let i = 1; i <= 31; i++) {
+            let year = 2026;
+            let month = parseInt(selectedMonth);
+            let firstDayIndex = new Date(year, month - 1, 1).getDay();
+            let totalDays = new Date(year, month, 0).getDate();
+
+            // Espaços vazios
+            for (let b = 0; b < firstDayIndex; b++) {
+                grid.innerHTML += `<div class="h-32 border border-dark-900 bg-dark-950/20 rounded-2xl opacity-10"></div>`;
+            }
+
+            for (let i = 1; i <= totalDays; i++) {
                 let dayStr = i < 10 ? '0' + i : '' + i;
                 let dayTasks = clientTasks.filter(t => {
                     if(!t.date) return false;
