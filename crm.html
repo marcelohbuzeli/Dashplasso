@@ -316,12 +316,12 @@
         tasks.push({
             id: 't_' + Date.now(),
             client: lead.name,
-            headline: `Follow-up: ${lead.name}`,
+            headline: `Follow-up: Follow ${lead.name}`,
             type: 'Story',
             caption: `Follow-up agendado às ${timeVal}`,
             date: dateVal,
             status: 'todo',
-            notes: 'Follow-up CRM'
+            notes: 'followup_tag'
         });
         localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
 
@@ -347,12 +347,12 @@
         tasks.push({
             id: 't_' + Date.now(),
             client: lead.name,
-            headline: `Reunião: ${lead.name}`,
+            headline: `Reunião: ${timeVal} Reunião ${lead.name}`,
             type: 'Reels',
             caption: `Reunião agendada às ${timeVal}`,
             date: dateVal,
             status: 'todo',
-            notes: 'Reunião CRM'
+            notes: 'meeting_tag'
         });
         localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
 
