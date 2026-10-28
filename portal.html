@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -256,6 +256,7 @@
                                 <button onclick="approveTask('${t.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer"><i class="fa-solid fa-check"></i> Aprovar</button>
                                 <button onclick="openRejectionModal('${t.id}')" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer"><i class="fa-solid fa-xmark"></i> Reprovar</button>
                             </div>
+                            <button onclick="openPaymentModal('${t.date}')" class="w-full bg-dark-900 hover:bg-dark-800 border border-emerald-500/50 text-emerald-400 py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer shadow"><i class="fa-solid fa-wallet"></i> Lançar Pagamento</button>
                         </div>
                     `;
                 }
