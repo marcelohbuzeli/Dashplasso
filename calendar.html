@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendário | Plassô</title>
+    <title>Plassô Marketing — Gestão Integrada</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -25,16 +25,13 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .kanban-col { min-height: calc(100vh - 280px); }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: #030712; }
         ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #374151; }
     </style>
 </head>
 <body class="bg-dark-950 text-slate-200 antialiased overflow-hidden selection:bg-blue-600 selection:text-white">
 <div class="flex flex-row h-screen w-screen overflow-hidden">
-
     <aside id="sidebar" class="bg-dark-900 border-r border-dark-800 flex flex-col justify-between transition-all duration-300 w-64 z-30 overflow-hidden shrink-0 h-full">
         <div class="flex flex-col h-full">
             <div class="h-20 flex items-center justify-between px-4 border-b border-dark-800/60 shrink-0">
@@ -45,44 +42,32 @@
                         <span class="text-[9px] text-blue-400 font-mono tracking-wider">MARKETING</span>
                     </div>
                 </div>
-                <button id="toggle-btn" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-dark-800 transition shrink-0">
-                    <i class="fa-solid fa-chevron-left text-xs"></i>
-                </button>
             </div>
             <nav class="p-3 space-y-1.5 font-medium text-xs flex-1 overflow-y-auto">
-    <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard</span>
-    </a>
-    <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Tasks</span>
-    </a>
-    <a href="clients.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-network-wired w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Clientes</span>
-    </a>
-    <a href="calendar.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer bg-blue-600 text-white">
-        <i class="fa-solid fa-calendar-days w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Calendário</span>
-    </a>
-    <a href="finance.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-wallet w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Financeiro</span>
-    </a>
-    <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">CRM</span>
-    </a>
-</nav>
+                <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard (Geral)</span></a>
+                <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Tasks</span></a>
+                <a href="clients.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-network-wired w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Clientes</span></a>
+                <a href="calendar.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer bg-blue-600 text-white"><i class="fa-solid fa-calendar-days w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Calendário</span></a>
+                <a href="finance.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-wallet w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Financeiro</span></a>
+                <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">CRM</span></a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-dark-800/60 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-dark-800 border border-slate-700/50 flex items-center justify-center text-xs font-bold text-blue-400 shrink-0 font-mono">MB</div>
+                <div class="sidebar-text overflow-hidden font-mono">
+                    <p class="text-xs font-semibold text-slate-200 truncate">Marcelo Buzeli</p>
+                    <p class="text-[10px] text-emerald-400 flex items-center gap-1.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online</p>
+                </div>
+            </div>
+        </div>
     </aside>
     
     <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
         <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
             <div>
-                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
-                    <i class="fa-solid fa-calendar-days text-blue-500 text-xs"></i> Calendário Operacional
-                </h1>
+                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2"><i class="fa-solid fa-calendar-days text-blue-500 text-xs"></i> Calendário Operacional</h1>
+                <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/calendar</p>
             </div>
             <div class="flex items-center gap-4">
                 <button onclick="openNewEventModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg transition cursor-pointer">
@@ -93,24 +78,17 @@
 
         <div class="flex-1 overflow-y-auto p-8 space-y-6">
             <div class="bg-dark-900 border border-dark-800 rounded-2xl p-6 space-y-6">
-                <!-- Seletor de Meses e Título -->
                 <div class="flex justify-between items-center flex-wrap gap-4">
-                    <h3 id="calendar-title" class="text-sm font-bold text-white uppercase tracking-wider">Calendário</h3>
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Calendário Operacional</h3>
                     <div class="flex items-center gap-3">
                         <label class="text-xs text-slate-400 font-mono">Mês:</label>
                         <select id="cal-month-select" onchange="renderCalendar()" class="bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-xs text-white font-mono cursor-pointer">
-                            <option value="2026-01">Janeiro de 2026</option>
-                            <option value="2026-02">Fevereiro de 2026</option>
-                            <option value="2026-03">Março de 2026</option>
-                            <option value="2026-04">Abril de 2026</option>
-                            <option value="2026-05">Maio de 2026</option>
-                            <option value="2026-06">Junho de 2026</option>
-                            <option value="2026-07">Julho de 2026</option>
-                            <option value="2026-08">Agosto de 2026</option>
-                            <option value="2026-09">Setembro de 2026</option>
-                            <option value="2026-10" selected>Outubro de 2026</option>
-                            <option value="2026-11">Novembro de 2026</option>
-                            <option value="2026-12">Dezembro de 2026</option>
+                            <option value="2026-01">Janeiro de 2026</option><option value="2026-02">Fevereiro de 2026</option>
+                            <option value="2026-03">Março de 2026</option><option value="2026-04">Abril de 2026</option>
+                            <option value="2026-05">Maio de 2026</option><option value="2026-06">Junho de 2026</option>
+                            <option value="2026-07">Julho de 2026</option><option value="2026-08">Agosto de 2026</option>
+                            <option value="2026-09">Setembro de 2026</option><option value="2026-10" selected>Outubro de 2026</option>
+                            <option value="2026-11">Novembro de 2026</option><option value="2026-12">Dezembro de 2026</option>
                         </select>
                     </div>
                 </div>
@@ -125,16 +103,17 @@
 <div id="newEventModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
     <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
         <form onsubmit="createNewEvent(event)" class="space-y-4 text-xs">
-            <h3 class="text-sm font-bold text-white uppercase">Novo</h3>
-            <input type="text" id="ev-title" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome">
+            <h3 class="text-sm font-bold text-white uppercase">Criar Nova Agenda / Evento</h3>
+            <input type="text" id="ev-title" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Título / Nome">
             <select id="ev-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white">
-                <option value="Followup">Follow-up</option>
-                <option value="Evento">Evento ou Reunião</option>
+                <option value="Post">Postagem / Task</option>
+                <option value="Followup">Follow-up CRM</option>
+                <option value="Evento">Evento / Reunião</option>
             </select>
             <input type="date" id="ev-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono">
             <div class="flex justify-end gap-3 pt-2">
                 <button type="button" onclick="closeNewEventModal()" class="text-slate-400">Cancelar</button>
-                <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button>
+                <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar na Agenda</button>
             </div>
         </form>
     </div>
@@ -143,40 +122,39 @@
 <script>
     function renderCalendar() {
         const calView = document.getElementById('calendar-view');
-        const selectedYearMonth = document.getElementById('cal-month-select').value; // Ex: "2026-10"
+        const selectedYearMonth = document.getElementById('cal-month-select').value;
         if(!calView) return;
         calView.innerHTML = '';
         
         ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].forEach(d => { calView.innerHTML += '<div class="text-xs font-bold text-slate-400 uppercase py-2">' + d + '</div>'; });
         
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-        let crm = JSON.parse(localStorage.getItem('plasso_crm') || '[]');
-        let customEvents = JSON.parse(localStorage.getItem('plasso_events') || '[]');
 
         for (let i = 1; i <= 31; i++) {
             let dayStr = i < 10 ? '0' + i : '' + i;
             let targetDateStr = selectedYearMonth + '-' + dayStr;
 
             let dayTasks = tasks.filter(t => t.date === targetDateStr);
-            let dayCrm = crm.filter(l => l.date === targetDateStr);
-            let dayEvents = customEvents.filter(e => e.date === targetDateStr);
-
-            let hasPost = dayTasks.length > 0;
-            let hasFollowup = dayCrm.length > 0;
-            let hasEvent = dayEvents.length > 0;
-            let hasAny = hasPost || hasFollowup || hasEvent;
+            let hasAny = dayTasks.length > 0;
 
             let bgClass = 'bg-dark-950 border-dark-800 text-slate-500 opacity-40';
             let badgesHTML = '';
 
             if (hasAny) {
                 bgClass = 'bg-dark-900 border-slate-700 text-white font-bold';
-                if(hasPost) badgesHTML += '<span class="text-[9px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-mono truncate block mt-1">Postagem</span>';
-                if(hasFollowup) badgesHTML += '<span class="text-[9px] bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded font-mono font-bold truncate block mt-1">Follow-up CRM</span>';
-                if(hasEvent) badgesHTML += '<span class="text-[9px] bg-purple-600 text-white px-1.5 py-0.5 rounded font-mono truncate block mt-1">Evento</span>';
+                dayTasks.forEach(dt => {
+                    let titleText = dt.headline || dt.client || 'Post';
+                    if(dt.notes === 'followup_tag') {
+                        badgesHTML += `<span class="text-[9px] bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded font-mono font-bold truncate block mt-1" title="${titleText}">${titleText}</span>`;
+                    } else if(dt.notes === 'meeting_tag') {
+                        badgesHTML += `<span class="text-[9px] bg-purple-600 text-white px-1.5 py-0.5 rounded font-mono font-bold truncate block mt-1" title="${titleText}">${titleText}</span>`;
+                    } else {
+                        badgesHTML += `<span class="text-[9px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-mono truncate block mt-1" title="${titleText}">${titleText}</span>`;
+                    }
+                });
             }
 
-            calView.innerHTML += `<div class="h-28 border ${bgClass} rounded-xl p-2 flex flex-col justify-between text-left"><span class="text-xs font-mono">${i}</span><div class="overflow-y-auto max-h-16">${badgesHTML}</div></div>`;
+            calView.innerHTML += `<div class="h-28 border ${bgClass} rounded-xl p-2 flex flex-col justify-between text-left overflow-hidden"><span class="text-xs font-mono">${i}</span><div class="overflow-y-auto max-h-16 space-y-1">${badgesHTML}</div></div>`;
         }
     }
 
@@ -188,19 +166,19 @@
         let type = document.getElementById('ev-type').value;
         let date = document.getElementById('ev-date').value;
 
+        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let noteType = 'Post';
+        let headlineText = title;
         if(type === 'Followup') {
-            let crm = JSON.parse(localStorage.getItem('plasso_crm') || '[]');
-            crm.push({ id: 'l_' + Date.now(), name: title, area: 'Geral', col: 'follow', date: date });
-            localStorage.setItem('plasso_crm', JSON.stringify(crm));
-        } else if(type === 'Post') {
-            let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-            tasks.push({ id: 't_' + Date.now(), client: title, type: 'Reels', caption: 'Agendado pelo Calendário', drive: '', date: date, status: 'todo', notes: '', isRejected: false });
-            localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
-        } else {
-            let events = JSON.parse(localStorage.getItem('plasso_events') || '[]');
-            events.push({ id: 'ev_' + Date.now(), title: title, date: date });
-            localStorage.setItem('plasso_events', JSON.stringify(events));
+            noteType = 'followup_tag';
+            headlineText = `Follow-up: Follow ${title}`;
+        } else if(type === 'Evento') {
+            noteType = 'meeting_tag';
+            headlineText = `Reunião: 09:00 Reunião ${title}`;
         }
+
+        tasks.push({ id: 't_' + Date.now(), client: title, headline: headlineText, type: 'Reels', caption: 'Criado pelo Calendário', date: date, status: 'todo', notes: noteType });
+        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
 
         closeNewEventModal();
         renderCalendar();
