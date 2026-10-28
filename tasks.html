@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plassô Marketing — Gestão de Tarefas</title>
+    <title>Plassô Marketing — Gestão Integrada</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -25,7 +25,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .kanban-col { min-height: calc(100vh - 240px); }
+        .kanban-col { min-height: calc(100vh - 280px); }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: #030712; }
         ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
@@ -33,7 +33,6 @@
 </head>
 <body class="bg-dark-950 text-slate-200 antialiased overflow-hidden selection:bg-blue-600 selection:text-white">
 <div class="flex flex-row h-screen w-screen overflow-hidden">
-
     <aside id="sidebar" class="bg-dark-900 border-r border-dark-800 flex flex-col justify-between transition-all duration-300 w-64 z-30 overflow-hidden shrink-0 h-full">
         <div class="flex flex-col h-full">
             <div class="h-20 flex items-center justify-between px-4 border-b border-dark-800/60 shrink-0">
@@ -46,141 +45,131 @@
                 </div>
             </div>
             <nav class="p-3 space-y-1.5 font-medium text-xs flex-1 overflow-y-auto">
-                <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Dashboard</span></a>
-                <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer bg-blue-600 text-white"><i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Tasks</span></a>
-                <a href="clients.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-network-wired w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Clientes</span></a>
-                <a href="calendar.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-calendar-days w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Calendário</span></a>
-                <a href="finance.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-wallet w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">Financeiro</span></a>
-                <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i><span class="sidebar-text">CRM</span></a>
+                <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard (Geral)</span></a>
+                <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer bg-blue-600 text-white"><i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Tasks</span></a>
+                <a href="clients.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-network-wired w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Clientes</span></a>
+                <a href="calendar.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-calendar-days w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Calendário</span></a>
+                <a href="finance.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-wallet w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Financeiro</span></a>
+                <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">CRM</span></a>
             </nav>
         </div>
+        <div class="p-4 border-t border-dark-800/60 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-dark-800 border border-slate-700/50 flex items-center justify-center text-xs font-bold text-blue-400 shrink-0 font-mono">MB</div>
+                <div class="sidebar-text overflow-hidden font-mono">
+                    <p class="text-xs font-semibold text-slate-200 truncate">Marcelo Buzeli</p>
+                    <p class="text-[10px] text-emerald-400 flex items-center gap-1.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online</p>
+                </div>
+            </div>
+        </div>
     </aside>
-
+    
     <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
         <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
             <div>
-                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2"><i class="fa-solid fa-terminal text-blue-500 text-xs"></i> Gestão de Tarefas & Produção</h1>
-                <p class="text-[11px] text-slate-400 font-mono mt-0.5">Fluxo de postagens e aprovações</p>
+                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2"><i class="fa-solid fa-terminal text-blue-500 text-xs"></i> Gestão de Tarefas (Kanban)</h1>
+                <p class="text-[11px] text-slate-400 font-mono mt-0.5">/workspace/plasso/tasks</p>
             </div>
             <div>
-                <button onclick="openNewTaskModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer">
-                    <i class="fa-solid fa-plus text-[10px]"></i> Nova Postagem
+                <button onclick="openNewTaskModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-lg">
+                    <i class="fa-solid fa-plus text-[10px]"></i> Nova Task
                 </button>
             </div>
         </header>
 
-        <!-- Kanban Board de Tasks -->
-        <div class="flex-1 overflow-x-auto overflow-y-auto p-8 flex gap-6">
-            
-            <!-- Coluna 1: A Fazer -->
-            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
-                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-slate-500"></span> A Fazer</h3><span id="count-todo" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
-                <div id="col-todo" ondragover="allowDrop(event)" ondrop="drop(event, 'todo')" class="kanban-col p-4 space-y-3 overflow-y-auto"></div>
+        <div class="flex-1 overflow-x-auto p-8 flex gap-6 items-start">
+            <!-- Coluna: A Fazer -->
+            <div class="w-80 bg-gradient-to-b from-slate-900 to-dark-900 border border-slate-800 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-slate-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-slate-500"></span> A Fazer</h3><span id="count-todo" class="text-xs font-mono bg-dark-950 text-slate-400 px-2 py-0.5 rounded-full border border-slate-800">0</span></div>
+                <div id="col-todo" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'todo')"></div>
             </div>
-
-            <!-- Coluna 2: Em Produção -->
-            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
-                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Em Produção</h3><span id="count-doing" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
-                <div id="col-doing" ondragover="allowDrop(event)" ondrop="drop(event, 'doing')" class="kanban-col p-4 space-y-3 overflow-y-auto"></div>
+            <!-- Coluna: Em Produção -->
+            <div class="w-80 bg-gradient-to-b from-blue-950/30 to-dark-900 border border-blue-500/30 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-blue-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Em Produção</h3><span id="count-progress" class="text-xs font-mono bg-dark-950 text-blue-400 px-2 py-0.5 rounded-full border border-blue-800/50">0</span></div>
+                <div id="col-progress" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'progress')"></div>
             </div>
-
-            <!-- Coluna 3: Aguardando Aprovação -->
-            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
-                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Aguardando Aprovação</h3><span id="count-review" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
-                <div id="col-review" ondragover="allowDrop(event)" ondrop="drop(event, 'review')" class="kanban-col p-4 space-y-3 overflow-y-auto"></div>
+            <!-- Coluna: Aprovação -->
+            <div class="w-80 bg-gradient-to-b from-purple-950/30 to-dark-900 border border-purple-500/30 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-purple-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Aprovação</h3><span id="count-approval" class="text-xs font-mono bg-dark-950 text-purple-400 px-2 py-0.5 rounded-full border border-purple-800/50">0</span></div>
+                <div id="col-approval" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'approval')"></div>
             </div>
-
-            <!-- Coluna 4: Urgentes / Ajustes -->
-            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
-                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500"></span> Urgentes / Ajustes</h3><span id="count-urgent" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
-                <div id="col-urgent" ondragover="allowDrop(event)" ondrop="drop(event, 'urgent')" class="kanban-col p-4 space-y-3 overflow-y-auto"></div>
+            <!-- Coluna: Agendado -->
+            <div class="w-80 bg-gradient-to-b from-emerald-950/30 to-dark-900 border border-emerald-500/30 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-emerald-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Agendado</h3><span id="count-scheduled" class="text-xs font-mono bg-dark-950 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-800/50">0</span></div>
+                <div id="col-scheduled" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'scheduled')"></div>
             </div>
-
-            <!-- Coluna 5: Aprovados / Agendados -->
-            <div class="w-80 bg-dark-900/80 border border-dark-800 rounded-2xl flex flex-col shrink-0">
-                <div class="p-4 border-b border-dark-800 flex justify-between items-center"><h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Aprovados</h3><span id="count-approved" class="text-[10px] font-mono bg-dark-950 px-2 py-0.5 rounded text-slate-400">0</span></div>
-                <div id="col-approved" ondragover="allowDrop(event)" ondrop="drop(event, 'approved')" class="kanban-col p-4 space-y-3 overflow-y-auto"></div>
+            <!-- Coluna: Urgente / Reprovado -->
+            <div class="w-80 bg-gradient-to-b from-red-950/30 to-dark-900 border border-red-500/30 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-red-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500"></span> Urgente / Ajuste</h3><span id="count-urgent" class="text-xs font-mono bg-dark-950 text-red-400 px-2 py-0.5 rounded-full border border-red-800/50">0</span></div>
+                <div id="col-urgent" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'urgent')"></div>
             </div>
-
         </div>
     </main>
 </div>
 
-<!-- Modal Nova Task / Post -->
+<!-- Modal Detalhes / Edição de Task (Ao Clicar no Card) -->
+<div id="taskDetailModal" class="fixed inset-0 bg-dark-950/85 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 text-xs">
+        <div class="flex justify-between items-center pb-3 border-b border-dark-800">
+            <h3 class="text-base font-bold text-white uppercase">Informações da Postagem</h3>
+            <button onclick="closeTaskDetailModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <input type="hidden" id="dt-id">
+        <div><label class="block text-slate-400 mb-1">Headline (Título)</label><input type="text" id="dt-headline" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-bold"></div>
+        <div><label class="block text-slate-400 mb-1">Cliente</label><input type="text" id="dt-client" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"></div>
+        <div><label class="block text-slate-400 mb-1">Formato</label><select id="dt-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"><option value="Reels">Reels</option><option value="Carrossel">Carrossel</option><option value="Story">Story</option><option value="Foto Única">Foto Única</option></select></div>
+        <div><label class="block text-slate-400 mb-1">Data da Postagem</label><input type="date" id="dt-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"></div>
+        <div><label class="block text-slate-400 mb-1">Link do Drive</label><input type="url" id="dt-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-blue-400 font-mono"></div>
+        <div><label class="block text-slate-400 mb-1">Legenda</label><textarea id="dt-caption" rows="3" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none"></textarea></div>
+        <div><label class="block text-slate-400 mb-1">Notas / Observações</label><textarea id="dt-notes" rows="2" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-amber-300 resize-none"></textarea></div>
+        <div class="flex justify-between items-center pt-2">
+            <button onclick="deleteTaskFromModal()" class="text-red-400 hover:text-red-300 font-semibold cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Excluir Task</button>
+            <button onclick="saveTaskDetails()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar Alterações</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nova Task -->
 <div id="newTaskModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
-        <h3 class="font-bold text-white uppercase text-sm">Criar Nova Postagem</h3>
-        <div>
-            <label class="block text-slate-400 mb-1">Headline (Título) <span class="text-blue-400">*</span></label>
-            <input type="text" id="nt-headline" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-bold" placeholder="Ex: Lançamento Coleção Verão">
-        </div>
-        <div>
-            <label class="block text-slate-400 mb-1">Cliente</label>
-            <input type="text" id="nt-client" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white" placeholder="Nome do Cliente">
-        </div>
-        <div>
-            <label class="block text-slate-400 mb-1">Formato</label>
-            <select id="nt-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white">
-                <option value="Reels">Reels</option>
-                <option value="Carrossel">Carrossel</option>
-                <option value="Story">Story</option>
-                <option value="Foto Única">Foto Única</option>
-            </select>
-        </div>
-        <div>
-            <label class="block text-slate-400 mb-1">Data da Postagem</label>
-            <input type="date" id="nt-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-white font-mono">
-        </div>
-        <div>
-            <label class="block text-slate-400 mb-1">Link do Drive</label>
-            <input type="url" id="nt-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-blue-400 font-mono" placeholder="https://drive.google.com/...">
-        </div>
-        <div>
-            <label class="block text-slate-400 mb-1">Legenda</label>
-            <textarea id="nt-caption" rows="2" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none" placeholder="Legenda do post..."></textarea>
-        </div>
-        <div class="flex justify-end gap-3 pt-2">
-            <button onclick="closeNewTaskModal()" class="text-slate-400 cursor-pointer">Cancelar</button>
-            <button onclick="saveNewTask()" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Criar Postagem</button>
-        </div>
+    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
+        <form onsubmit="createNewTask(event)" class="space-y-4 text-xs">
+            <h3 class="text-sm font-bold text-white uppercase">Nova Tarefa / Postagem</h3>
+            <div><label class="block text-slate-400 mb-1">Headline (Título)</label><input type="text" id="nt-headline" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-bold" placeholder="Título do post"></div>
+            <div><label class="block text-slate-400 mb-1">Cliente</label><input type="text" id="nt-client" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome do cliente"></div>
+            <div><label class="block text-slate-400 mb-1">Formato</label><select id="nt-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"><option value="Reels">Reels</option><option value="Carrossel">Carrossel</option><option value="Story">Story</option><option value="Foto Única">Foto Única</option></select></div>
+            <div><label class="block text-slate-400 mb-1">Data da Postagem</label><input type="date" id="nt-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"></div>
+            <div><label class="block text-slate-400 mb-1">Link do Drive</label><input type="url" id="nt-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-blue-400 font-mono" placeholder="https://..."></div>
+            <div class="flex justify-end gap-3 pt-2"><button type="button" onclick="closeNewTaskModal()" class="text-slate-400 cursor-pointer">Cancelar</button><button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar</button></div>
+        </form>
     </div>
 </div>
 
 <script>
     let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-    if(tasks.length === 0) {
-        tasks = [
-            { id: 't1', client: 'Rosa Pink Lingerie', headline: 'Lançamento Sutiã Comfort', type: 'Reels', caption: 'Conforto o dia todo!', drive: 'https://drive.google.com', date: '2026-10-15', status: 'todo', notes: '', isRejected: false }
-        ];
-        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
-    }
+    let draggedTaskId = null;
+    let activeDetailTaskId = null;
 
-    function renderTasks() {
-        ['todo', 'doing', 'review', 'urgent', 'approved'].forEach(status => {
-            const container = document.getElementById('col-' + status);
+    function renderKanban() {
+        ['todo', 'progress', 'approval', 'scheduled', 'urgent'].forEach(col => {
+            const container = document.getElementById('col-' + col);
             container.innerHTML = '';
-            let colTasks = tasks.filter(t => t.status === status);
-            document.getElementById('count-' + status).innerText = colTasks.length;
+            const colTasks = tasks.filter(t => (t.status || 'todo') === col);
+            document.getElementById('count-' + col).innerText = colTasks.length;
 
             colTasks.forEach(t => {
                 let headline = t.headline || t.client || 'Headline';
                 let clientName = t.client || 'Cliente';
                 let dateFormatted = t.date ? t.date.split('-').reverse().join('/') : '';
-                let isUrgent = t.isRejected;
-
-                let cardBorder = isUrgent ? 'border-red-500/60 bg-red-950/20' : 'border-dark-800 bg-dark-950';
+                let borderClass = t.isRejected ? 'border-red-500/60 bg-red-950/20' : 'border-dark-800 bg-dark-950';
 
                 container.innerHTML += `
-                    <div draggable="true" ondragstart="drag(event, '${t.id}')" class="border ${cardBorder} rounded-xl p-4 space-y-2 cursor-grab shadow">
-                        <!-- Topo: Headline cadastrada -->
+                    <div draggable="true" ondragstart="drag(event, '${t.id}')" onclick="openTaskDetail('${t.id}')" class="border ${borderClass} rounded-xl p-3.5 shadow space-y-2 cursor-pointer hover:border-blue-500/50 transition">
                         <h4 class="font-bold text-white text-sm">${headline}</h4>
-                        
-                        <!-- Abaixo: Cliente e data a direita pequenininha -->
-                        <div class="flex justify-between items-center text-xs pt-1 border-t border-dark-800">
-                            <span class="text-blue-400 font-semibold">${clientName}</span>
-                            <span class="text-[10px] text-slate-400 font-mono">${dateFormatted}</span>
+                        <div class="flex justify-between items-center text-[11px] pt-1 border-t border-dark-800/80">
+                            <span class="text-blue-400 font-medium truncate">${clientName}</span>
+                            <span class="text-slate-400 font-mono text-[9px]">${dateFormatted}</span>
                         </div>
-                        ${isUrgent ? `<p class="text-[10px] text-red-400 bg-red-950/40 p-1.5 rounded border border-red-800 mt-1"><strong>Ajuste:</strong> ${t.notes || 'Reprovado'}</p>` : ''}
+                        ${t.notes ? `<p class="text-[10px] text-amber-400 bg-amber-950/30 p-1.5 rounded border border-amber-800/50 mt-1">${t.notes}</p>` : ''}
                     </div>
                 `;
             });
@@ -188,58 +177,84 @@
         localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
     }
 
-    function allowDrop(ev) { ev.preventDefault(); }
-    let draggedTaskId = null;
-    function drag(ev, id) { draggedTaskId = id; }
+    function openTaskDetail(id) {
+        let t = tasks.find(task => task.id === id);
+        if(!t) return;
+        activeDetailTaskId = id;
+        document.getElementById('dt-id').value = t.id;
+        document.getElementById('dt-headline').value = t.headline || '';
+        document.getElementById('dt-client').value = t.client || '';
+        document.getElementById('dt-type').value = t.type || 'Reels';
+        document.getElementById('dt-date').value = t.date || '';
+        document.getElementById('dt-drive').value = t.drive || '';
+        document.getElementById('dt-caption').value = t.caption || '';
+        document.getElementById('dt-notes').value = t.notes || '';
+        document.getElementById('taskDetailModal').classList.remove('hidden');
+        document.getElementById('taskDetailModal').classList.add('flex');
+    }
 
-    function drop(ev, targetStatus) {
+    function closeTaskDetailModal() {
+        document.getElementById('taskDetailModal').classList.add('hidden');
+        document.getElementById('taskDetailModal').classList.remove('flex');
+    }
+
+    function saveTaskDetails() {
+        let t = tasks.find(task => task.id === activeDetailTaskId);
+        if(t) {
+            t.headline = document.getElementById('dt-headline').value;
+            t.client = document.getElementById('dt-client').value;
+            t.type = document.getElementById('dt-type').value;
+            t.date = document.getElementById('dt-date').value;
+            t.drive = document.getElementById('dt-drive').value;
+            t.caption = document.getElementById('dt-caption').value;
+            t.notes = document.getElementById('dt-notes').value;
+            localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+            alert('Task atualizada com sucesso!');
+            closeTaskDetailModal();
+            renderKanban();
+        }
+    }
+
+    function deleteTaskFromModal() {
+        if(!confirm('Deseja excluir esta task?')) return;
+        tasks = tasks.filter(task => task.id !== activeDetailTaskId);
+        closeTaskDetailModal();
+        renderKanban();
+    }
+
+    function drag(ev, id) { draggedTaskId = id; }
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drop(ev, status) {
         ev.preventDefault();
         if(!draggedTaskId) return;
         let t = tasks.find(task => task.id === draggedTaskId);
         if(t) {
-            t.status = targetStatus;
-            if(targetStatus !== 'urgent') t.isRejected = false;
-            renderTasks();
+            t.status = status;
+            renderKanban();
         }
     }
 
-    function openNewTaskModal() {
-        document.getElementById('nt-headline').value = '';
-        document.getElementById('nt-client').value = '';
-        document.getElementById('nt-drive').value = '';
-        document.getElementById('nt-caption').value = '';
-        document.getElementById('nt-date').valueAsDate = new Date();
-        document.getElementById('newTaskModal').classList.remove('hidden');
-        document.getElementById('newTaskModal').classList.add('flex');
-    }
-    function closeNewTaskModal() {
-        document.getElementById('newTaskModal').classList.add('hidden');
-        document.getElementById('newTaskModal').classList.remove('flex');
-    }
+    function openNewTaskModal() { document.getElementById('newTaskModal').classList.remove('hidden'); document.getElementById('newTaskModal').classList.add('flex'); document.getElementById('nt-date').valueAsDate = new Date(); }
+    function closeNewTaskModal() { document.getElementById('newTaskModal').classList.add('hidden'); document.getElementById('newTaskModal').classList.remove('flex'); }
 
-    function saveNewTask() {
-        let headline = document.getElementById('nt-headline').value;
-        let client = document.getElementById('nt-client').value;
-        if(!headline || !client) { alert('Headline e Cliente são obrigatórios.'); return; }
-
+    function createNewTask(e) {
+        e.preventDefault();
         tasks.push({
             id: 't_' + Date.now(),
-            client: client,
-            headline: headline,
+            headline: document.getElementById('nt-headline').value,
+            client: document.getElementById('nt-client').value,
             type: document.getElementById('nt-type').value,
-            caption: document.getElementById('nt-caption').value,
-            drive: document.getElementById('nt-drive').value,
             date: document.getElementById('nt-date').value,
+            drive: document.getElementById('nt-drive').value,
             status: 'todo',
             notes: '',
             isRejected: false
         });
         closeNewTaskModal();
-        renderTasks();
-        alert('Postagem criada com sucesso!');
+        renderKanban();
     }
 
-    renderTasks();
+    renderKanban();
 </script>
 </body>
 </html>
