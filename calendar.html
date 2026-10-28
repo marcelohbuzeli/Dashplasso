@@ -107,21 +107,66 @@
     </main>
 </div>
 
-<!-- Modal para Editar Evento / Task do Calendário (Ao Clicar no Card) -->
-<div id="calendarEditModal" class="fixed inset-0 bg-dark-950/85 backdrop-blur-md hidden items-center justify-center z-[9999] p-4">
+<!-- Modal 1: Follow Up (Caixa Amarela) -->
+<div id="modalFollow" class="fixed inset-0 bg-dark-950/85 backdrop-blur-md hidden items-center justify-center z-[9999] p-4">
+    <div class="bg-dark-900 border border-amber-500/60 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 text-xs">
+        <div class="flex justify-between items-center pb-3 border-b border-dark-800">
+            <h3 class="text-base font-bold text-amber-400 uppercase"><i class="fa-solid fa-calendar-days mr-1"></i> Editar Follow Up</h3>
+            <button onclick="closeModals()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <input type="hidden" id="mf-id">
+        <div><label class="block text-slate-400 mb-1">Nome do Cliente (Não editável)</label><input type="text" id="mf-client" disabled class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-slate-400 font-bold cursor-not-allowed"></div>
+        <div><label class="block text-slate-400 mb-1">Data</label><input type="date" id="mf-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"></div>
+        <div>
+            <label class="block text-slate-400 mb-1">Horário</label>
+            <select id="mf-time" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono">
+                <option value="09:00">09:00</option><option value="10:00">10:00</option><option value="11:00">11:00</option>
+                <option value="14:00">14:00</option><option value="15:00">15:00</option><option value="16:00">16:00</option><option value="17:00">17:00</option>
+            </select>
+        </div>
+        <div class="flex justify-between items-center pt-2">
+            <button onclick="deleteEvent()" class="text-red-400 hover:text-red-300 font-semibold cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Apagar</button>
+            <button onclick="saveFollowEvent()" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2: Reunião (Caixa Roxa) -->
+<div id="modalMeeting" class="fixed inset-0 bg-dark-950/85 backdrop-blur-md hidden items-center justify-center z-[9999] p-4">
+    <div class="bg-dark-900 border border-purple-500/60 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 text-xs">
+        <div class="flex justify-between items-center pb-3 border-b border-dark-800">
+            <h3 class="text-base font-bold text-purple-400 uppercase"><i class="fa-solid fa-handshake mr-1"></i> Editar Reunião</h3>
+            <button onclick="closeModals()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <input type="hidden" id="mm-id">
+        <div><label class="block text-slate-400 mb-1">Nome do Cliente (Não editável)</label><input type="text" id="mm-client" disabled class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-slate-400 font-bold cursor-not-allowed"></div>
+        <div><label class="block text-slate-400 mb-1">Data</label><input type="date" id="mm-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"></div>
+        <div><label class="block text-slate-400 mb-1">Horário</label><input type="time" id="mm-time" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"></div>
+        <div class="flex justify-between items-center pt-2">
+            <button onclick="deleteEvent()" class="text-red-400 hover:text-red-300 font-semibold cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Apagar</button>
+            <button onclick="saveMeetingEvent()" class="bg-purple-600 hover:bg-purple-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 3: Postagem (Caixa Azul) -->
+<div id="modalPost" class="fixed inset-0 bg-dark-950/85 backdrop-blur-md hidden items-center justify-center z-[9999] p-4">
     <div class="bg-dark-900 border border-blue-500/60 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 text-xs">
         <div class="flex justify-between items-center pb-3 border-b border-dark-800">
-            <h3 class="text-base font-bold text-white uppercase">Editar Agendamento</h3>
-            <button onclick="closeCalendarEditModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="text-base font-bold text-blue-400 uppercase"><i class="fa-solid fa-terminal mr-1"></i> Editar Postagem</h3>
+            <button onclick="closeModals()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
-        <input type="hidden" id="ce-id">
-        <div><label class="block text-slate-400 mb-1">Título / Nome</label><input type="text" id="ce-headline" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-bold"></div>
-        <div><label class="block text-slate-400 mb-1">Data</label><input type="date" id="ce-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"></div>
-        <div><label class="block text-slate-400 mb-1">Link do Drive</label><input type="url" id="ce-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-blue-400 font-mono" placeholder="https://..."></div>
-        <div><label class="block text-slate-400 mb-1">Observações / Legenda</label><textarea id="ce-caption" rows="3" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none"></textarea></div>
+        <input type="hidden" id="mp-id">
+        <div><label class="block text-slate-400 mb-1">Headline (Título)</label><input type="text" id="mp-headline" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-bold"></div>
+        <div><label class="block text-slate-400 mb-1">Cliente</label><input type="text" id="mp-client" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"></div>
+        <div><label class="block text-slate-400 mb-1">Formato</label><select id="mp-type" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"><option value="Reels">Reels</option><option value="Carrossel">Carrossel</option><option value="Story">Story</option><option value="Foto Única">Foto Única</option></select></div>
+        <div><label class="block text-slate-400 mb-1">Data da Postagem</label><input type="date" id="mp-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"></div>
+        <div><label class="block text-slate-400 mb-1">Link do Drive</label><input type="url" id="mp-drive" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-blue-400 font-mono"></div>
+        <div><label class="block text-slate-400 mb-1">Legenda</label><textarea id="mp-caption" rows="3" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-white resize-none"></textarea></div>
+        <div><label class="block text-slate-400 mb-1">Notas / Observações</label><textarea id="mp-notes" rows="2" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-amber-300 resize-none"></textarea></div>
         <div class="flex justify-between items-center pt-2">
-            <button onclick="deleteCalendarEvent()" class="text-red-400 hover:text-red-300 font-semibold cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Apagar Agendamento</button>
-            <button onclick="saveCalendarEvent()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar Alterações</button>
+            <button onclick="deleteEvent()" class="text-red-400 hover:text-red-300 font-semibold cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Apagar</button>
+            <button onclick="savePostEvent()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar</button>
         </div>
     </div>
 </div>
@@ -147,9 +192,11 @@
 </div>
 
 <script>
+    let activeEditingId = null;
+
     function renderCalendar() {
         const calView = document.getElementById('calendar-view');
-        const selectedYearMonth = document.getElementById('cal-month-select').value; // Ex: "2026-10"
+        const selectedYearMonth = document.getElementById('cal-month-select').value;
         if(!calView) return;
         calView.innerHTML = '';
         
@@ -174,12 +221,12 @@
                     let tagColor = 'bg-blue-600 text-white'; // Azul para Postagens
 
                     if (dt.notes === 'crm_follow' || titleText.includes('Follow Up')) {
-                        tagColor = 'bg-amber-400 text-slate-950 font-extrabold'; // Amarela para Follow Up
+                        tagColor = 'bg-amber-400 text-slate-950 font-extrabold';
                     } else if (dt.notes === 'crm_meeting' || titleText.includes('Reunião')) {
-                        tagColor = 'bg-purple-600 text-white font-bold'; // Roxa para Reunião
+                        tagColor = 'bg-purple-600 text-white font-bold';
                     }
 
-                    badgesHTML += `<span onclick="event.stopPropagation(); openCalendarEditModal('${dt.id}')" class="text-[9px] ${tagColor} px-1.5 py-0.5 rounded font-mono truncate block mt-1 cursor-pointer hover:opacity-80 transition" title="Clique para editar">${titleText}</span>`;
+                    badgesHTML += `<span onclick="event.stopPropagation(); openSmartModal('${dt.id}')" class="text-[9px] ${tagColor} px-1.5 py-0.5 rounded font-mono truncate block mt-1 cursor-pointer hover:opacity-80 transition" title="Clique para editar">${titleText}</span>`;
                 });
             }
 
@@ -187,47 +234,104 @@
         }
     }
 
-    let activeEditCalendarId = null;
-    function openCalendarEditModal(id) {
+    function openSmartModal(id) {
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
         let t = tasks.find(task => task.id === id);
         if(!t) return;
-        activeEditCalendarId = id;
-        document.getElementById('ce-id').value = t.id;
-        document.getElementById('ce-headline').value = t.headline || t.client || '';
-        document.getElementById('ce-date').value = t.date || '';
-        document.getElementById('ce-drive').value = t.drive || '';
-        document.getElementById('ce-caption').value = t.caption || t.notes || '';
-        document.getElementById('calendarEditModal').classList.remove('hidden');
-        document.getElementById('calendarEditModal').classList.add('flex');
+        activeEditingId = id;
+
+        closeModals();
+
+        if (t.notes === 'crm_follow' || (t.headline && t.headline.includes('Follow Up'))) {
+            document.getElementById('mf-id').value = t.id;
+            document.getElementById('mf-client').value = t.client || 'Cliente';
+            document.getElementById('mf-date').value = t.date || '';
+            document.getElementById('modalFollow').classList.remove('hidden');
+            document.getElementById('modalFollow').classList.add('flex');
+        } else if (t.notes === 'crm_meeting' || (t.headline && t.headline.includes('Reunião'))) {
+            document.getElementById('mm-id').value = t.id;
+            document.getElementById('mm-client').value = t.client || 'Cliente';
+            document.getElementById('mm-date').value = t.date || '';
+            // Tentar extrair horário se houver no formato [09h] ou similar
+            document.getElementById('mm-time').value = '10:00';
+            document.getElementById('modalMeeting').classList.remove('hidden');
+            document.getElementById('modalMeeting').classList.add('flex');
+        } else {
+            document.getElementById('mp-id').value = t.id;
+            document.getElementById('mp-headline').value = t.headline || '';
+            document.getElementById('mp-client').value = t.client || '';
+            document.getElementById('mp-type').value = t.type || 'Reels';
+            document.getElementById('mp-date').value = t.date || '';
+            document.getElementById('mp-drive').value = t.drive || '';
+            document.getElementById('mp-caption').value = t.caption || '';
+            document.getElementById('mp-notes').value = t.notes || '';
+            document.getElementById('modalPost').classList.remove('hidden');
+            document.getElementById('modalPost').classList.add('flex');
+        }
     }
 
-    function closeCalendarEditModal() {
-        document.getElementById('calendarEditModal').classList.add('hidden');
-        document.getElementById('calendarEditModal').classList.remove('flex');
+    function closeModals() {
+        document.getElementById('modalFollow').classList.add('hidden'); document.getElementById('modalFollow').classList.remove('flex');
+        document.getElementById('modalMeeting').classList.add('hidden'); document.getElementById('modalMeeting').classList.remove('flex');
+        document.getElementById('modalPost').classList.add('hidden'); document.getElementById('modalPost').classList.remove('flex');
     }
 
-    function saveCalendarEvent() {
+    function saveFollowEvent() {
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-        let t = tasks.find(task => task.id === activeEditCalendarId);
+        let t = tasks.find(task => task.id === activeEditingId);
         if(t) {
-            t.headline = document.getElementById('ce-headline').value;
-            t.date = document.getElementById('ce-date').value;
-            t.drive = document.getElementById('ce-drive').value;
-            t.caption = document.getElementById('ce-caption').value;
+            let newDate = document.getElementById('mf-date').value;
+            let newTime = document.getElementById('mf-time').value;
+            t.date = newDate;
+            t.caption = `Follow-up agendado às ${newTime}`;
             localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
-            alert('Agendamento atualizado com sucesso!');
-            closeCalendarEditModal();
+            alert('Follow Up atualizado com sucesso!');
+            closeModals();
             renderCalendar();
         }
     }
 
-    function deleteCalendarEvent() {
-        if(!confirm('Deseja excluir este agendamento?')) return;
+    function saveMeetingEvent() {
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-        tasks = tasks.filter(task => task.id !== activeEditCalendarId);
+        let t = tasks.find(task => task.id === activeEditingId);
+        if(t) {
+            let newDate = document.getElementById('mm-date').value;
+            let newTime = document.getElementById('mm-time').value;
+            let hourFormatted = newTime.split(':')[0] + 'h';
+            t.date = newDate;
+            t.headline = `[${hourFormatted}] Reunião ${t.client}`;
+            t.caption = `Reunião agendada às ${newTime}`;
+            localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+            alert('Reunião atualizada com sucesso!');
+            closeModals();
+            renderCalendar();
+        }
+    }
+
+    function savePostEvent() {
+        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let t = tasks.find(task => task.id === activeEditingId);
+        if(t) {
+            t.headline = document.getElementById('mp-headline').value;
+            t.client = document.getElementById('mp-client').value;
+            t.type = document.getElementById('mp-type').value;
+            t.date = document.getElementById('mp-date').value;
+            t.drive = document.getElementById('mp-drive').value;
+            t.caption = document.getElementById('mp-caption').value;
+            t.notes = document.getElementById('mp-notes').value;
+            localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+            alert('Postagem atualizada com sucesso!');
+            closeModals();
+            renderCalendar();
+        }
+    }
+
+    function deleteEvent() {
+        if(!confirm('Deseja apagar este agendamento?')) return;
+        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        tasks = tasks.filter(task => task.id !== activeEditingId);
         localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
-        closeCalendarEditModal();
+        closeModals();
         renderCalendar();
     }
 
@@ -243,7 +347,7 @@
         let noteType = 'event';
 
         if(type === 'Followup') {
-            headlineText = `Follow (${title})`;
+            headlineText = `Follow Up: Follow (${title})`;
             noteType = 'crm_follow';
         } else if(type === 'Reuniao') {
             headlineText = `[09h] Reunião ${title}`;
