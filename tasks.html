@@ -79,11 +79,11 @@
 
         <div class="flex-1 overflow-x-auto p-8 flex gap-6 items-start">
             <div class="w-80 bg-gradient-to-b from-red-950/30 to-dark-900 border border-red-500/30 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-red-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Urgente (>48h / Reprovadas)</h3><span id="count-urgent" class="text-xs font-mono bg-dark-950 text-red-400 px-2 py-0.5 rounded-full border border-red-800/50">0</span></div>
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-red-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Urgente (<=48h / Reprovadas)</h3><span id="count-urgent" class="text-xs font-mono bg-dark-950 text-red-400 px-2 py-0.5 rounded-full border border-red-800/50">0</span></div>
                 <div id="col-urgent" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'urgent')"></div>
             </div>
             <div class="w-80 bg-gradient-to-b from-amber-950/30 to-dark-900 border border-amber-500/30 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-amber-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span> A Fazer (<48h)</h3><span id="count-afazer" class="text-xs font-mono bg-dark-950 text-amber-400 px-2 py-0.5 rounded-full border border-amber-800/50">0</span></div>
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-amber-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span> A Fazer (>48h)</h3><span id="count-afazer" class="text-xs font-mono bg-dark-950 text-amber-400 px-2 py-0.5 rounded-full border border-amber-800/50">0</span></div>
                 <div id="col-afazer" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'afazer')"></div>
             </div>
             <div class="w-80 bg-gradient-to-b from-emerald-950/30 to-dark-900 border border-emerald-500/30 rounded-2xl p-4 flex flex-col shrink-0 kanban-col shadow-xl">
@@ -98,24 +98,27 @@
     </main>
 </div>
 
-<!-- Modal Detalhes / Edição de Task (Minimalista e Focado) -->
+<!-- Modal Detalhes / Edição de Task (Exatamente conforme a imagem enviada) -->
 <div id="taskDetailModal" class="fixed inset-0 bg-dark-950/85 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="bg-dark-900 border border-dark-800 w-full max-w-lg rounded-3xl p-8 shadow-2xl space-y-5 text-xs max-h-[92vh] overflow-y-auto">
+    <div class="bg-dark-900 border border-dark-800 w-full max-w-lg rounded-3xl p-8 shadow-2xl space-y-5 text-xs max-h-[92vh] overflow-y-auto relative">
+        
+        <!-- Header da Janela -->
         <div class="flex justify-between items-center pb-3 border-b border-dark-800">
-            <h3 class="text-base font-bold text-white uppercase tracking-wide">Detalhes da Postagem</h3>
-            <button onclick="closeTaskDetailModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="text-base font-bold text-white tracking-wider font-sans">DETALHES DA POSTAGEM</h3>
+            <button onclick="closeTaskDetailModal()" class="text-slate-400 hover:text-white w-8 h-8 rounded-xl bg-dark-800 flex items-center justify-center transition cursor-pointer shadow"><i class="fa-solid fa-xmark text-sm"></i></button>
         </div>
+        
         <input type="hidden" id="dt-id">
         
-        <!-- 1. Headline (Destaque Principal) -->
-        <div class="space-y-1">
-            <label class="block text-[11px] text-blue-400 font-bold uppercase tracking-wider">Headline (Título)</label>
+        <!-- Headline (Título) -->
+        <div class="space-y-1.5">
+            <label class="block text-[10px] text-blue-400 font-bold uppercase tracking-wider font-mono">Headline (Título)</label>
             <input type="text" id="dt-headline" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-4 py-3 text-white font-bold text-sm focus:border-blue-500 outline-none">
         </div>
 
-        <!-- 2. Cabeçalho Menor Intermediário (Data, Formato, Cliente, Link do Drive) -->
+        <!-- Cabeçalho Menor Interno -->
         <div class="bg-dark-950 p-4 rounded-2xl border border-dark-800/80 space-y-3">
-            <p class="text-[10px] text-slate-400 font-mono uppercase font-bold tracking-wider mb-2"><i class="fa-solid fa-info-circle mr-1 text-blue-400"></i> Informações do Cabeçalho</p>
+            <p class="text-[10px] text-slate-400 font-mono uppercase font-bold tracking-wider mb-2 flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-blue-400"></i> Informações do Cabeçalho</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="block text-[10px] text-slate-400 mb-1">Cliente</label>
@@ -141,27 +144,28 @@
             </div>
         </div>
 
-        <!-- 3. Roteiro / Conteúdo Principal (Destaque) -->
-        <div class="space-y-1">
-            <label class="block text-[11px] text-emerald-400 font-bold uppercase tracking-wider">Roteiro / Conteúdo</label>
-            <textarea id="dt-roteiro" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3.5 text-white resize-none leading-relaxed focus:border-emerald-500 outline-none" placeholder="Escreva o roteiro ou texto principal do post..."></textarea>
+        <!-- Roteiro / Conteúdo -->
+        <div class="space-y-1.5">
+            <label class="block text-[10px] text-emerald-400 font-bold uppercase tracking-wider font-mono">Roteiro / Conteúdo</label>
+            <textarea id="dt-roteiro" rows="4" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3.5 text-white resize-none leading-relaxed focus:border-emerald-500 outline-none" placeholder="Escreva o roteiro ou texto principal..."></textarea>
         </div>
 
-        <!-- 4. Legenda (Destaque) -->
-        <div class="space-y-1">
-            <label class="block text-[11px] text-purple-400 font-bold uppercase tracking-wider">Legenda</label>
-            <textarea id="dt-caption" rows="3" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3.5 text-white resize-none leading-relaxed focus:border-purple-500 outline-none" placeholder="Escreva a legenda para o Instagram..."></textarea>
+        <!-- Legenda -->
+        <div class="space-y-1.5">
+            <label class="block text-[10px] text-purple-400 font-bold uppercase tracking-wider font-mono">Legenda</label>
+            <textarea id="dt-caption" rows="3" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3.5 text-white resize-none leading-relaxed focus:border-purple-500 outline-none" placeholder="Escreva a legenda..."></textarea>
         </div>
 
-        <!-- 5. Observações (Posicionado ao final) -->
-        <div class="space-y-1 pt-2 border-t border-dark-800">
-            <label class="block text-[10px] text-amber-400 font-bold uppercase tracking-wider">Observações</label>
+        <!-- Observações (Ao final) -->
+        <div class="space-y-1.5 pt-2 border-t border-dark-800">
+            <label class="block text-[10px] text-amber-400 font-bold uppercase tracking-wider font-mono">Observações</label>
             <textarea id="dt-observacoes" rows="2" class="w-full bg-dark-950 border border-dark-800 rounded-xl p-3 text-amber-300 resize-none" placeholder="Observações finais..."></textarea>
         </div>
 
+        <!-- Rodapé -->
         <div class="flex justify-between items-center pt-3 border-t border-dark-800">
-            <button onclick="deleteTaskFromModal()" class="text-red-400 hover:text-red-300 font-semibold cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Excluir Task</button>
-            <button onclick="saveTaskDetails()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl font-semibold cursor-pointer shadow-lg">Salvar Alterações</button>
+            <button onclick="deleteTaskFromModal()" class="text-red-400 hover:text-red-300 font-semibold cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-trash text-xs"></i> Excluir Task</button>
+            <button onclick="saveTaskDetails()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl font-semibold cursor-pointer shadow-lg transition">Salvar Alterações</button>
         </div>
     </div>
 </div>
@@ -317,14 +321,20 @@
 
     function createNewTask(e) {
         e.preventDefault();
+        let newDate = document.getElementById('nt-date').value;
+        let now = new Date();
+        let postDate = new Date(newDate + 'T23:59:59');
+        let diffHours = (postDate - now) / (1000 * 60 * 60);
+        let initialStatus = diffHours <= 48 ? 'urgent' : 'afazer';
+
         tasks.push({
             id: 't_' + Date.now(),
             headline: document.getElementById('nt-headline').value,
             client: document.getElementById('nt-client').value,
             type: document.getElementById('nt-type').value,
-            date: document.getElementById('nt-date').value,
+            date: newDate,
             drive: document.getElementById('nt-drive').value,
-            status: 'afazer',
+            status: initialStatus,
             roteiro: '',
             legenda: '',
             observacoes: '',
