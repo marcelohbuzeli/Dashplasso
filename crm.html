@@ -316,12 +316,12 @@
         tasks.push({
             id: 't_' + Date.now(),
             client: lead.name,
-            headline: `Follow-up: Follow ${lead.name}`,
+            headline: `Follow Up: Follow (${lead.name})`,
             type: 'Story',
             caption: `Follow-up agendado às ${timeVal}`,
             date: dateVal,
             status: 'todo',
-            notes: 'followup_tag'
+            notes: 'crm_follow'
         });
         localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
 
@@ -344,15 +344,16 @@
 
         // GRAVAÇÃO GARANTIDA NO CALENDÁRIO (unificado em plasso_tasks)
         let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let hourFormatted = timeVal.split(':')[0] + 'h';
         tasks.push({
             id: 't_' + Date.now(),
             client: lead.name,
-            headline: `Reunião: ${timeVal} Reunião ${lead.name}`,
+            headline: `[${hourFormatted}] Reunião ${lead.name}`,
             type: 'Reels',
             caption: `Reunião agendada às ${timeVal}`,
             date: dateVal,
             status: 'todo',
-            notes: 'meeting_tag'
+            notes: 'crm_meeting'
         });
         localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
 
