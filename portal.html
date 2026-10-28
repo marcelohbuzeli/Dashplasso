@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plassô Marketing — Central de Aprovação</title>
+    <title>Central de Aprovação | Plassô</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -53,7 +53,6 @@
         <div class="bg-dark-900 border border-dark-800 rounded-3xl p-8 shadow-2xl space-y-6">
             <div class="flex justify-between items-center">
                 <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"><i class="fa-regular fa-calendar text-blue-400"></i> Calendário de Publicações</h3>
-                <span class="text-xs text-slate-400">Verde = Aprovado | Vermelho = Ajuste Solicitado | Azul = Pendente</span>
             </div>
             
             <div class="grid grid-cols-7 gap-3 text-center text-xs font-bold text-slate-400 uppercase font-mono pb-2 border-b border-dark-800">
@@ -124,8 +123,8 @@
                 });
 
                 let hasContent = dayTasks.length > 0;
-                let allApproved = hasContent && dayTasks.every(t => t.status === 'approved');
-                let hasRejected = hasContent && dayTasks.some(t => t.isRejected);
+                let allApproved = hasContent && dayTasks.every(t => t.status === 'aprovadas' || t.status === 'approved');
+                let hasRejected = hasContent && dayTasks.some(t => t.isRejected || t.status === 'urgent');
 
                 let cardClass = 'bg-dark-950/40 border-dark-800/50 text-slate-600 opacity-30 cursor-not-allowed';
                 let badge = '';
@@ -182,8 +181,8 @@
             }
 
             dayTasks.forEach(t => {
-                let isAlreadyApproved = t.status === 'approved';
-                let isRejected = t.isRejected;
+                let isAlreadyApproved = t.status === 'aprovadas' || t.status === 'approved';
+                let isRejected = t.isRejected || (t.status === 'urgent' && t.notes && t.notes.startsWith('Reprovado'));
                 
                 let cardBorder = isRejected ? 'border-red-500/60 bg-red-950/30' : (isAlreadyApproved ? 'border-emerald-500/60 bg-emerald-950/30' : 'border-dark-800 bg-dark-950');
 
@@ -284,11 +283,11 @@
             let tasksList = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
             let t = tasksList.find(task => task.id === id);
             if(t) {
-                t.status = 'approved';
+                t.status = 'aprovadas'; // Vai direto para a aba Aprovadas
                 t.isRejected = false;
                 localStorage.setItem('plasso_tasks', JSON.stringify(tasksList));
                 tasks = tasksList;
-                alert('Conteúdo aprovado com sucesso!');
+                alert('Conteúdo aprovado com sucesso! Movido para a aba Aprovadas.');
                 openDayModal(parseInt(currentActiveDayNum));
                 renderCalendar();
             }
