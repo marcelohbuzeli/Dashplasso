@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Plassô | Financeiro</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="assets/ui.css?v=6">
+<link rel="stylesheet" href="assets/ui.css?v=7">
 <style>
   :root { --inc: #12a982; --exp: #e8590c; }
   .tile { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px; border-radius: 20px; background: rgba(255,255,255,.05); border: 1px solid var(--line); min-width: 0; }
@@ -84,23 +84,16 @@
         <div class="grid g-2" id="tiles"></div>
         <div class="stack mt-4" id="cats"></div>
       </section>
-      <section class="card card-lg">
-        <h2 class="h2"><i class="fa-brands fa-apple"></i> Lançar pelo iPhone</h2>
-        <p class="small soft mt-2">Pagou com Apple Pay? O atalho da Carteira abre o lançamento já preenchido com empresa e valor.</p>
-        <div class="row mt-3"><input class="input grow" id="quick-url" readonly style="font-size:13px"><button class="chip-btn" onclick="copyQuick()" aria-label="Copiar"><i class="fa-regular fa-copy"></i></button></div>
-        <a href="lancar.html" data-keep class="btn btn-white btn-block mt-3">Abrir lançamento rápido</a>
-        <p class="tiny muted mt-2">Passo a passo do atalho: docs/ATALHO-IPHONE.md</p>
-      </section>
     </div>
   </div>
 </div>
 <div id="tip" class="tip hidden"></div>
 
-<script src="assets/config.js?v=6"></script>
-<script src="assets/core.js?v=6" data-mode="app"></script>
-<script src="assets/ui.js?v=6"></script>
-<script src="assets/integracao.js?v=6"></script>
-<script src="assets/financas.js?v=6"></script>
+<script src="assets/config.js?v=7"></script>
+<script src="assets/core.js?v=7" data-mode="app"></script>
+<script src="assets/ui.js?v=7"></script>
+<script src="assets/integracao.js?v=7"></script>
+<script src="assets/financas.js?v=7"></script>
 <script type="text/plain" data-app>
   UI.mount({ tab: 'fin' });
   const F = Financas, { esc } = UI, brl = F.brl;
@@ -285,8 +278,6 @@
     };
   }
 
-  $('quick-url').value = location.href.replace(/[^/]*$/, '').split('?')[0] + 'lancar.html?empresa=NOME&valor=0,00';
-  async function copyQuick() { try { await navigator.clipboard.writeText($('quick-url').value); App.toast('Copiado.', 'ok'); } catch (e) { $('quick-url').select(); } }
   render();
   if (qp.get('novo')) openForm(null, qp.get('novo') === 'entrada' ? 'entrada' : 'saida');
 </script>
