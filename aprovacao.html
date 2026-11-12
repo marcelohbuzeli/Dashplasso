@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060918">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Plassô | Aprovação</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="assets/ui.css?v=6">
+</head>
+<body data-theme="empresa">
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="brand-mark">P</div><div><div class="brand-name">Empresa</div><div class="brand-sub">Central de aprovação</div></div></div>
+    <div class="row">
+      <button class="chip-btn" onclick="Empresa.editarConteudo(null, cliente ? { client: cliente } : {}, render)" aria-label="Novo conteúdo"><i class="fa-solid fa-plus"></i></button>
+      <button class="chip-btn" onclick="UI.menu()" aria-label="Menu"><i class="fa-solid fa-ellipsis"></i></button>
+    </div>
+  </header>
+  <nav id="subnav"></nav>
+
+  <div class="hero">
+    <div class="eyebrow" id="resumo"></div>
+    <h1 class="display mt-2">Central de<br><span class="soft">aprovação</span></h1>
+    <p>Pedidos de ajuste ficam sempre no topo. Quando você corrige e marca <b>Pronto</b>, o conteúdo volta para o cliente aprovar.</p>
+  </div>
+
+  <div class="grid g-2 lg-g-4 mb-4" id="kpis"></div>
+
+  <div class="row mb-4" style="flex-wrap:wrap">
+    <select class="select" id="f-cliente" style="width:auto;min-width:200px;flex:1 1 200px" aria-label="Filtrar por cliente"></select>
+    <div class="row" id="acoes-cliente"></div>
+  </div>
+
+  <section id="sec-ajustes"></section>
+  <section id="sec-cliente"></section>
+  <section id="sec-producao"></section>
+  <section id="sec-aprovados"></section>
+</div>
+
+<script src="assets/config.js?v=6"></script>
+<script src="assets/core.js?v=6" data-mode="app"></script>
+<script src="assets/ui.js?v=6"></script>
+<script src="assets/integracao.js?v=6"></script>
+<script src="assets/empresa.js?v=6"></script>
+<script type="text/plain" data-app>
+  UI.mount({ tab: 'empresa', sub: 'aprovacao' });
+  const { esc, T } = UI;
+  const $ = id => document.getElementById(id);
+  const qp = new URLSearchParams(location.search);
+  let cliente = qp.get('cliente') || '';
+
+  const base = () => T.conteudos().filter(t => !cliente || (t.client || '').toLowerCase() === cliente.toLowerCase());
+  const ord = arr => arr.sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'));
+
+  function quadro(t) {
+    const st = T.statusInfo(T.status(t));
+    const capa = UI.capaUrl(t);
+    const n = (t.midias || []).length;
+    return `<button class="quadro ${t.isRejected ? 'rejeitado' : ''}" data-q="${esc(t.id)}">
+      ${capa ? `<img src="${capa}" alt="" loading="lazy" onerror="this.remove()">` : `<div class="sem-midia"><i class="fa-solid ${/carrossel/i.test(t.type || '') ? 'fa-images' : /reels|v[ií]deo/i.test(t.type || '') ? 'fa-film' : 'fa-image'}"></i></div>`}
+      <div class="q-top"><span class="pill ${t.isRejected ? 'pill-danger' : st.pill}">${t.isRejected ? 'Ajuste pedido' : st.label}</span>${n > 1 ? `<span class="pill"><i class="fa-solid fa-clone"></i>${n}</span>` : n === 1 && t.midias[0].tipo === 'video' ? '<span class="pill"><i class="fa-solid fa-play"></i></span>' : ''}</div>
+      <div class="q-info"><div class="t">${esc(T.titulo(t))}</div><div class="s">${esc([t.client, t.type, t.date ? UI.diaMes(t.date) : ''].filter(Boolean).join(' · '))}</div></div>
+    </button>`;
+  }
+  function secao(id, titulo, icon, arr, vazio, extra = '') {
+    $(id).innerHTML = `<div class="section-title"><h2 class="h2"><i class="fa-solid ${icon} accent-text" style="font-size:16px"></i> ${titulo} <span class="muted">${arr.length}</span></h2>${extra}</div>
+      ${arr.length ? `<div class="galeria">${arr.map(quadro).join('')}</div>` : `<div class="card empty" style="padding:18px">${vazio}</div>`}`;
+  }
+
+  function render() {
+    const nomes = [...new Set(T.conteudos().map(t => t.client).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+    $('f-cliente').innerHTML = '<option value="">Todos os clientes</option>' + nomes.map(n => `<option ${n === cliente ? 'selected' : ''}>${esc(n)}</option>`).join('');
+    const c = cliente ? DB.list('clients').find(x => x.name.toLowerCase() === cliente.toLowerCase()) : null;
+    $('acoes-cliente').innerHTML = c ? `<button class="btn btn-white btn-sm" id="wa"><i class="fa-brands fa-whatsapp"></i> Enviar link</button><a class="btn btn-ghost btn-sm" id="ver" target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i> Ver como o cliente</a>` : '';
+    if (c) {
+      Integracao.ensurePortalToken(c);
+      $('ver').href = Integracao.portalUrl(DB.get('clients', c.id)) + (/^(localhost|127)/.test(location.hostname) ? '&local=1' : '');
+      $('wa').onclick = () => {
+        const atual = DB.get('clients', c.id);
+        if (!atual.whatsapp) { App.toast('Cadastre o WhatsApp na ficha do cliente.', 'warn'); location.href = UI.keepParams('clients.html?c=' + encodeURIComponent(c.id)); return; }
+        window.open(Integracao.whatsappLink(atual, `Olá, ${atual.name}! Seus conteúdos estão prontos para aprovação 🎬\n\nÉ só abrir o link, conferir e aprovar (ou pedir ajuste):\n${Integracao.portalUrl(atual)}`), '_blank');
+      };
+    }
+    const all = base();
+    const ajustes = ord(all.filter(t => t.isRejected));
+    const comCliente = ord(all.filter(t => !t.isRejected && T.status(t) === 'pronto'));
+    const producao = ord(all.filter(t => !t.isRejected && ['urgent', 'afazer'].includes(T.status(t))));
+    const lim = UI.addDias(UI.hoje(), -45);
+    const aprovados = all.filter(t => T.status(t) === 'aprovadas' && (t.date || '') >= lim).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    const k = (icon, cor, l, v, h) => `<div class="card stat"><span class="label"><i class="fa-solid ${icon}" style="color:${cor}"></i>${l}</span><span class="value">${v}</span><span class="hint">${h}</span></div>`;
+    $('kpis').innerHTML = k('fa-rotate-left', 'var(--danger)', 'Ajustes', ajustes.length, 'pedidos pelo cliente') + k('fa-hourglass-half', 'var(--warn)', 'Com o cliente', comCliente.length, 'aguardando aprovação') + k('fa-clapperboard', 'var(--accent)', 'Em produção', producao.length, 'para finalizar') + k('fa-circle-check', 'var(--ok)', 'Aprovados', aprovados.length, 'últimos 45 dias');
+    $('resumo').textContent = ajustes.length ? `${ajustes.length} ajuste${ajustes.length > 1 ? 's' : ''} para fazer agora` : comCliente.length ? `${comCliente.length} aguardando o cliente` : 'Tudo em dia';
+    secao('sec-ajustes', 'Ajustes pedidos', 'fa-rotate-left', ajustes, '<i class="fa-solid fa-face-smile"></i>Nenhum pedido de ajuste.');
+    secao('sec-cliente', 'Com o cliente', 'fa-hourglass-half', comCliente, 'Nada aguardando o cliente. Marque um conteúdo como <b>Pronto</b> para ele aparecer aqui e no link do cliente.');
+    secao('sec-producao', 'Em produção', 'fa-clapperboard', producao, 'Nada em produção.');
+    secao('sec-aprovados', 'Aprovados', 'fa-circle-check', aprovados, 'Nenhum aprovado nos últimos 45 dias.');
+    document.querySelectorAll('[data-q]').forEach(b => b.onclick = () => Empresa.preview(b.dataset.q, render));
+  }
+  $('f-cliente').addEventListener('change', e => { cliente = e.target.value; render(); });
+  render();
+  if (qp.get('t')) Empresa.preview(qp.get('t'), render);
+</script>
+</body>
+</html>

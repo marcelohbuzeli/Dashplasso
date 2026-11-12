@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Plassô | Clientes</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="assets/ui.css?v=4">
+<link rel="stylesheet" href="assets/ui.css?v=6">
 </head>
 <body data-theme="empresa">
 <div class="wrap">
@@ -43,12 +43,12 @@
   <div class="grid md-g-2 lg-g-3" id="grid"></div>
 </div>
 
-<script src="assets/config.js?v=4"></script>
-<script src="assets/core.js?v=5" data-mode="app"></script>
-<script src="assets/ui.js?v=4"></script>
-<script src="assets/integracao.js?v=4"></script>
-<script src="assets/financas.js?v=4"></script>
-<script src="assets/empresa.js?v=4"></script>
+<script src="assets/config.js?v=6"></script>
+<script src="assets/core.js?v=6" data-mode="app"></script>
+<script src="assets/ui.js?v=6"></script>
+<script src="assets/integracao.js?v=6"></script>
+<script src="assets/financas.js?v=6"></script>
+<script src="assets/empresa.js?v=6"></script>
 <script type="text/plain" data-app>
   UI.mount({ tab: 'empresa', sub: 'clientes' });
   const { esc, T } = UI;
@@ -135,8 +135,11 @@
         </div>
 
         <div data-p="conteudos" class="hidden">
-          <div class="row-between mb-3"><span class="muted small">${UI.mesNome(mes)}</span><button class="btn btn-white btn-sm" data-act="novo-conteudo"><i class="fa-solid fa-plus"></i> Conteúdo</button></div>
-          <div class="stack">${ts.slice(0, 40).map(t => Empresa.card(t, { showClient: false })).join('') || '<div class="empty">Nenhum conteúdo ainda.</div>'}</div>
+          <div class="row-between mb-3" style="flex-wrap:wrap">
+            <div class="seg" data-gfil><button data-g="todos" class="on">Todos</button><button data-g="ajuste">Ajustes</button><button data-g="pronto">Com o cliente</button><button data-g="aprovadas">Aprovados</button></div>
+            <div class="row"><a class="btn btn-ghost btn-sm" href="${UI.keepParams('aprovacao.html?cliente=' + encodeURIComponent(c.name))}"><i class="fa-solid fa-circle-check"></i> Central</a><button class="btn btn-white btn-sm" data-act="novo-conteudo"><i class="fa-solid fa-plus"></i> Conteúdo</button></div>
+          </div>
+          <div class="galeria" data-galeria></div>
         </div>
 
         <div data-p="financeiro" class="hidden">
@@ -151,7 +154,21 @@
       foot: '<button class="btn btn-ghost" data-close>Fechar</button><button class="btn btn-white" data-save>Salvar</button>'
     });
     s.$$('[data-t]').forEach(b => b.onclick = () => { s.$$('[data-t]').forEach(x => x.classList.toggle('on', x === b)); s.$$('[data-p]').forEach(p => p.classList.toggle('hidden', p.dataset.p !== b.dataset.t)); });
-    s.$$('[data-task]').forEach(b => b.onclick = () => Empresa.abrir(b.dataset.task, () => { s.close(); render(); abrirCliente(id); }));
+    // galeria de conteúdos (quadros do mesmo tamanho)
+    const quadro = t => {
+      const st = T.statusInfo(T.status(t)); const capa = UI.capaUrl(t); const n = (t.midias || []).length;
+      return `<button class="quadro ${t.isRejected ? 'rejeitado' : ''}" data-q="${esc(t.id)}">${capa ? `<img src="${capa}" alt="" loading="lazy" onerror="this.remove()">` : `<div class="sem-midia"><i class="fa-solid ${/carrossel/i.test(t.type || '') ? 'fa-images' : /reels|v[ií]deo/i.test(t.type || '') ? 'fa-film' : 'fa-image'}"></i></div>`}
+        <div class="q-top"><span class="pill ${t.isRejected ? 'pill-danger' : st.pill}">${t.isRejected ? 'Ajuste' : st.label}</span>${n > 1 ? `<span class="pill"><i class="fa-solid fa-clone"></i>${n}</span>` : ''}</div>
+        <div class="q-info"><div class="t">${esc(T.titulo(t))}</div><div class="s">${esc([t.type, t.date ? UI.diaMes(t.date) : ''].filter(Boolean).join(' · '))}</div></div></button>`;
+    };
+    let gfil = 'todos';
+    const drawGal = () => {
+      const arr = ts.filter(t => gfil === 'todos' || (gfil === 'ajuste' ? t.isRejected : !t.isRejected && T.status(t) === gfil));
+      s.$('[data-galeria]').innerHTML = arr.map(quadro).join('') || '<div class="empty" style="grid-column:1/-1">Nenhum conteúdo aqui.</div>';
+      s.$$('[data-q]').forEach(b => b.onclick = () => Empresa.preview(b.dataset.q, () => { s.close(); render(); abrirCliente(id); }));
+    };
+    s.$$('[data-gfil] button').forEach(b => b.onclick = () => { gfil = b.dataset.g; s.$$('[data-gfil] button').forEach(x => x.classList.toggle('on', x === b)); drawGal(); });
+    drawGal();
 
     s.$('[data-save]').onclick = () => {
       const f = UI.formData(s.el);

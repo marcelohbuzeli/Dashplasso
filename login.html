@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-title" content="Plassô">
   <title>Plassô | Entrar</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="assets/ui.css?v=4">
+  <link rel="stylesheet" href="assets/ui.css?v=6">
   <style>
     .login { min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; max-width: 440px; margin: 0 auto; padding: calc(24px + var(--safe-t)) 20px calc(24px + var(--safe-b)); }
     .msg-ok { border-color: rgba(62,230,160,.4); color: #8ff3c8; }
@@ -36,6 +36,16 @@
       <div class="row" style="justify-content:flex-end"><button type="button" id="btn-reset" class="btn btn-ghost btn-sm">Esqueci a senha</button></div>
     </form>
 
+    <form id="f-codigo" class="hidden stack">
+      <h2 class="h2">Confira seu e-mail</h2>
+      <p class="small soft" id="cod-info"></p>
+      <label class="field"><span>Código de 6 dígitos</span><input class="input" id="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="000000" style="letter-spacing:.3em;font-size:22px"></label>
+      <label class="field"><span>Nova senha (mínimo 8 caracteres)</span><input class="input" id="cnova" type="password" autocomplete="new-password" minlength="8"></label>
+      <label class="field"><span>Repita a senha</span><input class="input" id="cnova2" type="password" autocomplete="new-password" minlength="8"></label>
+      <button class="btn btn-white btn-lg btn-block">Confirmar e entrar</button>
+      <button type="button" class="btn btn-ghost btn-sm" id="cod-voltar">Voltar</button>
+    </form>
+
     <form id="f-senha" class="hidden stack">
       <h2 class="h2">Crie sua senha de acesso</h2>
       <p class="small muted" id="senha-email"></p>
@@ -48,7 +58,7 @@
     <p class="tiny muted center"><i class="fa-solid fa-lock"></i> Dados protegidos por login e regras de acesso no banco.</p>
   </main>
 
-  <script src="assets/config.js?v=4"></script>
+  <script src="assets/config.js?v=6"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.min.js"></script>
   <script>
     const cfg = window.PLASSO_CONFIG || {};
@@ -89,7 +99,24 @@
         if (event === 'PASSWORD_RECOVERY') pedirSenha(session?.user?.email);
       });
 
-      sb.auth.getSession().then(({ data }) => {
+      const qs = new URLSearchParams(location.search);
+      const inicio = (async () => {
+        try {
+          if (qs.get('token_hash')) {
+            const { error } = await sb.auth.verifyOtp({ token_hash: qs.get('token_hash'), type: qs.get('type') || 'recovery' });
+            history.replaceState(null, '', here);
+            if (error) { linkErro = 'otp'; } else if ((qs.get('type') || 'recovery') === 'recovery' || qs.get('type') === 'invite') { return 'senha'; }
+          } else if (qs.get('code')) {
+            const { error } = await sb.auth.exchangeCodeForSession(qs.get('code'));
+            history.replaceState(null, '', here);
+            if (error) linkErro = 'code'; else return 'senha';
+          }
+        } catch (e) { linkErro = 'erro'; }
+        return null;
+      })();
+
+      inicio.then(modo => sb.auth.getSession().then(({ data }) => {
+        if (modo === 'senha' && data.session) { pedirSenha(data.session.user.email); return; }
         if (linkErro && data.session) { location.replace(safeNext); return; }
         if (!data.session) {
           if (linkErro) show('Este link do e-mail já foi usado ou expirou (cada link funciona uma vez só). Entre com seu e-mail e a senha que você criou.', false);
@@ -97,7 +124,7 @@
         }
         if (linkType === 'invite' || linkType === 'recovery') pedirSenha(data.session.user.email);
         else location.replace(safeNext);
-      });
+      }));
 
       $('f-login').addEventListener('submit', async e => {
         e.preventDefault();
@@ -111,11 +138,28 @@
 
       $('btn-reset').onclick = async () => {
         const email = $('email').value.trim();
-        if (!email) { show('Digite seu e-mail primeiro.', false); return; }
-        if (!confirm('Enviar um e-mail para criar uma nova senha?\n\nO plano grátis envia só 2 e-mails por hora — use apenas se esqueceu a senha. Abra o link UMA vez só.')) return;
+        if (!email) { show('Digite seu e-mail primeiro.', false); $('email').focus(); return; }
+        if (!confirm('Enviar um código para ' + email + ' para criar uma nova senha?\n\nO plano grátis envia no máximo 2 e-mails por hora.')) return;
         const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: here });
-        show(error ? traduz(error) : 'Enviamos um link para criar uma nova senha. Abra o e-mail e clique no link uma vez só.', !error);
+        if (error) { show(traduz(error), false); return; }
+        $('f-login').classList.add('hidden'); $('f-codigo').classList.remove('hidden'); $('msg').className = 'hidden';
+        $('cod-info').textContent = 'Enviamos um e-mail para ' + email + '. Abra e toque no link UMA vez: ele abre a tela de criar senha. Se o e-mail trouxer um código de 6 dígitos, digite aqui.';
+        setTimeout(() => $('codigo').focus(), 100);
       };
+      $('cod-voltar').onclick = () => { $('f-codigo').classList.add('hidden'); $('f-login').classList.remove('hidden'); };
+      $('f-codigo').addEventListener('submit', async e => {
+        e.preventDefault();
+        const email = $('email').value.trim(), token = $('codigo').value.replace(/\D/g, '');
+        if (token.length < 6) { show('Digite o código de 6 dígitos do e-mail.', false); return; }
+        if ($('cnova').value.length < 8) { show('A senha precisa ter pelo menos 8 caracteres.', false); return; }
+        if ($('cnova').value !== $('cnova2').value) { show('As senhas não conferem.', false); return; }
+        const v = await sb.auth.verifyOtp({ email, token, type: 'recovery' });
+        if (v.error) { show(/expired|invalid/i.test(v.error.message) ? 'Código inválido ou expirado. Peça um novo (aguarde se já pediu 2 nesta hora).' : traduz(v.error), false); return; }
+        const u = await sb.auth.updateUser({ password: $('cnova').value });
+        if (u.error && !/different/i.test(u.error.message)) { show(traduz(u.error), false); return; }
+        show('Senha criada! Entrando…', true);
+        setTimeout(() => location.replace(safeNext), 700);
+      });
 
       $('f-senha').addEventListener('submit', async e => {
         e.preventDefault();

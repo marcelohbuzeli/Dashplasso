@@ -9,16 +9,22 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Plassô | CRM</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="assets/ui.css?v=4">
+<link rel="stylesheet" href="assets/ui.css?v=6">
 <style>
   #board { display: none; }
-  @media (min-width: 900px) { #board { display: grid; } #mobile-pipe { display: none; } }
+  @media (min-width: 900px) { body.quadro #board { display: grid; } body.quadro #lista-wrap { display: none; } }
+  .tier { font: 600 11px var(--mono); padding: 3px 8px; border-radius: 8px; border: 1px solid currentColor; flex-shrink: 0; }
+  .tier.A { color: #6ee7b7; } .tier.B { color: #fcd34d; } .tier.C { color: #a8a29e; }
+  .warm { color: #fda4af; }
+  .part { border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+  .part textarea { min-height: 110px; }
+  .meta-hoje .bar { height: 8px; }
 </style>
 </head>
 <body data-theme="crm">
 <div class="wrap">
   <header class="top">
-    <div class="brand"><div class="brand-mark">P</div><div><div class="brand-name">CRM</div><div class="brand-sub">Vendas</div></div></div>
+    <div class="brand"><div class="brand-mark">P</div><div><div class="brand-name">CRM</div><div class="brand-sub">Vendas e prospecção</div></div></div>
     <div class="row"><button class="chip-btn" onclick="UI.menu()" aria-label="Menu"><i class="fa-solid fa-ellipsis"></i></button></div>
   </header>
 
@@ -37,81 +43,125 @@
 
   <div class="row mb-3" style="flex-wrap:wrap">
     <div class="seg" id="vista" style="flex:0 0 auto"><button data-v="pipe" class="on">Pipeline</button><button data-v="ganhos">Ganhos</button><button data-v="perdidos">Perdidos</button></div>
-    <div class="grow" style="position:relative;min-width:200px">
-      <i class="fa-solid fa-magnifying-glass muted" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:13px"></i>
-      <input class="input" id="busca" placeholder="Buscar lead…" style="padding-left:40px">
-    </div>
+    <div class="seg sm-hide" id="modo" style="flex:0 0 auto;margin-left:auto"><button data-m="lista" class="on"><i class="fa-solid fa-list"></i>Lista</button><button data-m="quadro"><i class="fa-solid fa-table-columns"></i>Quadro</button></div>
   </div>
 
   <section id="v-pipe">
-    <div id="mobile-pipe">
-      <div class="seg mb-3" id="etapas"></div>
-      <div id="lista" class="stack"></div>
+    <div class="seg mb-3" id="etapas"></div>
+    <div class="row mb-3" style="flex-wrap:wrap">
+      <div class="grow" style="position:relative;min-width:200px">
+        <i class="fa-solid fa-magnifying-glass muted" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:13px"></i>
+        <input class="input" id="busca" placeholder="Buscar empresa, segmento, bairro…" style="padding-left:40px">
+      </div>
+      <select class="select" id="f-tier" style="width:auto;flex:1 1 150px" aria-label="Prioridade"><option value="">Todas as prioridades</option><option value="warm">Só quem te segue</option><option value="A">Prioridade A</option><option value="B">Prioridade B</option><option value="C">Prioridade C</option></select>
+      <select class="select" id="f-seg" style="width:auto;flex:1 1 150px" aria-label="Segmento"></select>
+      <select class="select" id="f-ord" style="width:auto;flex:1 1 150px" aria-label="Ordenar"><option value="score">Maior pontuação</option><option value="recentes">Mexidos recentemente</option><option value="reviews">Mais avaliações</option><option value="nome">Nome A–Z</option></select>
     </div>
-    <div class="board" id="board" style="--cols:5"></div>
+    <div id="lista-wrap">
+      <div class="small muted mb-2" id="contagem"></div>
+      <div class="grid md-g-2 lg-g-3" id="lista"></div>
+      <div class="center mt-4"><button class="btn btn-ghost hidden" id="mais">Mostrar mais</button></div>
+    </div>
+    <div class="board" id="board" style="--cols:7"></div>
   </section>
   <section id="v-ganhos" class="hidden"><div class="grid md-g-2 lg-g-3" id="ganhos"></div></section>
   <section id="v-perdidos" class="hidden"><div class="grid md-g-2 lg-g-3" id="perdidos"></div></section>
 </div>
 
-<script src="assets/config.js?v=4"></script>
-<script src="assets/core.js?v=5" data-mode="app"></script>
-<script src="assets/ui.js?v=4"></script>
-<script src="assets/integracao.js?v=4"></script>
+<script src="assets/config.js?v=6"></script>
+<script src="assets/core.js?v=6" data-mode="app"></script>
+<script src="assets/ui.js?v=6"></script>
+<script src="assets/integracao.js?v=6"></script>
 <script type="text/plain" data-app>
   UI.mount({ tab: 'crm' });
   const { esc, T } = UI;
   const $ = id => document.getElementById(id);
   const ETAPAS = [
-    { id: 'novolead', label: 'Novo lead', icon: 'fa-seedling' },
-    { id: 'relacionamento', label: 'Relacionamento', icon: 'fa-comments' },
+    { id: 'novo', label: 'Novo', icon: 'fa-seedling' },
+    { id: 'analisado', label: 'Analisado', icon: 'fa-magnifying-glass-chart' },
+    { id: 'aprovado', label: 'Aprovado p/ envio', icon: 'fa-paper-plane' },
+    { id: 'contatado', label: 'Contatado', icon: 'fa-comments' },
     { id: 'follow', label: 'Follow-up', icon: 'fa-phone' },
     { id: 'reuniao', label: 'Reunião', icon: 'fa-handshake' },
     { id: 'aguardando', label: 'Proposta', icon: 'fa-file-signature' }
   ];
+  const LEGADO = { novolead: 'novo', relacionamento: 'contatado' };
+  const etapaDe = l => LEGADO[l.col] || l.col || 'novo';
   const etapaLabel = id => (ETAPAS.find(e => e.id === id) || { label: id }).label;
-  let etapa = 'novolead', busca = '', vista = 'pipe';
+  const META_DIA = 10;
+  const PRODUTOS = ['Consultoria · R$ 3.000', 'Vídeos 1 · R$ 220', 'Vídeos 4 · R$ 800/mês', 'Vídeos 8 · R$ 1.400/mês', 'Vídeos 12 · R$ 1.800/mês', 'Vídeos 30 · R$ 2.200/mês', 'Design 01 · R$ 400/mês', 'Design 02 · R$ 800/mês', 'Design 03 · R$ 1.200/mês', 'Vídeos 4 + Design 01 · R$ 1.200/mês', 'Vídeos 8 + Design 02 · R$ 2.200/mês', 'Vídeos 12 + Design 03 · R$ 3.000/mês', 'Gerenciamento · a partir de R$ 9.000', 'Ilha de link · R$ 250 + custos'];
+  let etapa = new URLSearchParams(location.search).get('etapa') || 'novo', vista = 'pipe', limite = 30;
+  let busca = '', fTier = '', fSeg = '', fOrd = 'score';
+  try { if (localStorage.getItem('crm_modo') === 'quadro') document.body.classList.add('quadro'); } catch (e) {}
 
-  const leads = () => DB.list('crm').filter(l => !busca || (l.name + ' ' + (l.insta || '') + ' ' + (l.area || '')).toLowerCase().includes(busca));
+  const agoraISO = () => new Date().toISOString();
   const hist = (l, txt) => { l.historyArray = l.historyArray || []; l.historyArray.push(`${new Date().toLocaleDateString('pt-BR')} — ${txt}`); };
-  const proxAcao = l => {
-    const ts = DB.list('tasks').filter(t => ['reuniao', 'follow'].includes(T.kind(t)) && (t.client || '').toLowerCase() === l.name.toLowerCase() && t.date >= UI.hoje()).sort((a, b) => (a.date + T.hora(a)).localeCompare(b.date + T.hora(b)));
-    return ts[0] || null;
-  };
+  const valorDe = prod => { const m = String(prod || '').match(/R\$\s*([\d.]+)/g); return m ? Number(m[m.length - 1].replace(/[^\d]/g, '')) : 0; };
+  const hojeAnalisados = () => [...DB.list('crm'), ...DB.list('crm_perdidos')].filter(l => (l.analisadoEm || '').slice(0, 10) === UI.hoje() || (l.analisadoEm && new Date(l.analisadoEm).toLocaleDateString('sv-SE') === UI.hoje())).length;
+
+  function filtrar(arr) {
+    const q = busca;
+    let r = arr.filter(l => (!fTier || (fTier === 'warm' ? l.warm : l.tier === fTier)) && (!fSeg || (l.area || l.categoria) === fSeg)
+      && (!q || [l.name, l.nomeCompleto, l.area, l.categoria, l.bairro, l.endereco, l.insta, l.notas].join(' ').toLowerCase().includes(q)));
+    const by = { score: (a, b) => (b.score || 0) - (a.score || 0), reviews: (a, b) => (b.reviews || 0) - (a.reviews || 0), recentes: (a, b) => String(b.atualizadoEm || '').localeCompare(String(a.atualizadoEm || '')), nome: (a, b) => String(a.name).localeCompare(String(b.name), 'pt') };
+    return r.sort((a, b) => (!!b.warm - !!a.warm) || by[fOrd](a, b));
+  }
 
   function renderKpis() {
     const all = DB.list('crm');
-    const valor = all.reduce((a, l) => a + (Number(l.valor) || 0), 0);
+    const negocio = all.filter(l => ['contatado', 'follow', 'reuniao', 'aguardando'].includes(etapaDe(l)));
     const reunioes = DB.list('tasks').filter(t => T.kind(t) === 'reuniao' && t.date >= UI.hoje()).length;
-    const mes = UI.hoje().slice(0, 7);
-    const ganhosMes = DB.list('crm_ganhos').filter(g => (g.ganhoEm || '').startsWith(mes));
-    const ganhosTot = DB.list('crm_ganhos').length, perdTot = DB.list('crm_perdidos').length;
-    const conv = ganhosTot + perdTot ? Math.round(ganhosTot * 100 / (ganhosTot + perdTot)) : null;
-    const k = (icon, l, v, h) => `<div class="card stat"><span class="label"><i class="fa-solid ${icon} accent-text"></i>${l}</span><span class="value">${v}</span><span class="hint">${h}</span></div>`;
-    $('kpis').innerHTML = k('fa-users', 'Leads ativos', all.length, 'no pipeline') + k('fa-sack-dollar', 'Em negociação', UI.brl(valor).replace(',00', ''), 'valor mensal estimado') + k('fa-handshake', 'Reuniões', reunioes, 'agendadas') + k('fa-trophy', 'Fechados', ganhosMes.length, conv != null ? `no mês · ${conv}% de conversão` : 'no mês');
-    $('resumo').textContent = `${all.length} lead${all.length !== 1 ? 's' : ''} em andamento`;
+    const feitos = hojeAnalisados(), pct = Math.min(100, Math.round(feitos * 100 / META_DIA));
+    const fila = all.filter(l => etapaDe(l) === 'novo' && !l.igChecked);
+    const k = (icon, l, v, h, extra = '') => `<div class="card stat"><span class="label"><i class="fa-solid ${icon} accent-text"></i>${l}</span><span class="value">${v}</span><span class="hint">${h}</span>${extra}</div>`;
+    $('kpis').innerHTML =
+      `<div class="card stat meta-hoje card-accent"><span class="label"><i class="fa-solid fa-bullseye"></i>Prospecção de hoje</span><span class="value">${feitos}<span class="muted">/${META_DIA}</span></span><span class="hint">${feitos >= META_DIA ? 'Meta do dia batida! 🎯' : `faltam ${META_DIA - feitos} análises · ${fila.length} na fila (${fila.filter(l => l.warm).length} te seguem)`}</span><div class="bar mt-1"><span style="width:${pct}%;background:#fff"></span></div></div>` +
+      k('fa-users', 'No pipeline', all.length, `${all.filter(l => etapaDe(l) === 'aprovado').length} aprovados para envio`) +
+      k('fa-sack-dollar', 'Em negociação', UI.brl(negocio.reduce((a, l) => a + (Number(l.valor) || 0), 0)).replace(',00', ''), `${negocio.length} leads em conversa`) +
+      k('fa-handshake', 'Reuniões', reunioes, `agendadas · ${DB.list('crm_ganhos').filter(g => (g.ganhoEm || '').startsWith(UI.hoje().slice(0, 7))).length} fechados no mês`);
+    $('resumo').textContent = `${all.length} leads · ${all.filter(l => l.warm).length} te seguem no Instagram`;
   }
 
   function leadCard(l) {
     const p = proxAcao(l);
-    return `<button class="card card-tight card-link" data-lead="${esc(l.id)}" style="text-align:left;width:100%" draggable="true">
-      <div class="row-between" style="align-items:flex-start"><div style="min-width:0"><div class="title truncate" style="font-weight:500">${esc(l.name)}</div><div class="small muted truncate">${esc([l.insta, l.area].filter(Boolean).join(' · ') || 'sem detalhes')}</div></div>
-        ${l.valor ? `<span class="pill num" style="flex-shrink:0">${UI.brl(l.valor).replace(',00', '')}</span>` : ''}</div>
-      ${p ? `<div class="small mt-2" style="color:var(--accent-2)"><i class="fa-solid ${T.kindInfo(T.kind(p)).icon}"></i> ${T.kindInfo(T.kind(p)).label} ${UI.quando(p.date)}${T.hora(p) ? ' às ' + T.hora(p) : ''}</div>` : ''}
+    return `<button class="card card-tight card-link" data-lead="${esc(l.id)}" draggable="true" style="text-align:left;width:100%">
+      <div class="row-between" style="align-items:flex-start"><div style="min-width:0"><div class="title truncate" style="font-weight:500">${esc(l.name)}</div><div class="small muted truncate">${esc([l.categoria || l.area, l.bairro].filter(Boolean).join(' · ') || l.insta || 'sem detalhes')}</div></div>
+        ${l.tier ? `<span class="tier ${esc(l.tier)}">${esc(l.tier)} · ${l.score ?? '–'}</span>` : l.valor ? `<span class="pill num">${UI.brl(l.valor).replace(',00', '')}</span>` : ''}</div>
+      <div class="row small mt-2" style="flex-wrap:wrap;gap:4px 10px">
+        ${l.warm ? '<span class="warm"><i class="fa-solid fa-heart"></i> Te segue</span>' : ''}
+        ${l.rating ? `<span class="muted num"><i class="fa-solid fa-star" style="color:#fcd34d"></i> ${String(l.rating).replace('.', ',')} (${l.reviews || 0})</span>` : ''}
+        ${l.telefone ? `<span class="muted"><i class="fa-brands fa-whatsapp"></i> ${l.mobile ? 'WhatsApp' : 'fixo'}</span>` : ''}
+        ${(l.parts || []).length ? '<span class="muted"><i class="fa-solid fa-message"></i> roteiro pronto</span>' : ''}
+      </div>
+      ${l.product ? `<div class="small mt-2" style="color:var(--accent-2)">${esc(l.product)}</div>` : ''}
+      ${p ? `<div class="small mt-1 soft"><i class="fa-solid ${T.kindInfo(T.kind(p)).icon}"></i> ${T.kindInfo(T.kind(p)).label} ${UI.quando(p.date)}${T.hora(p) ? ' às ' + T.hora(p) : ''}</div>` : ''}
     </button>`;
+  }
+  function proxAcao(l) {
+    const ts = DB.list('tasks').filter(t => ['reuniao', 'follow'].includes(T.kind(t)) && (t.leadId === l.id || (t.client || '').toLowerCase() === String(l.name).toLowerCase()) && t.date >= UI.hoje());
+    return ts.sort((a, b) => (a.date + T.hora(a)).localeCompare(b.date + T.hora(b)))[0] || null;
+  }
+
+  function renderFiltros() {
+    const segs = [...new Set(DB.list('crm').map(l => l.area || l.categoria).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt'));
+    $('f-seg').innerHTML = '<option value="">Todos os segmentos</option>' + segs.map(s => `<option ${s === fSeg ? 'selected' : ''}>${esc(s)}</option>`).join('');
   }
 
   function renderPipe() {
-    const all = leads();
-    $('etapas').innerHTML = ETAPAS.map(e => `<button data-e="${e.id}" class="${e.id === etapa ? 'on' : ''}"><i class="fa-solid ${e.icon}"></i>${e.label}<span class="count">${all.filter(l => (l.col || 'novolead') === e.id).length}</span></button>`).join('');
-    $('etapas').querySelectorAll('button').forEach(b => b.onclick = () => { etapa = b.dataset.e; renderPipe(); });
-    const doEt = all.filter(l => (l.col || 'novolead') === etapa);
-    $('lista').innerHTML = doEt.map(leadCard).join('') || `<div class="card empty"><i class="fa-solid fa-bullseye"></i>Nenhum lead em ${etapaLabel(etapa)}.<br><button class="btn btn-white btn-sm mt-3" onclick="novoLead()">Novo lead</button></div>`;
+    const all = filtrar(DB.list('crm'));
+    $('etapas').innerHTML = ETAPAS.map(e => `<button data-e="${e.id}" class="${e.id === etapa ? 'on' : ''}"><i class="fa-solid ${e.icon}"></i>${e.label}<span class="count">${all.filter(l => etapaDe(l) === e.id).length}</span></button>`).join('');
+    $('etapas').querySelectorAll('button').forEach(b => b.onclick = () => { etapa = b.dataset.e; limite = 30; renderPipe(); });
+    const doEt = all.filter(l => etapaDe(l) === etapa);
+    $('contagem').textContent = `${doEt.length} lead${doEt.length !== 1 ? 's' : ''} em ${etapaLabel(etapa)}`;
+    $('lista').innerHTML = doEt.slice(0, limite).map(leadCard).join('') || `<div class="card empty md-span-2"><i class="fa-solid fa-bullseye"></i>Nenhum lead em ${etapaLabel(etapa)} com esses filtros.</div>`;
+    $('mais').classList.toggle('hidden', doEt.length <= limite);
+    $('mais').textContent = `Mostrar mais (${doEt.length - limite} restantes)`;
     $('board').innerHTML = ETAPAS.map(e => {
-      const arr = all.filter(l => (l.col || 'novolead') === e.id);
-      return `<div class="col"><div class="col-head"><span class="h3">${e.label}</span><span class="pill">${arr.length}</span></div>
-        <div class="col-drop" data-col="${e.id}">${arr.map(leadCard).join('') || '<div class="muted small center" style="padding:18px 6px">Arraste para cá</div>'}</div></div>`;
+      const arr = all.filter(l => etapaDe(l) === e.id);
+      return `<div class="col"><div class="col-head"><span class="h3" style="font-size:14px">${e.label}</span><span class="pill">${arr.length}</span></div>
+        <div class="col-drop" data-col="${e.id}">${arr.slice(0, 20).map(leadCard).join('')}${arr.length > 20 ? `<button class="btn btn-ghost btn-sm" data-ver="${e.id}">Ver todos (${arr.length})</button>` : ''}${!arr.length ? '<div class="muted small center" style="padding:18px 6px">Arraste para cá</div>' : ''}</div></div>`;
     }).join('');
+    $('board').querySelectorAll('[data-ver]').forEach(b => b.onclick = () => { etapa = b.dataset.ver; setModo('lista'); });
     $('board').querySelectorAll('[draggable]').forEach(c => c.addEventListener('dragstart', ev => ev.dataTransfer.setData('text/plain', c.dataset.lead)));
     $('board').querySelectorAll('.col-drop').forEach(z => {
       z.addEventListener('dragover', ev => { ev.preventDefault(); z.classList.add('over'); });
@@ -123,30 +173,30 @@
 
   function renderFechados() {
     const g = DB.list('crm_ganhos').sort((a, b) => (b.ganhoEm || '').localeCompare(a.ganhoEm || ''));
-    $('ganhos').innerHTML = g.map(l => `<div class="card"><div class="row-between"><div style="min-width:0"><div class="h3 truncate">${esc(l.name)}</div><div class="small muted">Fechado em ${UI.dataBR((l.ganhoEm || '').slice(0, 10))}</div></div><i class="fa-solid fa-trophy accent-text"></i></div></div>`).join('') || '<div class="card empty md-span-2">Nenhum contrato fechado ainda.</div>';
+    $('ganhos').innerHTML = g.map(l => `<div class="card"><div class="row-between"><div style="min-width:0"><div class="h3 truncate">${esc(l.name)}</div><div class="small muted">Fechado em ${UI.dataBR((l.ganhoEm || '').slice(0, 10))}${l.product ? ' · ' + esc(l.product) : ''}</div></div><i class="fa-solid fa-trophy accent-text"></i></div></div>`).join('') || '<div class="card empty md-span-2">Nenhum contrato fechado ainda.</div>';
     const p = DB.list('crm_perdidos').sort((a, b) => (b.perdidoEm || '').localeCompare(a.perdidoEm || ''));
-    $('perdidos').innerHTML = p.map(l => `<div class="card"><div class="row-between"><div style="min-width:0"><div class="h3 truncate">${esc(l.name)}</div><div class="small muted">${esc(l.motivo || 'sem motivo')} · ${UI.dataBR((l.perdidoEm || '').slice(0, 10))}</div></div><button class="btn btn-ghost btn-sm" data-reabrir="${esc(l.id)}">Reabrir</button></div></div>`).join('') || '<div class="card empty md-span-2">Nenhum lead perdido.</div>';
-    $('perdidos').querySelectorAll('[data-reabrir]').forEach(b => b.onclick = () => { const l = DB.get('crm_perdidos', b.dataset.reabrir); DB.remove('crm_perdidos', l.id); delete l.motivo; delete l.perdidoEm; l.col = 'novolead'; hist(l, 'Lead reaberto'); DB.put('crm', l); render(); App.toast('Lead reaberto.', 'ok'); });
+    $('perdidos').innerHTML = p.slice(0, 200).map(l => `<div class="card"><div class="row-between"><div style="min-width:0"><div class="h3 truncate">${esc(l.name)}</div><div class="small muted truncate">${esc(l.motivo || 'sem motivo')}</div></div><button class="btn btn-ghost btn-sm" data-reabrir="${esc(l.id)}">Reabrir</button></div></div>`).join('') || '<div class="card empty md-span-2">Nenhum lead perdido.</div>';
+    $('perdidos').querySelectorAll('[data-reabrir]').forEach(b => b.onclick = () => { const l = DB.get('crm_perdidos', b.dataset.reabrir); DB.remove('crm_perdidos', l.id); delete l.motivo; delete l.perdidoEm; l.col = l.analisadoEm ? 'analisado' : 'novo'; hist(l, 'Lead reaberto'); DB.put('crm', l); render(); App.toast('Lead reaberto.', 'ok'); });
   }
 
   // ---------- ações ----------
+  function salvarLead(l) { l.atualizadoEm = agoraISO(); DB.put('crm', l); }
   function moverEtapa(id, col) {
-    const l = DB.get('crm', id); if (!l || l.col === col) return;
+    const l = DB.get('crm', id); if (!l || etapaDe(l) === col) return;
     if (col === 'follow') return agendar(l, 'follow');
     if (col === 'reuniao') return agendar(l, 'reuniao');
-    l.col = col; hist(l, 'Movido para ' + etapaLabel(col)); DB.put('crm', l); render();
+    l.col = col; if (col === 'analisado' && !l.analisadoEm) l.analisadoEm = agoraISO(); if (col === 'aprovado') l.aprovadoEm = agoraISO();
+    hist(l, 'Movido para ' + etapaLabel(col)); salvarLead(l); render();
     App.toast(`${l.name} → ${etapaLabel(col)}`, 'ok');
   }
-
-  function agendar(l, tipo, depois) {
-    const padrao = tipo === 'follow' ? UI.addDias(UI.hoje(), 5) : UI.hoje();
+  function agendar(l, tipo) {
     const s = UI.sheet({
       title: tipo === 'follow' ? 'Agendar follow-up' : 'Agendar reunião',
-      html: `<p class="small soft">${esc(l.name)} vai para <b>${tipo === 'follow' ? 'Follow-up' : 'Reunião'}</b> e o compromisso aparece no Calendário, na Home e no Modo Trabalho.</p>
+      html: `<p class="small soft">${esc(l.name)} vai para <b>${tipo === 'follow' ? 'Follow-up' : 'Reunião'}</b> e o compromisso entra no Calendário, na Home e no Modo Trabalho.</p>
         <div class="form-grid mt-3">
-          <label class="field"><span>Data</span><input class="input" type="date" id="d" value="${padrao}"></label>
+          <label class="field"><span>Data</span><input class="input" type="date" id="d" value="${tipo === 'follow' ? UI.addDias(UI.hoje(), 2) : UI.hoje()}"></label>
           <label class="field"><span>Hora</span><input class="input" type="time" id="h" value="${tipo === 'follow' ? '09:00' : '10:00'}"></label>
-          <label class="field full"><span>Anotação (opcional)</span><input class="input" id="n" placeholder="${tipo === 'follow' ? 'Ex.: mandar proposta revisada' : 'Ex.: Google Meet / endereço'}"></label>
+          <label class="field full"><span>Anotação (opcional)</span><input class="input" id="n" placeholder="${tipo === 'follow' ? 'Ex.: mandar a retomada 1' : 'Ex.: na clínica, 20 min'}"></label>
         </div>`,
       foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-white" id="ok">Agendar</button>'
     });
@@ -154,90 +204,132 @@
       const d = s.$('#d').value, h = s.$('#h').value, n = s.$('#n').value.trim();
       if (!d) { App.toast('Escolha a data.', 'warn'); return; }
       DB.put('tasks', { id: T.novoId(), kind: tipo, client: l.name, headline: (tipo === 'follow' ? 'Follow-up com ' : 'Reunião com ') + l.name, date: d, time: h, caption: h ? `Agendado às ${h}` : '', descricao: n, observacoes: n, notes: tipo === 'follow' ? 'crm_follow' : 'crm_meeting', type: 'Evento', status: 'afazer', isRejected: false, leadId: l.id });
-      const atual = DB.get('crm', l.id);
-      atual.col = tipo; atual.date = d; hist(atual, `${tipo === 'follow' ? 'Follow-up' : 'Reunião'} agendado para ${UI.dataBR(d)}${h ? ' às ' + h : ''}`);
-      DB.put('crm', atual);
-      s.close(); render(); App.toast(`${tipo === 'follow' ? 'Follow-up' : 'Reunião'} agendado e no calendário.`, 'ok');
-      depois && depois();
+      const atual = DB.get('crm', l.id); atual.col = tipo; hist(atual, `${tipo === 'follow' ? 'Follow-up' : 'Reunião'} agendado para ${UI.dataBR(d)}${h ? ' às ' + h : ''}`); salvarLead(atual);
+      s.close(); render(); App.toast('Agendado e no calendário.', 'ok');
     };
   }
-
-  function fecharContrato(l, depois) {
-    Integracao.abrirConversao(l, r => {
-      const atual = DB.get('crm', l.id) || l;
-      hist(atual, 'Fechou contrato');
-      DB.put('crm_ganhos', { ...atual, col: 'ganho', ganhoEm: new Date().toISOString(), clienteId: r.client.id });
-      DB.remove('crm', l.id);
-      render(); depois && depois();
+  function fecharContrato(l) {
+    Integracao.abrirConversao({ ...l, valor: l.valor || valorDe(l.product), notas: l.notas }, r => {
+      const atual = DB.get('crm', l.id) || l; hist(atual, 'Fechou contrato');
+      DB.put('crm_ganhos', { ...atual, col: 'ganho', ganhoEm: agoraISO(), clienteId: r.client.id }); DB.remove('crm', l.id); render();
     });
   }
-
-  function perdido(l, depois) {
-    const s = UI.sheet({ title: 'Marcar como perdido', html: `<label class="field"><span>Motivo</span><select class="select" id="m"><option>Preço</option><option>Sem resposta</option><option>Fechou com outro</option><option>Sem orçamento agora</option><option>Não era o perfil</option><option>Outro</option></select></label>`, foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-danger" id="ok">Marcar perdido</button>' });
-    s.$('#ok').onclick = () => { const atual = DB.get('crm', l.id); hist(atual, 'Perdido: ' + s.$('#m').value); DB.put('crm_perdidos', { ...atual, motivo: s.$('#m').value, perdidoEm: new Date().toISOString() }); DB.remove('crm', l.id); s.close(); render(); App.toast('Lead movido para Perdidos.', 'ok'); depois && depois(); };
+  function perdido(l) {
+    const s = UI.sheet({ title: 'Marcar como perdido', html: `<label class="field"><span>Motivo</span><select class="select" id="m"><option>Já tem gestão de outra pessoa</option><option>Sem resposta</option><option>Preço</option><option>Fechou com outro</option><option>Sem orçamento agora</option><option>Não quero trabalhar com essa empresa</option><option>Não era o perfil</option><option>Outro</option></select></label>`, foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-danger" id="ok">Marcar perdido</button>' });
+    s.$('#ok').onclick = () => { const atual = DB.get('crm', l.id); hist(atual, 'Perdido: ' + s.$('#m').value); DB.put('crm_perdidos', { ...atual, col: 'perdido', motivo: s.$('#m').value, perdidoEm: agoraISO() }); DB.remove('crm', l.id); s.close(); render(); App.toast('Lead movido para Perdidos.', 'ok'); };
   }
 
   function camposLead(l) {
-    return `<div class="form-grid">
+    return `<datalist id="dl-prod">${PRODUTOS.map(p => `<option value="${esc(p)}">`).join('')}</datalist><div class="form-grid">
       <label class="field full"><span>Nome / empresa</span><input class="input" name="name" value="${esc(l.name || '')}" required></label>
       <label class="field"><span>Instagram</span><input class="input" name="insta" value="${esc(l.insta || '')}" placeholder="@perfil"></label>
-      <label class="field"><span>WhatsApp</span><input class="input" name="telefone" inputmode="tel" value="${esc(l.telefone || '')}" placeholder="(11) 99999-9999"></label>
-      <label class="field"><span>Segmento</span><input class="input" name="area" value="${esc(l.area || '')}" placeholder="Ex.: estética, restaurante"></label>
-      <label class="field"><span>Valor estimado (R$/mês)</span><input class="input" type="number" step="0.01" inputmode="decimal" name="valor" value="${esc(l.valor ?? '')}"></label>
-      <label class="field"><span>Origem</span><input class="input" name="origem" value="${esc(l.origem || '')}" placeholder="Indicação, Instagram…"></label>
-      <label class="field"><span>E-mail</span><input class="input" type="email" name="email" value="${esc(l.email || '')}"></label>
-      <label class="field full"><span>Link</span><input class="input" name="link" value="${esc(l.link || '')}" placeholder="site, perfil, proposta…"></label>
-      <label class="field full"><span>Notas</span><textarea class="textarea" name="notas" rows="3">${esc(l.notas || '')}</textarea></label>
+      <label class="field"><span>WhatsApp / telefone</span><input class="input" name="telefone" inputmode="tel" value="${esc(l.telefone || '')}"></label>
+      <label class="field"><span>Segmento</span><input class="input" name="area" value="${esc(l.area || '')}"></label>
+      <label class="field"><span>Bairro</span><input class="input" name="bairro" value="${esc(l.bairro || '')}"></label>
+      <label class="field full"><span>Produto indicado</span><input class="input" name="product" list="dl-prod" value="${esc(l.product || '')}" placeholder="Escolha ou escreva"></label>
+      <label class="field"><span>Valor estimado (R$/mês)</span><input class="input" type="number" step="0.01" inputmode="decimal" name="valor" value="${esc(l.valor || valorDe(l.product) || '')}"></label>
+      <label class="field"><span>Origem</span><input class="input" name="origem" value="${esc(l.origem || '')}"></label>
+      <label class="field full"><span>Observações</span><textarea class="textarea" name="notas" rows="3" placeholder="O que respondeu, próximos passos…">${esc(l.notas || '')}</textarea></label>
     </div>`;
   }
-  const lerCampos = (el, l) => { const f = UI.formData(el); Object.assign(l, { name: f.name.trim(), insta: f.insta.trim(), telefone: f.telefone.trim(), area: f.area.trim(), valor: Number(f.valor) || 0, origem: f.origem.trim(), email: f.email.trim(), link: f.link.trim(), notas: f.notas }); return l; };
+  const lerCampos = (el, l) => { const f = UI.formData(el); const prodAntes = l.product; Object.assign(l, { name: f.name.trim(), insta: f.insta.trim(), telefone: f.telefone.trim(), area: f.area.trim(), bairro: f.bairro.trim(), product: f.product.trim(), valor: Number(f.valor) || valorDe(f.product), origem: f.origem.trim(), notas: f.notas }); if (prodAntes !== l.product) l.productEdited = true; el.querySelectorAll('[data-part]').forEach(t => { const p = (l.parts || [])[+t.dataset.part]; if (p) p.text = t.value; }); if ((l.parts || [])[0]) l.message = l.parts[0].text; return l; };
 
   function novoLead() {
-    const s = UI.sheet({ title: 'Novo lead', html: camposLead({}), foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-white" id="ok">Criar lead</button>' });
+    const s = UI.sheet({ title: 'Novo lead', html: camposLead({ origem: 'Manual' }), foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-white" id="ok">Criar lead</button>' });
     s.$('#ok').onclick = () => {
-      const l = lerCampos(s.el, { id: 'l_' + Date.now().toString(36), col: 'novolead', historyArray: [] });
+      const l = lerCampos(s.el, { id: 'l_' + Date.now().toString(36), col: 'novo', historyArray: [], criadoEm: agoraISO() });
       if (!l.name) { App.toast('Informe o nome.', 'warn'); return; }
-      hist(l, 'Lead criado'); DB.put('crm', l); s.close(); etapa = 'novolead'; render(); App.toast('Lead criado.', 'ok');
+      hist(l, 'Lead criado'); salvarLead(l); s.close(); etapa = 'novo'; render(); App.toast('Lead criado.', 'ok');
     };
   }
 
   function abrirLead(id) {
     const l = DB.get('crm', id); if (!l) return;
     const fone = String(l.telefone || '').replace(/\D/g, '');
+    const wa = fone.length >= 10 ? 'https://wa.me/' + (fone.length <= 11 ? '55' + fone : fone) : '';
+    const ig = l.instagram || (l.insta ? 'https://instagram.com/' + String(l.insta).replace(/^@/, '') : '');
+    const st = etapaDe(l);
     const s = UI.sheet({
       title: esc(l.name), wide: true,
       html: `
-        <div class="eyebrow mb-2">Etapa</div>
-        <div class="seg mb-4" data-etapas>${ETAPAS.map(e => `<button type="button" data-e="${e.id}" class="${(l.col || 'novolead') === e.id ? 'on' : ''}">${e.label}</button>`).join('')}</div>
-        <div class="grid g-2 md-g-4 mb-4">
-          <button class="btn btn-ghost btn-sm" data-a="follow"><i class="fa-solid fa-phone"></i> Follow-up</button>
-          <button class="btn btn-ghost btn-sm" data-a="reuniao"><i class="fa-solid fa-handshake"></i> Reunião</button>
-          ${fone ? `<a class="btn btn-ghost btn-sm" href="https://wa.me/${fone.length <= 11 ? '55' + fone : fone}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : `<button class="btn btn-ghost btn-sm" disabled><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>`}
-          ${l.insta ? `<a class="btn btn-ghost btn-sm" href="https://instagram.com/${esc(String(l.insta).replace(/^@/, ''))}" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i> Instagram</a>` : `<button class="btn btn-ghost btn-sm" disabled><i class="fa-brands fa-instagram"></i> Instagram</button>`}
+        <div class="small muted" style="margin-top:-6px">${esc([l.categoria || l.area, l.bairro].filter(Boolean).join(' · '))}</div>
+        <div class="eyebrow mt-4 mb-2">Etapa</div>
+        <div class="seg mb-4" data-etapas>${ETAPAS.map(e => `<button type="button" data-e="${e.id}" class="${st === e.id ? 'on' : ''}">${e.label}</button>`).join('')}</div>
+        <div class="grid g-2 md-g-4 mb-3">
+          ${wa ? `<a class="btn btn-ghost btn-sm" href="${wa}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : '<button class="btn btn-ghost btn-sm" disabled><i class="fa-brands fa-whatsapp"></i> Sem WhatsApp</button>'}
+          ${ig ? `<a class="btn btn-ghost btn-sm" href="${esc(ig)}" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i> Instagram</a>` : '<button class="btn btn-ghost btn-sm" disabled><i class="fa-brands fa-instagram"></i> Instagram</button>'}
+          ${l.maps ? `<a class="btn btn-ghost btn-sm" href="${esc(l.maps)}" target="_blank" rel="noopener"><i class="fa-solid fa-location-dot"></i> Maps</a>` : '<button class="btn btn-ghost btn-sm" data-a="follow"><i class="fa-solid fa-phone"></i> Follow-up</button>'}
+          ${l.site ? `<a class="btn btn-ghost btn-sm" href="${esc(l.site)}" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i> Site</a>` : '<button class="btn btn-ghost btn-sm" data-a="reuniao"><i class="fa-solid fa-handshake"></i> Reunião</button>'}
         </div>
-        <button class="btn btn-accent btn-lg btn-block mb-4" data-a="fechar"><i class="fa-solid fa-trophy"></i> Fechou contrato</button>
+        <div class="grid g-2 mb-4">
+          <button class="btn ${st === 'aprovado' ? 'btn-ghost' : 'btn-white'}" data-a="aprovar"><i class="fa-solid fa-paper-plane"></i> ${st === 'aprovado' ? 'Remover aprovação' : 'Aprovar para envio'}</button>
+          <button class="btn btn-accent" data-a="fechar"><i class="fa-solid fa-trophy"></i> Fechou contrato</button>
+        </div>
+        ${l.tier || l.score != null ? `<div class="card card-tight mb-4">
+          <div class="row"><span class="tier ${esc(l.tier || '')}">${esc(l.tier || '–')}</span><div class="bar grow"><span style="width:${Math.max(0, Math.min(100, l.score || 0))}%"></span></div><span class="num small">${l.score ?? '–'}/100</span></div>
+          ${(l.signals || []).length ? `<div class="wrap-row mt-3">${l.signals.map(g => `<span class="pill ${g.kind === 'gap' ? 'pill-danger' : g.kind === 'good' ? 'pill-ok' : ''}">${esc(g.text)}</span>`).join('')}</div>` : ''}
+          ${(l.reasons || []).length ? `<ul class="small soft mt-3" style="padding-left:18px;margin-bottom:0">${l.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}
+          ${l.productWhy ? `<p class="small mt-3" style="color:var(--accent-2);margin-bottom:0">${esc(l.productWhy)}</p>` : ''}
+        </div>` : ''}
+        ${(l.parts || []).length ? `<div class="eyebrow mb-2">Roteiro de mensagens</div><div class="stack mb-4">${l.parts.map((p, i) => `<div class="part">
+          <div class="row-between"><b class="small">${esc(p.label || 'Mensagem')}</b><span class="pill ${p.kind === 'audio' ? 'pill-warn' : ''}">${p.kind === 'audio' ? 'Áudio · você grava' : 'Texto'}</span></div>
+          ${p.when ? `<div class="tiny muted mt-1">${esc(p.when)}</div>` : ''}
+          <textarea class="textarea mt-2" data-part="${i}">${esc(p.text || '')}</textarea>
+          <div class="row mt-2" style="justify-content:flex-end"><button type="button" class="btn btn-ghost btn-sm" data-copy="${i}"><i class="fa-regular fa-copy"></i> Copiar</button>${wa && p.kind !== 'audio' ? `<a class="btn btn-ghost btn-sm" target="_blank" rel="noopener" data-wa="${i}"><i class="fa-brands fa-whatsapp"></i> Abrir no WhatsApp</a>` : ''}</div>
+        </div>`).join('')}</div>` : ''}
         ${camposLead(l)}
+        ${l.endereco || l.rating ? `<div class="small muted mt-3">${l.rating ? `<i class="fa-solid fa-star" style="color:#fcd34d"></i> ${String(l.rating).replace('.', ',')} (${l.reviews || 0} avaliações) · ` : ''}${esc(l.endereco || '')}</div>` : ''}
         <div class="divider"></div>
         <div class="eyebrow mb-2">Histórico</div>
-        <div class="list">${(l.historyArray || []).slice().reverse().map(h => `<div class="item" style="min-height:40px;padding:8px 0"><span class="small soft">${esc(h)}</span></div>`).join('') || '<div class="muted small">Sem histórico.</div>'}</div>
+        <div class="list">${(l.historyArray || []).slice().reverse().map(h => `<div class="item" style="min-height:36px;padding:8px 0"><span class="small soft">${esc(h)}</span></div>`).join('') || '<div class="muted small">Sem histórico.</div>'}</div>
         <div class="row mt-3"><input class="input grow" id="nota" placeholder="Adicionar ao histórico…"><button class="btn btn-ghost" id="add-nota">Adicionar</button></div>
-        <div class="row mt-4" style="flex-wrap:wrap"><button class="btn btn-ghost btn-sm" data-a="perdido"><i class="fa-solid fa-xmark"></i> Marcar como perdido</button><button class="btn btn-danger btn-sm" data-a="excluir"><i class="fa-solid fa-trash"></i> Excluir</button></div>`,
+        <div class="row mt-4" style="flex-wrap:wrap"><button class="btn btn-ghost btn-sm" data-a="follow"><i class="fa-solid fa-phone"></i> Agendar follow-up</button><button class="btn btn-ghost btn-sm" data-a="reuniao"><i class="fa-solid fa-handshake"></i> Agendar reunião</button><button class="btn btn-ghost btn-sm" data-a="perdido"><i class="fa-solid fa-xmark"></i> Perdido</button><button class="btn btn-danger btn-sm" data-a="excluir"><i class="fa-solid fa-trash"></i> Excluir</button></div>`,
       foot: '<button class="btn btn-ghost" data-close>Fechar</button><button class="btn btn-white" data-save>Salvar</button>'
     });
-    const salvar = (silencioso) => { const atual = DB.get('crm', id); if (!atual) return; lerCampos(s.el, atual); if (!atual.name) { App.toast('Informe o nome.', 'warn'); return false; } DB.put('crm', atual); if (!silencioso) App.toast('Lead salvo.', 'ok'); return true; };
+    const salvar = (silencioso) => { const atual = DB.get('crm', id); if (!atual) return false; lerCampos(s.el, atual); if (!atual.name) { App.toast('Informe o nome.', 'warn'); return false; } salvarLead(atual); if (!silencioso) App.toast('Lead salvo.', 'ok'); return true; };
+    const acao = (sel, fn) => s.$$(sel).forEach(b => b.onclick = fn);
     s.$('[data-save]').onclick = () => { if (salvar()) { s.close(); render(); } };
     s.$$('[data-e]').forEach(b => b.onclick = () => { if (!salvar(true)) return; s.close(); moverEtapa(id, b.dataset.e); });
-    s.$('[data-a="follow"]').onclick = () => { if (!salvar(true)) return; s.close(); agendar(DB.get('crm', id), 'follow'); };
-    s.$('[data-a="reuniao"]').onclick = () => { if (!salvar(true)) return; s.close(); agendar(DB.get('crm', id), 'reuniao'); };
-    s.$('[data-a="fechar"]').onclick = () => { if (!salvar(true)) return; s.close(); fecharContrato(DB.get('crm', id)); };
-    s.$('[data-a="perdido"]').onclick = () => { if (!salvar(true)) return; s.close(); perdido(DB.get('crm', id)); };
-    s.$('[data-a="excluir"]').onclick = () => { if (!confirm(`Excluir o lead "${l.name}"? Não dá para desfazer.`)) return; DB.remove('crm', id); s.close(); render(); App.toast('Lead excluído.', 'ok'); };
-    s.$('#add-nota').onclick = () => { const v = s.$('#nota').value.trim(); if (!v) return; salvar(true); const atual = DB.get('crm', id); hist(atual, v); DB.put('crm', atual); s.close(); render(); abrirLead(id); };
+    acao('[data-a="follow"]', () => { if (!salvar(true)) return; s.close(); agendar(DB.get('crm', id), 'follow'); });
+    acao('[data-a="reuniao"]', () => { if (!salvar(true)) return; s.close(); agendar(DB.get('crm', id), 'reuniao'); });
+    acao('[data-a="fechar"]', () => { if (!salvar(true)) return; s.close(); fecharContrato(DB.get('crm', id)); });
+    acao('[data-a="perdido"]', () => { if (!salvar(true)) return; s.close(); perdido(DB.get('crm', id)); });
+    acao('[data-a="aprovar"]', () => { if (!salvar(true)) return; const atual = DB.get('crm', id); const ap = etapaDe(atual) === 'aprovado'; atual.col = ap ? 'analisado' : 'aprovado'; atual.aprovadoEm = ap ? null : agoraISO(); hist(atual, ap ? 'Aprovação removida' : 'Aprovado para envio'); salvarLead(atual); s.close(); render(); App.toast(ap ? 'Aprovação removida.' : 'Aprovado para envio.', 'ok'); });
+    acao('[data-a="excluir"]', () => { if (!confirm(`Excluir o lead "${l.name}"? Não dá para desfazer.`)) return; DB.remove('crm', id); s.close(); render(); App.toast('Lead excluído.', 'ok'); });
+    s.$$('[data-copy]').forEach(b => b.onclick = async () => { const t = s.$(`[data-part="${b.dataset.copy}"]`); try { await navigator.clipboard.writeText(t.value); App.toast('Mensagem copiada.', 'ok'); } catch (e) { t.select(); } });
+    s.$$('[data-wa]').forEach(a => { a.href = wa + '?text=' + encodeURIComponent(s.$(`[data-part="${a.dataset.wa}"]`).value); a.onclick = () => { a.href = wa + '?text=' + encodeURIComponent(s.$(`[data-part="${a.dataset.wa}"]`).value); }; });
+    s.$('#add-nota').onclick = () => { const v = s.$('#nota').value.trim(); if (!v) return; salvar(true); const atual = DB.get('crm', id); hist(atual, v); salvarLead(atual); s.close(); render(); abrirLead(id); };
   }
 
+  // ---------- API para a automação de prospecção (usada pelo Claude) ----------
+  window.CRM_API = {
+    meta: () => ({ hoje: hojeAnalisados(), meta: META_DIA }),
+    fila(n = 10) {
+      const novos = DB.list('crm').filter(l => etapaDe(l) === 'novo' && !l.igChecked);
+      const ord = arr => arr.sort((a, b) => (b.score || 0) - (a.score || 0));
+      return [...ord(novos.filter(l => l.warm)), ...ord(novos.filter(l => !l.warm))].slice(0, n).map(l => ({ id: l.id, name: l.name, nomeCompleto: l.nomeCompleto, categoria: l.categoria || l.area, bairro: l.bairro, instagram: l.instagram || '', telefone: l.telefone || '', mobile: !!l.mobile, warm: !!l.warm, score: l.score, productEdited: !!l.productEdited }));
+    },
+    async atualizar(id, dados) {
+      const l = DB.get('crm', id); if (!l) return 'não encontrado';
+      Object.assign(l, dados);
+      if (dados.col === 'analisado' || dados.stage === 'analisado') { l.col = 'analisado'; l.analisadoEm = agoraISO(); delete l.stage; }
+      if (dados.col === 'perdido' || dados.stage === 'perdido') { DB.remove('crm', id); DB.put('crm_perdidos', { ...l, col: 'perdido', motivo: dados.notas || dados.notes || 'Descartado na análise', perdidoEm: agoraISO() }); await DB.flush(); return 'perdido'; }
+      if (dados.notes && !dados.notas) l.notas = dados.notes;
+      hist(l, 'Análise de Instagram pelo Claude'); salvarLead(l); await DB.flush(); render(); return 'ok';
+    }
+  };
+
+  // ---------- eventos ----------
+  function setModo(m) { document.body.classList.toggle('quadro', m === 'quadro'); try { localStorage.setItem('crm_modo', m); } catch (e) {} document.querySelectorAll('#modo button').forEach(x => x.classList.toggle('on', x.dataset.m === m)); renderPipe(); }
+  document.querySelectorAll('#modo button').forEach(b => b.onclick = () => setModo(b.dataset.m));
+  document.querySelectorAll('#modo button').forEach(x => x.classList.toggle('on', x.dataset.m === (document.body.classList.contains('quadro') ? 'quadro' : 'lista')));
   document.querySelectorAll('#vista button').forEach(b => b.onclick = () => { vista = b.dataset.v; document.querySelectorAll('#vista button').forEach(x => x.classList.toggle('on', x === b)); ['pipe', 'ganhos', 'perdidos'].forEach(v => $('v-' + v).classList.toggle('hidden', v !== vista)); });
-  $('busca').addEventListener('input', e => { busca = e.target.value.toLowerCase().trim(); render(); });
-  function render() { renderKpis(); renderPipe(); renderFechados(); }
+  $('busca').addEventListener('input', e => { busca = e.target.value.toLowerCase().trim(); limite = 30; renderPipe(); });
+  $('f-tier').addEventListener('change', e => { fTier = e.target.value; limite = 30; renderPipe(); });
+  $('f-seg').addEventListener('change', e => { fSeg = e.target.value; limite = 30; renderPipe(); });
+  $('f-ord').addEventListener('change', e => { fOrd = e.target.value; renderPipe(); });
+  $('mais').onclick = () => { limite += 30; renderPipe(); };
+  function render() { renderKpis(); renderFiltros(); renderPipe(); renderFechados(); }
   render();
   const qp = new URLSearchParams(location.search);
   if (qp.get('l')) abrirLead(qp.get('l'));

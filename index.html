@@ -10,7 +10,8 @@
 <meta name="apple-mobile-web-app-title" content="Plassô">
 <title>Plassô | Home</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="assets/ui.css?v=4">
+<link rel="stylesheet" href="assets/ui.css?v=6">
+<style>.btn-trabalho{width:100%;max-width:380px;height:60px;justify-content:space-between;padding:0 8px 0 24px;font-size:16px}.btn-trabalho .play-in{width:46px;height:46px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}</style>
 </head>
 <body data-theme="home">
 <div class="wrap">
@@ -59,10 +60,10 @@
       <div class="eyebrow" id="data-longa"></div>
       <h1 class="display mt-2" id="saudacao"></h1>
       <p id="resumo-frase"></p>
-      <div class="pair mt-4" style="width:100%;max-width:340px">
-        <button class="btn btn-white btn-lg" onclick="inicioTrabalho()">Modo trabalho</button>
-        <button class="chip-btn accent" style="width:54px;height:54px" onclick="inicioTrabalho()" aria-label="Iniciar modo trabalho"><i class="fa-solid fa-play"></i></button>
-      </div>
+      <button class="btn btn-white btn-lg mt-4 btn-trabalho" onclick="inicioTrabalho()" aria-label="Iniciar modo trabalho">
+        <span>Modo trabalho</span>
+        <span class="play-in"><i class="fa-solid fa-play"></i></span>
+      </button>
     </div>
 
     <div class="seg mb-4" id="tabs">
@@ -132,10 +133,10 @@
   </section>
 </div>
 
-<script src="assets/config.js?v=4"></script>
-<script src="assets/core.js?v=5" data-mode="app"></script>
-<script src="assets/ui.js?v=4"></script>
-<script src="assets/financas.js?v=4"></script>
+<script src="assets/config.js?v=6"></script>
+<script src="assets/core.js?v=6" data-mode="app"></script>
+<script src="assets/ui.js?v=6"></script>
+<script src="assets/financas.js?v=6"></script>
 <script type="text/plain" data-app>
   UI.mount({ tab: 'home' });
   const { esc, T } = UI;
@@ -453,6 +454,7 @@
   function renderAll() { renderHero(); renderKpis(); renderHabitos(); renderCasa(); renderEmpresa(); renderAgenda(); renderRelatorio(); }
   renderAll();
   if (S) entrarModo();
+  UI.agenda.carregar().then(() => { renderHero(); renderKpis(); renderAgenda(); if (S) renderWork(); });
   if (new URLSearchParams(location.search).get('aba')) trocaTab(new URLSearchParams(location.search).get('aba'));
 </script>
 </body>

@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Plassô | Criação IA</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="assets/ui.css?v=4">
+<link rel="stylesheet" href="assets/ui.css?v=6">
 <style>#col-lista{order:2}#col-gerar{order:1}@media(min-width:1100px){#col-lista{order:1}#col-gerar{order:2;position:sticky;top:16px}}</style>
 </head>
 <body data-theme="empresa">
@@ -59,9 +59,9 @@
   </div>
 </div>
 
-<script src="assets/config.js?v=4"></script>
-<script src="assets/core.js?v=5" data-mode="app"></script>
-<script src="assets/ui.js?v=4"></script>
+<script src="assets/config.js?v=6"></script>
+<script src="assets/core.js?v=6" data-mode="app"></script>
+<script src="assets/ui.js?v=6"></script>
 <script type="text/plain" data-app>
   UI.mount({ tab: 'empresa', sub: 'criacao' });
   const { esc } = UI;
@@ -104,7 +104,7 @@
   async function chamarFuncao(payload) {
     const { data: { session } } = await App.supabase.auth.getSession();
     const res = await fetch(PLASSO_CONFIG.SUPABASE_URL + '/functions/v1/gerar-conteudos', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token, apikey: PLASSO_CONFIG.SUPABASE_ANON_KEY }, body: JSON.stringify(payload)
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-user-token': session.access_token, apikey: PLASSO_CONFIG.SUPABASE_ANON_KEY }, body: JSON.stringify(payload)
     });
     const out = await res.json().catch(() => ({}));
     if (res.status === 404) throw new Error('A função de IA ainda não foi publicada no Supabase.');

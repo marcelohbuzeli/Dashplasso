@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Plassô | Calendário</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="assets/ui.css?v=4">
+<link rel="stylesheet" href="assets/ui.css?v=6">
 </head>
 <body data-theme="empresa">
 <div class="wrap">
@@ -25,6 +25,7 @@
       <h1 class="h1 mt-2" id="mes-nome" style="font-size:clamp(30px,8vw,48px)"></h1>
     </div>
     <div class="row">
+      <button class="btn btn-ghost btn-sm" onclick="UI.agenda.configurar(() => UI.agenda.carregar(true).then(render))" id="btn-agenda"><i class="fa-brands fa-google"></i> <span id="agenda-txt">Conectar agenda</span></button>
       <button class="chip-btn" onclick="mudaMes(-1)" aria-label="Mês anterior"><i class="fa-solid fa-chevron-left"></i></button>
       <button class="btn btn-ghost btn-sm" onclick="irHoje()">Hoje</button>
       <button class="chip-btn" onclick="mudaMes(1)" aria-label="Próximo mês"><i class="fa-solid fa-chevron-right"></i></button>
@@ -35,6 +36,7 @@
     <button data-f="tudo" class="on">Tudo</button>
     <button data-f="post"><i class="fa-solid fa-clapperboard"></i>Conteúdos</button>
     <button data-f="comp"><i class="fa-solid fa-handshake"></i>Compromissos</button>
+    <button data-f="google"><i class="fa-brands fa-google"></i>Agenda Google</button>
   </div>
 
   <div class="grid lg-g-main" style="align-items:start">
@@ -51,10 +53,10 @@
   </div>
 </div>
 
-<script src="assets/config.js?v=4"></script>
-<script src="assets/core.js?v=5" data-mode="app"></script>
-<script src="assets/ui.js?v=4"></script>
-<script src="assets/empresa.js?v=4"></script>
+<script src="assets/config.js?v=6"></script>
+<script src="assets/core.js?v=6" data-mode="app"></script>
+<script src="assets/ui.js?v=6"></script>
+<script src="assets/empresa.js?v=6"></script>
 <script type="text/plain" data-app>
   UI.mount({ tab: 'empresa', sub: 'calendario' });
   const { esc, T } = UI;
@@ -63,7 +65,7 @@
   let ref = sel.slice(0, 7);
   let filtro = 'tudo';
 
-  const itens = () => T.itensCalendario().filter(i => filtro === 'tudo' || (filtro === 'post' ? i._kind === 'post' : i._kind !== 'post'));
+  const itens = () => T.itensCalendario().filter(i => filtro === 'tudo' || (filtro === 'post' ? i._kind === 'post' : filtro === 'google' ? i._kind === 'google' : i._kind !== 'post' && i._kind !== 'google'));
 
   function mudaMes(n) { const [y, m] = ref.split('-').map(Number); const d = new Date(y, m - 1 + n, 1); ref = d.toLocaleDateString('sv-SE').slice(0, 7); render(); }
   function irHoje() { sel = UI.hoje(); ref = sel.slice(0, 7); render(); }
@@ -84,7 +86,7 @@
       html += `<button class="day ${iso.slice(0, 7) !== ref ? 'out' : ''} ${iso === hoje ? 'today' : ''} ${iso === sel ? 'sel' : ''}" data-d="${iso}" aria-label="${UI.dataBR(iso)}, ${doDia.length} itens">
         <span class="n">${d.getDate()}</span>
         <span class="dots">${doDia.slice(0, 4).map(() => '<i></i>').join('')}</span>
-        ${doDia.slice(0, 3).map(x => `<span class="mini ${x._kind !== 'post' ? 'ev' : ''}">${x._hora ? x._hora + ' ' : ''}${esc(x._titulo)}</span>`).join('')}${doDia.length > 3 ? `<span class="mini" style="background:none;color:var(--ink-3)">+${doDia.length - 3}</span>` : ''}
+        ${doDia.slice(0, 3).map(x => `<span class="mini ${x._kind === 'google' ? 'gc' : x._kind !== 'post' ? 'ev' : ''}">${x._hora ? x._hora + ' ' : ''}${esc(x._titulo)}</span>`).join('')}${doDia.length > 3 ? `<span class="mini" style="background:none;color:var(--ink-3)">+${doDia.length - 3}</span>` : ''}
       </button>`;
     }
     $('cal').innerHTML = html;
@@ -111,8 +113,13 @@
   }
 
   document.querySelectorAll('#filtro button').forEach(b => b.onclick = () => { filtro = b.dataset.f; document.querySelectorAll('#filtro button').forEach(x => x.classList.toggle('on', x === b)); render(); });
-  function render() { renderCal(); renderDia(); }
+  function render() {
+    renderCal(); renderDia();
+    const cfg = DB.getValue('config_agenda', null);
+    $('agenda-txt').textContent = cfg && cfg.url ? `Agenda conectada${UI.agenda.eventos.length ? ' · ' + UI.agenda.eventos.length : ''}` : 'Conectar agenda';
+  }
   render();
+  UI.agenda.carregar().then(() => { render(); if (UI.agenda.erro) App.toast('Agenda do Google: ' + UI.agenda.erro, 'warn'); });
 </script>
 </body>
 </html>

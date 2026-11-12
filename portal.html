@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#060918">
 <title>Aprovação de conteúdos</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="assets/ui.css?v=4">
+<link rel="stylesheet" href="assets/ui.css?v=6">
 <style>
   .wrap { max-width: 860px; padding-bottom: calc(40px + var(--safe-b)); }
   .preview { white-space: pre-line; font-size: 14px; color: var(--ink-2); max-height: 7.5em; overflow: hidden; position: relative; }
@@ -32,9 +32,9 @@
   <p class="tiny muted center mt-8">Link exclusivo seu. Não compartilhe.</p>
 </div>
 
-<script src="assets/config.js?v=4"></script>
-<script src="assets/core.js?v=5" data-mode="portal"></script>
-<script src="assets/ui.js?v=4"></script>
+<script src="assets/config.js?v=6"></script>
+<script src="assets/core.js?v=6" data-mode="portal"></script>
+<script src="assets/ui.js?v=6"></script>
 <script type="text/plain" data-app>
   const { esc, T } = UI;
   const $ = id => document.getElementById(id);
@@ -58,17 +58,19 @@
     $('lista').innerHTML = arr.map(t => {
       const e = estado(t);
       const pill = { aprovar: 'pill-accent', ajuste: 'pill-danger', aprovado: 'pill-ok', producao: '' }[e];
-      const texto = [t.roteiro, t.legenda || t.caption].filter(Boolean).join('\n\n— Legenda —\n');
       return `<article class="card card-lg">
         <div class="row-between" style="align-items:flex-start"><div style="min-width:0"><div class="small muted">${esc(t.type || 'Conteúdo')}${t.date ? ' · ' + UI.dataBR(t.date) : ''}</div><h2 class="h2 mt-1">${esc(T.titulo(t))}</h2></div><span class="pill ${pill}" style="flex-shrink:0">${LABEL[e]}</span></div>
-        ${texto ? `<div class="preview mt-3" data-prev>${esc(texto)}</div><button class="btn btn-ghost btn-sm mt-2" data-mais>Ver tudo</button>` : ''}
+        ${(t.midias || []).length ? `<div class="mt-3">${UI.carrossel(t.midias)}</div>${t.midias.length > 1 ? '<p class="tiny muted center mt-2"><i class="fa-solid fa-hand-pointer"></i> Arraste para o lado para ver todos</p>' : ''}` : ''}
+        ${t.legenda || t.caption ? `<div class="eyebrow mt-4 mb-2">Legenda</div><div class="preview" data-prev>${esc(t.legenda || t.caption)}</div><button class="btn btn-ghost btn-sm mt-2" data-mais>Ver tudo</button>` : ''}
+        ${!(t.midias || []).length && t.roteiro ? `<div class="eyebrow mt-4 mb-2">Roteiro</div><div class="preview" data-prev>${esc(t.roteiro)}</div><button class="btn btn-ghost btn-sm mt-2" data-mais>Ver tudo</button>` : ''}
         ${e === 'ajuste' && t.notes ? `<div class="card card-tight mt-3 small" style="border-color:rgba(255,90,110,.4)"><b>Seu pedido:</b> ${esc(String(t.notes).replace(/^Reprovado pelo cliente:\s*/, ''))}</div>` : ''}
         <div class="wrap-row mt-4">
-          ${t.drive ? `<a class="btn btn-ghost" href="${esc(t.drive)}" target="_blank" rel="noopener"><i class="fa-brands fa-google-drive"></i> Ver material</a>` : ''}
+          ${t.drive && !(t.midias || []).length ? `<a class="btn btn-ghost" href="${esc(t.drive)}" target="_blank" rel="noopener"><i class="fa-brands fa-google-drive"></i> Ver material</a>` : ''}
           ${e !== 'aprovado' ? `<button class="btn btn-white" data-ok="${esc(t.id)}"><i class="fa-solid fa-check"></i> Aprovar</button><button class="btn btn-ghost" data-adj="${esc(t.id)}"><i class="fa-solid fa-pen"></i> Pedir ajuste</button>` : '<span class="small muted"><i class="fa-solid fa-circle-check"></i> Aprovado</span>'}
         </div>
       </article>`;
     }).join('') || '<div class="card empty"><i class="fa-solid fa-mug-hot"></i>Nada por aqui no momento.</div>';
+    UI.ativarCarrosseis($('lista'));
     $('lista').querySelectorAll('[data-mais]').forEach(b => b.onclick = () => { const p = b.previousElementSibling; p.classList.toggle('open'); b.textContent = p.classList.contains('open') ? 'Ver menos' : 'Ver tudo'; });
     $('lista').querySelectorAll('[data-ok]').forEach(b => b.onclick = () => aprovar(b.dataset.ok));
     $('lista').querySelectorAll('[data-adj]').forEach(b => b.onclick = () => ajuste(b.dataset.adj));
