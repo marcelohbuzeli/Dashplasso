@@ -221,7 +221,7 @@
       syncCollection(col);
     },
     removeWhere(col, fn) { cache[col] = DB.list(col).filter(x => !fn(x)); syncCollection(col); },
-    getValue(col, fallback = null) { const v = cache[col]; return v && v.__scalar !== undefined ? JSON.parse(v.__scalar) : fallback; },
+    getValue(col, fallback = null) { const v = cache[col]; if (Array.isArray(v)) return v; if (!v || v.__scalar === undefined) return fallback; try { return JSON.parse(v.__scalar); } catch (e) { return v.__scalar; } },
     setValue(col, value) { cache[col] = { __scalar: JSON.stringify(value) }; syncCollection(col); },
     flush() { return queue; }
   };

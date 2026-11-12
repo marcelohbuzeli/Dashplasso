@@ -18,6 +18,7 @@
   const EMPRESA_SUB = [
     { id: 'geral', href: 'empresa.html', label: 'Visão geral', icon: 'fa-chart-simple' },
     { id: 'tasks', href: 'tasks.html', label: 'Tasks', icon: 'fa-list-check' },
+    { id: 'aprovacao', href: 'aprovacao.html', label: 'Aprovação', icon: 'fa-circle-check' },
     { id: 'calendario', href: 'calendar.html', label: 'Calendário', icon: 'fa-calendar' },
     { id: 'clientes', href: 'clients.html', label: 'Clientes', icon: 'fa-user-group' },
     { id: 'criacao', href: 'criacao.html', label: 'Criação IA', icon: 'fa-wand-magic-sparkles' }
@@ -172,15 +173,169 @@
     itensCalendario() {
       const ts = DB.list('tasks').filter(t => t.date).map(t => ({ ...t, _src: 'tasks', _kind: T.kind(t), _hora: T.hora(t), _titulo: T.titulo(t) }));
       const ev = DB.list('events').filter(e => e.date).map(e => ({ ...e, _src: 'events', _kind: 'evento', _hora: e.time || '', _titulo: e.title || 'Evento' }));
-      return [...ts, ...ev];
+      const gc = (agenda.eventos || []).map(e => ({ id: 'g:' + e.id, date: e.data, _src: 'google', _kind: 'google', _hora: e.hora || '', _fim: e.horaFim || '', _titulo: e.titulo, local: e.local }));
+      return [...ts, ...ev, ...gc];
     },
     compromissosDoDia(iso) {
       return T.itensCalendario().filter(i => i.date === iso && i._kind !== 'post').sort((a, b) => (a._hora || '99').localeCompare(b._hora || '99'));
     },
     novoId() { return 't_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); },
     kindInfo(k) {
-      return ({ post: { label: 'Conteúdo', icon: 'fa-clapperboard' }, reuniao: { label: 'Reunião', icon: 'fa-handshake' }, follow: { label: 'Follow-up', icon: 'fa-phone' }, evento: { label: 'Evento', icon: 'fa-calendar-day' } })[k] || { label: 'Item', icon: 'fa-circle' };
+      return ({ google: { label: 'Agenda Google', icon: 'fa-calendar-check' }, post: { label: 'Conteúdo', icon: 'fa-clapperboard' }, reuniao: { label: 'Reunião', icon: 'fa-handshake' }, follow: { label: 'Follow-up', icon: 'fa-phone' }, evento: { label: 'Evento', icon: 'fa-calendar-day' } })[k] || { label: 'Item', icon: 'fa-circle' };
     }
+  };
+
+
+  // ---------- funções do servidor (Supabase Edge Functions) ----------
+  async function chamarFuncao(nome, body) {
+    if (!window.App || !App.configured) throw new Error('LOCAL');
+    const { data: { session } } = await App.supabase.auth.getSession();
+    if (!session) throw new Error('Sua sessão expirou. Entre de novo.');
+    const res = await fetch(PLASSO_CONFIG.SUPABASE_URL + '/functions/v1/' + nome, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: PLASSO_CONFIG.SUPABASE_ANON_KEY, 'x-user-token': session.access_token },
+      body: JSON.stringify(body || {})
+    });
+    const out = await res.json().catch(() => ({}));
+    if (res.status === 404 && !out.error) throw new Error('Função "' + nome + '" não publicada no Supabase.');
+    if (!res.ok) throw new Error(out.error || out.message || ('Erro ' + res.status));
+    return out;
+  }
+
+  // ---------- mídia do Google Drive ----------
+  const DEMO_MIDIAS = [ // só no modo de teste local (pasta pública de exemplo)
+    { id: '16olTbbGOLaJUwua2c_QZhGn1o5U6Fp0F', nome: 'lamina-01.png', tipo: 'imagem' },
+    { id: '1w0sHfBZy_Pn2SQgZ7ffxloskECKUqv6_', nome: 'lamina-02.png', tipo: 'imagem' },
+    { id: '1VzvwCtGGYaDnrU_thq1R-H3iMlB80NZz', nome: 'lamina-03.png', tipo: 'imagem' },
+    { id: 'demo-video', nome: 'reels-final.mp4', tipo: 'video' }
+  ];
+  async function driveBuscar(url) {
+    if (!url || !/drive\.google\.com|docs\.google\.com/.test(url)) throw new Error('Cole um link do Google Drive.');
+    try {
+      const out = await chamarFuncao('drive-midia', { url });
+      return out.midias || [];
+    } catch (e) {
+      if (e.message === 'LOCAL') return DEMO_MIDIAS.map(m => ({ ...m }));
+      throw e;
+    }
+  }
+  const midiaImg = (m, w = 1600) => m.id === 'demo-video' ? 'https://lh3.googleusercontent.com/d/1Ig7DAzpcYx6C_xw4ua3zBSnfJWAtc0YB=w' + w : `https://lh3.googleusercontent.com/d/${m.id}=w${w}`;
+  const midiaThumbAlt = (m, w = 1000) => `https://drive.google.com/thumbnail?id=${m.id}&sz=w${w}`;
+
+  // carrossel: arraste para o lado (mesma ordem do Drive)
+  function carrossel(midias, { ratio = '4/5', capa = false } = {}) {
+    const ms = (midias || []).filter(m => m && m.id);
+    if (!ms.length) return '';
+    const slides = ms.map((m, i) => m.tipo === 'video'
+      ? `<div class="car-slide" data-i="${i}"><button class="car-video" data-video="${esc(m.id)}" aria-label="Assistir ${esc(m.nome || 'vídeo')}">
+           <img loading="lazy" src="${midiaThumbAlt(m)}" onerror="this.style.display='none'" alt=""><span class="car-play"><i class="fa-solid fa-play"></i></span></button></div>`
+      : `<div class="car-slide" data-i="${i}"><img loading="${i < 2 ? 'eager' : 'lazy'}" src="${midiaImg(m)}" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='${midiaThumbAlt(m, 1600)}'}" alt="${esc(m.nome || '')}"></div>`).join('');
+    return `<div class="carousel ${capa ? 'capa' : ''}" style="--ratio:${ratio}" data-carousel>
+      <div class="car-track">${slides}</div>
+      ${ms.length > 1 ? `<button class="car-nav prev" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button><button class="car-nav next" aria-label="Próximo"><i class="fa-solid fa-chevron-right"></i></button>
+      <div class="car-count num">1/${ms.length}</div><div class="car-dots">${ms.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}
+      ${ms.some(m => m.tipo === 'video') && ms.length === 1 ? '' : ''}
+    </div>`;
+  }
+  function ativarCarrosseis(root = document) {
+    root.querySelectorAll('[data-carousel]:not([data-ok])').forEach(c => {
+      c.dataset.ok = 1;
+      const track = c.querySelector('.car-track');
+      const n = track.children.length;
+      const atual = () => Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
+      const upd = () => {
+        const i = atual();
+        const cnt = c.querySelector('.car-count'); if (cnt) cnt.textContent = (i + 1) + '/' + n;
+        c.querySelectorAll('.car-dots i').forEach((d, k) => d.classList.toggle('on', k === i));
+      };
+      track.addEventListener('scroll', () => requestAnimationFrame(upd), { passive: true });
+      const ir = d => track.scrollTo({ left: (atual() + d) * track.clientWidth, behavior: 'smooth' });
+      const pv = c.querySelector('.prev'), nx = c.querySelector('.next');
+      if (pv) pv.onclick = e => { e.stopPropagation(); ir(-1); };
+      if (nx) nx.onclick = e => { e.stopPropagation(); ir(1); };
+      c.querySelectorAll('[data-video]').forEach(b => b.onclick = e => {
+        e.stopPropagation();
+        const id = b.dataset.video;
+        if (id === 'demo-video') { b.querySelector('.car-play').innerHTML = '<i class="fa-solid fa-circle-info"></i>'; return; }
+        b.outerHTML = `<iframe src="https://drive.google.com/file/d/${id}/preview" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
+      });
+    });
+  }
+  function capaUrl(t) {
+    const m = (t.midias || [])[0];
+    if (!m) return '';
+    return m.tipo === 'video' ? midiaThumbAlt(m, 800) : midiaImg(m, 800);
+  }
+
+  // ---------- agenda externa (Google Agenda / Notion Calendar via iCal) ----------
+  const agenda = {
+    eventos: [],
+    carregada: false,
+    async carregar(force) {
+      const cfg = window.DB ? DB.getValue('config_agenda', null) : null;
+      if (!cfg || !cfg.url) { agenda.eventos = []; agenda.carregada = true; return agenda.eventos; }
+      const chave = 'plasso_agenda_cache';
+      if (!force) {
+        try { const c = JSON.parse(sessionStorage.getItem(chave) || 'null'); if (c && c.url === cfg.url && Date.now() - c.em < 10 * 60e3) { agenda.eventos = c.eventos; agenda.carregada = true; return agenda.eventos; } } catch (e) {}
+      }
+      try {
+        const out = await chamarFuncao('agenda-ics', { url: cfg.url });
+        agenda.eventos = out.eventos || [];
+        try { sessionStorage.setItem(chave, JSON.stringify({ url: cfg.url, em: Date.now(), eventos: agenda.eventos })); } catch (e) {}
+      } catch (e) {
+        if (e.message !== 'LOCAL') console.warn('agenda', e);
+        agenda.erro = e.message === 'LOCAL' ? '' : e.message;
+      }
+      agenda.carregada = true;
+      return agenda.eventos;
+    },
+    configurar(onDone) {
+      const cfg = DB.getValue('config_agenda', null) || {};
+      const s = sheet({
+        title: 'Conectar sua agenda',
+        html: `<p class="small soft">Os eventos da sua agenda do <b>Google</b> aparecem no Calendário, na Home e no Modo Trabalho. O <b>Notion Calendar</b> usa as suas contas do Google, então os eventos dele vêm junto.</p>
+          <ol class="small soft mt-3" style="padding-left:18px;line-height:1.7">
+            <li>No computador, abra <b>calendar.google.com</b> → engrenagem → <b>Configurações</b>.</li>
+            <li>À esquerda, clique na sua agenda (em "Configurações das minhas agendas").</li>
+            <li>Desça até <b>"Endereço secreto no formato iCal"</b> e copie.</li>
+            <li>Cole aqui embaixo. Quer mais de uma agenda? Cole um endereço por linha.</li>
+          </ol>
+          <label class="field mt-3"><span>Endereço(s) iCal</span><textarea class="textarea" id="ag-url" rows="3" placeholder="https://calendar.google.com/calendar/ical/…/basic.ics">${esc((cfg.urls || [cfg.url]).filter(Boolean).join('\n'))}</textarea></label>
+          <p class="tiny muted mt-2"><i class="fa-solid fa-lock"></i> O endereço é secreto: fica salvo só na sua conta. Não compartilhe com ninguém.</p>
+          <p class="tiny muted">A leitura é só de consulta: os eventos que você criar aqui ficam no Plassô; os do Google continuam sendo editados no Google/Notion.</p>`,
+        foot: `${cfg.url ? '<button class="btn btn-danger" id="ag-del">Desconectar</button>' : ''}<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-white" id="ag-ok">Salvar e testar</button>`
+      });
+      s.$('#ag-ok').onclick = async () => {
+        const urls = s.$('#ag-url').value.split(/\s+/).map(x => x.trim()).filter(Boolean);
+        if (!urls.length || !urls.every(u => /^(https|webcal):\/\//i.test(u))) { App.toast('Cole o endereço iCal (começa com https://).', 'warn'); return; }
+        s.$('#ag-ok').disabled = true; s.$('#ag-ok').textContent = 'Testando…';
+        try {
+          let todos = [];
+          for (const u of urls) { const out = await chamarFuncao('agenda-ics', { url: u }); todos = todos.concat(out.eventos || []); }
+          DB.setValue('config_agenda', { url: urls[0], urls });
+          agenda.eventos = todos; try { sessionStorage.removeItem('plasso_agenda_cache'); } catch (e) {}
+          s.close(); App.toast(`Agenda conectada: ${todos.length} eventos encontrados.`, 'ok'); onDone && onDone();
+        } catch (e) {
+          s.$('#ag-ok').disabled = false; s.$('#ag-ok').textContent = 'Salvar e testar';
+          App.toast(e.message === 'LOCAL' ? 'No modo de teste a agenda não é lida.' : 'Não funcionou: ' + e.message, 'err');
+        }
+      };
+      const del = s.$('#ag-del'); if (del) del.onclick = () => { DB.setValue('config_agenda', null); agenda.eventos = []; try { sessionStorage.removeItem('plasso_agenda_cache'); } catch (e) {} s.close(); App.toast('Agenda desconectada.', 'ok'); onDone && onDone(); };
+    }
+  };
+  // várias agendas: carrega todas
+  const carregarUma = agenda.carregar;
+  agenda.carregar = async function (force) {
+    const cfg = window.DB ? DB.getValue('config_agenda', null) : null;
+    if (!cfg || !(cfg.urls || [cfg.url]).filter(Boolean).length) { agenda.eventos = []; agenda.carregada = true; return []; }
+    const urls = (cfg.urls || [cfg.url]).filter(Boolean);
+    const chave = 'plasso_agenda_cache';
+    if (!force) { try { const c = JSON.parse(sessionStorage.getItem(chave) || 'null'); if (c && c.k === urls.join('|') && Date.now() - c.em < 10 * 60e3) { agenda.eventos = c.eventos; agenda.carregada = true; return c.eventos; } } catch (e) {} }
+    let todos = [];
+    for (const u of urls) { try { const out = await chamarFuncao('agenda-ics', { url: u }); todos = todos.concat(out.eventos || []); } catch (e) { if (e.message === 'LOCAL') todos = todos.concat(DB.getValue('demo_agenda', []) || []); else agenda.erro = e.message; } }
+    agenda.eventos = todos; agenda.carregada = true;
+    try { sessionStorage.setItem(chave, JSON.stringify({ k: urls.join('|'), em: Date.now(), eventos: todos })); } catch (e) {}
+    return todos;
   };
 
   // menu da conta (todas as páginas)
@@ -191,12 +346,39 @@
         <a class="item" href="${keepParams('lancar.html')}"><div class="icon accent"><i class="fa-solid fa-plus"></i></div><div class="grow"><div class="title">Lançar gasto rápido</div><div class="sub">Abre o lançamento do financeiro</div></div></a>
         <a class="item" href="${keepParams('criacao.html')}"><div class="icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div class="grow"><div class="title">Agente de criação</div><div class="sub">Conteúdos com IA a partir do briefing</div></div></a>
         <button class="item item-btn" id="m-backup"><div class="icon"><i class="fa-solid fa-download"></i></div><div class="grow"><div class="title">Baixar backup</div><div class="sub">Arquivo com todos os seus dados</div></div></button>
+        ${window.App && App.configured ? `<button class="item item-btn" id="m-senha"><div class="icon accent"><i class="fa-solid fa-key"></i></div><div class="grow"><div class="title">Criar / trocar senha</div><div class="sub">Defina a senha de acesso desta conta</div></div></button>` : ''}
         ${window.App && App.configured ? `<button class="item item-btn" id="m-sair"><div class="icon"><i class="fa-solid fa-right-from-bracket"></i></div><div class="grow"><div class="title">Sair</div><div class="sub">${esc((App.user && App.user.email) || '')}</div></div></button>` : ''}
       </div>`
     });
     s.$('#m-backup').onclick = () => { App.exportBackup(); s.close(); };
     const sair = s.$('#m-sair'); if (sair) sair.onclick = () => App.logout();
+    const senha = s.$('#m-senha'); if (senha) senha.onclick = () => { s.close(); setTimeout(trocarSenha, 220); };
   }
 
-  window.UI = { mount, sheet, menu, formData, esc, keepParams, TABS, hoje, agoraHM, brl, brlParts, dataBR, diaMes, dias, addDias, mesNome, diaSemana, quando, saudacao, iniciais, STATUS, FORMATOS, T };
+  // criar / trocar a senha estando logado (não precisa de e-mail)
+  function trocarSenha() {
+    const s = sheet({
+      title: 'Criar / trocar senha',
+      html: `<p class="small soft">Conta: <b>${esc((App.user && App.user.email) || '')}</b></p>
+        <form id="f-ns" class="stack mt-3" autocomplete="on">
+          <input type="email" name="username" autocomplete="username" value="${esc((App.user && App.user.email) || '')}" hidden>
+          <label class="field"><span>Nova senha (mínimo 8 caracteres)</span><input class="input" type="password" id="ns1" autocomplete="new-password" minlength="8" required></label>
+          <label class="field"><span>Repita a nova senha</span><input class="input" type="password" id="ns2" autocomplete="new-password" minlength="8" required></label>
+          <p class="tiny muted">Quando o navegador perguntar "Salvar senha?", toque em Salvar.</p>
+        </form>`,
+      foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-white" id="ns-ok">Salvar senha</button>'
+    });
+    s.$('#ns-ok').onclick = async () => {
+      const a = s.$('#ns1').value, b = s.$('#ns2').value;
+      if (a.length < 8) { App.toast('A senha precisa ter pelo menos 8 caracteres.', 'warn'); return; }
+      if (a !== b) { App.toast('As senhas não conferem.', 'warn'); return; }
+      s.$('#ns-ok').disabled = true;
+      const { error } = await App.supabase.auth.updateUser({ password: a });
+      s.$('#ns-ok').disabled = false;
+      if (error) { App.toast(/different/i.test(error.message) ? 'Essa já é a sua senha atual.' : 'Não foi possível salvar: ' + error.message, 'err'); return; }
+      s.close(); App.toast('Senha salva! Use seu e-mail e essa senha para entrar.', 'ok');
+    };
+  }
+
+  window.UI = { mount, sheet, menu, trocarSenha, chamarFuncao, driveBuscar, carrossel, ativarCarrosseis, capaUrl, midiaImg, agenda, formData, esc, keepParams, TABS, hoje, agoraHM, brl, brlParts, dataBR, diaMes, dias, addDias, mesNome, diaSemana, quando, saudacao, iniciais, STATUS, FORMATOS, T };
 })();

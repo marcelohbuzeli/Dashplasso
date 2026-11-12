@@ -11,23 +11,27 @@ window.PLASSO_DEMO = function () {
   ];
   const tasks = [
     { id: 't1', client: 'Clínica Bella', headline: '3 sinais de que sua pele precisa de cuidado', type: 'Reels', date: d(1), status: 'afazer', roteiro: 'Gancho: se você acorda assim…', legenda: 'Sua pele fala com você.' },
-    { id: 't2', client: 'Clínica Bella', headline: 'Mitos sobre botox', type: 'Carrossel', date: d(3), status: 'pronto', manuallyMovedToPronto: true },
+    { id: 't2', client: 'Clínica Bella', headline: 'Mitos sobre botox', type: 'Carrossel', date: d(3), status: 'pronto', manuallyMovedToPronto: true, drive: 'https://drive.google.com/drive/folders/demo', midias: [{ id: '16olTbbGOLaJUwua2c_QZhGn1o5U6Fp0F', nome: 'lamina-01.png', tipo: 'imagem' }, { id: '1w0sHfBZy_Pn2SQgZ7ffxloskECKUqv6_', nome: 'lamina-02.png', tipo: 'imagem' }, { id: '1VzvwCtGGYaDnrU_thq1R-H3iMlB80NZz', nome: 'lamina-03.png', tipo: 'imagem' }], legenda: 'Separamos os 3 mitos mais comuns sobre o botox 👇' },
     { id: 't3', client: 'Studio Lumi', headline: 'Bastidores de um casamento na praia', type: 'Reels', date: d(5), status: 'afazer' },
-    { id: 't4', client: 'Studio Lumi', headline: 'Checklist da noiva', type: 'Carrossel', date: d(-1), status: 'urgent', isRejected: true, notes: 'Reprovado pelo cliente: trocar a capa' },
+    { id: 't4', client: 'Studio Lumi', headline: 'Checklist da noiva', type: 'Carrossel', date: d(-1), status: 'urgent', isRejected: true, notes: 'Reprovado pelo cliente: trocar a capa', drive: 'https://drive.google.com/drive/folders/demo2', midias: [{ id: '16olTbbGOLaJUwua2c_QZhGn1o5U6Fp0F', nome: 'lamina-01.png', tipo: 'imagem' }, { id: '1w0sHfBZy_Pn2SQgZ7ffxloskECKUqv6_', nome: 'lamina-02.png', tipo: 'imagem' }, { id: '1VzvwCtGGYaDnrU_thq1R-H3iMlB80NZz', nome: 'lamina-03.png', tipo: 'imagem' }] },
     { id: 't5', client: 'Restaurante Sabor', headline: 'Prato da semana', type: 'Foto Única', date: d(8), status: 'afazer' },
-    { id: 't6', client: 'Clínica Bella', headline: 'Depoimento da Dra. Carla', type: 'Reels', date: d(-4), status: 'aprovadas' },
+    { id: 't6', client: 'Clínica Bella', headline: 'Depoimento da Dra. Carla', type: 'Reels', date: d(-4), status: 'aprovadas', midias: [{ id: 'demo-video', nome: 'depoimento.mp4', tipo: 'video' }] },
+    { id: 't10', client: 'Clínica Bella', headline: 'Antes de fazer harmonização, saiba isso', type: 'Reels', date: d(6), status: 'pronto', manuallyMovedToPronto: true, midias: [{ id: 'demo-video', nome: 'reels.mp4', tipo: 'video' }] },
     { id: 't7', client: 'Studio Lumi', headline: 'Como escolher o fotógrafo', type: 'Story', date: d(12), status: 'afazer' },
     { id: 't8', client: 'Padaria Grão', headline: '[15h] Reunião Padaria Grão', type: 'Reels', date: d(0), status: 'afazer', notes: 'crm_meeting', kind: 'reuniao', time: '15:00', caption: 'Reunião agendada às 15:00' },
     { id: 't9', client: 'Academia Força', headline: 'Follow Up: Follow (Academia Força)', type: 'Story', date: d(0), status: 'afazer', notes: 'crm_follow', kind: 'follow', time: '09:00' }
   ];
   const events = [{ id: 'ev1', date: d(2), title: 'Gravação Clínica Bella', time: '10:00' }];
+  const parts = [{ key: 'p1', kind: 'texto', label: 'Mensagem 1 · Abertura', when: 'Primeiro contato.', text: 'Oi, tudo bem? Aqui é o Marcelo, sou de Umuarama e trabalho com conteúdo para clínicas daqui. Vi no Instagram que vocês fazem ultrassom 8D, um baita diferencial. Hoje o Instagram traz paciente pra vocês?' }, { key: 'p2', kind: 'texto', label: 'Mensagem 2 · Qualificação', when: 'Quando o lead responder a mensagem 1.', text: 'Obrigado por responder! E hoje quem cuida do conteúdo de vocês?' }, { key: 'p3', kind: 'audio', label: 'Mensagem 3 · Contexto + convite', when: 'Você grava.', text: 'Entendo perfeitamente…' }];
   const crm = [
+    { id: 'pb_L000', name: 'Clínica Fontaine', categoria: 'Médico', bairro: 'Zona I-A', col: 'analisado', tier: 'A', score: 88, warm: true, rating: 4.9, reviews: 212, telefone: '(44) 99999-1111', mobile: true, instagram: 'https://www.instagram.com/fontaine/', insta: '@fontaine', product: 'Vídeos 8 + Design 02 · R$ 2.200/mês', valor: 2200, productWhy: 'Muito post de data comemorativa e pouco vídeo do diferencial (8D).', signals: [{ text: 'Te segue no Instagram', kind: 'good' }, { text: 'Pouco vídeo', kind: 'gap' }], reasons: ['Instagram: @fontaine, 3.200 seguidores, 410 posts', 'Feed só com artes e datas comemorativas'], parts, analisadoEm: new Date().toISOString(), historyArray: ['Importado do CRM de Prospecção'] },
+    { id: 'pb_L001', name: 'Studio Pilates Viva', categoria: 'Academia', bairro: 'Centro', col: 'novo', tier: 'A', score: 81, warm: true, rating: 4.8, reviews: 96, telefone: '(44) 99888-2222', mobile: true, product: 'Vídeos 4 · R$ 800/mês', valor: 800, historyArray: [] },
+    { id: 'pb_L002', name: 'Ótica Visão', categoria: 'Ótica', bairro: 'Zona II', col: 'novo', tier: 'B', score: 64, rating: 4.5, reviews: 40, telefone: '(44) 3622-0000', mobile: false, historyArray: [] },
+    { id: 'pb_L003', name: 'Advocacia Ramos', categoria: 'Advogado', bairro: 'Centro', col: 'aprovado', tier: 'B', score: 70, rating: 5, reviews: 18, telefone: '(44) 99777-3333', mobile: true, product: 'Design 01 · R$ 400/mês', valor: 400, parts, analisadoEm: new Date(Date.now() - 864e5).toISOString(), historyArray: [] },
     { id: 'l1', name: 'Padaria Grão', insta: '@padariagrao', col: 'reuniao', valor: 1500, telefone: '11977776666', historyArray: ['Lead criado', 'Reunião marcada'] },
     { id: 'l2', name: 'Academia Força', insta: '@academiaforca', col: 'follow', valor: 2200, historyArray: ['Lead criado'] },
-    { id: 'l3', name: 'Pet Shop Amigo', insta: '@petamigo', col: 'novolead', valor: 900, historyArray: ['Lead criado'] },
-    { id: 'l4', name: 'Ótica Visão', insta: '@oticavisao', col: 'relacionamento', valor: 1300, historyArray: ['Lead criado'] },
     { id: 'l5', name: 'Doceria Mel', insta: '@doceriamel', col: 'aguardando', valor: 1100, historyArray: ['Proposta enviada'] },
-    { id: 'l6', name: 'Barbearia Corte', insta: '@barbeariacorte', col: 'novolead', historyArray: ['Lead criado'] }
+    { id: 'pb_L004', name: 'Clínica Sorriso', categoria: 'Dentista', bairro: 'Zona III', col: 'analisado', tier: 'C', score: 48, rating: 4.2, reviews: 12, analisadoEm: new Date().toISOString(), historyArray: [] }
   ];
   const fin = [];
   const add = o => fin.push({ conta: 'Empresa', status: 'pago', ...o, id: 'f' + fin.length });
@@ -58,6 +62,8 @@ window.PLASSO_DEMO = function () {
   DB.putMany('tasks', tasks);
   DB.putMany('events', events);
   DB.putMany('crm', crm);
+  DB.setValue('config_agenda', { url: 'demo' });
+  DB.setValue('demo_agenda', [{ id: 'g1', titulo: 'Dentista', data: d(0), hora: '17:30', horaFim: '18:00', diaTodo: false, local: 'Centro' }, { id: 'g2', titulo: 'Culto', data: d(3), hora: '19:30', horaFim: '21:00', diaTodo: false, local: '' }, { id: 'g3', titulo: 'Aniversário da mãe', data: d(5), hora: '', diaTodo: true, local: '' }]);
   DB.putMany('fin_lancamentos', fin);
   DB.setValue('fin_migrado', true);
   Store.setItem('plasso_monthly_goals', JSON.stringify(goals));
