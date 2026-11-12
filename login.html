@@ -30,8 +30,7 @@
       <label class="block text-xs text-slate-400">E-mail<input id="email" type="email" autocomplete="username" required class="fi"></label>
       <label class="block text-xs text-slate-400">Senha<input id="pass" type="password" autocomplete="current-password" class="fi"></label>
       <button id="btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl py-2.5 text-sm transition">Entrar</button>
-      <div class="flex justify-between text-[11px]">
-        <button type="button" id="btn-link" class="text-blue-400 hover:underline">Entrar com link no e-mail</button>
+      <div class="flex justify-end text-[11px]">
         <button type="button" id="btn-reset" class="text-slate-400 hover:underline">Esqueci a senha</button>
       </div>
     </form>
@@ -58,6 +57,19 @@
     const safeNext = /^[a-z0-9_-]+\.html(\?.*)?$/i.test(next) ? next : 'index.html';
     const here = location.href.split('#')[0].split('?')[0];
     const linkType = (location.hash.match(/type=([a-z_]+)/) || [])[1];
+    let linkErro = null;
+    if (/error_description=|error_code=/.test(location.hash)) {
+      linkErro = (location.hash.match(/error_code=([a-z_]+)/) || [])[1] || 'erro';
+      history.replaceState(null, '', location.pathname + location.search); // não deixa o link inválido derrubar a sessão
+    }
+    const traduz = err => {
+      const c = (err && (err.code || err.error_code)) || '';
+      const m = (err && err.message) || '';
+      if (c === 'over_email_send_rate_limit' || /rate limit/i.test(m)) return 'Limite de e-mails atingido (o plano grátis envia só 2 por hora). Entre com seu e-mail e senha, ou tente de novo daqui a 1 hora.';
+      if (c === 'invalid_credentials' || /Invalid login/i.test(m)) return 'E-mail ou senha incorretos.';
+      if (/after \d+ seconds/i.test(m)) return 'Aguarde 1 minuto antes de pedir outro e-mail.';
+      return m || 'Algo deu errado. Tente novamente.';
+    };
 
     if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
       show('Banco ainda não configurado (assets/config.js). O sistema funciona em modo local.', false);
@@ -77,8 +89,9 @@
       });
 
       sb.auth.getSession().then(({ data }) => {
+        if (linkErro && data.session) { location.replace(safeNext); return; }
         if (!data.session) {
-          if (location.hash.includes('error_description')) show(decodeURIComponent((location.hash.match(/error_description=([^&]+)/) || [])[1] || 'Link inválido').replace(/\+/g, ' ') + '. Peça um novo link.', false);
+          if (linkErro) show('Este link do e-mail já foi usado ou expirou (cada link funciona uma vez só). Entre com seu e-mail e a senha que você criou.', false);
           return;
         }
         if (linkType === 'invite' || linkType === 'recovery') pedirSenha(data.session.user.email);
@@ -87,32 +100,27 @@
 
       $('f-login').addEventListener('submit', async e => {
         e.preventDefault();
-        if (!$('pass').value) { show('Digite a senha, ou use "Entrar com link no e-mail".', false); return; }
+        if (!$('pass').value) { show('Digite sua senha.', false); return; }
         $('btn').disabled = true; $('btn').textContent = 'Entrando…';
         const { error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('pass').value });
-        if (error) { show('E-mail ou senha incorretos.', false); $('btn').disabled = false; $('btn').textContent = 'Entrar'; return; }
+        if (error) { show(traduz(error), false); $('btn').disabled = false; $('btn').textContent = 'Entrar'; return; }
         location.replace(safeNext);
       });
 
-      $('btn-link').onclick = async () => {
-        const email = $('email').value.trim();
-        if (!email) { show('Digite seu e-mail primeiro.', false); return; }
-        const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: here + '?next=' + encodeURIComponent(safeNext) } });
-        show(error ? 'Não foi possível enviar: ' + error.message : 'Link enviado! Abra seu e-mail neste aparelho.', !error);
-      };
 
       $('btn-reset').onclick = async () => {
         const email = $('email').value.trim();
         if (!email) { show('Digite seu e-mail primeiro.', false); return; }
+        if (!confirm('Enviar um e-mail para criar uma nova senha?\n\nO plano grátis envia só 2 e-mails por hora — use apenas se esqueceu a senha. Abra o link UMA vez só.')) return;
         const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: here });
-        show(error ? 'Não foi possível enviar: ' + error.message : 'Enviamos um link para criar uma nova senha.', !error);
+        show(error ? traduz(error) : 'Enviamos um link para criar uma nova senha. Abra o e-mail e clique no link uma vez só.', !error);
       };
 
       $('f-senha').addEventListener('submit', async e => {
         e.preventDefault();
         if ($('nova').value !== $('nova2').value) { show('As senhas não conferem.', false); return; }
         const { error } = await sb.auth.updateUser({ password: $('nova').value });
-        if (error) { show('Erro: ' + error.message, false); return; }
+        if (error) { show(/should be different/i.test(error.message) ? 'Essa já é a sua senha atual. Pode entrar com ela.' : traduz(error), false); return; }
         history.replaceState(null, '', here);
         show('Senha criada!', true);
         setTimeout(() => location.replace(safeNext), 600);
