@@ -17,7 +17,11 @@
 
   const SUPABASE_CDN = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.min.js';
   const cfg = window.PLASSO_CONFIG || {};
-  const configured = !!(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY);
+  // em localhost, ?local=1 força o modo local (testes) e ?demo=1 carrega dados de exemplo
+  const isDevHost = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  const qs = new URLSearchParams(location.search);
+  const forceLocal = isDevHost && qs.has('local');
+  const configured = !forceLocal && !!(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY);
   const me = document.currentScript;
   const MODE = (me && me.dataset.mode) || 'app';
 
@@ -52,12 +56,12 @@
     const d = document.createElement('div');
     d.id = 'plasso-ui';
     d.innerHTML = `
-      <div id="plasso-loading" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#030712;color:#94a3b8;font:500 13px 'Plus Jakarta Sans',system-ui,sans-serif;gap:10px">
-        <span style="width:14px;height:14px;border:2px solid #1f2937;border-top-color:#3b82f6;border-radius:50%;animation:plassospin .8s linear infinite"></span>
+      <div id="plasso-loading" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg0,#0b0b0d);color:rgba(255,255,255,.6);font:500 14px var(--font,system-ui,sans-serif);gap:12px;padding:24px;text-align:center">
+        <span style="width:16px;height:16px;flex-shrink:0;border:2px solid rgba(255,255,255,.15);border-top-color:var(--accent,#fff);border-radius:50%;animation:plassospin .8s linear infinite"></span>
         <span id="plasso-loading-text">Carregando dados…</span>
       </div>
-      <div id="plasso-save" style="position:fixed;right:14px;bottom:14px;z-index:9998;font:500 11px ui-monospace,monospace;padding:6px 10px;border-radius:999px;background:#0b0f19;border:1px solid #1f2937;color:#64748b;opacity:0;transition:opacity .3s;pointer-events:none"></div>
-      <div id="plasso-toasts" style="position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:10000;display:flex;flex-direction:column;gap:8px;align-items:center"></div>
+      <div id="plasso-save" style="position:fixed;right:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:9998;font:500 11px var(--font,system-ui);padding:5px 10px;border-radius:999px;background:rgba(16,16,20,.85);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);opacity:0;transition:opacity .3s;pointer-events:none"></div>
+      <div id="plasso-toasts" style="position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:10000;display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:calc(100vw - 24px)"></div>
       <style>@keyframes plassospin{to{transform:rotate(360deg)}}</style>`;
     document.body.appendChild(d);
   }
@@ -65,15 +69,16 @@
   function setLoadingText(t) { const l = document.getElementById('plasso-loading-text'); if (l) l.textContent = t; }
   function saveBadge(state) {
     const b = document.getElementById('plasso-save'); if (!b) return;
-    if (state === 'saving') { b.textContent = '● salvando…'; b.style.color = '#f59e0b'; b.style.opacity = 1; }
-    else if (state === 'saved') { b.textContent = '✓ salvo'; b.style.color = '#10b981'; b.style.opacity = 1; setTimeout(() => { if (!pending) b.style.opacity = 0; }, 1500); }
-    else if (state === 'local') { b.textContent = 'modo local (sem banco)'; b.style.color = '#f59e0b'; b.style.opacity = 1; }
+    if (state === 'saving') { b.textContent = '● salvando…'; b.style.color = '#ffb547'; b.style.opacity = 1; }
+    else if (state === 'saved') { b.textContent = '✓ salvo'; b.style.color = '#3ee6a0'; b.style.opacity = 1; setTimeout(() => { if (!pending) b.style.opacity = 0; }, 1500); }
+    else if (state === 'local') { b.textContent = 'modo local'; b.style.color = '#ffb547'; b.style.opacity = isDevHost ? 0 : 1; }
   }
   function toast(msg, type = 'info') {
     const box = document.getElementById('plasso-toasts'); if (!box) { alert(msg); return; }
-    const colors = { info: '#3b82f6', ok: '#10b981', err: '#ef4444', warn: '#f59e0b' };
+    const colors = { info: 'rgba(255,255,255,.25)', ok: '#3ee6a0', err: '#ff5a6e', warn: '#ffb547' };
     const t = document.createElement('div');
-    t.style.cssText = `background:#0b0f19;border:1px solid ${colors[type] || colors.info};color:#e2e8f0;padding:10px 16px;border-radius:12px;font:500 13px 'Plus Jakarta Sans',system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:90vw`;
+    t.setAttribute('role', 'status');
+    t.style.cssText = `background:rgba(16,16,20,.96);border:1px solid ${colors[type] || colors.info};color:#fff;padding:12px 18px;border-radius:18px;font:500 14px var(--font,system-ui,sans-serif);box-shadow:0 16px 40px -10px rgba(0,0,0,.7);max-width:calc(100vw - 24px);text-align:center;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)`;
     t.textContent = msg;
     box.appendChild(t);
     setTimeout(() => t.remove(), type === 'err' ? 7000 : 3500);
@@ -118,7 +123,18 @@
     snap[col] = next;
     if (!upserts.length && !deletes.length) return;
 
-    if (!configured) { localStorage.setItem('plasso_' + col, val && val.__scalar !== undefined ? String(val.__scalar) : JSON.stringify(val)); return; }
+    if (!configured) {
+      if (MODE === 'portal') {
+        // teste local do portal: mescla só as tarefas alteradas
+        if (col !== 'tasks') return;
+        let all = []; try { all = JSON.parse(localStorage.getItem('plasso_tasks') || '[]'); } catch (e) {}
+        upserts.forEach(u => { const i = all.findIndex(t => String(t.id) === u.id); if (i >= 0) all[i] = { ...all[i], ...u.data }; });
+        localStorage.setItem('plasso_tasks', JSON.stringify(all));
+        return;
+      }
+      localStorage.setItem('plasso_' + col, val && val.__scalar !== undefined ? String(val.__scalar) : JSON.stringify(val));
+      return;
+    }
 
     if (MODE === 'portal') {
       // no portal só alteramos tarefas existentes, campo a campo
@@ -297,8 +313,20 @@
     ui();
     try {
       if (!configured) {
-        if (MODE === 'portal') { setLoadingText('Portal indisponível: banco de dados não configurado.'); return; }
         loadLocal();
+        if (isDevHost && qs.has('demo') && !DB.list('tasks').length && !DB.list('clients').length) {
+          await loadScript('assets/demo.js');
+          window.PLASSO_DEMO && window.PLASSO_DEMO();
+        }
+        if (MODE === 'portal') {
+          // só em testes locais: simula o portal a partir dos dados locais
+          const tk = qs.get('t');
+          const c = DB.list('clients').find(x => x.portalToken && x.portalToken === tk);
+          if (!c) { setLoadingText('Link inválido ou expirado. Peça um novo link à agência.'); return; }
+          const tasks = DB.list('tasks').filter(t => (t.client || '').toLowerCase() === c.name.toLowerCase() && !String(t.notes || '').startsWith('crm_'));
+          Object.keys(cache).forEach(k => delete cache[k]);
+          cache.clients = [c]; cache.tasks = tasks; primeSnapshot('clients'); primeSnapshot('tasks');
+        }
         saveBadge('local');
       } else {
         if (!window.supabase) await loadScript(SUPABASE_CDN);

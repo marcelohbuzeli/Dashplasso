@@ -116,62 +116,51 @@
 
   // ---------- modal de conversão ----------
   function abrirConversao(lead, onDone) {
-    document.getElementById('conv-modal')?.remove();
     const produtos = [...new Set(DB.list('clients').map(c => c.produto).filter(Boolean))];
     const hoje = todayISO();
-    const wrap = document.createElement('div');
-    wrap.id = 'conv-modal';
-    wrap.className = 'fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4';
-    const inp = 'mt-1 w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-blue-500';
-    wrap.innerHTML = `
-      <form class="bg-dark-900 border border-dark-800 rounded-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto p-6 space-y-5 shadow-2xl">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="text-white font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-handshake text-emerald-400"></i> Novo cliente</h3>
-            <p class="text-xs text-slate-400 mt-1">Ao salvar: o cliente é criado na Gestão e os recebimentos entram no Financeiro como <b>a conferir</b>.</p>
-          </div>
-          <button type="button" data-x class="text-slate-400 hover:text-white p-2"><i class="fa-solid fa-xmark"></i></button>
-        </div>
+    const L = lead || {};
+    const sh = UI.sheet({
+      title: lead ? 'Fechou contrato 🎉' : 'Novo cliente',
+      wide: true,
+      html: `
+        <p class="small soft" style="margin-top:-4px">Ao confirmar, o cliente é criado na <b>Empresa</b> e os recebimentos entram no <b>Financeiro</b> como "a conferir", um por mês de contrato.</p>
         <datalist id="conv-produtos">${produtos.map(p => `<option value="${esc(p)}">`).join('')}</datalist>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-400">
-          <label class="md:col-span-2">Nome do cliente / empresa<input name="name" required value="${esc(lead ? lead.name : '')}" class="${inp}"></label>
-          <label>Produto<input name="produto" list="conv-produtos" required placeholder="Ex.: Gestão de Redes — Plano Pro" class="${inp}"></label>
-          <label>Conteúdos por mês<input name="quantidadeMes" type="number" min="0" placeholder="Ex.: 12" class="${inp}"></label>
-          <label>Valor mensal (R$)<input name="fee" type="number" step="0.01" min="0" required class="${inp}"></label>
-          <label>Tempo de contrato (meses)<input name="contratoMeses" type="number" min="1" value="6" required class="${inp}"></label>
-          <label>Data de entrada<input name="inicio" type="date" value="${hoje}" required class="${inp}"></label>
-          <label>1º vencimento<input name="primeiroVencimento" type="date" value="${hoje}" required class="${inp}"></label>
-          <label>WhatsApp<input name="whatsapp" placeholder="(11) 99999-9999" class="${inp}"></label>
-          <label>Instagram<input name="instagram" value="${esc(lead ? lead.insta || '' : '')}" class="${inp}"></label>
-          <label>E-mail<input name="email" type="email" class="${inp}"></label>
-          <label>CPF / CNPJ<input name="documento" class="${inp}"></label>
-          <label class="md:col-span-2">Objetivo principal<input name="objetivo" placeholder="Ex.: gerar agendamentos para harmonização facial" class="${inp}"></label>
-          <label class="md:col-span-2">Briefing (o agente de criação usa este texto)<textarea name="briefing" rows="5" placeholder="Público, tom de voz, diferenciais, temas, o que evitar, referências…" class="${inp}"></textarea></label>
+        <div class="form-grid mt-3">
+          <label class="field full"><span>Nome do cliente / empresa</span><input class="input" name="name" required value="${esc(L.name || '')}"></label>
+          <label class="field full"><span>Produto</span><input class="input" name="produto" list="conv-produtos" placeholder="Ex.: Gestão de Redes — Pro" autocomplete="off"></label>
+          <label class="field"><span>Valor mensal (R$)</span><input class="input" type="number" step="0.01" min="0" inputmode="decimal" name="fee" value="${esc(L.valor || '')}"></label>
+          <label class="field"><span>Conteúdos por mês</span><input class="input" type="number" min="0" name="quantidadeMes" placeholder="Ex.: 12"></label>
+          <label class="field"><span>Tempo de contrato (meses)</span><input class="input" type="number" min="1" name="contratoMeses" value="6"></label>
+          <label class="field"><span>Data de entrada</span><input class="input" type="date" name="inicio" value="${hoje}"></label>
+          <label class="field"><span>1º vencimento</span><input class="input" type="date" name="primeiroVencimento" value="${hoje}"></label>
+          <label class="field"><span>WhatsApp</span><input class="input" inputmode="tel" name="whatsapp" value="${esc(L.telefone || '')}" placeholder="(11) 99999-9999"></label>
+          <label class="field"><span>Instagram</span><input class="input" name="instagram" value="${esc(L.insta || '')}"></label>
+          <label class="field"><span>E-mail</span><input class="input" type="email" name="email" value="${esc(L.email || '')}"></label>
+          <label class="field full"><span>CPF / CNPJ</span><input class="input" name="documento"></label>
+          <label class="field full"><span>Objetivo principal</span><input class="input" name="objetivo" placeholder="Ex.: gerar agendamentos"></label>
+          <label class="field full"><span>Briefing (o agente de criação usa este texto)</span><textarea class="textarea" name="briefing" rows="4" placeholder="Público, tom de voz, diferenciais, temas, o que evitar…">${esc(L.notas || '')}</textarea></label>
         </div>
-        <div id="conv-preview" class="text-xs font-mono text-slate-400 bg-dark-950 border border-dark-800 rounded-xl p-3"></div>
-        <div class="flex justify-end gap-3">
-          <button type="button" data-x class="px-4 py-2 rounded-xl text-slate-300 hover:bg-dark-800 text-sm">Cancelar</button>
-          <button class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl text-sm font-semibold">Confirmar cliente</button>
-        </div>
-      </form>`;
-    document.body.appendChild(wrap);
-    const f = wrap.querySelector('form');
-    const prev = () => {
-      const v = Number(f.fee.value) || 0, m = Number(f.contratoMeses.value) || 0, d = f.primeiroVencimento.value;
-      f.querySelector('#conv-preview') && (wrap.querySelector('#conv-preview').innerHTML = d && m
-        ? `Financeiro: ${m}× R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} de ${d.split('-').reverse().join('/')} até ${addMonths(d, m - 1).split('-').reverse().join('/')} · total R$ ${(v * m).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-        : 'Preencha valor, contrato e vencimento.');
-    };
-    f.addEventListener('input', prev); prev();
-    wrap.querySelectorAll('[data-x]').forEach(b => b.onclick = () => wrap.remove());
-    f.addEventListener('submit', e => {
-      e.preventDefault();
-      const dados = Object.fromEntries(new FormData(f).entries());
-      const r = converterLead(lead, dados);
-      wrap.remove();
-      App.toast(`${r.client.name} virou cliente · ${r.recebimentos.length} recebimentos lançados no Financeiro`, 'ok');
-      onDone && onDone(r);
+        <div class="card card-tight mt-3 small" data-prev></div>`,
+      foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-white" data-ok>Confirmar cliente</button>'
     });
+    const prev = () => {
+      const f = UI.formData(sh.el);
+      const v = Number(f.fee) || 0, m = Number(f.contratoMeses) || 0, d = f.primeiroVencimento;
+      sh.$('[data-prev]').innerHTML = d && m && v
+        ? `<i class="fa-solid fa-wallet"></i> Financeiro: <b>${m}× ${UI.brl(v)}</b> de ${UI.dataBR(d)} até ${UI.dataBR(addMonths(d, m - 1))} · total ${UI.brl(v * m)}`
+        : '<span class="muted">Preencha valor, tempo de contrato e 1º vencimento para gerar os recebimentos.</span>';
+    };
+    sh.el.addEventListener('input', prev); prev();
+    sh.$('[data-ok]').onclick = () => {
+      const dados = UI.formData(sh.el);
+      if (!dados.name.trim()) { App.toast('Informe o nome do cliente.', 'warn'); return; }
+      if (!(Number(dados.fee) > 0) || !dados.primeiroVencimento || !(Number(dados.contratoMeses) > 0)) { App.toast('Preencha valor, 1º vencimento e tempo de contrato.', 'warn'); return; }
+      dados.name = dados.name.trim();
+      const r = converterLead(lead, dados);
+      sh.close();
+      App.toast(`${r.client.name} virou cliente · ${r.recebimentos.length} recebimentos no Financeiro`, 'ok');
+      onDone && onDone(r);
+    };
   }
 
   function whatsappLink(client, texto) {
