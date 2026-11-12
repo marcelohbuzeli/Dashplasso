@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lançar">
+<meta name="theme-color" content="#030712">
+<title>Plassô | Lançar</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>tailwind.config = { theme: { extend: { colors: { dark: { 950: '#030712', 900: '#0b0f19', 850: '#111827', 800: '#1f2937' } } } } }</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+  body { font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: env(safe-area-inset-bottom); }
+  .chip.on { background: #2563eb; border-color: #2563eb; color: #fff; }
+  .seg button.on { background: #1f2937; color: #fff; }
+  input, select { font-size: 16px !important; } /* evita zoom no iOS */
+</style>
+</head>
+<body class="bg-dark-950 text-slate-200 antialiased min-h-screen">
+<main class="max-w-md mx-auto px-4 pt-6 pb-10 space-y-5">
+  <div class="flex items-center justify-between">
+    <div>
+      <p class="text-[10px] font-mono tracking-widest text-blue-400">PLASSÔ · FINANCEIRO</p>
+      <h1 class="text-xl font-bold text-white">Novo lançamento</h1>
+    </div>
+    <a href="finance.html" class="text-slate-400 text-sm" aria-label="Abrir financeiro"><i class="fa-solid fa-chart-column"></i></a>
+  </div>
+
+  <form id="f" class="space-y-5">
+    <div class="seg grid grid-cols-2 bg-dark-900 border border-dark-800 rounded-2xl p-1 text-sm" id="tipo">
+      <button type="button" data-v="saida" class="on py-2.5 rounded-xl text-slate-400">Saída</button>
+      <button type="button" data-v="entrada" class="py-2.5 rounded-xl text-slate-400">Entrada</button>
+    </div>
+
+    <label class="block">
+      <span class="text-xs text-slate-400">Empresa</span>
+      <input id="empresa" required autocomplete="off" class="mt-1 w-full bg-dark-900 border border-dark-800 rounded-2xl px-4 py-3.5 text-white outline-none focus:border-blue-500">
+    </label>
+
+    <label class="block">
+      <span class="text-xs text-slate-400">Valor</span>
+      <div class="mt-1 flex items-center bg-dark-900 border border-dark-800 rounded-2xl px-4 focus-within:border-blue-500">
+        <span class="text-slate-500 font-mono">R$</span>
+        <input id="valor" required inputmode="decimal" placeholder="0,00" class="flex-1 bg-transparent px-2 py-3.5 text-white text-2xl font-bold font-mono outline-none">
+      </div>
+    </label>
+
+    <div>
+      <span class="text-xs text-slate-400">Categoria</span>
+      <div id="chips" class="mt-2 flex flex-wrap gap-2"></div>
+      <input id="categoria" placeholder="ou digite outra…" list="dl" class="mt-2 w-full bg-dark-900 border border-dark-800 rounded-2xl px-4 py-3 text-white outline-none focus:border-blue-500">
+      <datalist id="dl"></datalist>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <label class="block"><span class="text-xs text-slate-400">Data</span>
+        <input id="data" type="date" class="mt-1 w-full bg-dark-900 border border-dark-800 rounded-2xl px-3 py-3 text-white outline-none"></label>
+      <label class="block"><span class="text-xs text-slate-400">Conta</span>
+        <select id="conta" class="mt-1 w-full bg-dark-900 border border-dark-800 rounded-2xl px-3 py-3 text-white outline-none"><option>Pessoal</option><option>Empresa</option></select></label>
+    </div>
+
+    <details class="bg-dark-900 border border-dark-800 rounded-2xl px-4 py-3">
+      <summary class="text-sm text-slate-300 cursor-pointer">Parcelado / mais opções</summary>
+      <div class="grid grid-cols-2 gap-3 mt-3">
+        <label class="block"><span class="text-xs text-slate-400">Parcelas</span>
+          <input id="parcelas" type="number" min="1" max="72" value="1" class="mt-1 w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2.5 text-white outline-none"></label>
+        <label class="block"><span class="text-xs text-slate-400">Valor digitado é</span>
+          <select id="valorModo" class="mt-1 w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2.5 text-white outline-none"><option value="total">Total</option><option value="parcela">Cada parcela</option></select></label>
+        <label class="block col-span-2"><span class="text-xs text-slate-400">Cartão / forma</span>
+          <input id="forma" class="mt-1 w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2.5 text-white outline-none"></label>
+      </div>
+    </details>
+
+    <button id="save" class="w-full bg-blue-600 active:bg-blue-700 text-white font-bold rounded-2xl py-4 text-base">Lançar</button>
+  </form>
+
+  <div id="done" class="hidden text-center space-y-4 pt-10">
+    <div class="w-16 h-16 mx-auto rounded-full bg-emerald-600 flex items-center justify-center text-2xl text-white"><i class="fa-solid fa-check"></i></div>
+    <p class="text-white font-bold text-lg">Lançado!</p>
+    <p id="done-text" class="text-sm text-slate-400"></p>
+    <div class="flex gap-3 justify-center">
+      <button onclick="undo()" class="px-4 py-2.5 rounded-xl bg-dark-900 border border-dark-800 text-sm text-slate-300">Desfazer</button>
+      <button onclick="location.href='lancar.html'" class="px-4 py-2.5 rounded-xl bg-blue-600 text-sm text-white font-semibold">Novo</button>
+    </div>
+    <p class="text-[11px] text-slate-600">Pode fechar esta aba.</p>
+  </div>
+</main>
+
+<script src="assets/config.js?v=3"></script>
+<script src="assets/core.js?v=3" data-mode="app"></script>
+<script src="assets/financas.js?v=3"></script>
+<script type="text/plain" data-app>
+  const F = Financas;
+  const q = new URLSearchParams(location.search);
+  let tipo = q.get('tipo') === 'entrada' ? 'entrada' : 'saida';
+  let ultimos = [];
+
+  // "R$ 1.234,56", "1234.56", "12,3" -> número
+  function parseValor(s) {
+    s = String(s || '').replace(/[^\d,.-]/g, '');
+    if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+    const n = parseFloat(s); return isNaN(n) ? '' : n;
+  }
+  const fmt = n => n === '' ? '' : Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  const $ = id => document.getElementById(id);
+  $('empresa').value = q.get('empresa') || q.get('estabelecimento') || '';
+  $('valor').value = fmt(parseValor(q.get('valor')));
+  $('data').value = q.get('data') || new Date().toLocaleDateString('sv-SE');
+  $('forma').value = q.get('cartao') || q.get('forma') || '';
+  if (q.get('conta')) $('conta').value = q.get('conta');
+
+  document.querySelectorAll('#tipo button').forEach(b => b.onclick = () => {
+    tipo = b.dataset.v;
+    document.querySelectorAll('#tipo button').forEach(x => x.classList.toggle('on', x === b));
+    chips();
+  });
+  document.querySelectorAll('#tipo button').forEach(x => x.classList.toggle('on', x.dataset.v === tipo));
+
+  function chips() {
+    const cats = F.categoriasRecentes(tipo, 9);
+    $('chips').innerHTML = cats.map(c => `<button type="button" class="chip px-3 py-2 rounded-xl border border-dark-800 bg-dark-900 text-sm text-slate-300">${App.esc(c)}</button>`).join('');
+    $('chips').querySelectorAll('.chip').forEach(b => b.onclick = () => { $('categoria').value = b.textContent; mark(); });
+    $('dl').innerHTML = F.categorias(tipo).map(c => `<option value="${App.esc(c)}">`).join('');
+    mark();
+  }
+  function mark() { $('chips').querySelectorAll('.chip').forEach(b => b.classList.toggle('on', b.textContent === $('categoria').value)); }
+  $('categoria').addEventListener('input', mark);
+  function sugerir() { if (!$('categoria').value) { $('categoria').value = F.sugerirCategoria($('empresa').value); mark(); } }
+  $('empresa').addEventListener('change', sugerir);
+  chips(); sugerir();
+
+  $('valor').addEventListener('blur', () => { $('valor').value = fmt(parseValor($('valor').value)); });
+
+  async function salvar() {
+    const valor = parseValor($('valor').value);
+    if (!$('empresa').value.trim() || !valor) { App.toast('Preencha empresa e valor.', 'warn'); return; }
+    const antes = new Set(F.todos().map(l => l.id));
+    const base = {
+      tipo, descricao: $('empresa').value.trim(), empresa: $('empresa').value.trim(), valor,
+      data: $('data').value, categoria: $('categoria').value.trim(), conta: $('conta').value,
+      forma: $('forma').value.trim(), status: 'pago', origem: 'iphone'
+    };
+    const n = Math.max(1, parseInt($('parcelas').value, 10) || 1);
+    F.criar(base, n > 1 ? 'parcelada' : 'unica', { parcelas: n, valorModo: $('valorModo').value });
+    ultimos = F.todos().filter(l => !antes.has(l.id)).map(l => l.id);
+    $('save').disabled = true; $('save').textContent = 'Salvando…';
+    await DB.flush();
+    $('f').classList.add('hidden'); $('done').classList.remove('hidden');
+    $('done-text').textContent = `${base.descricao} · ${F.brl(valor)}${n > 1 ? ` em ${n}×` : ''}${base.categoria ? ' · ' + base.categoria : ''}`;
+  }
+  async function undo() {
+    ultimos.forEach(id => DB.remove('fin_lancamentos', id));
+    await DB.flush();
+    App.toast('Lançamento desfeito.', 'ok');
+    setTimeout(() => location.href = 'lancar.html', 600);
+  }
+  $('f').addEventListener('submit', e => { e.preventDefault(); salvar(); });
+
+  // modo automático: o atalho manda auto=1 e o lançamento é salvo sem tocar em nada
+  if (q.get('auto') === '1' && $('empresa').value && parseValor($('valor').value)) salvar();
+  else if (!$('empresa').value) $('empresa').focus(); else if (!$('valor').value) $('valor').focus();
+</script>
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rotina">
+<title>Plassô | Crescimento</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+  :root { --bg:#f7f6f3; --card:#ffffff; --line:#e7e5e0; --ink:#1c1917; --muted:#78716c; --soft:#f1efeb; --accent:#0f766e; --accent-ink:#ffffff; }
+  body.work { --bg:#000000; --card:#0a0a0a; --line:#1f1f1f; --ink:#f5f5f4; --muted:#8a8a8a; --soft:#141414; --accent:#ffffff; --accent-ink:#000000; }
+  body { font-family:'Plus Jakarta Sans',sans-serif; background:var(--bg); color:var(--ink); transition:background .4s,color .4s; padding-bottom:env(safe-area-inset-bottom); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:20px; }
+  .muted { color:var(--muted); } .line { border-color:var(--line); } .soft { background:var(--soft); }
+  .btn { background:var(--accent); color:var(--accent-ink); border-radius:14px; font-weight:600; }
+  .btn-ghost { border:1px solid var(--line); border-radius:12px; color:var(--ink); }
+  .mono { font-family:'JetBrains Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums; }
+  .fi { width:100%; background:var(--soft); border:1px solid var(--line); border-radius:12px; padding:9px 12px; color:var(--ink); outline:none; font-size:16px; }
+  .ring-bg { stroke:var(--soft); } .ring-fg { stroke:var(--accent); transition:stroke-dashoffset .4s; }
+  .work-only { display:none; } body.work .work-only { display:block; } body.work .clean-only { display:none; }
+  .tab.on { background:var(--ink); color:var(--bg); }
+  .divide-line > * + * { border-top:1px solid var(--line); }
+  @keyframes pulse2 { 50% { opacity:.4 } } .live { animation:pulse2 1.6s infinite; }
+</style>
+</head>
+<body>
+<header class="max-w-5xl mx-auto px-4 pt-5 pb-3 flex items-center justify-between gap-3">
+  <div>
+    <p class="text-[10px] mono tracking-[0.25em] muted">PLASSÔ · CRESCIMENTO</p>
+    <h1 id="saudacao" class="text-xl font-bold"></h1>
+  </div>
+  <div class="flex items-center gap-2">
+    <a href="index.html" class="btn-ghost px-3 py-2 text-xs clean-only" title="Ir para a Gestão"><i class="fa-solid fa-briefcase"></i></a>
+    <button id="btn-modo" onclick="toggleTrabalho()" class="btn px-4 py-2.5 text-sm"><i class="fa-solid fa-play mr-1.5"></i>Modo trabalho</button>
+  </div>
+</header>
+
+<!-- ================= MODO TRABALHO ================= -->
+<main class="work-only max-w-5xl mx-auto px-4 pb-16 space-y-5">
+  <section class="card p-5 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p class="text-[10px] mono tracking-[0.25em] muted">TEMPO DE TRABALHO</p>
+      <p id="w-total" class="mono text-4xl md:text-5xl font-bold">00:00:00</p>
+    </div>
+    <div class="text-right">
+      <p class="text-[10px] mono tracking-[0.25em] muted">PRÓXIMO COMPROMISSO</p>
+      <p id="w-next" class="text-sm font-semibold"></p>
+    </div>
+  </section>
+
+  <section id="w-atual" class="card p-5 hidden"></section>
+
+  <section class="card p-5">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-bold">Demandas por prioridade</h2>
+      <button onclick="addAvulsa()" class="btn-ghost px-3 py-1.5 text-xs"><i class="fa-solid fa-plus mr-1"></i>Avulsa</button>
+    </div>
+    <div id="w-lista" class="divide-line"></div>
+  </section>
+
+  <section class="card p-5">
+    <h2 class="font-bold mb-3">Feito nesta sessão</h2>
+    <div id="w-feitos" class="space-y-2 text-sm"></div>
+  </section>
+</main>
+
+<!-- ================= MODO CLEAN ================= -->
+<main class="clean-only max-w-5xl mx-auto px-4 pb-16 space-y-5">
+  <div class="flex gap-1 soft rounded-2xl p-1 text-sm w-fit">
+    <button class="tab on px-4 py-2 rounded-xl" data-tab="hoje">Hoje</button>
+    <button class="tab px-4 py-2 rounded-xl" data-tab="casa">Casa</button>
+    <button class="tab px-4 py-2 rounded-xl" data-tab="relatorio">Relatório</button>
+  </div>
+
+  <!-- HOJE -->
+  <section data-pane="hoje" class="space-y-5">
+    <div id="habitos" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+    <div class="grid md:grid-cols-2 gap-5">
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-3"><h2 class="font-bold">Casa — para hoje</h2><span id="casa-count" class="text-xs muted"></span></div>
+        <div id="casa-hoje" class="space-y-2"></div>
+      </div>
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-3"><h2 class="font-bold">Empresa — prioridades</h2><a href="tasks.html" class="text-xs muted hover:underline">kanban →</a></div>
+        <div id="empresa-hoje" class="space-y-2"></div>
+      </div>
+    </div>
+    <button onclick="editHabitos()" class="text-xs muted hover:underline"><i class="fa-solid fa-sliders mr-1"></i>Configurar hábitos e metas</button>
+  </section>
+
+  <!-- CASA -->
+  <section data-pane="casa" class="hidden space-y-4">
+    <div class="card p-5">
+      <h2 class="font-bold mb-1">Tarefas da casa</h2>
+      <p class="text-xs muted mb-4">Defina de quantos em quantos dias cada uma deve ser feita. Ela aparece em "Hoje" e no Modo Trabalho quando vencer.</p>
+      <div id="casa-lista" class="divide-line"></div>
+      <form id="casa-form" class="flex flex-wrap gap-2 mt-4">
+        <input name="nome" required placeholder="Ex.: Lavar o banheiro" class="fi flex-1 min-w-[180px]">
+        <select name="freq" class="fi w-auto">
+          <option value="1">todo dia</option><option value="2">a cada 2 dias</option><option value="3">a cada 3 dias</option>
+          <option value="7" selected>toda semana</option><option value="14">a cada 15 dias</option><option value="30">todo mês</option>
+        </select>
+        <button class="btn px-4 py-2 text-sm">Adicionar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- RELATÓRIO -->
+  <section data-pane="relatorio" class="hidden space-y-5">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="rel-kpis"></div>
+    <div class="card p-5">
+      <h2 class="font-bold mb-1">Tempo médio por tipo de tarefa</h2>
+      <p class="text-xs muted mb-4">Calculado com todas as vezes que você cronometrou a tarefa no Modo Trabalho.</p>
+      <div class="overflow-x-auto"><table class="w-full text-sm"><thead class="text-[10px] uppercase tracking-wider muted text-left"><tr><th class="py-2">Tarefa</th><th class="text-right">Vezes</th><th class="text-right">Média</th><th class="text-right">Mais rápida</th><th class="text-right">Total</th></tr></thead><tbody id="rel-medias"></tbody></table></div>
+    </div>
+    <div class="card p-5">
+      <h2 class="font-bold mb-3">Sessões de trabalho</h2>
+      <div id="rel-sessoes" class="space-y-3"></div>
+    </div>
+  </section>
+</main>
+
+<!-- modal hábitos -->
+<div id="hab-modal" class="hidden fixed inset-0 z-40 bg-black/50 items-end md:items-center justify-center p-0 md:p-4">
+  <div class="card w-full md:max-w-lg p-5 space-y-3 max-h-[90vh] overflow-y-auto rounded-b-none md:rounded-b-[20px]">
+    <div class="flex items-center justify-between"><h3 class="font-bold">Hábitos e metas diárias</h3><button onclick="closeHab()" class="muted p-1" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="hab-edit" class="space-y-2"></div>
+    <button onclick="addHabito()" class="btn-ghost px-3 py-2 text-xs"><i class="fa-solid fa-plus mr-1"></i>Novo hábito</button>
+    <div class="flex justify-end"><button onclick="saveHab()" class="btn px-5 py-2 text-sm">Salvar</button></div>
+  </div>
+</div>
+
+<script src="assets/config.js?v=3"></script>
+<script src="assets/core.js?v=3" data-mode="app"></script>
+<script type="text/plain" data-app>
+  const esc = App.esc;
+  const $ = id => document.getElementById(id);
+  const hoje = () => new Date().toLocaleDateString('sv-SE');
+  const dias = (a, b) => Math.round((new Date(b + 'T12:00') - new Date(a + 'T12:00')) / 864e5);
+  const fmtDur = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), ss = s % 60; return h ? `${h}h${String(m).padStart(2, '0')}min${String(ss).padStart(2, '0')}s` : `${m}min${String(ss).padStart(2, '0')}s`; };
+  const clock = s => { s = Math.max(0, Math.floor(s)); return [Math.floor(s / 3600), Math.floor(s % 3600 / 60), s % 60].map(n => String(n).padStart(2, '0')).join(':'); };
+
+  // ---------- dados padrão ----------
+  const HAB_PADRAO = [
+    { id: 'h_agua', nome: 'Água', icone: 'fa-glass-water', tipo: 'contador', meta: 8, unidade: 'copos', passo: 1 },
+    { id: 'h_treino', nome: 'Treino', icone: 'fa-dumbbell', tipo: 'check', meta: 1, unidade: '' },
+    { id: 'h_leitura', nome: 'Leitura', icone: 'fa-book-open', tipo: 'contador', meta: 20, unidade: 'páginas', passo: 5 },
+    { id: 'h_estudo', nome: 'Estudos', icone: 'fa-graduation-cap', tipo: 'contador', meta: 60, unidade: 'min', passo: 15 }
+  ];
+  const CASA_PADRAO = [
+    ['Lavar a louça', 1], ['Arrumar a cama', 1], ['Lavar roupas', 3], ['Estender / guardar roupas', 3],
+    ['Limpar a cozinha', 2], ['Lavar o banheiro', 7], ['Aspirar / varrer a casa', 3], ['Trocar roupa de cama', 7], ['Tirar o lixo', 2]
+  ];
+  if (!DB.list('life_habitos').length) DB.putMany('life_habitos', HAB_PADRAO.map(h => ({ ...h })));
+  if (!DB.getValue('life_casa_seed', false)) {
+    DB.putMany('life_casa', CASA_PADRAO.map(([nome, freq]) => ({ id: App.uid('ca_'), nome, freq, ultimaVez: null })));
+    DB.setValue('life_casa_seed', true);
+  }
+
+  // ---------- hábitos ----------
+  const reg = (hid, d = hoje()) => DB.get('life_registros', d + '_' + hid);
+  function valorHab(h) { const r = reg(h.id); return r ? Number(r.valor) : 0; }
+  function setHab(h, v) { DB.put('life_registros', { id: hoje() + '_' + h.id, data: hoje(), habitoId: h.id, valor: Math.max(0, v) }); renderHabitos(); }
+
+  function renderHabitos() {
+    $('habitos').innerHTML = DB.list('life_habitos').map(h => {
+      const v = valorHab(h), pct = Math.min(1, v / (h.meta || 1)), C = 2 * Math.PI * 26;
+      const done = pct >= 1;
+      return `<div class="card p-4 flex flex-col items-center text-center gap-2">
+        <div class="relative w-16 h-16">
+          <svg viewBox="0 0 60 60" class="w-16 h-16 -rotate-90"><circle cx="30" cy="30" r="26" fill="none" stroke-width="5" class="ring-bg"/><circle cx="30" cy="30" r="26" fill="none" stroke-width="5" stroke-linecap="round" class="ring-fg" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct)}"/></svg>
+          <i class="fa-solid ${done ? 'fa-check' : h.icone} absolute inset-0 m-auto w-fit h-fit text-lg"></i>
+        </div>
+        <p class="font-semibold text-sm">${esc(h.nome)}</p>
+        <p class="text-xs muted mono">${h.tipo === 'check' ? (done ? 'feito' : 'pendente') : `${v} / ${h.meta} ${esc(h.unidade)}`}</p>
+        <div class="flex gap-1.5">
+          ${h.tipo === 'check'
+            ? `<button onclick="habClick('${h.id}', ${done ? 0 : 1}, true)" class="${done ? 'btn-ghost' : 'btn'} px-3 py-1.5 text-xs">${done ? 'Desfazer' : 'Marcar'}</button>`
+            : `<button onclick="habClick('${h.id}', -1)" class="btn-ghost w-8 h-8 text-xs" aria-label="Menos">−</button><button onclick="habClick('${h.id}', 1)" class="btn w-8 h-8 text-xs" aria-label="Mais">+</button>`}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  function habClick(id, d, abs) { const h = DB.get('life_habitos', id); setHab(h, abs ? d : valorHab(h) + d * (h.passo || 1)); }
+
+  let habDraft = [];
+  function editHabitos() { habDraft = JSON.parse(JSON.stringify(DB.list('life_habitos'))); drawHab(); $('hab-modal').classList.remove('hidden'); $('hab-modal').classList.add('flex'); }
+  function closeHab() { $('hab-modal').classList.add('hidden'); $('hab-modal').classList.remove('flex'); }
+  function drawHab() {
+    $('hab-edit').innerHTML = habDraft.map((h, i) => `
+      <div class="soft rounded-xl p-3 grid grid-cols-6 gap-2 items-center text-xs">
+        <input value="${esc(h.nome)}" oninput="habDraft[${i}].nome=this.value" class="fi col-span-3" aria-label="Nome">
+        <select onchange="habDraft[${i}].tipo=this.value;drawHab()" class="fi col-span-2"><option value="contador" ${h.tipo === 'contador' ? 'selected' : ''}>quantidade</option><option value="check" ${h.tipo === 'check' ? 'selected' : ''}>sim / não</option></select>
+        <button onclick="habDraft.splice(${i},1);drawHab()" class="muted" aria-label="Remover"><i class="fa-solid fa-trash"></i></button>
+        ${h.tipo === 'contador' ? `<label class="col-span-2 muted">meta<input type="number" value="${h.meta}" oninput="habDraft[${i}].meta=+this.value" class="fi mt-1"></label>
+        <label class="col-span-2 muted">unidade<input value="${esc(h.unidade || '')}" oninput="habDraft[${i}].unidade=this.value" class="fi mt-1"></label>
+        <label class="col-span-2 muted">passo do +<input type="number" value="${h.passo || 1}" oninput="habDraft[${i}].passo=+this.value" class="fi mt-1"></label>` : ''}
+      </div>`).join('');
+  }
+  function addHabito() { habDraft.push({ id: App.uid('h_'), nome: 'Novo hábito', icone: 'fa-star', tipo: 'check', meta: 1, unidade: '', passo: 1 }); drawHab(); }
+  function saveHab() {
+    const ids = habDraft.map(h => h.id);
+    DB.removeWhere('life_habitos', h => !ids.includes(h.id));
+    DB.putMany('life_habitos', habDraft.map(h => ({ ...h, meta: h.tipo === 'check' ? 1 : (h.meta || 1) })));
+    closeHab(); renderHabitos();
+  }
+
+  // ---------- casa ----------
+  function casaVencidas() {
+    return DB.list('life_casa').map(c => ({ ...c, atraso: c.ultimaVez ? dias(c.ultimaVez, hoje()) - c.freq : 999 }))
+      .filter(c => c.atraso >= 0 && c.ultimaVez !== hoje()).sort((a, b) => b.atraso - a.atraso);
+  }
+  function feitoCasa(id) { const c = DB.get('life_casa', id); c.ultimaVez = hoje(); DB.put('life_casa', c); renderAll(); }
+  function renderCasa() {
+    const v = casaVencidas();
+    $('casa-count').textContent = v.length ? v.length + ' pendente(s)' : '';
+    $('casa-hoje').innerHTML = v.length ? v.map(c => `
+      <div class="flex items-center gap-3 soft rounded-xl px-3 py-2.5">
+        <button onclick="feitoCasa('${c.id}')" class="w-6 h-6 rounded-full border-2 line shrink-0" aria-label="Marcar como feito"></button>
+        <span class="flex-1 text-sm">${esc(c.nome)}</span>
+        <span class="text-[11px] muted">${c.atraso >= 999 ? 'nunca feito' : c.atraso === 0 ? 'hoje' : c.atraso + 'd atrasado'}</span>
+      </div>`).join('') : '<p class="text-sm muted py-3">Casa em dia ✨</p>';
+    $('casa-lista').innerHTML = DB.list('life_casa').map(c => `
+      <div class="flex items-center gap-3 py-2.5 text-sm">
+        <span class="flex-1">${esc(c.nome)}</span>
+        <select onchange="casaFreq('${c.id}', this.value)" class="fi w-auto text-xs py-1">${[1, 2, 3, 7, 14, 30].map(n => `<option value="${n}" ${+c.freq === n ? 'selected' : ''}>${n === 1 ? 'todo dia' : n === 7 ? 'semanal' : n === 30 ? 'mensal' : 'cada ' + n + 'd'}</option>`).join('')}</select>
+        <span class="text-[11px] muted w-24 text-right">${c.ultimaVez ? 'feito ' + c.ultimaVez.split('-').reverse().slice(0, 2).join('/') : '—'}</span>
+        <button onclick="casaDel('${c.id}')" class="muted px-1" aria-label="Remover"><i class="fa-solid fa-trash text-xs"></i></button>
+      </div>`).join('');
+  }
+  function casaFreq(id, f) { const c = DB.get('life_casa', id); c.freq = +f; DB.put('life_casa', c); renderCasa(); }
+  function casaDel(id) { if (confirm('Remover esta tarefa da casa?')) { DB.remove('life_casa', id); renderCasa(); } }
+  $('casa-form').addEventListener('submit', e => { e.preventDefault(); const f = e.target; DB.put('life_casa', { id: App.uid('ca_'), nome: f.nome.value.trim(), freq: +f.freq.value, ultimaVez: null }); f.reset(); renderCasa(); });
+
+  // ---------- empresa (tarefas do sistema de gestão) ----------
+  function tarefasEmpresa() {
+    const t0 = hoje();
+    return JSON.parse(Store.getItem('plasso_tasks') || '[]')
+      .filter(t => !['pronto', 'aprovadas', 'approved'].includes(t.status) && !t.feitoNoModoTrabalho)
+      .map(t => {
+        const hora = (t.headline || '').match(/^\[(\d{1,2})[:h](\d{2})\]/) || (t.caption || '').match(/às (\d{1,2}):(\d{2})/);
+        const d = t.date ? dias(t0, t.date) : 99;
+        let score = 20;
+        if (t.status === 'urgent' || t.isRejected) score = 100;
+        else if (d < 0) score = 90; else if (d === 0) score = 80; else if (d === 1) score = 60; else if (d <= 3) score = 40;
+        return { ref: t.id, origem: 'gestao', titulo: t.headline || t.client, sub: `${t.client || ''}${t.type ? ' · ' + t.type : ''}${t.date ? ' · ' + t.date.split('-').reverse().slice(0, 2).join('/') : ''}`, chave: t.type || 'Demanda', score, data: t.date, hora: hora ? `${hora[1].padStart(2, '0')}:${hora[2]}` : null, crm: (t.notes || '').startsWith('crm_') };
+      });
+  }
+  // compromissos de hoje com horário (reuniões e follow-ups do CRM)
+  function compromissosHoje() {
+    return tarefasEmpresa().filter(t => t.hora && t.data === hoje()).sort((a, b) => a.hora.localeCompare(b.hora));
+  }
+  function renderEmpresa() {
+    const list = tarefasEmpresa().filter(t => !t.crm).sort((a, b) => b.score - a.score).slice(0, 6);
+    $('empresa-hoje').innerHTML = list.length ? list.map(t => `
+      <div class="soft rounded-xl px-3 py-2.5"><p class="text-sm font-medium">${t.score >= 80 ? '<i class="fa-solid fa-circle text-[7px] mr-1.5 align-middle text-red-500"></i>' : ''}${esc(t.titulo)}</p><p class="text-[11px] muted">${esc(t.sub)}</p></div>`).join('') : '<p class="text-sm muted py-3">Sem demandas abertas.</p>';
+  }
+
+  // ---------- Modo trabalho ----------
+  // sessão ativa salva no banco para não perder se a página recarregar
+  let S = DB.getValue('life_sessao_ativa', null);
+  let tick = null;
+  const salvarS = () => DB.setValue('life_sessao_ativa', S);
+  const agora = () => Date.now();
+
+  function mediaDe(chave) {
+    const arr = []; DB.list('life_sessoes').forEach(s => s.itens.forEach(i => { if (i.chave === chave && i.concluido) arr.push(i.segundos); }));
+    return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+  }
+
+  function fila() {
+    const casa = casaVencidas().map(c => ({ ref: c.id, origem: 'casa', titulo: c.nome, sub: c.atraso >= 999 ? 'casa · nunca feito' : `casa · ${c.atraso ? c.atraso + 'd atrasado' : 'vence hoje'}`, chave: c.nome, score: 45 + Math.min(c.atraso, 30) }));
+    const emp = tarefasEmpresa().filter(t => !t.crm);
+    const avulsas = (S?.avulsas || []).map(a => ({ ...a, origem: 'avulsa', score: 70 }));
+    const feitos = new Set((S?.itens || []).filter(i => i.concluido).map(i => i.origem + ':' + i.ref));
+    return [...avulsas, ...emp, ...casa].filter(x => !feitos.has(x.origem + ':' + x.ref)).sort((a, b) => b.score - a.score);
+  }
+
+  function toggleTrabalho() { S ? fimTrabalho() : inicioTrabalho(); }
+
+  function inicioTrabalho() {
+    S = { id: App.uid('ss_'), inicio: agora(), itens: [], atual: null, avulsas: [] };
+    salvarS(); entrarModo();
+  }
+  function entrarModo() {
+    document.body.classList.add('work');
+    document.querySelector('meta[name=theme-color]')?.setAttribute('content', '#000');
+    $('btn-modo').innerHTML = '<i class="fa-solid fa-stop mr-1.5"></i>Fim do trabalho';
+    clearInterval(tick); tick = setInterval(renderTick, 1000);
+    renderWork();
+    try { navigator.wakeLock?.request('screen').catch(() => {}); } catch (e) {}
+  }
+
+  function segundosAtual() { return S && S.atual ? S.atual.acumulado + (S.atual.desde ? (agora() - S.atual.desde) / 1000 : 0) : 0; }
+
+  function iniciarItem(origem, ref) {
+    if (S.atual) pausarParaFila();
+    const x = fila().find(i => i.origem === origem && String(i.ref) === String(ref)); if (!x) return;
+    S.atual = { origem, ref: x.ref, titulo: x.titulo, chave: x.chave, acumulado: 0, desde: agora() };
+    salvarS(); renderWork();
+  }
+  function pausarRetomar() {
+    if (!S.atual) return;
+    if (S.atual.desde) { S.atual.acumulado += (agora() - S.atual.desde) / 1000; S.atual.desde = null; }
+    else S.atual.desde = agora();
+    salvarS(); renderWork();
+  }
+  // troca de tarefa sem concluir: guarda o tempo parcial
+  function pausarParaFila() {
+    const a = S.atual; if (!a) return;
+    S.itens.push({ origem: a.origem, ref: a.ref, titulo: a.titulo, chave: a.chave, segundos: segundosAtual(), concluido: false });
+    S.atual = null;
+  }
+  function concluirItem() {
+    const a = S.atual; if (!a) return;
+    // soma tempos parciais anteriores da mesma tarefa
+    const parciais = S.itens.filter(i => !i.concluido && i.origem === a.origem && i.ref === a.ref);
+    const total = segundosAtual() + parciais.reduce((s, i) => s + i.segundos, 0);
+    S.itens = S.itens.filter(i => !parciais.includes(i));
+    S.itens.push({ origem: a.origem, ref: a.ref, titulo: a.titulo, chave: a.chave, segundos: total, concluido: true, fim: agora() });
+    S.atual = null;
+    if (a.origem === 'casa') { const c = DB.get('life_casa', a.ref); if (c) { c.ultimaVez = hoje(); DB.put('life_casa', c); } }
+    if (a.origem === 'gestao') {
+      const tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
+      const t = tasks.find(t => t.id === a.ref);
+      if (t) { t.tempoGasto = (t.tempoGasto || 0) + total; t.feitoNoModoTrabalho = hoje(); if (!['pronto', 'aprovadas'].includes(t.status)) { t.status = 'pronto'; t.manuallyMovedToPronto = true; } Store.setItem('plasso_tasks', JSON.stringify(tasks)); }
+    }
+    salvarS(); renderWork();
+    App.toast(`${a.titulo}: ${fmtDur(total)}`, 'ok');
+  }
+  function addAvulsa() {
+    const t = prompt('Nome da tarefa (ex.: "Carrossel 5 lâminas", "Reunião com cliente"):'); if (!t) return;
+    S.avulsas.push({ ref: App.uid('av_'), titulo: t.trim(), sub: 'avulsa', chave: t.trim() });
+    salvarS(); renderWork();
+  }
+  function renomearChave() {
+    if (!S.atual) return;
+    const k = prompt('Tipo desta tarefa para a média de tempo (ex.: "Carrossel 5 lâminas", "Reels editado"):', S.atual.chave);
+    if (k) { S.atual.chave = k.trim(); salvarS(); renderWork(); }
+  }
+
+  function fimTrabalho() {
+    if (!S) return;
+    if (S.atual && !confirm(`"${S.atual.titulo}" ainda está em andamento.\n\nOK = salvar como concluída\nCancelar = salvar o tempo como parcial`)) pausarParaFila();
+    else if (S.atual) concluirItem();
+    const fim = agora();
+    const sess = { id: S.id, inicio: new Date(S.inicio).toISOString(), fim: new Date(fim).toISOString(), data: new Date(S.inicio).toLocaleDateString('sv-SE'), duracaoTotal: (fim - S.inicio) / 1000, itens: S.itens };
+    DB.put('life_sessoes', sess);
+    S = null; DB.setValue('life_sessao_ativa', null);
+    clearInterval(tick);
+    document.body.classList.remove('work');
+    $('btn-modo').innerHTML = '<i class="fa-solid fa-play mr-1.5"></i>Modo trabalho';
+    renderAll();
+    trocaTab('relatorio');
+    App.toast(`Sessão salva: ${fmtDur(sess.duracaoTotal)} de trabalho, ${sess.itens.filter(i => i.concluido).length} tarefas concluídas.`, 'ok');
+  }
+
+  function renderTick() {
+    if (!S) return;
+    $('w-total').textContent = clock((agora() - S.inicio) / 1000);
+    const el = $('w-atual-clock'); if (el) el.textContent = clock(segundosAtual());
+  }
+
+  function renderWork() {
+    if (!S) return;
+    renderTick();
+    // próximo compromisso
+    const nowHM = new Date().toTimeString().slice(0, 5);
+    const prox = compromissosHoje().find(c => c.hora >= nowHM);
+    let livreMin = null;
+    if (prox) { const [h, m] = prox.hora.split(':').map(Number); const d = new Date(); d.setHours(h, m, 0, 0); livreMin = Math.round((d - Date.now()) / 60000); }
+    $('w-next').innerHTML = prox ? `${esc(prox.hora)} · ${esc(prox.titulo.replace(/^\[[^\]]+\]\s*/, ''))}<br><span class="muted text-xs">${livreMin} min livres até lá</span>` : '<span class="muted">nenhum hoje</span>';
+
+    // tarefa atual
+    const a = S.atual;
+    $('w-atual').classList.toggle('hidden', !a);
+    if (a) {
+      const media = mediaDe(a.chave);
+      $('w-atual').innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="min-w-0">
+            <p class="text-[10px] mono tracking-[0.25em] muted">${a.desde ? '<span class="live">●</span> EXECUTANDO' : 'PAUSADO'}</p>
+            <p class="text-lg font-bold truncate">${esc(a.titulo)}</p>
+            <button onclick="renomearChave()" class="text-xs muted hover:underline">tipo: ${esc(a.chave)}${media ? ` · média ${fmtDur(media)}` : ''} <i class="fa-solid fa-pen text-[9px]"></i></button>
+          </div>
+          <p id="w-atual-clock" class="mono text-4xl font-bold">${clock(segundosAtual())}</p>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button onclick="pausarRetomar()" class="btn-ghost px-4 py-2.5 text-sm flex-1">${a.desde ? '<i class="fa-solid fa-pause mr-1"></i>Pausar' : '<i class="fa-solid fa-play mr-1"></i>Retomar'}</button>
+          <button onclick="concluirItem()" class="btn px-4 py-2.5 text-sm flex-1"><i class="fa-solid fa-check mr-1"></i>Concluir</button>
+        </div>`;
+    }
+
+    // fila
+    const f = fila().filter(x => !(a && x.origem === a.origem && String(x.ref) === String(a.ref)));
+    $('w-lista').innerHTML = f.length ? f.map(x => {
+      const media = mediaDe(x.chave);
+      const cabe = livreMin != null && media != null ? (media / 60 <= livreMin) : null;
+      const tag = x.origem === 'casa' ? 'fa-house' : x.origem === 'avulsa' ? 'fa-bolt' : 'fa-briefcase';
+      return `<div class="flex items-center gap-3 py-3">
+        <i class="fa-solid ${tag} text-xs muted w-4" aria-label="${x.origem}"></i>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">${x.score >= 80 ? '<span class="text-red-500 mr-1">!</span>' : ''}${esc(x.titulo)}</p>
+          <p class="text-[11px] muted truncate">${esc(x.sub || '')}${media ? ` · ~${fmtDur(media)}` : ''}${cabe === false ? ' · <span class="text-amber-500">não cabe antes do compromisso</span>' : ''}</p>
+        </div>
+        <button onclick="iniciarItem('${x.origem}','${esc(String(x.ref))}')" class="btn-ghost w-10 h-10 shrink-0" aria-label="Iniciar"><i class="fa-solid fa-play text-xs"></i></button>
+      </div>`;
+    }).join('') : '<p class="text-sm muted py-4">Tudo feito por hoje.</p>';
+
+    // feitos
+    const feitos = S.itens.filter(i => i.concluido);
+    $('w-feitos').innerHTML = feitos.length ? feitos.map(i => `<div class="flex justify-between"><span>${esc(i.titulo)}</span><span class="mono muted">${fmtDur(i.segundos)}</span></div>`).join('') : '<p class="muted text-sm">Nada concluído ainda.</p>';
+  }
+
+  // ---------- relatório ----------
+  function renderRelatorio() {
+    const sess = DB.list('life_sessoes').sort((a, b) => b.inicio.localeCompare(a.inicio));
+    const semana = sess.filter(s => dias(s.data, hoje()) < 7);
+    const totSem = semana.reduce((a, s) => a + s.duracaoTotal, 0);
+    const conclSem = semana.reduce((a, s) => a + s.itens.filter(i => i.concluido).length, 0);
+    const k = (l, v) => `<div class="card p-4"><p class="text-[10px] uppercase tracking-wider muted">${l}</p><p class="mono text-xl font-bold mt-1">${v}</p></div>`;
+    $('rel-kpis').innerHTML = k('Trabalho (7 dias)', fmtDur(totSem)) + k('Tarefas concluídas (7 dias)', conclSem) + k('Sessões (7 dias)', semana.length) + k('Média por sessão', semana.length ? fmtDur(totSem / semana.length) : '—');
+
+    const map = {};
+    sess.forEach(s => s.itens.filter(i => i.concluido).forEach(i => { (map[i.chave] = map[i.chave] || []).push(i.segundos); }));
+    const rows = Object.entries(map).map(([c, a]) => ({ c, n: a.length, med: a.reduce((x, y) => x + y, 0) / a.length, min: Math.min(...a), tot: a.reduce((x, y) => x + y, 0) })).sort((a, b) => b.tot - a.tot);
+    $('rel-medias').innerHTML = rows.length ? rows.map(r => `<tr class="border-t line"><td class="py-2">${esc(r.c)}</td><td class="text-right mono">${r.n}</td><td class="text-right mono font-semibold">${fmtDur(r.med)}</td><td class="text-right mono muted">${fmtDur(r.min)}</td><td class="text-right mono muted">${fmtDur(r.tot)}</td></tr>`).join('') : '<tr><td colspan="5" class="py-6 text-center muted">Use o Modo Trabalho para começar a medir.</td></tr>';
+
+    $('rel-sessoes').innerHTML = sess.slice(0, 20).map(s => `
+      <details class="soft rounded-xl px-4 py-3">
+        <summary class="flex justify-between text-sm cursor-pointer"><span>${new Date(s.inicio).toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' })} · ${new Date(s.inicio).toTimeString().slice(0, 5)}–${new Date(s.fim).toTimeString().slice(0, 5)}</span><span class="mono font-semibold">${fmtDur(s.duracaoTotal)}</span></summary>
+        <div class="mt-2 space-y-1 text-sm">${s.itens.map(i => `<div class="flex justify-between"><span>${esc(i.titulo)}${i.concluido ? '' : ' <span class="muted text-xs">(parcial)</span>'}</span><span class="mono muted">${fmtDur(i.segundos)}</span></div>`).join('') || '<p class="muted">Sem tarefas cronometradas.</p>'}</div>
+      </details>`).join('') || '<p class="text-sm muted">Nenhuma sessão ainda.</p>';
+  }
+
+  // ---------- abas / geral ----------
+  function trocaTab(t) {
+    document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+    document.querySelectorAll('[data-pane]').forEach(p => p.classList.toggle('hidden', p.dataset.pane !== t));
+  }
+  document.querySelectorAll('.tab').forEach(b => b.onclick = () => trocaTab(b.dataset.tab));
+
+  function renderAll() {
+    const h = new Date().getHours();
+    $('saudacao').textContent = (h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite') + ', Marcelo';
+    renderHabitos(); renderCasa(); renderEmpresa(); renderRelatorio();
+  }
+  renderAll();
+  if (S) entrarModo();
+</script>
+</body>
+</html>

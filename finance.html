@@ -1,275 +1,441 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financeiro | Plassô</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        dark: {
-                            950: '#030712',
-                            900: '#0b0f19',
-                            850: '#111827',
-                            800: '#1f2937'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .kanban-col { min-height: calc(100vh - 280px); }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: #030712; }
-        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #374151; }
-    </style>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plassô | Financeiro</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>
+  tailwind.config = { theme: { extend: { colors: { dark: { 950: '#030712', 900: '#0b0f19', 850: '#111827', 800: '#1f2937' }, inc: '#0284c7', exp: '#ea580c' } } } }
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+  body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: #030712; }
+  ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+  .seg button.on { background: #1f2937; color: #fff; }
+  .bar { transition: opacity .15s; }
+  .col:hover .bar { opacity: .85; }
+  #tip { pointer-events: none; }
+</style>
 </head>
 <body class="bg-dark-950 text-slate-200 antialiased overflow-hidden selection:bg-blue-600 selection:text-white">
 <div class="flex flex-row h-screen w-screen overflow-hidden">
+  <aside id="sidebar" class="hidden md:flex bg-dark-900 border-r border-dark-800 flex-col w-64 shrink-0 h-full">
+    <div class="h-20 flex items-center gap-3 px-4 border-b border-dark-800/60 shrink-0">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center font-bold text-white text-lg font-mono">P</div>
+      <div class="flex flex-col"><span class="font-bold tracking-widest text-white uppercase">Plassô</span><span class="text-[9px] text-blue-400 font-mono tracking-wider">MARKETING</span></div>
+    </div>
+    <nav class="p-3 space-y-1 font-medium text-xs flex-1 overflow-y-auto"></nav>
+  </aside>
 
-    <aside id="sidebar" class="bg-dark-900 border-r border-dark-800 flex flex-col justify-between transition-all duration-300 w-64 z-30 overflow-hidden shrink-0 h-full">
-        <div class="flex flex-col h-full">
-            <div class="h-20 flex items-center justify-between px-4 border-b border-dark-800/60 shrink-0">
-                <div class="flex items-center gap-3 overflow-hidden">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center font-bold text-white text-lg shadow-lg shrink-0 font-mono">P</div>
-                    <div class="sidebar-text truncate flex flex-col">
-                        <span class="font-bold text-base tracking-widest text-white uppercase font-sans">Plassô</span>
-                        <span class="text-[9px] text-blue-400 font-mono tracking-wider">MARKETING</span>
-                    </div>
-                </div>
-                <button id="toggle-btn" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-dark-800 transition shrink-0">
-                    <i class="fa-solid fa-chevron-left text-xs"></i>
-                </button>
-            </div>
-            <nav class="p-3 space-y-1.5 font-medium text-xs flex-1 overflow-y-auto">
-    <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard</span>
-    </a>
-    <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Tasks</span>
-    </a>
-    <a href="clients.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-network-wired w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Clientes</span>
-    </a>
-    <a href="calendar.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-calendar-days w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Calendário</span>
-    </a>
-    <a href="finance.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer bg-blue-600 text-white">
-        <i class="fa-solid fa-wallet w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">Financeiro</span>
-    </a>
-    <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40">
-        <i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i>
-        <span class="sidebar-text tracking-wide whitespace-nowrap">CRM</span>
-    </a>
-</nav>
-    </aside>
-    
-    <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
-        <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
-            <div>
-                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2">
-                    <i class="fa-solid fa-wallet text-blue-500 text-xs"></i> Controle Financeiro
-                </h1>
-            </div>
-            <!-- Seletor de Mês no Topo -->
-            <div class="flex items-center gap-3">
-                <label class="text-xs text-slate-400 font-mono">Mês de Referência:</label>
-                <select id="finance-month-select" onchange="renderFinance()" class="bg-dark-900 border border-dark-800 rounded-xl px-3.5 py-2 text-xs text-white font-mono cursor-pointer shadow">
-                    <option value="2026-01">Janeiro de 2026</option>
-                    <option value="2026-02">Fevereiro de 2026</option>
-                    <option value="2026-03">Março de 2026</option>
-                    <option value="2026-04">Abril de 2026</option>
-                    <option value="2026-05">Maio de 2026</option>
-                    <option value="2026-06">Junho de 2026</option>
-                    <option value="2026-07">Julho de 2026</option>
-                    <option value="2026-08">Agosto de 2026</option>
-                    <option value="2026-09">Setembro de 2026</option>
-                    <option value="2026-10" selected>Outubro de 2026</option>
-                    <option value="2026-11">Novembro de 2026</option>
-                    <option value="2026-12">Dezembro de 2026</option>
-                </select>
-            </div>
-        </header>
-
-        <div class="flex-1 overflow-y-auto p-8 space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5"><p class="text-xs text-slate-400 uppercase">Entradas do Mês</p><h2 id="fin-top-actual" class="text-2xl font-bold font-mono text-emerald-400 mt-1">R$ 0,00</h2></div>
-                <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5">
-                    <div class="flex justify-between items-center"><p class="text-xs text-slate-400 uppercase">Meta do Mês</p><button onclick="editGoal()" class="text-[10px] text-blue-400 hover:underline cursor-pointer"><i class="fa-solid fa-pen"></i> Alterar</button></div>
-                    <h2 id="fin-goal-display" class="text-2xl font-bold font-mono text-white mt-1">R$ 0.000,00</h2>
-                </div>
-                <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5 flex flex-col justify-between"><div class="flex justify-between items-center"><p class="text-xs text-slate-400 uppercase">Atingimento</p><span id="fin-pct-badge" class="text-xs font-mono bg-emerald-950 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-800">0%</span></div><div class="w-full bg-dark-950 rounded-full h-2.5 overflow-hidden border border-dark-800 mt-3"><div id="fin-progress-bar" class="bg-emerald-500 h-full transition-all" style="width: 0%"></div></div></div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-emerald-950/20 border-2 border-emerald-500/40 rounded-2xl p-6 flex flex-col"><div class="flex items-center justify-between mb-4 pb-3 border-b border-emerald-500/30"><h3 class="font-bold text-emerald-200 text-sm uppercase">ENTRADAS</h3><span id="fin-total-entries" class="font-mono font-bold text-emerald-400 text-lg">R$ 0,00</span></div><div class="flex justify-between items-center mb-3"><button onclick="openNewEntryModal()" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer"><i class="fa-solid fa-plus mr-1"></i> Nova Entrada</button></div><div id="fin-entries-list" class="space-y-2 flex-1 overflow-y-auto max-h-72"></div></div>
-                <div class="bg-red-950/20 border-2 border-red-500/40 rounded-2xl p-6 flex flex-col"><div class="flex items-center justify-between mb-4 pb-3 border-b border-red-500/30"><h3 class="font-bold text-red-200 text-sm uppercase">DESPESAS</h3><span id="fin-total-expenses" class="font-mono font-bold text-red-400 text-lg">R$ 0,00</span></div><div class="flex justify-between items-center mb-3"><span <button onclick="openNewExpenseModal()" class="bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer"><i class="fa-solid fa-plus mr-1"></i> Nova Despesa</button></div><div id="fin-expenses-list" class="space-y-2 flex-1 overflow-y-auto max-h-72"></div></div>
-            </div>
+  <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
+    <header class="min-h-20 border-b border-dark-800/60 px-4 md:px-8 py-3 flex flex-wrap gap-3 items-center justify-between bg-dark-900/30 shrink-0">
+      <h1 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-wallet text-blue-500 text-xs"></i> Financeiro</h1>
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="flex items-center bg-dark-900 border border-dark-800 rounded-xl">
+          <button onclick="shiftMonth(-1)" class="px-3 py-2 text-slate-400 hover:text-white" aria-label="Mês anterior"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+          <span id="month-label" class="text-xs font-semibold text-white w-36 text-center"></span>
+          <button onclick="shiftMonth(1)" class="px-3 py-2 text-slate-400 hover:text-white" aria-label="Próximo mês"><i class="fa-solid fa-chevron-right text-xs"></i></button>
         </div>
-    </main>
+        <div class="seg flex bg-dark-900 border border-dark-800 rounded-xl p-0.5 text-xs" id="conta-filter">
+          <button data-v="" class="on px-3 py-1.5 rounded-lg text-slate-400">Tudo</button>
+          <button data-v="Empresa" class="px-3 py-1.5 rounded-lg text-slate-400">Empresa</button>
+          <button data-v="Pessoal" class="px-3 py-1.5 rounded-lg text-slate-400">Pessoal</button>
+        </div>
+        <button onclick="openForm()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-plus mr-1"></i> Lançamento</button>
+      </div>
+    </header>
+
+    <div class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
+      <!-- KPIs -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="kpis"></section>
+
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <!-- Projeção -->
+        <section class="xl:col-span-2 bg-dark-900 border border-dark-800 rounded-2xl p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div>
+              <h2 class="text-sm font-bold text-white">Previsão — próximos 6 meses</h2>
+              <p class="text-[11px] text-slate-500">Inclui o que já foi pago e o que está previsto (a conferir, parcelas e recorrentes).</p>
+            </div>
+            <div class="flex items-center gap-4 text-[11px] text-slate-400">
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-inc"></span>Entradas</span>
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-exp"></span>Saídas</span>
+            </div>
+          </div>
+          <div id="chart" class="relative h-52"></div>
+          <div class="overflow-x-auto mt-4">
+            <table class="w-full text-xs font-mono" id="proj-table"></table>
+          </div>
+        </section>
+
+        <!-- A conferir -->
+        <section class="bg-dark-900 border border-dark-800 rounded-2xl p-5 flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-bold text-white">A conferir neste mês</h2>
+            <span id="pend-count" class="text-[11px] font-mono bg-amber-950 text-amber-300 px-2 py-0.5 rounded-full border border-amber-800">0</span>
+          </div>
+          <div id="pend-list" class="space-y-2 overflow-y-auto max-h-96"></div>
+        </section>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <!-- Lançamentos -->
+        <section class="xl:col-span-2 bg-dark-900 border border-dark-800 rounded-2xl p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <h2 class="text-sm font-bold text-white">Lançamentos do mês</h2>
+            <div class="flex gap-2">
+              <input id="search" placeholder="Buscar…" class="bg-dark-950 border border-dark-800 rounded-xl px-3 py-1.5 text-xs text-white w-36 outline-none focus:border-blue-500">
+              <div class="seg flex bg-dark-950 border border-dark-800 rounded-xl p-0.5 text-xs" id="tipo-filter">
+                <button data-v="" class="on px-3 py-1 rounded-lg text-slate-400">Todos</button>
+                <button data-v="entrada" class="px-3 py-1 rounded-lg text-slate-400">Entradas</button>
+                <button data-v="saida" class="px-3 py-1 rounded-lg text-slate-400">Saídas</button>
+              </div>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+              <thead class="text-[10px] uppercase tracking-wider text-slate-500 text-left">
+                <tr><th class="py-2 pr-2">Data</th><th class="pr-2">Descrição</th><th class="pr-2">Categoria</th><th class="pr-2">Status</th><th class="pr-2 text-right">Valor</th><th></th></tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="space-y-6">
+          <!-- Categorias -->
+          <section class="bg-dark-900 border border-dark-800 rounded-2xl p-5">
+            <h2 class="text-sm font-bold text-white mb-3">Saídas por categoria</h2>
+            <div id="cats" class="space-y-2.5"></div>
+          </section>
+          <!-- iPhone -->
+          <section class="bg-dark-900 border border-dark-800 rounded-2xl p-5 space-y-3">
+            <h2 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-brands fa-apple"></i> Lançar pelo iPhone</h2>
+            <p class="text-xs text-slate-400">Página de lançamento rápido, feita para o atalho do iPhone (Carteira / Apple Pay):</p>
+            <div class="flex gap-2">
+              <input id="quick-url" readonly class="flex-1 bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-[11px] font-mono text-blue-300">
+              <button onclick="copyQuick()" class="bg-dark-800 border border-slate-700 rounded-xl px-3 text-xs" aria-label="Copiar"><i class="fa-regular fa-copy"></i></button>
+            </div>
+            <a href="lancar.html" class="inline-block text-xs text-blue-400 hover:underline">Abrir lançamento rápido →</a>
+            <p class="text-[11px] text-slate-500">O passo a passo do atalho está no arquivo <b>docs/ATALHO-IPHONE.md</b>.</p>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
 </div>
 
-<!-- Modais Financeiros -->
-<div id="newEntryModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="createNewEntry(event)" class="space-y-4 text-xs"><h3 class="text-sm font-bold text-emerald-400 uppercase">Nova Entrada</h3><input type="text" id="ne-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Descrição"><input type="number" id="ne-value" step="0.01" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" placeholder="Valor"><input type="date" id="ne-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeNewEntryModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-emerald-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button></div></form></div></div>
-<div id="newExpenseModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="createNewExpense(event)" class="space-y-4 text-xs"><h3 class="text-sm font-bold text-red-400 uppercase">Nova Despesa</h3><input type="text" id="nx-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Descrição"><input type="number" id="nx-value" step="0.01" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" placeholder="Valor"><input type="date" id="nx-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeNewExpenseModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-red-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button></div></form></div></div>
-<div id="editEntryModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="saveEditedEntry(event)" class="space-y-4 text-xs"><div class="flex justify-between items-center border-b border-dark-800 pb-3"><h3 class="text-sm font-bold text-emerald-400 uppercase">Editar Entrada</h3><button type="button" onclick="deleteCurrentEntry()" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i> Apagar</button></div><input type="hidden" id="ee-id"><input type="text" id="ee-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"><input type="number" id="ee-value" step="0.01" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><input type="date" id="ee-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeEditEntryModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-emerald-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button></div></form></div></div>
-<div id="editExpenseModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4"><div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl"><form onsubmit="saveEditedExpense(event)" class="space-y-4 text-xs"><div class="flex justify-between items-center border-b border-dark-800 pb-3"><h3 class="text-sm font-bold text-red-400 uppercase">Editar Despesa</h3><button type="button" onclick="deleteCurrentExpense()" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i> Apagar</button></div><input type="hidden" id="ex-id"><input type="text" id="ex-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white"><input type="number" id="ex-value" step="0.01" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><input type="date" id="ex-date" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"><div class="flex justify-end gap-3"><button type="button" onclick="closeEditExpenseModal()" class="text-slate-400">Cancelar</button><button type="submit" class="bg-red-600 text-white px-5 py-2 rounded-xl font-semibold">Salvar</button></div></form></div></div>
+<div id="tip" class="hidden fixed z-50 bg-dark-850 border border-dark-800 rounded-xl px-3 py-2 text-xs shadow-xl"></div>
 
-<script>
-    let goals = JSON.parse(localStorage.getItem('plasso_monthly_goals') || '{"2026-10": 20000}');
-    let entries = JSON.parse(localStorage.getItem('plasso_entries') || '[{"id": "e1", "name": "Mensalidade", "value": 1500, "date": "2026-10-01"}]');
-    let expenses = JSON.parse(localStorage.getItem('plasso_expenses') || '[{"id": "x1", "name": "AWS", "value": 150, "date": "2026-10-10"}]');
+<!-- Modal lançamento -->
+<div id="form-modal" class="hidden fixed inset-0 z-40 bg-black/70 backdrop-blur-sm items-center justify-center p-4">
+  <form id="form" class="bg-dark-900 border border-dark-800 rounded-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto p-6 space-y-4 shadow-2xl">
+    <div class="flex items-center justify-between">
+      <h3 id="form-title" class="text-white font-bold">Novo lançamento</h3>
+      <button type="button" onclick="closeForm()" class="text-slate-400 hover:text-white p-1" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <input type="hidden" name="id">
+    <div class="seg grid grid-cols-2 bg-dark-950 border border-dark-800 rounded-xl p-1 text-sm" id="f-tipo">
+      <button type="button" data-v="saida" class="on py-2 rounded-lg text-slate-400"><i class="fa-solid fa-arrow-up mr-1 text-exp"></i> Saída</button>
+      <button type="button" data-v="entrada" class="py-2 rounded-lg text-slate-400"><i class="fa-solid fa-arrow-down mr-1 text-inc"></i> Entrada</button>
+    </div>
+    <div class="grid grid-cols-2 gap-3 text-xs text-slate-400">
+      <label class="col-span-2">Empresa / descrição<input name="descricao" required class="fi" list="dl-empresas" autocomplete="off"></label>
+      <label>Valor (R$)<input name="valor" type="number" step="0.01" min="0" required class="fi" inputmode="decimal"></label>
+      <label>Data<input name="data" type="date" required class="fi"></label>
+      <label>Categoria<input name="categoria" class="fi" list="dl-cats" autocomplete="off"></label>
+      <label>Conta<select name="conta" class="fi"><option>Empresa</option><option>Pessoal</option></select></label>
+      <label>Forma de pagamento<select name="forma" class="fi"><option value="">—</option><option>Cartão de crédito</option><option>Cartão de débito</option><option>Pix</option><option>Boleto</option><option>Dinheiro</option><option>Transferência</option></select></label>
+      <label>Status<select name="status" class="fi"><option value="pago">Pago / recebido</option><option value="a_conferir">A conferir</option></select></label>
+    </div>
+    <div id="repeat-box" class="bg-dark-950 border border-dark-800 rounded-xl p-3 space-y-3 text-xs text-slate-400">
+      <div class="seg grid grid-cols-3 bg-dark-900 border border-dark-800 rounded-lg p-0.5" id="f-rep">
+        <button type="button" data-v="unica" class="on py-1.5 rounded-md text-slate-400">Única</button>
+        <button type="button" data-v="parcelada" class="py-1.5 rounded-md text-slate-400">Parcelada</button>
+        <button type="button" data-v="recorrente" class="py-1.5 rounded-md text-slate-400">Mensal fixa</button>
+      </div>
+      <div id="rep-parc" class="hidden grid grid-cols-2 gap-3">
+        <label>Nº de parcelas<input name="parcelas" type="number" min="2" max="72" value="2" class="fi"></label>
+        <label>O valor digitado é<select name="valorModo" class="fi"><option value="total">o total da compra</option><option value="parcela">o valor de cada parcela</option></select></label>
+      </div>
+      <div id="rep-rec" class="hidden">
+        <label>Repetir por quantos meses<input name="meses" type="number" min="2" max="60" value="12" class="fi"></label>
+      </div>
+      <p id="rep-preview" class="font-mono text-[11px] text-slate-500"></p>
+    </div>
+    <label class="block text-xs text-slate-400">Observação<input name="obs" class="fi"></label>
+    <div class="flex justify-end gap-2 pt-1">
+      <button type="button" onclick="closeForm()" class="px-4 py-2 rounded-xl text-slate-300 hover:bg-dark-800 text-sm">Cancelar</button>
+      <button class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold">Salvar</button>
+    </div>
+  </form>
+</div>
+<datalist id="dl-cats"></datalist>
+<datalist id="dl-empresas"></datalist>
+<style>.fi{margin-top:4px;width:100%;background:#030712;border:1px solid #1f2937;border-radius:12px;padding:8px 12px;font-size:14px;color:#fff;outline:none}.fi:focus{border-color:#3b82f6}</style>
 
-    function renderFinance() {
-        const selectedYearMonth = document.getElementById('finance-month-select').value; // Ex: "2026-10"
-        let monthlyGoal = goals[selectedYearMonth] || 20000;
+<script src="assets/config.js?v=3"></script>
+<script src="assets/core.js?v=3" data-mode="app"></script>
+<script src="assets/integracao.js?v=3"></script>
+<script src="assets/financas.js?v=3"></script>
+<script type="text/plain" data-app>
+  const F = Financas;
+  const esc = App.esc;
+  const brl = F.brl;
+  let month = new Date().toISOString().slice(0, 7);
+  let conta = '';
+  let tipoFiltro = '';
+  let busca = '';
 
-        // Filtrar entradas e despesas do mês selecionado (AAAA-MM)
-        let filteredEntries = entries.filter(e => e.date && e.date.startsWith(selectedYearMonth));
-        let filteredExpenses = expenses.filter(x => x.date && x.date.startsWith(selectedYearMonth));
+  F.migrarAntigos();
 
-        let totalEntries = filteredEntries.reduce((acc, curr) => acc + curr.value, 0);
-        let totalExpenses = filteredExpenses.reduce((acc, curr) => acc + curr.value, 0);
+  function seg(id, onChange) {
+    const el = document.getElementById(id);
+    el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      el.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on'); onChange(b.dataset.v);
+    }));
+    return v => el.querySelectorAll('button').forEach(x => x.classList.toggle('on', x.dataset.v === v));
+  }
+  seg('conta-filter', v => { conta = v; render(); });
+  seg('tipo-filter', v => { tipoFiltro = v; renderRows(); });
+  document.getElementById('search').addEventListener('input', e => { busca = e.target.value.toLowerCase(); renderRows(); });
 
-        document.getElementById('fin-top-actual').innerText = 'R$ ' + totalEntries.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        document.getElementById('fin-goal-display').innerText = 'R$ ' + monthlyGoal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        document.getElementById('fin-total-entries').innerText = 'R$ ' + totalEntries.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        document.getElementById('fin-total-expenses').innerText = 'R$ ' + totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        
-        let pct = monthlyGoal > 0 ? Math.round((totalEntries * 100) / monthlyGoal) : 0;
-        if (pct > 100) pct = 100;
-        document.getElementById('fin-pct-badge').innerText = pct + '%';
-        document.getElementById('fin-progress-bar').style.width = pct + '%';
+  function shiftMonth(n) { month = F.addMonthsKey(month, n); render(); }
+  function monthName(k) { const [y, m] = k.split('-').map(Number); const t = new Date(y, m - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); return t.charAt(0).toUpperCase() + t.slice(1); }
+  function monthShort(k) { const [y, m] = k.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '') + '/' + String(y).slice(2); }
 
-        const elList = document.getElementById('fin-entries-list');
-        elList.innerHTML = '';
-        if(filteredEntries.length === 0) {
-            elList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Nenhuma entrada neste mês.</p>';
-        } else {
-            filteredEntries.forEach(e => { 
-                elList.innerHTML += `<div ondblclick="openEditEntry('${e.id}')" class="bg-dark-950 p-3 rounded-xl border border-dark-800 flex justify-between items-center text-xs font-mono cursor-pointer hover:border-slate-600 transition" title="Duplo clique para editar/apagar"><div><span class="font-bold text-white font-sans">${e.name}</span><p class="text-[10px] text-slate-400">${e.date.split('-').reverse().join('/')}</p></div><span class="text-emerald-400 font-bold">+ R$ ${e.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>`; 
-            });
-        }
+  function itens() { return F.ativos().filter(l => !conta || (l.conta || 'Empresa') === conta); }
 
-        const exList = document.getElementById('fin-expenses-list');
-        exList.innerHTML = '';
-        if(filteredExpenses.length === 0) {
-            exList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Nenhuma despesa neste mês.</p>';
-        } else {
-            filteredExpenses.forEach(x => { 
-                exList.innerHTML += `<div ondblclick="openEditExpense('${x.id}')" class="bg-dark-950 p-3 rounded-xl border border-dark-800 flex justify-between items-center text-xs font-mono cursor-pointer hover:border-slate-600 transition" title="Duplo clique para editar/apagar"><div><span class="font-bold text-white font-sans">${x.name}</span><p class="text-[10px] text-slate-400">${x.date.split('-').reverse().join('/')}</p></div><span class="text-red-400 font-bold">- R$ ${x.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>`; 
-            });
-        }
+  function render() {
+    document.getElementById('month-label').textContent = monthName(month);
+    renderKpis(); renderChart(); renderPend(); renderRows(); renderCats(); fillLists();
+  }
 
-        localStorage.setItem('plasso_entries', JSON.stringify(entries));
-        localStorage.setItem('plasso_expenses', JSON.stringify(expenses));
+  function renderKpis() {
+    const s = F.resumoMes(itens(), month);
+    const goals = JSON.parse(Store.getItem('plasso_monthly_goals') || '{}');
+    const goal = Number(goals[month] || Store.getItem('plasso_goal') || 0);
+    const pct = goal ? Math.min(100, Math.round(s.entPago * 100 / goal)) : 0;
+    const card = (label, big, sub, color, extra = '') => `
+      <div class="bg-dark-900 border border-dark-800 rounded-2xl p-4">
+        <p class="text-[10px] uppercase tracking-wider text-slate-500 flex items-center gap-1.5">${color ? `<span class="w-2 h-2 rounded-sm" style="background:${color}"></span>` : ''}${label}</p>
+        <p class="text-xl md:text-2xl font-bold font-mono text-white mt-1">${big}</p>
+        <p class="text-[11px] text-slate-400 mt-1 font-mono">${sub}</p>${extra}
+      </div>`;
+    document.getElementById('kpis').innerHTML =
+      card('Entradas', brl(s.entPago), `+ ${brl(s.entPrev)} a receber`, '#0284c7') +
+      card('Saídas', brl(s.saiPago), `+ ${brl(s.saiPrev)} a pagar`, '#ea580c') +
+      card('Saldo previsto', `<span class="${s.saldoPrev < 0 ? 'text-red-400' : ''}">${brl(s.saldoPrev)}</span>`, `realizado: ${brl(s.entPago - s.saiPago)}`) +
+      card('Meta de faturamento', goal ? pct + '%' : '—', goal ? `${brl(s.entPago)} de ${brl(goal)}` : 'sem meta definida',
+        '', `<div class="flex items-center gap-2 mt-2"><div class="flex-1 h-1.5 bg-dark-950 rounded-full overflow-hidden border border-dark-800"><div class="h-full bg-inc" style="width:${pct}%"></div></div><button onclick="editGoal()" class="text-[10px] text-blue-400 hover:underline">alterar</button></div>`);
+  }
+
+  function editGoal() {
+    const goals = JSON.parse(Store.getItem('plasso_monthly_goals') || '{}');
+    const v = prompt('Meta de faturamento para ' + monthName(month) + ' (R$):', goals[month] || '');
+    if (v === null) return;
+    goals[month] = parseFloat(String(v).replace(/\./g, '').replace(',', '.')) || 0;
+    Store.setItem('plasso_monthly_goals', JSON.stringify(goals));
+    renderKpis();
+  }
+
+  function renderChart() {
+    const months = Array.from({ length: 6 }, (_, i) => F.addMonthsKey(month, i));
+    const data = months.map(k => ({ k, ...F.resumoMes(itens(), k) }));
+    const max = Math.max(1, ...data.map(d => Math.max(d.entTotal, d.saiTotal)));
+    const el = document.getElementById('chart');
+    el.innerHTML = `
+      <div class="absolute inset-0 flex flex-col justify-between pointer-events-none">
+        ${[1, .5, 0].map(f => `<div class="border-t border-dark-800/70 text-[9px] font-mono text-slate-600 -mt-px"><span class="bg-dark-900 pr-1 relative -top-2">${f ? brl(max * f).replace(',00', '') : ''}</span></div>`).join('')}
+      </div>
+      <div class="absolute inset-0 pl-14 flex items-end justify-around gap-2">
+        ${data.map((d, i) => `
+          <div class="col h-full flex-1 flex flex-col justify-end items-center cursor-default" data-i="${i}">
+            <div class="flex items-end gap-[2px] h-[calc(100%-18px)] w-full justify-center">
+              <div class="bar w-1/3 max-w-[22px] bg-inc rounded-t" style="height:${d.entTotal / max * 100}%"></div>
+              <div class="bar w-1/3 max-w-[22px] bg-exp rounded-t" style="height:${d.saiTotal / max * 100}%"></div>
+            </div>
+            <span class="text-[10px] text-slate-500 mt-1 capitalize ${i === 0 ? 'text-white font-semibold' : ''}">${monthShort(d.k)}</span>
+          </div>`).join('')}
+      </div>`;
+    const tip = document.getElementById('tip');
+    el.querySelectorAll('.col').forEach(c => {
+      c.addEventListener('mousemove', e => {
+        const d = data[c.dataset.i];
+        tip.innerHTML = `<p class="font-semibold text-white mb-1">${monthName(d.k)}</p>
+          <p class="flex justify-between gap-6"><span class="flex items-center gap-1.5 text-slate-400"><span class="w-2 h-2 rounded-sm bg-inc"></span>Entradas</span><span class="font-mono text-white">${brl(d.entTotal)}</span></p>
+          <p class="flex justify-between gap-6"><span class="flex items-center gap-1.5 text-slate-400"><span class="w-2 h-2 rounded-sm bg-exp"></span>Saídas</span><span class="font-mono text-white">${brl(d.saiTotal)}</span></p>
+          <p class="flex justify-between gap-6 border-t border-dark-800 mt-1 pt-1"><span class="text-slate-400">Saldo</span><span class="font-mono text-white">${brl(d.entTotal - d.saiTotal)}</span></p>`;
+        tip.classList.remove('hidden');
+        tip.style.left = Math.min(e.clientX + 14, innerWidth - 220) + 'px';
+        tip.style.top = (e.clientY + 14) + 'px';
+      });
+      c.addEventListener('mouseleave', () => tip.classList.add('hidden'));
+      c.addEventListener('click', () => { month = data[c.dataset.i].k; render(); });
+    });
+    let acc = 0;
+    document.getElementById('proj-table').innerHTML = `
+      <thead class="text-[10px] uppercase tracking-wider text-slate-500"><tr><th class="text-left py-1.5">Mês</th><th class="text-right">Entradas</th><th class="text-right">Saídas</th><th class="text-right">Saldo</th><th class="text-right">Acumulado</th></tr></thead>
+      <tbody>${data.map(d => { const sal = d.entTotal - d.saiTotal; acc += sal; return `
+        <tr class="border-t border-dark-800/60"><td class="py-1.5 capitalize text-slate-300">${monthShort(d.k)}</td><td class="text-right text-slate-200">${brl(d.entTotal)}</td><td class="text-right text-slate-200">${brl(d.saiTotal)}</td><td class="text-right ${sal < 0 ? 'text-red-400' : 'text-white'}">${brl(sal)}</td><td class="text-right ${acc < 0 ? 'text-red-400' : 'text-slate-400'}">${brl(acc)}</td></tr>`; }).join('')}</tbody>`;
+  }
+
+  function statusBadge(l) {
+    if (l.status === 'pago') return `<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-900"><i class="fa-solid fa-check mr-1"></i>${l.tipo === 'entrada' ? 'Recebido' : 'Pago'}</span>`;
+    return `<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-900"><i class="fa-regular fa-clock mr-1"></i>A conferir</span>`;
+  }
+
+  function renderPend() {
+    const list = itens().filter(l => l.data.slice(0, 7) === month && l.status === 'a_conferir').sort((a, b) => a.data.localeCompare(b.data));
+    document.getElementById('pend-count').textContent = list.length;
+    document.getElementById('pend-list').innerHTML = list.length ? list.map(l => `
+      <div class="bg-dark-950 border border-dark-800 rounded-xl p-3 flex items-center gap-3">
+        <i class="fa-solid ${l.tipo === 'entrada' ? 'fa-arrow-down text-inc' : 'fa-arrow-up text-exp'} text-xs" aria-label="${l.tipo}"></i>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs text-white font-semibold truncate">${esc(l.descricao)}</p>
+          <p class="text-[10px] text-slate-500 font-mono">${F.fmtData(l.data)}${l.totalParcelas > 1 ? ` · ${l.parcela}/${l.totalParcelas}` : ''}</p>
+        </div>
+        <span class="text-xs font-mono text-white">${brl(l.valor)}</span>
+        <button onclick="confirmar('${l.id}')" class="w-8 h-8 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-xs" title="${l.tipo === 'entrada' ? 'Marcar como recebido' : 'Marcar como pago'}" aria-label="Confirmar"><i class="fa-solid fa-check"></i></button>
+      </div>`).join('') : '<p class="text-xs text-slate-500 text-center py-6">Nada pendente neste mês.</p>';
+  }
+
+  function renderRows() {
+    let list = itens().filter(l => l.data.slice(0, 7) === month);
+    if (tipoFiltro) list = list.filter(l => l.tipo === tipoFiltro);
+    if (busca) list = list.filter(l => (l.descricao + ' ' + (l.categoria || '') + ' ' + (l.obs || '')).toLowerCase().includes(busca));
+    list.sort((a, b) => b.data.localeCompare(a.data));
+    document.getElementById('rows').innerHTML = list.length ? list.map(l => `
+      <tr class="border-t border-dark-800/60 hover:bg-dark-850/40">
+        <td class="py-2.5 pr-2 font-mono text-slate-400 whitespace-nowrap">${F.fmtData(l.data).slice(0, 5)}</td>
+        <td class="pr-2"><p class="text-white font-medium">${esc(l.descricao)}</p><p class="text-[10px] text-slate-500">${esc(l.conta || 'Empresa')}${l.forma ? ' · ' + esc(l.forma) : ''}${l.totalParcelas > 1 ? ` · ${l.recorrente ? 'mês' : 'parcela'} ${l.parcela}/${l.totalParcelas}` : ''}${l.origem === 'crm' ? ' · via CRM' : ''}${l.origem === 'iphone' ? ' · via iPhone' : ''}</p></td>
+        <td class="pr-2 text-slate-300">${esc(l.categoria || '—')}</td>
+        <td class="pr-2"><button onclick="toggleStatus('${l.id}')" title="Alternar status">${statusBadge(l)}</button></td>
+        <td class="pr-2 text-right font-mono whitespace-nowrap ${l.tipo === 'entrada' ? 'text-sky-300' : 'text-orange-300'}">${l.tipo === 'entrada' ? '+' : '−'} ${brl(l.valor)}</td>
+        <td class="text-right whitespace-nowrap">
+          <button onclick="openForm('${l.id}')" class="text-slate-500 hover:text-white px-1.5" aria-label="Editar"><i class="fa-solid fa-pen text-[11px]"></i></button>
+          <button onclick="remover('${l.id}')" class="text-slate-500 hover:text-red-400 px-1.5" aria-label="Excluir"><i class="fa-solid fa-trash text-[11px]"></i></button>
+        </td>
+      </tr>`).join('') : '<tr><td colspan="6" class="text-center text-slate-500 py-8">Nenhum lançamento neste mês.</td></tr>';
+  }
+
+  function renderCats() {
+    const map = {};
+    itens().filter(l => l.tipo === 'saida' && l.data.slice(0, 7) === month).forEach(l => { const c = l.categoria || 'Sem categoria'; map[c] = (map[c] || 0) + Number(l.valor); });
+    const arr = Object.entries(map).sort((a, b) => b[1] - a[1]);
+    const max = arr.length ? arr[0][1] : 1;
+    const total = arr.reduce((a, x) => a + x[1], 0);
+    document.getElementById('cats').innerHTML = arr.length ? arr.map(([c, v]) => `
+      <div title="${esc(c)}: ${brl(v)}">
+        <div class="flex justify-between text-xs mb-1"><span class="text-slate-300">${esc(c)}</span><span class="font-mono text-slate-400">${brl(v)} · ${Math.round(v * 100 / total)}%</span></div>
+        <div class="h-1.5 bg-dark-950 rounded-full overflow-hidden"><div class="h-full bg-exp rounded-full" style="width:${v / max * 100}%"></div></div>
+      </div>`).join('') : '<p class="text-xs text-slate-500">Sem saídas neste mês.</p>';
+  }
+
+  function fillLists() {
+    document.getElementById('dl-cats').innerHTML = F.categorias().map(c => `<option value="${esc(c)}">`).join('');
+    document.getElementById('dl-empresas').innerHTML = [...new Set(F.todos().map(l => l.empresa || l.descricao))].slice(0, 300).map(c => `<option value="${esc(c)}">`).join('');
+  }
+
+  function confirmar(id) { F.setStatus(id, 'pago'); render(); App.toast('Confirmado.', 'ok'); }
+  function toggleStatus(id) { const l = DB.get('fin_lancamentos', id); F.setStatus(id, l.status === 'pago' ? 'a_conferir' : 'pago'); render(); }
+
+  function remover(id) {
+    const l = DB.get('fin_lancamentos', id); if (!l) return;
+    if (l.grupoId && l.totalParcelas > 1) {
+      const r = prompt(`"${l.descricao}" faz parte de uma série (${l.parcela}/${l.totalParcelas}).\n\nDigite:\n1 = apagar só este\n2 = apagar este e os próximos\n3 = apagar a série inteira`, '1');
+      if (!r) return;
+      F.remover(id, r === '3' ? 'todos' : r === '2' ? 'proximos' : 'este');
+    } else {
+      if (!confirm(`Excluir "${l.descricao}" (${brl(l.valor)})?`)) return;
+      F.remover(id, 'este');
     }
+    render();
+  }
 
-    function editGoal() {
-        const selectedYearMonth = document.getElementById('finance-month-select').value;
-        let currentGoal = goals[selectedYearMonth] || 20000;
-        const newGoal = prompt("Digite o novo valor da meta mensal para este mês (R$):", currentGoal);
-        if (newGoal && !isNaN(newGoal)) {
-            goals[selectedYearMonth] = parseFloat(newGoal);
-            localStorage.setItem('plasso_monthly_goals', JSON.stringify(goals));
-            renderFinance();
-            alert("Meta do mês atualizada com sucesso!");
-        }
+  // ---------- formulário ----------
+  const form = document.getElementById('form');
+  let fTipo = 'saida', fRep = 'unica';
+  const setTipo = seg('f-tipo', v => { fTipo = v; });
+  const setRep = seg('f-rep', v => { fRep = v; repUI(); });
+  function repUI() {
+    document.getElementById('rep-parc').classList.toggle('hidden', fRep !== 'parcelada');
+    document.getElementById('rep-rec').classList.toggle('hidden', fRep !== 'recorrente');
+    const v = Number(form.valor.value) || 0;
+    let t = '';
+    if (fRep === 'parcelada') {
+      const n = Math.max(2, Number(form.parcelas.value) || 2);
+      const parc = form.valorModo.value === 'total' ? v / n : v;
+      t = `${n}× de ${brl(parc)} · total ${brl(parc * n)} · lançadas nos meses seguintes`;
+    } else if (fRep === 'recorrente') {
+      const n = Math.max(2, Number(form.meses.value) || 12);
+      t = `${brl(v)} todo mês por ${n} meses · total ${brl(v * n)}`;
     }
+    document.getElementById('rep-preview').textContent = t;
+  }
+  form.addEventListener('input', repUI);
+  form.descricao.addEventListener('change', () => {
+    if (form.id.value || form.categoria.value) return;
+    const sug = F.sugerirCategoria(form.descricao.value);
+    if (sug) form.categoria.value = sug;
+  });
 
-    function openNewEntryModal() { document.getElementById('newEntryModal').classList.remove('hidden'); document.getElementById('newEntryModal').classList.add('flex'); document.getElementById('ne-date').valueAsDate = new Date(); }
-    function closeNewEntryModal() { document.getElementById('newEntryModal').classList.add('hidden'); document.getElementById('newEntryModal').classList.remove('flex'); }
-    function createNewEntry(e) {
-        e.preventDefault();
-        entries.push({ id: 'e_' + Date.now(), name: document.getElementById('ne-name').value, value: parseFloat(document.getElementById('ne-value').value), date: document.getElementById('ne-date').value });
-        closeNewEntryModal();
-        renderFinance();
-    }
+  function openForm(id) {
+    form.reset();
+    const l = id ? DB.get('fin_lancamentos', id) : null;
+    document.getElementById('form-title').textContent = l ? 'Editar lançamento' : 'Novo lançamento';
+    document.getElementById('repeat-box').classList.toggle('hidden', !!l);
+    form.id.value = l ? l.id : '';
+    fTipo = l ? l.tipo : 'saida'; setTipo(fTipo);
+    fRep = 'unica'; setRep('unica');
+    form.descricao.value = l ? l.descricao : '';
+    form.valor.value = l ? l.valor : '';
+    form.data.value = l ? l.data : (month === new Date().toISOString().slice(0, 7) ? new Date().toISOString().slice(0, 10) : month + '-01');
+    form.categoria.value = l ? (l.categoria || '') : '';
+    form.conta.value = l ? (l.conta || 'Empresa') : (conta || 'Empresa');
+    form.forma.value = l ? (l.forma || '') : '';
+    form.status.value = l ? l.status : 'pago';
+    form.obs.value = l ? (l.obs || '') : '';
+    repUI();
+    const m = document.getElementById('form-modal'); m.classList.remove('hidden'); m.classList.add('flex');
+    setTimeout(() => form.descricao.focus(), 50);
+  }
+  function closeForm() { const m = document.getElementById('form-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
 
-    function openNewExpenseModal() { document.getElementById('newExpenseModal').classList.remove('hidden'); document.getElementById('newExpenseModal').classList.add('flex'); document.getElementById('nx-date').valueAsDate = new Date(); }
-    function closeNewExpenseModal() { document.getElementById('newExpenseModal').classList.add('hidden'); document.getElementById('newExpenseModal').classList.remove('flex'); }
-    function createNewExpense(e) {
-        e.preventDefault();
-        expenses.push({ id: 'x_' + Date.now(), name: document.getElementById('nx-name').value, value: parseFloat(document.getElementById('nx-value').value), date: document.getElementById('nx-date').value });
-        closeNewExpenseModal();
-        renderFinance();
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const base = {
+      tipo: fTipo, descricao: form.descricao.value.trim(), empresa: form.descricao.value.trim(), valor: Number(form.valor.value),
+      data: form.data.value, categoria: form.categoria.value.trim(), conta: form.conta.value, forma: form.forma.value,
+      status: form.status.value, obs: form.obs.value.trim()
+    };
+    if (form.id.value) {
+      const l = DB.get('fin_lancamentos', form.id.value);
+      let aplicar = 'este';
+      if (l.grupoId && l.totalParcelas > 1 && confirm('Aplicar a mudança de descrição/categoria/valor também às próximas parcelas desta série?')) aplicar = 'proximos';
+      F.editar(l.id, base, aplicar);
+      App.toast('Lançamento atualizado.', 'ok');
+    } else {
+      const n = F.criar(base, fRep, { parcelas: Number(form.parcelas.value), valorModo: form.valorModo.value, meses: Number(form.meses.value) });
+      App.toast(n > 1 ? `${n} lançamentos criados.` : 'Lançamento criado.', 'ok');
     }
+    closeForm(); render();
+  });
 
-    function openEditEntry(id) {
-        const item = entries.find(i => i.id === id);
-        if(!item) return;
-        document.getElementById('ee-id').value = item.id;
-        document.getElementById('ee-name').value = item.name;
-        document.getElementById('ee-value').value = item.value;
-        document.getElementById('ee-date').value = item.date;
-        document.getElementById('editEntryModal').classList.remove('hidden');
-        document.getElementById('editEntryModal').classList.add('flex');
-    }
-    function closeEditEntryModal() { document.getElementById('editEntryModal').classList.add('hidden'); document.getElementById('editEntryModal').classList.remove('flex'); }
-    function saveEditedEntry(e) {
-        e.preventDefault();
-        const id = document.getElementById('ee-id').value;
-        const item = entries.find(i => i.id === id);
-        if(item) {
-            item.name = document.getElementById('ee-name').value;
-            item.value = parseFloat(document.getElementById('ee-value').value);
-            item.date = document.getElementById('ee-date').value;
-        }
-        closeEditEntryModal();
-        renderFinance();
-    }
-    function deleteCurrentEntry() {
-        const id = document.getElementById('ee-id').value;
-        entries = entries.filter(i => i.id !== id);
-        closeEditEntryModal();
-        renderFinance();
-    }
+  document.getElementById('quick-url').value = location.href.replace(/[^/]*$/, '') + 'lancar.html?empresa=NOME&valor=0,00';
+  async function copyQuick() { try { await navigator.clipboard.writeText(document.getElementById('quick-url').value); App.toast('Copiado.', 'ok'); } catch (e) {} }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeForm(); });
 
-    function openEditExpense(id) {
-        const item = expenses.find(i => i.id === id);
-        if(!item) return;
-        document.getElementById('ex-id').value = item.id;
-        document.getElementById('ex-name').value = item.name;
-        document.getElementById('ex-value').value = item.value;
-        document.getElementById('ex-date').value = item.date;
-        document.getElementById('editExpenseModal').classList.remove('hidden');
-        document.getElementById('editExpenseModal').classList.add('flex');
-    }
-    function closeEditExpenseModal() { document.getElementById('editExpenseModal').classList.add('hidden'); document.getElementById('editExpenseModal').classList.remove('flex'); }
-    function saveEditedExpense(e) {
-        e.preventDefault();
-        const id = document.getElementById('ex-id').value;
-        const item = expenses.find(i => i.id === id);
-        if(item) {
-            item.name = document.getElementById('ex-name').value;
-            item.value = parseFloat(document.getElementById('ex-value').value);
-            item.date = document.getElementById('ex-date').value;
-        }
-        closeEditExpenseModal();
-        renderFinance();
-    }
-    function deleteCurrentExpense() {
-        const id = document.getElementById('ex-id').value;
-        expenses = expenses.filter(i => i.id !== id);
-        closeEditExpenseModal();
-        renderFinance();
-    }
-
-    renderFinance();
+  const qp = new URLSearchParams(location.search);
+  if (qp.get('mes')) month = qp.get('mes');
+  render();
+  if (qp.get('novo')) openForm();
 </script>
 </body>
 </html>
-finance.html
-Exibindo finance.html.

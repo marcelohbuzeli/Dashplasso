@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plassô Marketing — Gestão Integrada</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -185,8 +186,10 @@
     </div>
 </div>
 
-<script>
-    let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+<script src="assets/config.js?v=3"></script>
+<script src="assets/core.js?v=3" data-mode="app"></script>
+<script type="text/plain" data-app>
+    let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
     let draggedTaskId = null;
     let activeDetailTaskId = null;
 
@@ -239,7 +242,7 @@
                 `;
             });
         });
-        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+        Store.setItem('plasso_tasks', JSON.stringify(tasks));
     }
 
     function openTaskDetail(id) {
@@ -277,7 +280,7 @@
             t.caption = document.getElementById('dt-caption').value;
             t.observacoes = document.getElementById('dt-observacoes').value;
             t.notes = document.getElementById('dt-observacoes').value;
-            localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+            Store.setItem('plasso_tasks', JSON.stringify(tasks));
             alert('Task atualizada com sucesso!');
             closeTaskDetailModal();
             renderKanban();
@@ -287,7 +290,7 @@
     function deleteTaskFromModal() {
         if(!confirm('Deseja excluir esta task?')) return;
         tasks = tasks.filter(task => task.id !== activeDetailTaskId);
-        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+        Store.setItem('plasso_tasks', JSON.stringify(tasks));
         closeTaskDetailModal();
         renderKanban();
     }
@@ -311,7 +314,7 @@
             } else {
                 t.manuallyMovedToPronto = false;
             }
-            localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+            Store.setItem('plasso_tasks', JSON.stringify(tasks));
             renderKanban();
         }
     }
@@ -342,7 +345,7 @@
             isRejected: false,
             manuallyMovedToPronto: false
         });
-        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+        Store.setItem('plasso_tasks', JSON.stringify(tasks));
         closeNewTaskModal();
         renderKanban();
     }
@@ -351,5 +354,3 @@
 </script>
 </body>
 </html>
-tasks.html
-Exibindo tasks.html.

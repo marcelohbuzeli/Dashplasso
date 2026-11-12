@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plassô Marketing — Gestão Integrada</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -208,15 +209,17 @@
     </div>
 </div>
 
-<script>
+<script src="assets/config.js?v=3"></script>
+<script src="assets/core.js?v=3" data-mode="app"></script>
+<script type="text/plain" data-app>
     let activeDateStr = null;
     let activeDetailTaskId = null;
 
     function populateClientsDatalist() {
         const datalist = document.getElementById('clients-datalist');
         datalist.innerHTML = '';
-        let clients = JSON.parse(localStorage.getItem('plasso_clients') || '[]');
-        let crm = JSON.parse(localStorage.getItem('plasso_crm') || '[]');
+        let clients = JSON.parse(Store.getItem('plasso_clients') || '[]');
+        let crm = JSON.parse(Store.getItem('plasso_crm') || '[]');
         let names = new Set();
         clients.forEach(c => names.add(c.name));
         crm.forEach(l => names.add(l.name));
@@ -239,7 +242,7 @@
         let firstDayIndex = new Date(year, month - 1, 1).getDay(); // Dia da semana do dia 1 (0=Dom, 1=Seg, ...)
         let totalDays = new Date(year, month, 0).getDate(); // Total de dias no mês
 
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
 
         // Preencher espaços vazios antes do dia 1 para alinhar o dia da semana corretamente
         for (let b = 0; b < firstDayIndex; b++) {
@@ -290,7 +293,7 @@
 
     function selectMenuAction(type) {
         closeDayMenuModal();
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
 
         if (type === 'post') {
             let newId = 't_' + Date.now();
@@ -314,7 +317,7 @@
                 isRejected: false
             };
             tasks.push(newTask);
-            localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+            Store.setItem('plasso_tasks', JSON.stringify(tasks));
             renderCalendar();
             openTaskDetail(newId);
         } else {
@@ -340,7 +343,7 @@
 
         if(!dateVal) { alert('Selecione uma data.'); return; }
 
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
         let newId = 't_' + Date.now();
         let headlineText = '';
         let noteType = '';
@@ -363,7 +366,7 @@
             status: 'todo',
             notes: noteType
         });
-        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+        Store.setItem('plasso_tasks', JSON.stringify(tasks));
 
         closeEventDetailForm();
         renderCalendar();
@@ -371,7 +374,7 @@
     }
 
     function openItemModal(id) {
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
         let t = tasks.find(task => task.id === id);
         if(!t) return;
 
@@ -387,7 +390,7 @@
     }
 
     function openTaskDetail(id) {
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
         let t = tasks.find(task => task.id === id);
         if(!t) return;
         activeDetailTaskId = id;
@@ -411,7 +414,7 @@
     }
 
     function saveTaskDetails() {
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
         let t = tasks.find(task => task.id === activeDetailTaskId);
         if(t) {
             t.headline = document.getElementById('dt-headline').value;
@@ -432,7 +435,7 @@
                 t.status = (diffHours <= 48 || t.isRejected) ? 'urgent' : 'afazer';
             }
 
-            localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+            Store.setItem('plasso_tasks', JSON.stringify(tasks));
             alert('Postagem salva com sucesso!');
             closeTaskDetailModal();
             renderCalendar();
@@ -441,9 +444,9 @@
 
     function deleteTaskFromModal() {
         if(!confirm('Excluir esta task?')) return;
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
         tasks = tasks.filter(task => task.id !== activeDetailTaskId);
-        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+        Store.setItem('plasso_tasks', JSON.stringify(tasks));
         closeTaskDetailModal();
         renderCalendar();
     }
@@ -454,12 +457,12 @@
     }
     function saveCalendarEvent() {
         let id = document.getElementById('cem-id').value;
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
         let t = tasks.find(task => task.id === id);
         if(t) {
             t.headline = document.getElementById('cem-headline').value;
             t.date = document.getElementById('cem-date').value;
-            localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+            Store.setItem('plasso_tasks', JSON.stringify(tasks));
             alert('Agendamento atualizado!');
             closeCalendarEditModal();
             renderCalendar();
@@ -468,9 +471,9 @@
     function deleteCalendarEvent() {
         if(!confirm('Apagar agendamento?')) return;
         let id = document.getElementById('cem-id').value;
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
         tasks = tasks.filter(task => task.id !== id);
-        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+        Store.setItem('plasso_tasks', JSON.stringify(tasks));
         closeCalendarEditModal();
         renderCalendar();
     }
@@ -481,5 +484,3 @@
 </script>
 </body>
 </html>
-calendar.html
-Exibindo calendar.html.

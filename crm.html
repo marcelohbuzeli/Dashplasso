@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM | Plassô</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -157,8 +158,11 @@
     </div>
 </div>
 
-<script>
-    let leads = JSON.parse(localStorage.getItem('plasso_crm') || '[]');
+<script src="assets/config.js?v=3"></script>
+<script src="assets/core.js?v=3" data-mode="app"></script>
+<script src="assets/integracao.js?v=3"></script>
+<script type="text/plain" data-app>
+    let leads = JSON.parse(Store.getItem('plasso_crm') || '[]');
     let draggedLeadId = null;
     let pendingLeadId = null;
     let pendingTargetCol = null;
@@ -190,7 +194,7 @@
                 `;
             });
         });
-        localStorage.setItem('plasso_crm', JSON.stringify(leads));
+        Store.setItem('plasso_crm', JSON.stringify(leads));
     }
 
     let activeDetailLeadId = null;
@@ -215,7 +219,7 @@
         if(l) {
             l.insta = document.getElementById('ld-insta').value;
             l.link = document.getElementById('ld-link').value;
-            localStorage.setItem('plasso_crm', JSON.stringify(leads));
+            Store.setItem('plasso_crm', JSON.stringify(leads));
             alert('Dados do lead atualizados!');
             closeLeadDetailModal();
             renderCRM();
@@ -269,14 +273,16 @@
             lead.col = 'aguardando';
             let msg = `Em aguardando resposta em ${todayStr}`;
             lead.historyArray.push(msg);
-            if(confirm(`O lead "${lead.name}" fechou contrato e se tornou cliente?`)) {
-                let clients = JSON.parse(localStorage.getItem('plasso_clients') || '[]');
-                clients.push({ id: 'c_' + Date.now(), name: lead.name, fee: 1500, dueDate: new Date().toISOString().split('T')[0], isOverdue: false });
-                localStorage.setItem('plasso_clients', JSON.stringify(clients));
-                leads = leads.filter(l => l.id !== lead.id);
-                alert(`Parabéns! "${lead.name}" foi movido definitivamente para a aba Clientes e removido do CRM.`);
-            }
             renderCRM();
+            if(confirm(`O lead "${lead.name}" fechou contrato e se tornou cliente?`)) {
+                Integracao.abrirConversao(lead, () => {
+                    leads = leads.filter(l => l.id !== lead.id);
+                    let ganhos = JSON.parse(Store.getItem('plasso_crm_ganhos') || '[]');
+                    ganhos.push({ ...lead, col: 'ganho', ganhoEm: new Date().toISOString() });
+                    Store.setItem('plasso_crm_ganhos', JSON.stringify(ganhos));
+                    renderCRM();
+                });
+            }
         } else {
             lead.col = targetCol;
             renderCRM();
@@ -310,7 +316,7 @@
         let histMsg = `Follow agendado para: ${formattedDate} às ${timeVal}`;
         lead.historyArray.push(histMsg);
         
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
         tasks.push({
             id: 't_' + Date.now(),
             client: lead.name,
@@ -321,7 +327,7 @@
             status: 'todo',
             notes: 'crm_follow'
         });
-        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+        Store.setItem('plasso_tasks', JSON.stringify(tasks));
 
         closeFollowModal();
         renderCRM();
@@ -345,7 +351,7 @@
         let histMsg = `Reunião agendada para: ${formattedDate} às ${timeVal}`;
         lead.historyArray.push(histMsg);
 
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
         tasks.push({
             id: 't_' + Date.now(),
             client: lead.name,
@@ -356,7 +362,7 @@
             status: 'todo',
             notes: 'crm_meeting'
         });
-        localStorage.setItem('plasso_tasks', JSON.stringify(tasks));
+        Store.setItem('plasso_tasks', JSON.stringify(tasks));
 
         closeMeetingModal();
         renderCRM();
@@ -390,5 +396,3 @@
 </script>
 </body>
 </html>
-crm.html
-Exibindo crm.html.

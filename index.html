@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plassô | Marketing</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -141,12 +142,16 @@
         </div>
     </main>
 </div>
-<script>
+<script src="assets/config.js?v=3"></script>
+<script src="assets/core.js?v=3" data-mode="app"></script>
+<script src="assets/integracao.js?v=3"></script>
+<script src="assets/financas.js?v=3"></script>
+<script type="text/plain" data-app>
     function loadData() {
-        let goal = localStorage.getItem('plasso_goal') || 20000;
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
-        let entries = JSON.parse(localStorage.getItem('plasso_entries') || '[]');
-        let crm = JSON.parse(localStorage.getItem('plasso_crm') || '[]');
+        let goal = Store.getItem('plasso_goal') || 20000;
+        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
+        let entries = JSON.parse(Store.getItem('plasso_entries') || '[]');
+        let crm = JSON.parse(Store.getItem('plasso_crm') || '[]');
         
         // Renderizar Urgentes
         let urgentList = document.getElementById('dash-urgent-list');
@@ -176,7 +181,11 @@
         if(crmCount === 0) crmList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Nenhum follow-up hoje.</p>';
 
         // Financeiro
-        let totalEntries = entries.reduce((acc, curr) => acc + curr.value, 0);
+        const mesAtual = new Date().toISOString().slice(0, 7);
+        const goalsMes = JSON.parse(Store.getItem('plasso_monthly_goals') || '{}');
+        if (goalsMes[mesAtual]) goal = goalsMes[mesAtual];
+        Financas.migrarAntigos();
+        let totalEntries = Financas.resumoMes(Financas.ativos(), mesAtual).entPago;
         let pct = Math.round((totalEntries * 100) / goal);
         if(pct > 100) pct = 100;
         document.getElementById('dash-fin-actual').innerText = 'R$ ' + totalEntries.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
@@ -188,13 +197,13 @@
     function connectNotionCalendar() {
         const url = document.getElementById('notion-url-input').value;
         if(!url) { alert("Insira um link válido."); return; }
-        localStorage.setItem('plasso_notion_url', url);
+        Store.setItem('plasso_notion_url', url);
         document.getElementById('notion-embed-container').innerHTML = `<iframe src="${url}" class="w-full h-[320px] rounded-xl border-0"></iframe>`;
     }
 
     window.onload = function() {
         loadData();
-        const savedNotion = localStorage.getItem('plasso_notion_url');
+        const savedNotion = Store.getItem('plasso_notion_url');
         if(savedNotion) {
             document.getElementById('notion-embed-container').innerHTML = `<iframe src="${savedNotion}" class="w-full h-[320px] rounded-xl border-0"></iframe>`;
         }

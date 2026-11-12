@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plassô Marketing — Central de Aprovação</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -92,12 +93,14 @@
         </div>
     </div>
 
-    <script>
+    <script src="assets/config.js?v=3"></script>
+<script src="assets/core.js?v=3" data-mode="portal"></script>
+<script type="text/plain" data-app>
         const urlParams = new URLSearchParams(window.location.search);
         const clientId = urlParams.get('client');
-        let clients = JSON.parse(localStorage.getItem('plasso_clients') || '[]');
+        let clients = JSON.parse(Store.getItem('plasso_clients') || '[]');
         let currentClient = clients.find(c => c.id === clientId) || clients[0];
-        let tasks = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
 
         if(currentClient) {
             document.getElementById('portal-client-title').innerText = "Cliente: " + currentClient.name;
@@ -314,22 +317,22 @@
         }
 
         function updateTaskField(id, field, value) {
-            let tasksList = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+            let tasksList = JSON.parse(Store.getItem('plasso_tasks') || '[]');
             let t = tasksList.find(task => task.id === id);
             if(t) {
                 t[field] = value;
-                localStorage.setItem('plasso_tasks', JSON.stringify(tasksList));
+                Store.setItem('plasso_tasks', JSON.stringify(tasksList));
                 tasks = tasksList;
             }
         }
 
         function approveTask(id) {
-            let tasksList = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+            let tasksList = JSON.parse(Store.getItem('plasso_tasks') || '[]');
             let t = tasksList.find(task => task.id === id);
             if(t) {
                 t.status = 'aprovadas';
                 t.isRejected = false;
-                localStorage.setItem('plasso_tasks', JSON.stringify(tasksList));
+                Store.setItem('plasso_tasks', JSON.stringify(tasksList));
                 tasks = tasksList;
                 alert('Conteúdo aprovado com sucesso! Movido para a aba Aprovadas.');
                 openDayModal(parseInt(currentActiveDayNum));
@@ -357,13 +360,13 @@
                 alert('Por favor, escreva o motivo da recusa.');
                 return;
             }
-            let tasksList = JSON.parse(localStorage.getItem('plasso_tasks') || '[]');
+            let tasksList = JSON.parse(Store.getItem('plasso_tasks') || '[]');
             let t = tasksList.find(task => task.id === targetTaskIdForRejection);
             if(t) {
                 t.status = 'urgent';
                 t.isRejected = true;
                 t.notes = 'Reprovado pelo cliente: ' + textNotes;
-                localStorage.setItem('plasso_tasks', JSON.stringify(tasksList));
+                Store.setItem('plasso_tasks', JSON.stringify(tasksList));
                 tasks = tasksList;
                 alert('Recusa enviada com sucesso! O post retornou como ajuste.');
                 closeRejectionModal();
@@ -376,5 +379,3 @@
     </script>
 </body>
 </html>
-portal.html
-Exibindo portal.html.
