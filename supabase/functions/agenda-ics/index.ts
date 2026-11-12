@@ -5,7 +5,7 @@
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-user-token",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 const json = (body: unknown, status = 200) =>
@@ -99,9 +99,11 @@ const hm = (d: Date) => d.toISOString().slice(11, 16);
 
 // só aceita chamadas de quem está logado no Plassô (confere o token no próprio Supabase Auth)
 async function usuarioLogado(req: Request): Promise<boolean> {
-  const auth = req.headers.get("Authorization") || "";
+  // o token do usuário vem em x-user-token (a chave pública vai no apikey)
+  const tok = req.headers.get("x-user-token") || (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
   const apikey = req.headers.get("apikey") || "";
-  if (!/^Bearer\s+ey/i.test(auth) || !apikey) return false;
+  if (!/^ey/.test(tok) || !apikey) return false;
+  const auth = "Bearer " + tok;
   try {
     const r = await fetch(`${Deno.env.get("SUPABASE_URL")}/auth/v1/user`, { headers: { Authorization: auth, apikey } });
     return r.ok;
