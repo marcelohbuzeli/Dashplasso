@@ -3,109 +3,75 @@
 <head>
 <meta charset="UTF-8">
 <meta name="robots" content="noindex, nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plassô | Criação</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060918">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Plassô | Criação IA</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script>tailwind.config = { theme: { extend: { colors: { dark: { 950: '#030712', 900: '#0b0f19', 850: '#111827', 800: '#1f2937' } } } } }</script>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-  body { font-family: 'Plus Jakarta Sans', sans-serif; }
-  ::-webkit-scrollbar { width: 4px; height: 4px; } ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
-  .fi { width: 100%; background: #030712; border: 1px solid #1f2937; border-radius: 12px; padding: 8px 12px; font-size: 13px; color: #fff; outline: none; }
-  .fi:focus { border-color: #6366f1; }
-  textarea.fi { line-height: 1.55; }
-</style>
+<link rel="stylesheet" href="assets/ui.css?v=4">
+<style>#col-lista{order:2}#col-gerar{order:1}@media(min-width:1100px){#col-lista{order:1}#col-gerar{order:2;position:sticky;top:16px}}</style>
 </head>
-<body class="bg-dark-950 text-slate-200 antialiased overflow-hidden">
-<div class="flex h-screen w-screen overflow-hidden">
-  <aside id="sidebar" class="hidden md:flex bg-dark-900 border-r border-dark-800 flex-col w-64 shrink-0 h-full">
-    <div class="h-20 flex items-center gap-3 px-4 border-b border-dark-800/60 shrink-0">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center font-bold text-white text-lg font-mono">P</div>
-      <div class="flex flex-col"><span class="font-bold tracking-widest text-white uppercase">Plassô</span><span class="text-[9px] text-blue-400 font-mono tracking-wider">MARKETING</span></div>
+<body data-theme="empresa">
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="brand-mark">P</div><div><div class="brand-name">Empresa</div><div class="brand-sub">Agente de criação</div></div></div>
+    <div class="row">
+      <button class="chip-btn" onclick="openSettings()" aria-label="Integrações"><i class="fa-solid fa-plug"></i></button>
+      <button class="chip-btn" onclick="UI.menu()" aria-label="Menu"><i class="fa-solid fa-ellipsis"></i></button>
     </div>
-    <nav class="p-3 space-y-1 font-medium text-xs flex-1 overflow-y-auto"></nav>
-  </aside>
+  </header>
+  <nav id="subnav"></nav>
 
-  <main class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
-    <header class="min-h-20 border-b border-dark-800/60 px-4 md:px-8 py-3 flex flex-wrap gap-3 items-center justify-between bg-dark-900/30 shrink-0">
+  <div class="hero">
+    <div class="eyebrow">Agente de criação</div>
+    <h1 class="display mt-2">Conteúdos do mês<br><span class="soft">a partir do briefing</span></h1>
+    <p>A IA lê o briefing do cliente e escreve roteiro, gancho, legenda e orientações. Você confere, ajusta e manda para gravação, edição ou design.</p>
+  </div>
+
+  <div class="grid lg-g-main" style="align-items:start">
+    <section class="stack" id="col-lista" style="min-width:0">
+      <div class="row-between">
+        <h2 class="h2">Conteúdos <span class="muted" id="cont-count"></span></h2>
+      </div>
+      <div class="seg" id="status-filter">
+        <button data-v="" class="on">Todos</button><button data-v="rascunho">Rascunhos</button><button data-v="aprovado">No calendário</button>
+      </div>
+      <div id="lista" class="stack"></div>
+    </section>
+
+    <section class="card card-lg stack" id="col-gerar">
+      <label class="field"><span>Cliente</span><select class="select" id="cliente"></select></label>
+      <div id="cliente-info" class="card card-tight small stack" style="gap:6px"></div>
+      <div class="form-grid">
+        <label class="field"><span>Mês</span><input class="input" type="month" id="mes"></label>
+        <label class="field"><span>Quantidade</span><input class="input" type="number" min="1" max="40" id="qtd"></label>
+      </div>
       <div>
-        <h1 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-indigo-400 text-xs"></i> Agente de Criação</h1>
-        <p class="text-[11px] text-slate-500">Lê o briefing do cliente e cria os conteúdos do mês. Você confere, ajusta e envia para gravação, edição ou design.</p>
+        <div class="label-txt mb-2">Distribuição por formato</div>
+        <div class="grid g-2" id="formatos"></div>
       </div>
-      <button onclick="openSettings()" class="text-xs text-slate-400 hover:text-white bg-dark-900 border border-dark-800 rounded-xl px-3 py-2"><i class="fa-solid fa-gear mr-1"></i> Integrações</button>
-    </header>
-
-    <div class="flex-1 overflow-y-auto p-4 md:p-8">
-      <div class="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-6">
-        <!-- Painel de geração -->
-        <section class="bg-dark-900 border border-dark-800 rounded-2xl p-5 space-y-4 h-fit xl:sticky xl:top-0">
-          <label class="block text-xs text-slate-400">Cliente
-            <select id="cliente" class="fi mt-1"></select>
-          </label>
-          <div id="cliente-info" class="text-xs bg-dark-950 border border-dark-800 rounded-xl p-3 space-y-1.5"></div>
-          <div class="grid grid-cols-2 gap-3 text-xs text-slate-400">
-            <label>Mês<input id="mes" type="month" class="fi mt-1"></label>
-            <label>Quantidade<input id="qtd" type="number" min="1" max="40" class="fi mt-1"></label>
-          </div>
-          <div class="text-xs text-slate-400">
-            <p class="mb-1.5">Distribuição por formato</p>
-            <div class="grid grid-cols-2 gap-2" id="formatos">
-              <label class="flex items-center justify-between bg-dark-950 border border-dark-800 rounded-xl px-3 py-1.5">Reels<input data-f="Reels" type="number" min="0" class="w-12 bg-transparent text-right text-white outline-none"></label>
-              <label class="flex items-center justify-between bg-dark-950 border border-dark-800 rounded-xl px-3 py-1.5">Carrossel<input data-f="Carrossel" type="number" min="0" class="w-12 bg-transparent text-right text-white outline-none"></label>
-              <label class="flex items-center justify-between bg-dark-950 border border-dark-800 rounded-xl px-3 py-1.5">Story<input data-f="Story" type="number" min="0" class="w-12 bg-transparent text-right text-white outline-none"></label>
-              <label class="flex items-center justify-between bg-dark-950 border border-dark-800 rounded-xl px-3 py-1.5">Post<input data-f="Post estático" type="number" min="0" class="w-12 bg-transparent text-right text-white outline-none"></label>
-            </div>
-          </div>
-          <label class="block text-xs text-slate-400">Observações para este lote
-            <textarea id="obs" rows="3" class="fi mt-1" placeholder="Ex.: mês de Black Friday, focar no procedimento X, evitar falar de preço…"></textarea>
-          </label>
-          <button id="btn-gerar" onclick="gerar()" class="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold rounded-xl py-2.5 text-sm"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Gerar conteúdos</button>
-          <div id="progresso" class="hidden">
-            <div class="h-1.5 bg-dark-950 rounded-full overflow-hidden"><div id="prog-bar" class="h-full bg-indigo-500 transition-all" style="width:0%"></div></div>
-            <p id="prog-text" class="text-[11px] text-slate-400 mt-1.5 font-mono"></p>
-          </div>
-          <p id="aviso-local" class="hidden text-[11px] text-amber-300 bg-amber-950/40 border border-amber-900 rounded-xl p-2.5">A geração por IA precisa do banco configurado e da função <b>gerar-conteudos</b> publicada (veja docs/AGENTE-CRIACAO.md).</p>
-        </section>
-
-        <!-- Conteúdos -->
-        <section class="space-y-4 min-w-0">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <h2 class="text-sm font-bold text-white">Conteúdos <span id="cont-count" class="text-slate-500 font-normal"></span></h2>
-            <div class="flex gap-1 bg-dark-900 border border-dark-800 rounded-xl p-0.5 text-xs" id="status-filter">
-              <button data-v="" class="px-3 py-1.5 rounded-lg bg-dark-800 text-white">Todos</button>
-              <button data-v="rascunho" class="px-3 py-1.5 rounded-lg text-slate-400">Rascunhos</button>
-              <button data-v="aprovado" class="px-3 py-1.5 rounded-lg text-slate-400">No calendário</button>
-            </div>
-          </div>
-          <div id="lista" class="space-y-4"></div>
-        </section>
-      </div>
-    </div>
-  </main>
-</div>
-
-<!-- Modal integrações -->
-<div id="settings" class="hidden fixed inset-0 z-40 bg-black/70 items-center justify-center p-4">
-  <div class="bg-dark-900 border border-dark-800 rounded-2xl w-full max-w-lg p-6 space-y-4">
-    <h3 class="text-white font-bold">Integrações de envio</h3>
-    <p class="text-xs text-slate-400">Os botões <b>Enviar para edição</b> e <b>Enviar para design</b> mandam os dados do conteúdo (cliente, roteiro, pasta do Drive) para estes endereços (webhook). Seu agente de edição pode recebê-los por n8n, Make, Zapier ou um servidor próprio. Sem endereço, o conteúdo só é marcado como "na fila" e o briefing é copiado para você colar.</p>
-    <label class="block text-xs text-slate-400">Webhook — edição de vídeo<input id="wh-edicao" class="fi mt-1" placeholder="https://…"></label>
-    <label class="block text-xs text-slate-400">Webhook — design<input id="wh-design" class="fi mt-1" placeholder="https://…"></label>
-    <div class="flex justify-end gap-2">
-      <button onclick="closeSettings()" class="px-4 py-2 rounded-xl text-slate-300 hover:bg-dark-800 text-sm">Cancelar</button>
-      <button onclick="saveSettings()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-sm font-semibold">Salvar</button>
-    </div>
+      <label class="field"><span>Observações para este lote</span><textarea class="textarea" id="obs" rows="3" placeholder="Ex.: mês de Black Friday, focar no procedimento X…"></textarea></label>
+      <button class="btn btn-white btn-lg btn-block" id="btn-gerar" onclick="gerar()"><i class="fa-solid fa-wand-magic-sparkles"></i> Gerar conteúdos</button>
+      <div id="progresso" class="hidden"><div class="bar"><span id="prog-bar" style="width:0%"></span></div><p id="prog-text" class="small muted mt-2"></p></div>
+      <p id="aviso" class="hidden small card card-tight" style="border-color:rgba(255,181,71,.4);color:#ffd08a">A geração por IA ainda não está ativa: falta publicar a função <b>gerar-conteudos</b> com a chave da Anthropic (passo a passo em docs/AGENTE-CRIACAO.md).</p>
+    </section>
   </div>
 </div>
 
-<script src="assets/config.js?v=3"></script>
-<script src="assets/core.js?v=3" data-mode="app"></script>
+<script src="assets/config.js?v=4"></script>
+<script src="assets/core.js?v=4" data-mode="app"></script>
+<script src="assets/ui.js?v=4"></script>
 <script type="text/plain" data-app>
-  const esc = App.esc;
+  UI.mount({ tab: 'empresa', sub: 'criacao' });
+  const { esc } = UI;
   const COL = 'criacao';
   const $ = id => document.getElementById(id);
   let filtro = '';
+  const FORMS = ['Reels', 'Carrossel', 'Story', 'Post estático'];
+  const icones = { 'Reels': 'fa-film', 'Carrossel': 'fa-images', 'Story': 'fa-mobile-screen', 'Post estático': 'fa-image' };
+
+  $('formatos').innerHTML = FORMS.map(f => `<label class="card card-tight row-between" style="padding:8px 12px"><span class="small">${f}</span><input data-f="${f}" type="number" min="0" inputmode="numeric" class="input" style="width:64px;min-height:36px;padding:6px 8px;text-align:right"></label>`).join('');
 
   const clientes = () => DB.list('clients').filter(c => c.status !== 'encerrado').sort((a, b) => a.name.localeCompare(b.name));
   const atual = () => DB.get('clients', $('cliente').value);
@@ -114,53 +80,47 @@
     const qp = new URLSearchParams(location.search);
     $('cliente').innerHTML = clientes().map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('') || '<option value="">Nenhum cliente ativo</option>';
     if (qp.get('cliente')) $('cliente').value = qp.get('cliente');
-    $('mes').value = new Date().toISOString().slice(0, 7);
+    $('mes').value = UI.hoje().slice(0, 7);
     $('cliente').addEventListener('change', onCliente);
     onCliente();
-    if (!App.configured) $('aviso-local').classList.remove('hidden');
+    if (!App.configured) $('aviso').classList.remove('hidden');
   }
 
   function onCliente() {
     const c = atual();
-    if (!c) { $('cliente-info').innerHTML = '<p class="text-slate-500">Cadastre um cliente (CRM ou aba Clientes).</p>'; return; }
+    if (!c) { $('cliente-info').innerHTML = '<span class="muted">Cadastre um cliente (CRM ou Clientes).</span>'; render(); return; }
     const q = Number(c.quantidadeMes) || 8;
     $('qtd').value = q;
-    const reels = Math.round(q * 0.5), carr = Math.round(q * 0.35);
+    const reels = Math.round(q * .5), carr = Math.round(q * .35);
     const vals = { 'Reels': reels, 'Carrossel': carr, 'Story': 0, 'Post estático': Math.max(0, q - reels - carr) };
     document.querySelectorAll('#formatos input').forEach(i => i.value = vals[i.dataset.f]);
-    const linha = (k, v) => `<p><span class="text-slate-500">${k}:</span> <span class="text-slate-200">${esc(v || '—')}</span></p>`;
+    const linha = (k, v) => `<div><span class="muted">${k}:</span> ${esc(v || '—')}</div>`;
     $('cliente-info').innerHTML = linha('Produto', c.produto) + linha('Conteúdos/mês', c.quantidadeMes) + linha('Objetivo', c.objetivo) +
-      `<p class="text-slate-500 pt-1">Briefing:</p><p class="text-slate-300 whitespace-pre-line max-h-32 overflow-y-auto">${esc(c.briefing || 'Sem briefing. Preencha na ficha do cliente para resultados melhores.')}</p>` +
-      `<a href="clients.html" class="text-indigo-300 hover:underline">Editar briefing →</a>`;
+      `<div class="muted mt-1">Briefing</div><div class="soft" style="white-space:pre-line;max-height:120px;overflow:auto">${esc(c.briefing || 'Sem briefing. Preencha na ficha do cliente para resultados melhores.')}</div>
+       <a href="${UI.keepParams('clients.html?c=' + encodeURIComponent(c.id))}" class="accent-text">Editar briefing →</a>`;
     render();
   }
 
-  // ---------- geração ----------
   async function chamarFuncao(payload) {
     const { data: { session } } = await App.supabase.auth.getSession();
     const res = await fetch(PLASSO_CONFIG.SUPABASE_URL + '/functions/v1/gerar-conteudos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token, apikey: PLASSO_CONFIG.SUPABASE_ANON_KEY },
-      body: JSON.stringify(payload)
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token, apikey: PLASSO_CONFIG.SUPABASE_ANON_KEY }, body: JSON.stringify(payload)
     });
     const out = await res.json().catch(() => ({}));
+    if (res.status === 404) throw new Error('A função de IA ainda não foi publicada no Supabase.');
     if (!res.ok) throw new Error(out.error || ('Erro ' + res.status));
     return out.conteudos || [];
   }
 
   async function gerar() {
     const c = atual(); if (!c) return;
-    if (!App.configured) { App.toast('Configure o banco e publique a função gerar-conteudos primeiro.', 'warn'); return; }
-    // fila de formatos, ex.: [Reels, Reels, Carrossel, ...]
+    if (!App.configured) { App.toast('A IA só funciona com o banco ligado e a função publicada.', 'warn'); return; }
     const fila = [];
     document.querySelectorAll('#formatos input').forEach(i => { for (let k = 0; k < (Number(i.value) || 0); k++) fila.push(i.dataset.f); });
-    const total = fila.length || Number($('qtd').value) || 0;
-    if (!total) { App.toast('Defina a quantidade.', 'warn'); return; }
-    if (!fila.length) for (let k = 0; k < total; k++) fila.push('Reels');
-
+    if (!fila.length) { const n = Number($('qtd').value) || 0; for (let k = 0; k < n; k++) fila.push('Reels'); }
+    if (!fila.length) { App.toast('Defina a quantidade.', 'warn'); return; }
     $('btn-gerar').disabled = true; $('progresso').classList.remove('hidden');
-    const loteId = App.uid('lote_');
-    let feitos = 0;
+    const loteId = App.uid('lote_'); let feitos = 0;
     try {
       for (let i = 0; i < fila.length; i += 3) {
         const lote = fila.slice(i, i + 3);
@@ -170,40 +130,20 @@
         const jaCriados = DB.list(COL).filter(x => x.clienteId === c.id).map(x => x.titulo);
         const conteudos = await chamarFuncao({ clienteId: c.id, quantidade: lote.length, formatos, mes: $('mes').value, observacoes: $('obs').value, jaCriados });
         const agora = new Date().toISOString();
-        DB.putMany(COL, conteudos.map((x, k) => ({
-          ...x, id: App.uid('cr_'), clienteId: c.id, cliente: c.name, mes: $('mes').value, loteId,
-          status: 'rascunho', data: sugerirData($('mes').value, feitos + k, fila.length), criadoEm: agora
-        })));
-        feitos += lote.length;
-        render();
+        DB.putMany(COL, conteudos.map((x, k) => ({ ...x, id: App.uid('cr_'), clienteId: c.id, cliente: c.name, mes: $('mes').value, loteId, status: 'rascunho', data: sugerirData($('mes').value, feitos + k, fila.length), criadoEm: agora })));
+        feitos += lote.length; render();
       }
       $('prog-bar').style.width = '100%';
-      $('prog-text').textContent = `${feitos} conteúdos criados. Confira abaixo.`;
+      $('prog-text').textContent = `${feitos} conteúdos criados. Confira na lista.`;
       App.toast(`${feitos} conteúdos criados para ${c.name}.`, 'ok');
     } catch (e) {
       App.toast('Erro na geração: ' + e.message, 'err');
       $('prog-text').textContent = `Parou em ${feitos} de ${fila.length}: ${e.message}`;
-    } finally {
-      $('btn-gerar').disabled = false;
-    }
+    } finally { $('btn-gerar').disabled = false; }
   }
+  function sugerirData(mes, i, n) { const [y, m] = mes.split('-').map(Number); const dias = new Date(y, m, 0).getDate(); const d = Math.min(dias, Math.max(1, Math.round(1 + (i + .5) * (dias - 1) / Math.max(1, n)))); return `${mes}-${String(d).padStart(2, '0')}`; }
 
-  // espalha as datas pelo mês (dias úteis aproximados)
-  function sugerirData(mes, i, n) {
-    const [y, m] = mes.split('-').map(Number);
-    const dias = new Date(y, m, 0).getDate();
-    const d = Math.min(dias, Math.max(1, Math.round(1 + (i + 0.5) * (dias - 1) / Math.max(1, n))));
-    return `${mes}-${String(d).padStart(2, '0')}`;
-  }
-
-  // ---------- lista ----------
-  document.querySelectorAll('#status-filter button').forEach(b => b.onclick = () => {
-    filtro = b.dataset.v;
-    document.querySelectorAll('#status-filter button').forEach(x => { x.className = 'px-3 py-1.5 rounded-lg ' + (x === b ? 'bg-dark-800 text-white' : 'text-slate-400'); });
-    render();
-  });
-
-  const icones = { 'Reels': 'fa-film', 'Carrossel': 'fa-images', 'Story': 'fa-mobile-screen', 'Post estático': 'fa-image' };
+  document.querySelectorAll('#status-filter button').forEach(b => b.onclick = () => { filtro = b.dataset.v; document.querySelectorAll('#status-filter button').forEach(x => x.classList.toggle('on', x === b)); render(); });
 
   function render() {
     const c = atual();
@@ -211,83 +151,48 @@
     if (filtro) list = list.filter(x => x.status === filtro);
     list.sort((a, b) => (a.data || '').localeCompare(b.data || ''));
     $('cont-count').textContent = list.length ? `(${list.length})` : '';
-    $('lista').innerHTML = list.length ? list.map(card).join('') : `
-      <div class="text-center py-16 text-slate-500 text-sm border border-dashed border-dark-800 rounded-2xl">
-        <i class="fa-solid fa-wand-magic-sparkles text-2xl mb-3 text-slate-600"></i>
-        <p>Nenhum conteúdo ainda. Escolha o cliente e clique em <b>Gerar conteúdos</b>.</p>
-      </div>`;
+    $('lista').innerHTML = list.map(card).join('') || '<div class="card empty"><i class="fa-solid fa-wand-magic-sparkles"></i>Nenhum conteúdo ainda. Escolha o cliente e clique em Gerar conteúdos.</div>';
   }
 
   function card(x) {
-    const envio = x.envio ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-violet-950 text-violet-300 border border-violet-900"><i class="fa-solid fa-paper-plane mr-1"></i>${x.envio.tipo === 'edicao' ? 'Na edição' : 'No design'}</span>` : '';
-    const st = x.status === 'aprovado'
-      ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-900"><i class="fa-solid fa-calendar-check mr-1"></i>No calendário</span>'
-      : '<span class="text-[10px] px-2 py-0.5 rounded-full bg-dark-800 text-slate-300">Rascunho</span>';
-    return `
-    <article class="bg-dark-900 border border-dark-800 rounded-2xl p-5 space-y-3" id="card-${x.id}">
-      <div class="flex flex-wrap items-center gap-2">
-        <span class="text-[11px] font-semibold text-indigo-300 bg-indigo-950/60 border border-indigo-900 rounded-lg px-2 py-1"><i class="fa-solid ${icones[x.formato] || 'fa-file'} mr-1"></i>${esc(x.formato)}</span>
-        ${st} ${envio}
-        <input type="date" value="${esc(x.data || '')}" onchange="campo('${x.id}','data',this.value)" class="ml-auto bg-dark-950 border border-dark-800 rounded-lg px-2 py-1 text-xs text-white">
+    const st = x.status === 'aprovado' ? '<span class="pill pill-ok">No calendário</span>' : '<span class="pill">Rascunho</span>';
+    const env = x.envio ? `<span class="pill pill-accent">${x.envio.tipo === 'edicao' ? 'Na edição' : 'No design'}</span>` : '';
+    return `<article class="card card-lg stack">
+      <div class="row" style="flex-wrap:wrap"><span class="pill pill-accent"><i class="fa-solid ${icones[x.formato] || 'fa-file'}"></i>${esc(x.formato)}</span>${st}${env}
+        <input type="date" class="input" value="${esc(x.data || '')}" onchange="campo('${x.id}','data',this.value)" style="width:auto;min-height:36px;padding:6px 10px;margin-left:auto;font-size:14px" aria-label="Data"></div>
+      <input class="input" value="${esc(x.titulo)}" onchange="campo('${x.id}','titulo',this.value)" style="font-size:18px;font-weight:500;background:transparent;border-color:transparent;padding-left:0" aria-label="Título">
+      <label class="field"><span>Gancho</span><textarea class="textarea" rows="2" onchange="campo('${x.id}','gancho',this.value)">${esc(x.gancho)}</textarea></label>
+      <label class="field"><span>Roteiro</span><textarea class="textarea" rows="7" onchange="campo('${x.id}','roteiro',this.value)">${esc(x.roteiro)}</textarea></label>
+      <div class="form-grid">
+        <label class="field full"><span>Legenda</span><textarea class="textarea" rows="4" onchange="campo('${x.id}','legenda',this.value)">${esc(x.legenda)}${x.hashtags && x.hashtags.length && !(x.legenda || '').includes('#') ? '\n\n' + esc(x.hashtags.map(h => h.startsWith('#') ? h : '#' + h).join(' ')) : ''}</textarea></label>
+        <label class="field"><span>CTA</span><input class="input" value="${esc(x.cta)}" onchange="campo('${x.id}','cta',this.value)"></label>
+        <label class="field"><span>Pasta do Drive</span><input class="input" value="${esc(x.drive || '')}" onchange="campo('${x.id}','drive',this.value)" placeholder="https://drive.google.com/…"></label>
+        <label class="field full"><span>Orientações de gravação / design</span><textarea class="textarea" rows="2" onchange="campo('${x.id}','orientacoes',this.value)">${esc(x.orientacoes)}</textarea></label>
       </div>
-      <input value="${esc(x.titulo)}" onchange="campo('${x.id}','titulo',this.value)" class="w-full bg-transparent text-white font-bold text-base outline-none border-b border-transparent focus:border-indigo-500">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <label class="text-[11px] text-slate-500">Gancho<textarea rows="2" onchange="campo('${x.id}','gancho',this.value)" class="fi mt-1">${esc(x.gancho)}</textarea></label>
-        <label class="text-[11px] text-slate-500">Orientações de gravação / design<textarea rows="2" onchange="campo('${x.id}','orientacoes',this.value)" class="fi mt-1">${esc(x.orientacoes)}</textarea></label>
-        <label class="text-[11px] text-slate-500 lg:col-span-2">Roteiro<textarea rows="7" onchange="campo('${x.id}','roteiro',this.value)" class="fi mt-1">${esc(x.roteiro)}</textarea></label>
-        <label class="text-[11px] text-slate-500">Legenda<textarea rows="5" onchange="campo('${x.id}','legenda',this.value)" class="fi mt-1">${esc(x.legenda)}${x.hashtags && x.hashtags.length && !(x.legenda || '').includes('#') ? '\n\n' + esc(x.hashtags.map(h => h.startsWith('#') ? h : '#' + h).join(' ')) : ''}</textarea></label>
-        <div class="space-y-3">
-          <label class="text-[11px] text-slate-500 block">CTA<input value="${esc(x.cta)}" onchange="campo('${x.id}','cta',this.value)" class="fi mt-1"></label>
-          <label class="text-[11px] text-slate-500 block">Pasta do Drive (material gravado)<input value="${esc(x.drive || '')}" onchange="campo('${x.id}','drive',this.value)" placeholder="https://drive.google.com/…" class="fi mt-1"></label>
-        </div>
-      </div>
-      <div class="flex flex-wrap gap-2 pt-1">
-        ${x.status !== 'aprovado' ? `<button onclick="aprovar('${x.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-check mr-1"></i> Aprovar e pôr no calendário</button>` : ''}
-        <button onclick="enviar('${x.id}','edicao')" class="bg-dark-800 hover:bg-dark-850 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-film mr-1"></i> Enviar para edição</button>
-        <button onclick="enviar('${x.id}','design')" class="bg-dark-800 hover:bg-dark-850 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-palette mr-1"></i> Enviar para design</button>
-        <button onclick="copiar('${x.id}')" class="bg-dark-800 hover:bg-dark-850 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs"><i class="fa-regular fa-copy mr-1"></i> Copiar</button>
-        <button onclick="excluir('${x.id}')" class="ml-auto text-slate-500 hover:text-red-400 px-2 text-xs" aria-label="Excluir"><i class="fa-solid fa-trash"></i></button>
+      <div class="wrap-row">
+        ${x.status !== 'aprovado' ? `<button class="btn btn-white btn-sm" onclick="aprovar('${x.id}')"><i class="fa-solid fa-check"></i> Aprovar e pôr no calendário</button>` : ''}
+        <button class="btn btn-ghost btn-sm" onclick="enviar('${x.id}','edicao')"><i class="fa-solid fa-film"></i> Enviar para edição</button>
+        <button class="btn btn-ghost btn-sm" onclick="enviar('${x.id}','design')"><i class="fa-solid fa-palette"></i> Enviar para design</button>
+        <button class="btn btn-ghost btn-sm" onclick="copiar('${x.id}')"><i class="fa-regular fa-copy"></i> Copiar</button>
+        <button class="chip-btn" style="width:36px;height:36px;margin-left:auto" onclick="excluir('${x.id}')" aria-label="Excluir"><i class="fa-solid fa-trash"></i></button>
       </div>
     </article>`;
   }
 
-  function campo(id, k, v) {
-    const x = DB.get(COL, id); if (!x) return;
-    x[k] = v; DB.put(COL, x);
-    if (x.taskId) sincronizarTarefa(x);
-  }
-
-  // cria/atualiza a tarefa no kanban e calendário (coleção tasks)
+  function campo(id, k, v) { const x = DB.get(COL, id); if (!x) return; x[k] = v; DB.put(COL, x); if (x.taskId) sincronizarTarefa(x); }
   function sincronizarTarefa(x) {
-    const tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
-    let t = tasks.find(t => t.id === x.taskId);
-    if (!t) { t = { id: 't_' + Date.now() + Math.random().toString(36).slice(2, 5), status: 'afazer', isRejected: false, notes: '', observacoes: '' }; tasks.push(t); x.taskId = t.id; }
+    let t = x.taskId ? DB.get('tasks', x.taskId) : null;
+    if (!t) { t = { id: UI.T.novoId(), kind: 'post', status: 'afazer', isRejected: false, notes: '', observacoes: '' }; x.taskId = t.id; DB.put(COL, x); }
     Object.assign(t, {
-      client: x.cliente, headline: x.titulo, type: x.formato === 'Post estático' ? 'Estático' : x.formato,
-      date: x.data, roteiro: [x.gancho ? 'GANCHO: ' + x.gancho : '', x.roteiro, x.cta ? 'CTA: ' + x.cta : ''].filter(Boolean).join('\n\n'),
+      client: x.cliente, headline: x.titulo, type: x.formato === 'Post estático' ? 'Estático' : x.formato, date: x.data,
+      roteiro: [x.gancho ? 'GANCHO: ' + x.gancho : '', x.roteiro, x.cta ? 'CTA: ' + x.cta : ''].filter(Boolean).join('\n\n'),
       legenda: x.legenda, caption: x.legenda, drive: x.drive || t.drive || '', observacoes: x.orientacoes || '', criacaoId: x.id
     });
-    Store.setItem('plasso_tasks', JSON.stringify(tasks));
-    return t;
+    DB.put('tasks', t); return t;
   }
-
-  function aprovar(id) {
-    const x = DB.get(COL, id); if (!x) return;
-    if (!x.data) { App.toast('Defina a data de postagem.', 'warn'); return; }
-    sincronizarTarefa(x);
-    x.status = 'aprovado'; DB.put(COL, x);
-    render();
-    App.toast('Conteúdo no calendário e no kanban (A fazer).', 'ok');
-  }
-
-  function textoBriefing(x) {
-    return `CLIENTE: ${x.cliente}\nFORMATO: ${x.formato}\nDATA: ${x.data || ''}\nTÍTULO: ${x.titulo}\n\nGANCHO: ${x.gancho}\n\nROTEIRO:\n${x.roteiro}\n\nCTA: ${x.cta}\n\nORIENTAÇÕES: ${x.orientacoes || ''}\n\nLEGENDA:\n${x.legenda}\n\nDRIVE: ${x.drive || ''}`;
-  }
-  async function copiar(id) {
-    const x = DB.get(COL, id);
-    try { await navigator.clipboard.writeText(textoBriefing(x)); App.toast('Copiado.', 'ok'); } catch (e) { prompt('Copie:', textoBriefing(x)); }
-  }
-
+  function aprovar(id) { const x = DB.get(COL, id); if (!x) return; if (!x.data) { App.toast('Defina a data de postagem.', 'warn'); return; } sincronizarTarefa(x); x.status = 'aprovado'; DB.put(COL, x); render(); App.toast('Conteúdo no calendário e nas Tasks.', 'ok'); }
+  const textoBriefing = x => `CLIENTE: ${x.cliente}\nFORMATO: ${x.formato}\nDATA: ${x.data || ''}\nTÍTULO: ${x.titulo}\n\nGANCHO: ${x.gancho}\n\nROTEIRO:\n${x.roteiro}\n\nCTA: ${x.cta}\n\nORIENTAÇÕES: ${x.orientacoes || ''}\n\nLEGENDA:\n${x.legenda}\n\nDRIVE: ${x.drive || ''}`;
+  async function copiar(id) { const x = DB.get(COL, id); try { await navigator.clipboard.writeText(textoBriefing(x)); App.toast('Copiado.', 'ok'); } catch (e) { prompt('Copie:', textoBriefing(x)); } }
   async function enviar(id, tipo) {
     const x = DB.get(COL, id); if (!x) return;
     if (tipo === 'edicao' && !x.drive && !confirm('Este conteúdo ainda não tem a pasta do Drive com o material gravado. Enviar mesmo assim?')) return;
@@ -295,41 +200,22 @@
     const url = tipo === 'edicao' ? cfg.webhookEdicao : cfg.webhookDesign;
     const payload = { tipo, cliente: x.cliente, clienteId: x.clienteId, formato: x.formato, data: x.data, titulo: x.titulo, gancho: x.gancho, roteiro: x.roteiro, cta: x.cta, legenda: x.legenda, orientacoes: x.orientacoes, drive: x.drive || '', criacaoId: x.id, taskId: x.taskId || null };
     try {
-      if (url) {
-        const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        if (!r.ok) throw new Error('webhook respondeu ' + r.status);
-      } else {
-        try { await navigator.clipboard.writeText(textoBriefing(x)); } catch (e) {}
-      }
+      if (url) { const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (!r.ok) throw new Error('o webhook respondeu ' + r.status); }
+      else { try { await navigator.clipboard.writeText(textoBriefing(x)); } catch (e) {} }
       x.envio = { tipo, em: new Date().toISOString() }; DB.put(COL, x);
-      if (x.taskId) {
-        const tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
-        const t = tasks.find(t => t.id === x.taskId);
-        if (t) { t.envio = x.envio; t.notes = (tipo === 'edicao' ? 'Enviado para edição ' : 'Enviado para design ') + new Date().toLocaleDateString('pt-BR'); Store.setItem('plasso_tasks', JSON.stringify(tasks)); }
-      }
+      if (x.taskId) { const t = DB.get('tasks', x.taskId); if (t) { t.envio = x.envio; DB.put('tasks', t); } }
       render();
-      App.toast(url ? `Enviado para ${tipo === 'edicao' ? 'edição' : 'design'}.` : 'Marcado como na fila. Briefing copiado (configure o webhook em Integrações para envio automático).', 'ok');
+      App.toast(url ? `Enviado para ${tipo === 'edicao' ? 'edição' : 'design'}.` : 'Marcado como na fila e briefing copiado. Configure o webhook em Integrações para envio automático.', 'ok');
     } catch (e) { App.toast('Falha no envio: ' + e.message, 'err'); }
   }
-
-  function excluir(id) {
-    const x = DB.get(COL, id);
-    if (!confirm(`Excluir "${x.titulo}"?${x.taskId ? '\n(A tarefa no calendário continua; apague por lá se quiser.)' : ''}`)) return;
-    DB.remove(COL, id); render();
-  }
+  function excluir(id) { const x = DB.get(COL, id); if (!confirm(`Excluir "${x.titulo}"?${x.taskId ? '\n(A tarefa nas Tasks continua.)' : ''}`)) return; DB.remove(COL, id); render(); }
 
   function openSettings() {
     const cfg = DB.getValue('config_criacao', {});
-    $('wh-edicao').value = cfg.webhookEdicao || ''; $('wh-design').value = cfg.webhookDesign || '';
-    $('settings').classList.remove('hidden'); $('settings').classList.add('flex');
-  }
-  function closeSettings() { $('settings').classList.add('hidden'); $('settings').classList.remove('flex'); }
-  function saveSettings() {
-    const ok = v => !v || /^https:\/\//.test(v);
-    const e = $('wh-edicao').value.trim(), d = $('wh-design').value.trim();
-    if (!ok(e) || !ok(d)) { App.toast('Use endereços https://', 'warn'); return; }
-    DB.setValue('config_criacao', { webhookEdicao: e, webhookDesign: d });
-    closeSettings(); App.toast('Integrações salvas.', 'ok');
+    const s = UI.sheet({ title: 'Integrações de envio', html: `<p class="small soft">Os botões <b>Enviar para edição</b> e <b>Enviar para design</b> mandam os dados do conteúdo para estes endereços (webhook). Seu agente de edição pode recebê-los por n8n, Make, Zapier ou servidor próprio. Sem endereço, o conteúdo só é marcado como "na fila" e o briefing é copiado.</p>
+      <label class="field mt-3"><span>Webhook — edição de vídeo</span><input class="input" id="wh-e" value="${esc(cfg.webhookEdicao || '')}" placeholder="https://…"></label>
+      <label class="field mt-3"><span>Webhook — design</span><input class="input" id="wh-d" value="${esc(cfg.webhookDesign || '')}" placeholder="https://…"></label>`, foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-white" id="ok">Salvar</button>' });
+    s.$('#ok').onclick = () => { const e = s.$('#wh-e').value.trim(), d = s.$('#wh-d').value.trim(); const ok = v => !v || /^https:\/\//.test(v); if (!ok(e) || !ok(d)) { App.toast('Use endereços https://', 'warn'); return; } DB.setValue('config_criacao', { webhookEdicao: e, webhookDesign: d }); s.close(); App.toast('Integrações salvas.', 'ok'); };
   }
 
   initForm();

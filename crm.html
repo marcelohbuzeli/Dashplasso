@@ -1,398 +1,247 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM | Plassô</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        dark: {
-                            950: '#030712',
-                            900: '#0b0f19',
-                            850: '#111827',
-                            800: '#1f2937'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: #030712; }
-        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0809">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Plassô | CRM</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="assets/ui.css?v=4">
+<style>
+  #board { display: none; }
+  @media (min-width: 900px) { #board { display: grid; } #mobile-pipe { display: none; } }
+</style>
 </head>
-<body class="bg-dark-950 text-slate-200 antialiased overflow-hidden selection:bg-blue-600 selection:text-white">
-<div class="flex flex-row h-screen w-screen overflow-hidden">
-    <aside id="sidebar" class="bg-dark-900 border-r border-dark-800 flex flex-col justify-between transition-all duration-300 w-64 z-30 overflow-hidden shrink-0 h-full">
-        <div class="flex flex-col h-full">
-            <div class="h-20 flex items-center justify-between px-4 border-b border-dark-800/60 shrink-0">
-                <div class="flex items-center gap-3 overflow-hidden">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center font-bold text-white text-lg shadow-lg shrink-0 font-mono">P</div>
-                    <div class="sidebar-text truncate flex flex-col">
-                        <span class="font-bold text-base tracking-widest text-white uppercase font-sans">Plassô</span>
-                        <span class="text-[9px] text-blue-400 font-mono tracking-wider">MARKETING</span>
-                    </div>
-                </div>
-            </div>
-            <nav class="p-3 space-y-1.5 font-medium text-xs flex-1 overflow-y-auto">
-                <a href="index.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-chart-pie w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Dashboard</span></a>
-                <a href="tasks.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-terminal w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Tasks</span></a>
-                <a href="clients.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-network-wired w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Clientes</span></a>
-                <a href="calendar.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-calendar-days w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Calendário</span></a>
-                <a href="crm.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer bg-blue-600 text-white"><i class="fa-solid fa-users-viewfinder w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">CRM</span></a>
-                <a href="finance.html" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl shadow-md transition group text-left cursor-pointer text-slate-400 hover:text-slate-200 hover:bg-dark-800/40"><i class="fa-solid fa-wallet w-5 text-center text-sm shrink-0"></i><span class="sidebar-text tracking-wide whitespace-nowrap">Financeiro</span></a>
-            </nav>
-    </aside>
-    
-    <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-dark-950 relative">
-        <header class="h-20 border-b border-dark-800/60 px-8 flex items-center justify-between bg-dark-900/30 backdrop-blur-md shrink-0 w-full">
-            <div>
-                <h1 class="text-base font-bold text-white tracking-wide flex items-center gap-2"><i class="fa-solid fa-users-viewfinder text-blue-500 text-xs"></i> CRM de Prospecção</h1>
-            </div>
-            <div>
-                <button onclick="openNewLeadModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-lg">
-                    <i class="fa-solid fa-user-plus text-[10px]"></i> Novo Lead
-                </button>
-            </div>
-        </header>
+<body data-theme="crm">
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="brand-mark">P</div><div><div class="brand-name">CRM</div><div class="brand-sub">Vendas</div></div></div>
+    <div class="row"><button class="chip-btn" onclick="UI.menu()" aria-label="Menu"><i class="fa-solid fa-ellipsis"></i></button></div>
+  </header>
 
-        <div class="flex-1 overflow-x-auto p-8 flex gap-6 items-start">
-            <div ondblclick="openNewLeadModal()" class="w-80 bg-gradient-to-b from-blue-950/30 to-dark-900 border border-blue-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] cursor-pointer shadow-xl" title="Dê duplo clique para adicionar novo contato">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-blue-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Novo Lead</h3><span id="count-novolead" class="text-xs font-mono bg-dark-950 text-blue-400 px-2 py-0.5 rounded-full border border-blue-800/50">0</span></div>
-                <div id="col-novolead" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'novolead')"></div>
-            </div>
-            <div class="w-80 bg-gradient-to-b from-purple-950/30 to-dark-900 border border-purple-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] shadow-xl">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-purple-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Relacionamento</h3><span id="count-relacionamento" class="text-xs font-mono bg-dark-950 text-purple-400 px-2 py-0.5 rounded-full border border-purple-800/50">0</span></div>
-                <div id="col-relacionamento" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'relacionamento')"></div>
-            </div>
-            <div class="w-80 bg-gradient-to-b from-amber-950/30 to-dark-900 border border-amber-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] shadow-xl">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-amber-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Follow Up</h3><span id="count-follow" class="text-xs font-mono bg-dark-950 text-amber-400 px-2 py-0.5 rounded-full border border-amber-800/50">0</span></div>
-                <div id="col-follow" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'follow')"></div>
-            </div>
-            <div class="w-80 bg-gradient-to-b from-emerald-950/30 to-dark-900 border border-emerald-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] shadow-xl">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-emerald-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Reunião</h3><span id="count-reuniao" class="text-xs font-mono bg-dark-950 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-800/50">0</span></div>
-                <div id="col-reuniao" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'reuniao')"></div>
-            </div>
-            <div class="w-80 bg-gradient-to-b from-indigo-950/30 to-dark-900 border border-indigo-500/30 rounded-2xl p-4 flex flex-col shrink-0 h-[calc(100vh-160px)] shadow-xl">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b border-dark-800"><h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Aguardando Resposta</h3><span id="count-aguardando" class="text-xs font-mono bg-dark-950 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-800/50">0</span></div>
-                <div id="col-aguardando" class="space-y-3 flex-1 overflow-y-auto pr-1" ondragover="allowDrop(event)" ondrop="drop(event, 'aguardando')"></div>
-            </div>
-        </div>
-    </main>
-</div>
-
-<!-- Modal Detalhes do Lead -->
-<div id="leadDetailModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 text-xs">
-        <div class="flex justify-between items-center pb-3 border-b border-dark-800">
-            <h3 id="ld-title" class="text-base font-bold text-white"></h3>
-            <button onclick="closeLeadDetailModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-dark-800 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
-        </div>
-        <div class="space-y-3">
-            <div><label class="block text-slate-400 mb-1">@ do Instagram</label><input type="text" id="ld-insta" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2 text-white"></div>
-            <div><label class="block text-slate-400 mb-1">Link do Perfil</label><input type="url" id="ld-link" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2 text-blue-400 font-mono"></div>
-            <div><label class="block text-slate-400 mb-1">Histórico de Registros e Datas</label><div id="ld-history" class="bg-dark-950 p-3 rounded-xl border border-dark-800 text-emerald-400 font-mono text-[11px] space-y-1 max-h-36 overflow-y-auto"></div></div>
-        </div>
-        <div class="flex justify-between items-center pt-2">
-            <button onclick="deleteLeadFromModal()" class="text-red-400 hover:text-red-300 font-semibold cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Excluir Lead</button>
-            <button onclick="saveLeadDetails()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar Alterações</button>
-        </div>
+  <div class="row-between" style="align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:20px">
+    <div>
+      <div class="eyebrow" id="resumo"></div>
+      <h1 class="display mt-2">Pipeline<br><span class="soft">de vendas</span></h1>
     </div>
-</div>
-
-<!-- Modal Novo Lead -->
-<div id="newLeadModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="bg-dark-900 border border-dark-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
-        <form onsubmit="createNewLead(event)" class="space-y-4 text-xs">
-            <h3 class="text-sm font-bold text-white uppercase">Adicionar Novo Lead</h3>
-            <div><label class="block text-slate-400 mb-1">Nome / Contato</label><input type="text" id="nl-name" required class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="Nome do Lead"></div>
-            <div><label class="block text-slate-400 mb-1">@ do Instagram</label><input type="text" id="nl-insta" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="@usuario"></div>
-            <div><label class="block text-slate-400 mb-1">Link do Perfil</label><input type="url" id="nl-link" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white" placeholder="https://instagram.com/..."></div>
-            <div class="flex justify-end gap-3 pt-2"><button type="button" onclick="closeNewLeadModal()" class="text-slate-400 cursor-pointer">Cancelar</button><button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Salvar</button></div>
-        </form>
+    <div class="pair">
+      <button class="btn btn-white" onclick="novoLead()">Novo lead</button>
+      <button class="chip-btn accent" style="width:46px;height:46px" onclick="novoLead()" aria-label="Novo lead"><i class="fa-solid fa-plus"></i></button>
     </div>
-</div>
+  </div>
 
-<!-- Modal Follow Up -->
-<div id="followModal" class="fixed inset-0 bg-dark-950/90 backdrop-blur-md hidden items-center justify-center z-[9999] p-4">
-    <div class="bg-dark-900 border border-amber-500/50 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
-        <h3 class="font-bold text-amber-400 uppercase text-sm"><i class="fa-solid fa-calendar-days mr-1"></i> Agendamento de Follow Up</h3>
-        <p id="follow-msg" class="text-slate-300 leading-relaxed"></p>
-        <div id="follow-custom-date-box" class="hidden space-y-3 pt-2 border-t border-dark-800">
-            <div><label class="block text-slate-400 mb-1">Escolha a Data</label><input type="date" id="fc-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2 text-white font-mono"></div>
-            <div>
-                <label class="block text-slate-400 mb-1">Escolha o Horário</label>
-                <select id="fc-time" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2 text-white font-mono">
-                    <option value="09:00">09:00</option><option value="10:00">10:00</option><option value="11:00">11:00</option>
-                    <option value="14:00">14:00</option><option value="15:00">15:00</option><option value="16:00">16:00</option><option value="17:00">17:00</option>
-                </select>
-            </div>
-        </div>
-        <div class="flex justify-between items-center pt-2">
-            <button onclick="toggleFollowCustom()" id="btn-yellow-other" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl font-semibold cursor-pointer">Agendar outro dia</button>
-            <div class="flex gap-2">
-                <button onclick="cancelFollow()" class="text-slate-400 px-3 py-2 cursor-pointer">Cancelar</button>
-                <button onclick="confirmFollowDefault()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Confirmar</button>
-            </div>
-        </div>
+  <div class="grid g-2 lg-g-4 mb-4" id="kpis"></div>
+
+  <div class="row mb-3" style="flex-wrap:wrap">
+    <div class="seg" id="vista" style="flex:0 0 auto"><button data-v="pipe" class="on">Pipeline</button><button data-v="ganhos">Ganhos</button><button data-v="perdidos">Perdidos</button></div>
+    <div class="grow" style="position:relative;min-width:200px">
+      <i class="fa-solid fa-magnifying-glass muted" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:13px"></i>
+      <input class="input" id="busca" placeholder="Buscar lead…" style="padding-left:40px">
     </div>
-</div>
+  </div>
 
-<!-- Modal Reunião -->
-<div id="meetingModal" class="fixed inset-0 bg-dark-950/90 backdrop-blur-md hidden items-center justify-center z-[9999] p-4">
-    <div class="bg-dark-900 border border-purple-500/50 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-xs">
-        <h3 class="font-bold text-purple-400 uppercase text-sm"><i class="fa-solid fa-handshake mr-1"></i> Agendamento de Reunião</h3>
-        <div><label class="block text-slate-400 mb-1">Data da Reunião</label><input type="date" id="mt-date" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono"></div>
-        <div><label class="block text-slate-400 mb-1">Horário</label><input type="time" id="mt-time" class="w-full bg-dark-950 border border-dark-800 rounded-xl px-3.5 py-2.5 text-white font-mono" value="10:00"></div>
-        <div class="flex justify-end gap-3 pt-2"><button onclick="cancelMeeting()" class="text-slate-400 cursor-pointer">Cancelar</button><button onclick="confirmMeeting()" class="bg-purple-600 hover:bg-purple-500 text-white px-5 py-2 rounded-xl font-semibold cursor-pointer">Agendar Reunião</button></div>
+  <section id="v-pipe">
+    <div id="mobile-pipe">
+      <div class="seg mb-3" id="etapas"></div>
+      <div id="lista" class="stack"></div>
     </div>
+    <div class="board" id="board" style="--cols:5"></div>
+  </section>
+  <section id="v-ganhos" class="hidden"><div class="grid md-g-2 lg-g-3" id="ganhos"></div></section>
+  <section id="v-perdidos" class="hidden"><div class="grid md-g-2 lg-g-3" id="perdidos"></div></section>
 </div>
 
-<script src="assets/config.js?v=3"></script>
-<script src="assets/core.js?v=3" data-mode="app"></script>
-<script src="assets/integracao.js?v=3"></script>
+<script src="assets/config.js?v=4"></script>
+<script src="assets/core.js?v=4" data-mode="app"></script>
+<script src="assets/ui.js?v=4"></script>
+<script src="assets/integracao.js?v=4"></script>
 <script type="text/plain" data-app>
-    let leads = JSON.parse(Store.getItem('plasso_crm') || '[]');
-    let draggedLeadId = null;
-    let pendingLeadId = null;
-    let pendingTargetCol = null;
+  UI.mount({ tab: 'crm' });
+  const { esc, T } = UI;
+  const $ = id => document.getElementById(id);
+  const ETAPAS = [
+    { id: 'novolead', label: 'Novo lead', icon: 'fa-seedling' },
+    { id: 'relacionamento', label: 'Relacionamento', icon: 'fa-comments' },
+    { id: 'follow', label: 'Follow-up', icon: 'fa-phone' },
+    { id: 'reuniao', label: 'Reunião', icon: 'fa-handshake' },
+    { id: 'aguardando', label: 'Proposta', icon: 'fa-file-signature' }
+  ];
+  const etapaLabel = id => (ETAPAS.find(e => e.id === id) || { label: id }).label;
+  let etapa = 'novolead', busca = '', vista = 'pipe';
 
-    function renderCRM() {
-        ['novolead', 'relacionamento', 'follow', 'reuniao', 'aguardando'].forEach(col => {
-            const container = document.getElementById('col-' + col);
-            container.innerHTML = '';
-            const colLeads = leads.filter(l => l.col === col);
-            document.getElementById('count-' + col).innerText = colLeads.length;
+  const leads = () => DB.list('crm').filter(l => !busca || (l.name + ' ' + (l.insta || '') + ' ' + (l.area || '')).toLowerCase().includes(busca));
+  const hist = (l, txt) => { l.historyArray = l.historyArray || []; l.historyArray.push(`${new Date().toLocaleDateString('pt-BR')} — ${txt}`); };
+  const proxAcao = l => {
+    const ts = DB.list('tasks').filter(t => ['reuniao', 'follow'].includes(T.kind(t)) && (t.client || '').toLowerCase() === l.name.toLowerCase() && t.date >= UI.hoje()).sort((a, b) => (a.date + T.hora(a)).localeCompare(b.date + T.hora(b)));
+    return ts[0] || null;
+  };
 
-            colLeads.forEach(l => {
-                let lastUpdateHTML = '';
-                if (l.historyArray && l.historyArray.length > 0) {
-                    let latest = l.historyArray[l.historyArray.length - 1];
-                    lastUpdateHTML = `<p class="text-[10px] text-emerald-400 font-mono mt-1 pt-1 border-t border-dark-800">• ${latest}</p>`;
-                }
+  function renderKpis() {
+    const all = DB.list('crm');
+    const valor = all.reduce((a, l) => a + (Number(l.valor) || 0), 0);
+    const reunioes = DB.list('tasks').filter(t => T.kind(t) === 'reuniao' && t.date >= UI.hoje()).length;
+    const mes = UI.hoje().slice(0, 7);
+    const ganhosMes = DB.list('crm_ganhos').filter(g => (g.ganhoEm || '').startsWith(mes));
+    const ganhosTot = DB.list('crm_ganhos').length, perdTot = DB.list('crm_perdidos').length;
+    const conv = ganhosTot + perdTot ? Math.round(ganhosTot * 100 / (ganhosTot + perdTot)) : null;
+    const k = (icon, l, v, h) => `<div class="card stat"><span class="label"><i class="fa-solid ${icon} accent-text"></i>${l}</span><span class="value">${v}</span><span class="hint">${h}</span></div>`;
+    $('kpis').innerHTML = k('fa-users', 'Leads ativos', all.length, 'no pipeline') + k('fa-sack-dollar', 'Em negociação', UI.brl(valor).replace(',00', ''), 'valor mensal estimado') + k('fa-handshake', 'Reuniões', reunioes, 'agendadas') + k('fa-trophy', 'Fechados', ganhosMes.length, conv != null ? `no mês · ${conv}% de conversão` : 'no mês');
+    $('resumo').textContent = `${all.length} lead${all.length !== 1 ? 's' : ''} em andamento`;
+  }
 
-                container.innerHTML += `
-                    <div draggable="true" ondragstart="drag(event, '${l.id}')" onclick="openLeadDetail('${l.id}')" class="bg-dark-950 border border-dark-800 rounded-xl p-3.5 shadow space-y-2 cursor-pointer hover:border-blue-500/50 transition">
-                        <div class="flex justify-between items-start">
-                            <h4 class="font-bold text-white text-sm">${l.name}</h4>
-                            <button onclick="event.stopPropagation(); deleteLead('${l.id}')" class="text-slate-500 hover:text-red-400"><i class="fa-solid fa-xmark text-xs"></i></button>
-                        </div>
-                        ${l.insta ? `<p class="text-[11px] text-blue-400"><i class="fa-brands fa-instagram mr-1"></i>${l.insta}</p>` : ''}
-                        ${l.link ? `<a href="${l.link}" target="_blank" onclick="event.stopPropagation()" class="text-[10px] text-slate-400 hover:underline block truncate"><i class="fa-solid fa-link mr-1"></i>${l.link}</a>` : ''}
-                        ${lastUpdateHTML}
-                    </div>
-                `;
-            });
-        });
-        Store.setItem('plasso_crm', JSON.stringify(leads));
-    }
+  function leadCard(l) {
+    const p = proxAcao(l);
+    return `<button class="card card-tight card-link" data-lead="${esc(l.id)}" style="text-align:left;width:100%" draggable="true">
+      <div class="row-between" style="align-items:flex-start"><div style="min-width:0"><div class="title truncate" style="font-weight:500">${esc(l.name)}</div><div class="small muted truncate">${esc([l.insta, l.area].filter(Boolean).join(' · ') || 'sem detalhes')}</div></div>
+        ${l.valor ? `<span class="pill num" style="flex-shrink:0">${UI.brl(l.valor).replace(',00', '')}</span>` : ''}</div>
+      ${p ? `<div class="small mt-2" style="color:var(--accent-2)"><i class="fa-solid ${T.kindInfo(T.kind(p)).icon}"></i> ${T.kindInfo(T.kind(p)).label} ${UI.quando(p.date)}${T.hora(p) ? ' às ' + T.hora(p) : ''}</div>` : ''}
+    </button>`;
+  }
 
-    let activeDetailLeadId = null;
-    function openLeadDetail(id) {
-        let l = leads.find(lead => lead.id === id);
-        if(!l) return;
-        activeDetailLeadId = id;
-        document.getElementById('ld-title').innerText = l.name;
-        document.getElementById('ld-insta').value = l.insta || '';
-        document.getElementById('ld-link').value = l.link || '';
-        
-        let histList = l.historyArray || [];
-        document.getElementById('ld-history').innerHTML = histList.length > 0 ? histList.map(h => `<div>• ${h}</div>`).join('') : '<div class="text-slate-500">Nenhum histórico registrado.</div>';
-        
-        document.getElementById('leadDetailModal').classList.remove('hidden');
-        document.getElementById('leadDetailModal').classList.add('flex');
-    }
-    function closeLeadDetailModal() { document.getElementById('leadDetailModal').classList.add('hidden'); document.getElementById('leadDetailModal').classList.remove('flex'); }
+  function renderPipe() {
+    const all = leads();
+    $('etapas').innerHTML = ETAPAS.map(e => `<button data-e="${e.id}" class="${e.id === etapa ? 'on' : ''}"><i class="fa-solid ${e.icon}"></i>${e.label}<span class="count">${all.filter(l => (l.col || 'novolead') === e.id).length}</span></button>`).join('');
+    $('etapas').querySelectorAll('button').forEach(b => b.onclick = () => { etapa = b.dataset.e; renderPipe(); });
+    const doEt = all.filter(l => (l.col || 'novolead') === etapa);
+    $('lista').innerHTML = doEt.map(leadCard).join('') || `<div class="card empty"><i class="fa-solid fa-bullseye"></i>Nenhum lead em ${etapaLabel(etapa)}.<br><button class="btn btn-white btn-sm mt-3" onclick="novoLead()">Novo lead</button></div>`;
+    $('board').innerHTML = ETAPAS.map(e => {
+      const arr = all.filter(l => (l.col || 'novolead') === e.id);
+      return `<div class="col"><div class="col-head"><span class="h3">${e.label}</span><span class="pill">${arr.length}</span></div>
+        <div class="col-drop" data-col="${e.id}">${arr.map(leadCard).join('') || '<div class="muted small center" style="padding:18px 6px">Arraste para cá</div>'}</div></div>`;
+    }).join('');
+    $('board').querySelectorAll('[draggable]').forEach(c => c.addEventListener('dragstart', ev => ev.dataTransfer.setData('text/plain', c.dataset.lead)));
+    $('board').querySelectorAll('.col-drop').forEach(z => {
+      z.addEventListener('dragover', ev => { ev.preventDefault(); z.classList.add('over'); });
+      z.addEventListener('dragleave', () => z.classList.remove('over'));
+      z.addEventListener('drop', ev => { ev.preventDefault(); z.classList.remove('over'); const id = ev.dataTransfer.getData('text/plain'); if (id) moverEtapa(id, z.dataset.col); });
+    });
+    document.querySelectorAll('[data-lead]').forEach(b => b.onclick = () => abrirLead(b.dataset.lead));
+  }
 
-    function saveLeadDetails() {
-        let l = leads.find(lead => lead.id === activeDetailLeadId);
-        if(l) {
-            l.insta = document.getElementById('ld-insta').value;
-            l.link = document.getElementById('ld-link').value;
-            Store.setItem('plasso_crm', JSON.stringify(leads));
-            alert('Dados do lead atualizados!');
-            closeLeadDetailModal();
-            renderCRM();
-        }
-    }
+  function renderFechados() {
+    const g = DB.list('crm_ganhos').sort((a, b) => (b.ganhoEm || '').localeCompare(a.ganhoEm || ''));
+    $('ganhos').innerHTML = g.map(l => `<div class="card"><div class="row-between"><div style="min-width:0"><div class="h3 truncate">${esc(l.name)}</div><div class="small muted">Fechado em ${UI.dataBR((l.ganhoEm || '').slice(0, 10))}</div></div><i class="fa-solid fa-trophy accent-text"></i></div></div>`).join('') || '<div class="card empty md-span-2">Nenhum contrato fechado ainda.</div>';
+    const p = DB.list('crm_perdidos').sort((a, b) => (b.perdidoEm || '').localeCompare(a.perdidoEm || ''));
+    $('perdidos').innerHTML = p.map(l => `<div class="card"><div class="row-between"><div style="min-width:0"><div class="h3 truncate">${esc(l.name)}</div><div class="small muted">${esc(l.motivo || 'sem motivo')} · ${UI.dataBR((l.perdidoEm || '').slice(0, 10))}</div></div><button class="btn btn-ghost btn-sm" data-reabrir="${esc(l.id)}">Reabrir</button></div></div>`).join('') || '<div class="card empty md-span-2">Nenhum lead perdido.</div>';
+    $('perdidos').querySelectorAll('[data-reabrir]').forEach(b => b.onclick = () => { const l = DB.get('crm_perdidos', b.dataset.reabrir); DB.remove('crm_perdidos', l.id); delete l.motivo; delete l.perdidoEm; l.col = 'novolead'; hist(l, 'Lead reaberto'); DB.put('crm', l); render(); App.toast('Lead reaberto.', 'ok'); });
+  }
 
-    function deleteLeadFromModal() {
-        if(!confirm('Excluir este lead?')) return;
-        leads = leads.filter(l => l.id !== activeDetailLeadId);
-        closeLeadDetailModal();
-        renderCRM();
-    }
+  // ---------- ações ----------
+  function moverEtapa(id, col) {
+    const l = DB.get('crm', id); if (!l || l.col === col) return;
+    if (col === 'follow') return agendar(l, 'follow');
+    if (col === 'reuniao') return agendar(l, 'reuniao');
+    l.col = col; hist(l, 'Movido para ' + etapaLabel(col)); DB.put('crm', l); render();
+    App.toast(`${l.name} → ${etapaLabel(col)}`, 'ok');
+  }
 
-    function drag(ev, id) { draggedLeadId = id; }
-    function allowDrop(ev) { ev.preventDefault(); }
+  function agendar(l, tipo, depois) {
+    const padrao = tipo === 'follow' ? UI.addDias(UI.hoje(), 5) : UI.hoje();
+    const s = UI.sheet({
+      title: tipo === 'follow' ? 'Agendar follow-up' : 'Agendar reunião',
+      html: `<p class="small soft">${esc(l.name)} vai para <b>${tipo === 'follow' ? 'Follow-up' : 'Reunião'}</b> e o compromisso aparece no Calendário, na Home e no Modo Trabalho.</p>
+        <div class="form-grid mt-3">
+          <label class="field"><span>Data</span><input class="input" type="date" id="d" value="${padrao}"></label>
+          <label class="field"><span>Hora</span><input class="input" type="time" id="h" value="${tipo === 'follow' ? '09:00' : '10:00'}"></label>
+          <label class="field full"><span>Anotação (opcional)</span><input class="input" id="n" placeholder="${tipo === 'follow' ? 'Ex.: mandar proposta revisada' : 'Ex.: Google Meet / endereço'}"></label>
+        </div>`,
+      foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-white" id="ok">Agendar</button>'
+    });
+    s.$('#ok').onclick = () => {
+      const d = s.$('#d').value, h = s.$('#h').value, n = s.$('#n').value.trim();
+      if (!d) { App.toast('Escolha a data.', 'warn'); return; }
+      DB.put('tasks', { id: T.novoId(), kind: tipo, client: l.name, headline: (tipo === 'follow' ? 'Follow-up com ' : 'Reunião com ') + l.name, date: d, time: h, caption: h ? `Agendado às ${h}` : '', descricao: n, observacoes: n, notes: tipo === 'follow' ? 'crm_follow' : 'crm_meeting', type: 'Evento', status: 'afazer', isRejected: false, leadId: l.id });
+      const atual = DB.get('crm', l.id);
+      atual.col = tipo; atual.date = d; hist(atual, `${tipo === 'follow' ? 'Follow-up' : 'Reunião'} agendado para ${UI.dataBR(d)}${h ? ' às ' + h : ''}`);
+      DB.put('crm', atual);
+      s.close(); render(); App.toast(`${tipo === 'follow' ? 'Follow-up' : 'Reunião'} agendado e no calendário.`, 'ok');
+      depois && depois();
+    };
+  }
 
-    function drop(ev, targetCol) {
-        ev.preventDefault();
-        if(!draggedLeadId) return;
-        let lead = leads.find(l => l.id === draggedLeadId);
-        if(!lead) return;
+  function fecharContrato(l, depois) {
+    Integracao.abrirConversao(l, r => {
+      const atual = DB.get('crm', l.id) || l;
+      hist(atual, 'Fechou contrato');
+      DB.put('crm_ganhos', { ...atual, col: 'ganho', ganhoEm: new Date().toISOString(), clienteId: r.client.id });
+      DB.remove('crm', l.id);
+      render(); depois && depois();
+    });
+  }
 
-        let todayStr = new Date().toLocaleDateString('pt-BR');
-        if(!lead.historyArray) lead.historyArray = [];
+  function perdido(l, depois) {
+    const s = UI.sheet({ title: 'Marcar como perdido', html: `<label class="field"><span>Motivo</span><select class="select" id="m"><option>Preço</option><option>Sem resposta</option><option>Fechou com outro</option><option>Sem orçamento agora</option><option>Não era o perfil</option><option>Outro</option></select></label>`, foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-danger" id="ok">Marcar perdido</button>' });
+    s.$('#ok').onclick = () => { const atual = DB.get('crm', l.id); hist(atual, 'Perdido: ' + s.$('#m').value); DB.put('crm_perdidos', { ...atual, motivo: s.$('#m').value, perdidoEm: new Date().toISOString() }); DB.remove('crm', l.id); s.close(); render(); App.toast('Lead movido para Perdidos.', 'ok'); depois && depois(); };
+  }
 
-        if (targetCol === 'relacionamento') {
-            lead.col = 'relacionamento';
-            let msg = `Relacionamento iniciado em: ${todayStr}`;
-            lead.historyArray.push(msg);
-            renderCRM();
-        } else if (targetCol === 'follow') {
-            pendingLeadId = lead.id;
-            pendingTargetCol = 'follow';
-            let d = new Date();
-            d.setDate(d.getDate() + 5);
-            let calculatedDateStr = d.toISOString().split('T')[0];
-            let formattedDisplay = calculatedDateStr.split('-').reverse().join('/');
-            
-            document.getElementById('follow-msg').innerHTML = `O follow será agendado para <strong>${formattedDisplay}</strong> (5 dias após a movimentação). Deseja confirmar essa data às 9h?`;
-            document.getElementById('follow-custom-date-box').classList.add('hidden');
-            document.getElementById('fc-date').value = calculatedDateStr;
-            document.getElementById('followModal').classList.remove('hidden');
-            document.getElementById('followModal').classList.add('flex');
-        } else if (targetCol === 'reuniao') {
-            pendingLeadId = lead.id;
-            pendingTargetCol = 'reuniao';
-            document.getElementById('mt-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('meetingModal').classList.remove('hidden');
-            document.getElementById('meetingModal').classList.add('flex');
-        } else if (targetCol === 'aguardando') {
-            lead.col = 'aguardando';
-            let msg = `Em aguardando resposta em ${todayStr}`;
-            lead.historyArray.push(msg);
-            renderCRM();
-            if(confirm(`O lead "${lead.name}" fechou contrato e se tornou cliente?`)) {
-                Integracao.abrirConversao(lead, () => {
-                    leads = leads.filter(l => l.id !== lead.id);
-                    let ganhos = JSON.parse(Store.getItem('plasso_crm_ganhos') || '[]');
-                    ganhos.push({ ...lead, col: 'ganho', ganhoEm: new Date().toISOString() });
-                    Store.setItem('plasso_crm_ganhos', JSON.stringify(ganhos));
-                    renderCRM();
-                });
-            }
-        } else {
-            lead.col = targetCol;
-            renderCRM();
-        }
-    }
+  function camposLead(l) {
+    return `<div class="form-grid">
+      <label class="field full"><span>Nome / empresa</span><input class="input" name="name" value="${esc(l.name || '')}" required></label>
+      <label class="field"><span>Instagram</span><input class="input" name="insta" value="${esc(l.insta || '')}" placeholder="@perfil"></label>
+      <label class="field"><span>WhatsApp</span><input class="input" name="telefone" inputmode="tel" value="${esc(l.telefone || '')}" placeholder="(11) 99999-9999"></label>
+      <label class="field"><span>Segmento</span><input class="input" name="area" value="${esc(l.area || '')}" placeholder="Ex.: estética, restaurante"></label>
+      <label class="field"><span>Valor estimado (R$/mês)</span><input class="input" type="number" step="0.01" inputmode="decimal" name="valor" value="${esc(l.valor ?? '')}"></label>
+      <label class="field"><span>Origem</span><input class="input" name="origem" value="${esc(l.origem || '')}" placeholder="Indicação, Instagram…"></label>
+      <label class="field"><span>E-mail</span><input class="input" type="email" name="email" value="${esc(l.email || '')}"></label>
+      <label class="field full"><span>Link</span><input class="input" name="link" value="${esc(l.link || '')}" placeholder="site, perfil, proposta…"></label>
+      <label class="field full"><span>Notas</span><textarea class="textarea" name="notas" rows="3">${esc(l.notas || '')}</textarea></label>
+    </div>`;
+  }
+  const lerCampos = (el, l) => { const f = UI.formData(el); Object.assign(l, { name: f.name.trim(), insta: f.insta.trim(), telefone: f.telefone.trim(), area: f.area.trim(), valor: Number(f.valor) || 0, origem: f.origem.trim(), email: f.email.trim(), link: f.link.trim(), notas: f.notas }); return l; };
 
-    let isCustomFollow = false;
-    function toggleFollowCustom() {
-        let box = document.getElementById('follow-custom-date-box');
-        if(box.classList.contains('hidden')) {
-            box.classList.remove('hidden');
-            isCustomFollow = true;
-            document.getElementById('btn-yellow-other').innerText = "Voltar ao padrão (5 dias)";
-        } else {
-            box.classList.add('hidden');
-            isCustomFollow = false;
-            document.getElementById('btn-yellow-other').innerText = "Agendar outro dia";
-        }
-    }
+  function novoLead() {
+    const s = UI.sheet({ title: 'Novo lead', html: camposLead({}), foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-white" id="ok">Criar lead</button>' });
+    s.$('#ok').onclick = () => {
+      const l = lerCampos(s.el, { id: 'l_' + Date.now().toString(36), col: 'novolead', historyArray: [] });
+      if (!l.name) { App.toast('Informe o nome.', 'warn'); return; }
+      hist(l, 'Lead criado'); DB.put('crm', l); s.close(); etapa = 'novolead'; render(); App.toast('Lead criado.', 'ok');
+    };
+  }
 
-    function confirmFollowDefault() {
-        let lead = leads.find(l => l.id === pendingLeadId);
-        let dateVal = document.getElementById('fc-date').value;
-        let timeVal = isCustomFollow ? document.getElementById('fc-time').value : '09:00';
-        
-        if(!dateVal) { alert('Selecione uma data.'); return; }
+  function abrirLead(id) {
+    const l = DB.get('crm', id); if (!l) return;
+    const fone = String(l.telefone || '').replace(/\D/g, '');
+    const s = UI.sheet({
+      title: esc(l.name), wide: true,
+      html: `
+        <div class="eyebrow mb-2">Etapa</div>
+        <div class="seg mb-4" data-etapas>${ETAPAS.map(e => `<button type="button" data-e="${e.id}" class="${(l.col || 'novolead') === e.id ? 'on' : ''}">${e.label}</button>`).join('')}</div>
+        <div class="grid g-2 md-g-4 mb-4">
+          <button class="btn btn-ghost btn-sm" data-a="follow"><i class="fa-solid fa-phone"></i> Follow-up</button>
+          <button class="btn btn-ghost btn-sm" data-a="reuniao"><i class="fa-solid fa-handshake"></i> Reunião</button>
+          ${fone ? `<a class="btn btn-ghost btn-sm" href="https://wa.me/${fone.length <= 11 ? '55' + fone : fone}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : `<button class="btn btn-ghost btn-sm" disabled><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>`}
+          ${l.insta ? `<a class="btn btn-ghost btn-sm" href="https://instagram.com/${esc(String(l.insta).replace(/^@/, ''))}" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i> Instagram</a>` : `<button class="btn btn-ghost btn-sm" disabled><i class="fa-brands fa-instagram"></i> Instagram</button>`}
+        </div>
+        <button class="btn btn-accent btn-lg btn-block mb-4" data-a="fechar"><i class="fa-solid fa-trophy"></i> Fechou contrato</button>
+        ${camposLead(l)}
+        <div class="divider"></div>
+        <div class="eyebrow mb-2">Histórico</div>
+        <div class="list">${(l.historyArray || []).slice().reverse().map(h => `<div class="item" style="min-height:40px;padding:8px 0"><span class="small soft">${esc(h)}</span></div>`).join('') || '<div class="muted small">Sem histórico.</div>'}</div>
+        <div class="row mt-3"><input class="input grow" id="nota" placeholder="Adicionar ao histórico…"><button class="btn btn-ghost" id="add-nota">Adicionar</button></div>
+        <div class="row mt-4" style="flex-wrap:wrap"><button class="btn btn-ghost btn-sm" data-a="perdido"><i class="fa-solid fa-xmark"></i> Marcar como perdido</button><button class="btn btn-danger btn-sm" data-a="excluir"><i class="fa-solid fa-trash"></i> Excluir</button></div>`,
+      foot: '<button class="btn btn-ghost" data-close>Fechar</button><button class="btn btn-white" data-save>Salvar</button>'
+    });
+    const salvar = (silencioso) => { const atual = DB.get('crm', id); if (!atual) return; lerCampos(s.el, atual); if (!atual.name) { App.toast('Informe o nome.', 'warn'); return false; } DB.put('crm', atual); if (!silencioso) App.toast('Lead salvo.', 'ok'); return true; };
+    s.$('[data-save]').onclick = () => { if (salvar()) { s.close(); render(); } };
+    s.$$('[data-e]').forEach(b => b.onclick = () => { if (!salvar(true)) return; s.close(); moverEtapa(id, b.dataset.e); });
+    s.$('[data-a="follow"]').onclick = () => { if (!salvar(true)) return; s.close(); agendar(DB.get('crm', id), 'follow'); };
+    s.$('[data-a="reuniao"]').onclick = () => { if (!salvar(true)) return; s.close(); agendar(DB.get('crm', id), 'reuniao'); };
+    s.$('[data-a="fechar"]').onclick = () => { if (!salvar(true)) return; s.close(); fecharContrato(DB.get('crm', id)); };
+    s.$('[data-a="perdido"]').onclick = () => { if (!salvar(true)) return; s.close(); perdido(DB.get('crm', id)); };
+    s.$('[data-a="excluir"]').onclick = () => { if (!confirm(`Excluir o lead "${l.name}"? Não dá para desfazer.`)) return; DB.remove('crm', id); s.close(); render(); App.toast('Lead excluído.', 'ok'); };
+    s.$('#add-nota').onclick = () => { const v = s.$('#nota').value.trim(); if (!v) return; salvar(true); const atual = DB.get('crm', id); hist(atual, v); DB.put('crm', atual); s.close(); render(); abrirLead(id); };
+  }
 
-        let formattedDate = dateVal.split('-').reverse().join('/');
-        lead.col = 'follow';
-        if(!lead.historyArray) lead.historyArray = [];
-        let histMsg = `Follow agendado para: ${formattedDate} às ${timeVal}`;
-        lead.historyArray.push(histMsg);
-        
-        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
-        tasks.push({
-            id: 't_' + Date.now(),
-            client: lead.name,
-            headline: `Follow Up: Follow (${lead.name})`,
-            type: 'Story',
-            caption: `Follow-up agendado às ${timeVal}`,
-            date: dateVal,
-            status: 'todo',
-            notes: 'crm_follow'
-        });
-        Store.setItem('plasso_tasks', JSON.stringify(tasks));
-
-        closeFollowModal();
-        renderCRM();
-        alert('Follow-up agendado e registrado no Calendário!');
-    }
-
-    function cancelFollow() { closeFollowModal(); renderCRM(); }
-    function closeFollowModal() { document.getElementById('followModal').classList.add('hidden'); document.getElementById('followModal').classList.remove('flex'); isCustomFollow = false; }
-
-    function confirmMeeting() {
-        let dateVal = document.getElementById('mt-date').value;
-        let timeVal = document.getElementById('mt-time').value;
-        if(!dateVal || !timeVal) { alert('Preencha data e hora.'); return; }
-
-        let lead = leads.find(l => l.id === pendingLeadId);
-        let formattedDate = dateVal.split('-').reverse().join('/');
-        let hourFormatted = timeVal.split(':')[0] + 'h';
-
-        lead.col = 'reuniao';
-        if(!lead.historyArray) lead.historyArray = [];
-        let histMsg = `Reunião agendada para: ${formattedDate} às ${timeVal}`;
-        lead.historyArray.push(histMsg);
-
-        let tasks = JSON.parse(Store.getItem('plasso_tasks') || '[]');
-        tasks.push({
-            id: 't_' + Date.now(),
-            client: lead.name,
-            headline: `[${hourFormatted}] Reunião ${lead.name}`,
-            type: 'Reels',
-            caption: `Reunião agendada às ${timeVal}`,
-            date: dateVal,
-            status: 'todo',
-            notes: 'crm_meeting'
-        });
-        Store.setItem('plasso_tasks', JSON.stringify(tasks));
-
-        closeMeetingModal();
-        renderCRM();
-        alert('Reunião agendada e registrada no Calendário!');
-    }
-
-    function cancelMeeting() { closeMeetingModal(); renderCRM(); }
-    function closeMeetingModal() { document.getElementById('meetingModal').classList.add('hidden'); document.getElementById('meetingModal').classList.remove('flex'); }
-
-    function openNewLeadModal() { document.getElementById('newLeadModal').classList.remove('hidden'); document.getElementById('newLeadModal').classList.add('flex'); }
-    function closeNewLeadModal() { document.getElementById('newLeadModal').classList.add('hidden'); document.getElementById('newLeadModal').classList.remove('flex'); }
-
-    function createNewLead(e) {
-        e.preventDefault();
-        let name = document.getElementById('nl-name').value;
-        let insta = document.getElementById('nl-insta').value;
-        let link = document.getElementById('nl-link').value;
-
-        leads.push({ id: 'l_' + Date.now(), name: name, insta: insta, link: link, col: 'novolead', historyArray: [`Lead criado em ${new Date().toLocaleDateString('pt-BR')}`] });
-        closeNewLeadModal();
-        renderCRM();
-    }
-
-    function deleteLead(id) {
-        if(!confirm('Excluir este lead?')) return;
-        leads = leads.filter(l => l.id !== id);
-        renderCRM();
-    }
-
-    renderCRM();
+  document.querySelectorAll('#vista button').forEach(b => b.onclick = () => { vista = b.dataset.v; document.querySelectorAll('#vista button').forEach(x => x.classList.toggle('on', x === b)); ['pipe', 'ganhos', 'perdidos'].forEach(v => $('v-' + v).classList.toggle('hidden', v !== vista)); });
+  $('busca').addEventListener('input', e => { busca = e.target.value.toLowerCase().trim(); render(); });
+  function render() { renderKpis(); renderPipe(); renderFechados(); }
+  render();
+  const qp = new URLSearchParams(location.search);
+  if (qp.get('l')) abrirLead(qp.get('l'));
+  if (qp.get('novo')) novoLead();
 </script>
 </body>
 </html>

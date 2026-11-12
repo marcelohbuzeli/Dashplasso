@@ -2,57 +2,58 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#100a07">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Plassô">
   <title>Plassô | Entrar</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/ui.css?v=4">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #030712; }
-    .fi { margin-top: 4px; width: 100%; background: #030712; border: 1px solid #1f2937; border-radius: 12px; padding: 10px 12px; font-size: 15px; color: #fff; outline: none; }
-    .fi:focus { border-color: #3b82f6; }
+    .login { min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; max-width: 440px; margin: 0 auto; padding: calc(24px + var(--safe-t)) 20px calc(24px + var(--safe-b)); }
+    .msg-ok { border-color: rgba(62,230,160,.4); color: #8ff3c8; }
+    .msg-err { border-color: rgba(255,90,110,.45); color: #ff9aa7; }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 text-slate-200">
-  <div class="w-full max-w-sm bg-[#0b0f19] border border-[#1f2937] rounded-2xl p-7 space-y-5 shadow-2xl">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center font-bold text-white text-lg font-mono">P</div>
-      <div>
-        <p class="font-bold tracking-widest text-white uppercase">Plassô</p>
-        <p class="text-[10px] text-blue-400 font-mono tracking-wider">ACESSO PRIVADO</p>
-      </div>
+<body data-theme="home">
+  <main class="login stack-lg">
+    <div class="brand"><div class="brand-mark">P</div><div><div class="brand-name">Plassô</div><div class="brand-sub">Acesso privado</div></div></div>
+    <div>
+      <h1 class="display">Bem-vindo<br><span class="soft">de volta</span></h1>
+      <p class="soft mt-3">Entre com seu e-mail e senha.</p>
     </div>
-    <div id="msg" class="hidden text-xs rounded-xl px-3 py-2"></div>
+    <div id="msg" class="hidden"></div>
 
-    <!-- Entrar -->
-    <form id="f-login" class="space-y-4">
-      <label class="block text-xs text-slate-400">E-mail<input id="email" type="email" autocomplete="username" required class="fi"></label>
-      <label class="block text-xs text-slate-400">Senha<input id="pass" type="password" autocomplete="current-password" class="fi"></label>
-      <button id="btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl py-2.5 text-sm transition">Entrar</button>
-      <div class="flex justify-end text-[11px]">
-        <button type="button" id="btn-reset" class="text-slate-400 hover:underline">Esqueci a senha</button>
+    <form id="f-login" class="stack">
+      <label class="field"><span>E-mail</span><input class="input" id="email" type="email" autocomplete="username" inputmode="email" required></label>
+      <label class="field"><span>Senha</span><input class="input" id="pass" type="password" autocomplete="current-password"></label>
+      <div class="pair mt-2" style="width:100%">
+        <button id="btn" class="btn btn-white btn-lg">Entrar</button>
+        <span class="chip-btn accent" style="width:54px;height:54px" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
       </div>
+      <div class="row" style="justify-content:flex-end"><button type="button" id="btn-reset" class="btn btn-ghost btn-sm">Esqueci a senha</button></div>
     </form>
 
-    <!-- Criar / trocar senha (após convite ou "esqueci a senha") -->
-    <form id="f-senha" class="hidden space-y-4">
-      <p class="text-sm text-white font-semibold">Crie sua senha de acesso</p>
-      <p class="text-xs text-slate-400" id="senha-email"></p>
-      <label class="block text-xs text-slate-400">Nova senha (mínimo 8 caracteres)<input id="nova" type="password" autocomplete="new-password" minlength="8" required class="fi"></label>
-      <label class="block text-xs text-slate-400">Repita a senha<input id="nova2" type="password" autocomplete="new-password" minlength="8" required class="fi"></label>
-      <button class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl py-2.5 text-sm">Salvar senha e entrar</button>
+    <form id="f-senha" class="hidden stack">
+      <h2 class="h2">Crie sua senha de acesso</h2>
+      <p class="small muted" id="senha-email"></p>
+      <label class="field"><span>Nova senha (mínimo 8 caracteres)</span><input class="input" id="nova" type="password" autocomplete="new-password" minlength="8" required></label>
+      <label class="field"><span>Repita a senha</span><input class="input" id="nova2" type="password" autocomplete="new-password" minlength="8" required></label>
+      <button class="btn btn-white btn-lg btn-block">Salvar senha e entrar</button>
+      <p class="tiny muted">Dica: quando o navegador perguntar "Salvar senha?", toque em Salvar.</p>
     </form>
 
-    <p class="text-[10px] text-slate-600 text-center"><i class="fa-solid fa-lock"></i> Dados protegidos por login e regras de acesso no banco.</p>
-  </div>
+    <p class="tiny muted center"><i class="fa-solid fa-lock"></i> Dados protegidos por login e regras de acesso no banco.</p>
+  </main>
 
-  <script src="assets/config.js?v=3"></script>
+  <script src="assets/config.js?v=4"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.min.js"></script>
   <script>
     const cfg = window.PLASSO_CONFIG || {};
     const $ = id => document.getElementById(id);
-    const show = (t, ok) => { $('msg').textContent = t; $('msg').className = 'text-xs rounded-xl px-3 py-2 ' + (ok ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-red-950 text-red-300 border border-red-800'); };
+    const show = (t, ok) => { $('msg').textContent = t; $('msg').className = 'card card-tight small ' + (ok ? 'msg-ok' : 'msg-err'); };
     const next = new URLSearchParams(location.search).get('next') || 'index.html';
     const safeNext = /^[a-z0-9_-]+\.html(\?.*)?$/i.test(next) ? next : 'index.html';
     const here = location.href.split('#')[0].split('?')[0];

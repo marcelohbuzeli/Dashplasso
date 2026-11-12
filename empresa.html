@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060918">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Plassô | Empresa</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="assets/ui.css?v=4">
+</head>
+<body data-theme="empresa">
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="brand-mark">P</div><div><div class="brand-name">Empresa</div><div class="brand-sub">Plassô Marketing</div></div></div>
+    <div class="row">
+      <button class="chip-btn" onclick="Empresa.novoNoDia(UI.hoje(), renderAll)" aria-label="Adicionar"><i class="fa-solid fa-plus"></i></button>
+      <button class="chip-btn" onclick="UI.menu()" aria-label="Menu"><i class="fa-solid fa-ellipsis"></i></button>
+    </div>
+  </header>
+  <nav id="subnav"></nav>
+
+  <div class="hero">
+    <div class="eyebrow" id="sem-txt"></div>
+    <h1 class="display mt-2">Sua semana<br><span class="soft">na agência</span></h1>
+  </div>
+
+  <div class="grid g-2 lg-g-4" id="kpis"></div>
+
+  <div class="grid lg-g-main mt-6">
+    <div class="stack-lg" style="min-width:0">
+      <div class="card card-lg">
+        <div class="card-head"><h2 class="h2">Próximos 7 dias</h2><a href="calendar.html" data-keep class="btn btn-ghost btn-sm">Calendário</a></div>
+        <div id="semana" class="stack"></div>
+      </div>
+    </div>
+    <div class="stack-lg" style="min-width:0">
+      <div class="card card-lg card-accent">
+        <div class="card-head"><h2 class="h2">Para aprovação</h2><span class="pill" id="aprov-count"></span></div>
+        <p class="small soft" style="margin:-6px 0 8px">Conteúdos prontos. Envie o link para o cliente aprovar pelo WhatsApp.</p>
+        <div id="aprovacao" class="list"></div>
+      </div>
+      <div class="card card-lg">
+        <div class="card-head"><h2 class="h2">Clientes no mês</h2><a href="clients.html" data-keep class="btn btn-ghost btn-sm">Todos</a></div>
+        <div id="clientes" class="list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/config.js?v=4"></script>
+<script src="assets/core.js?v=4" data-mode="app"></script>
+<script src="assets/ui.js?v=4"></script>
+<script src="assets/integracao.js?v=4"></script>
+<script src="assets/empresa.js?v=4"></script>
+<script type="text/plain" data-app>
+  UI.mount({ tab: 'empresa', sub: 'geral' });
+  const { esc, T } = UI;
+  const $ = id => document.getElementById(id);
+  const hoje = UI.hoje();
+  const mes = hoje.slice(0, 7);
+
+  function renderKpis() {
+    const ativos = DB.list('clients').filter(c => c.status !== 'encerrado');
+    const doMes = T.conteudos().filter(t => (t.date || '').startsWith(mes));
+    const aprov = doMes.filter(t => T.status(t) === 'aprovadas').length;
+    const prontos = T.conteudos().filter(t => T.status(t) === 'pronto').length;
+    const ajustes = T.conteudos().filter(t => t.isRejected).length;
+    const k = (href, icon, l, v, h) => `<a href="${UI.keepParams(href)}" class="card card-link stat"><span class="label"><i class="fa-solid ${icon} accent-text"></i>${l}</span><span class="value">${v}</span><span class="hint">${h}</span></a>`;
+    $('kpis').innerHTML =
+      k('clients.html', 'fa-user-group', 'Clientes', ativos.length, 'ativos') +
+      k('tasks.html', 'fa-clapperboard', 'Conteúdos', `${aprov}<span class="muted">/${doMes.length}</span>`, 'aprovados no mês') +
+      k('tasks.html?status=pronto', 'fa-hourglass-half', 'Aguardando', prontos, 'aprovação do cliente') +
+      k('tasks.html?status=urgent', 'fa-rotate-left', 'Ajustes', ajustes, 'pedidos pelo cliente');
+  }
+
+  function renderSemana() {
+    const d0 = new Date(hoje + 'T12:00');
+    $('sem-txt').textContent = d0.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' }) + ' — ' + new Date(d0.getTime() + 6 * 864e5).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+    const itens = T.itensCalendario();
+    let html = '';
+    for (let i = 0; i < 7; i++) {
+      const dia = UI.addDias(hoje, i);
+      const doDia = itens.filter(x => x.date === dia).sort((a, b) => (a._hora || '99').localeCompare(b._hora || '99'));
+      if (!doDia.length) continue;
+      html += `<div><div class="eyebrow mb-2">${i === 0 ? 'Hoje' : i === 1 ? 'Amanhã' : UI.diaSemana(dia) + ' · ' + UI.diaMes(dia)}</div><div class="list">${doDia.map(x => {
+        const k = T.kindInfo(x._kind);
+        const st = x._kind === 'post' ? T.statusInfo(T.status(x)) : null;
+        return `<button class="item item-btn" data-open="${esc(x.id)}" data-src="${x._src}"><div class="icon ${x._kind !== 'post' ? 'accent' : ''}"><i class="fa-solid ${k.icon}"></i></div><div class="grow"><div class="title truncate">${esc(x._titulo)}</div><div class="sub truncate">${x._kind === 'post' ? esc([x.client, x.type].filter(Boolean).join(' · ')) : k.label + (x.client ? ' · ' + esc(x.client) : '')}</div></div>${st ? `<span class="pill ${st.pill}">${st.label}</span>` : `<span class="pill num">${x._hora || 'dia todo'}</span>`}</button>`;
+      }).join('')}</div></div>`;
+    }
+    $('semana').innerHTML = html || '<div class="empty"><i class="fa-regular fa-calendar"></i>Nada nos próximos 7 dias.<br><button class="btn btn-white btn-sm mt-3" onclick="Empresa.novoNoDia(UI.hoje(), renderAll)">Adicionar</button></div>';
+    $('semana').querySelectorAll('[data-open]').forEach(b => b.onclick = () => Empresa.abrir(b.dataset.open, renderAll, b.dataset.src));
+  }
+
+  function renderAprovacao() {
+    const prontos = T.conteudos().filter(t => T.status(t) === 'pronto');
+    const porCliente = {};
+    prontos.forEach(t => { const k = t.client || 'Sem cliente'; (porCliente[k] = porCliente[k] || []).push(t); });
+    $('aprov-count').textContent = prontos.length;
+    $('aprovacao').innerHTML = Object.entries(porCliente).map(([nome, ts]) => {
+      const c = DB.list('clients').find(x => x.name.toLowerCase() === nome.toLowerCase());
+      return `<div class="item"><div class="icon">${esc(UI.iniciais(nome))}</div><div class="grow"><div class="title truncate">${esc(nome)}</div><div class="sub">${ts.length} conteúdo${ts.length > 1 ? 's' : ''} pronto${ts.length > 1 ? 's' : ''}</div></div>${c ? `<button class="btn btn-white btn-sm" data-wa="${esc(c.id)}"><i class="fa-brands fa-whatsapp"></i> Enviar</button>` : ''}</div>`;
+    }).join('') || '<div class="empty" style="padding:14px">Nada aguardando aprovação.</div>';
+    $('aprovacao').querySelectorAll('[data-wa]').forEach(b => b.onclick = () => enviarWhats(b.dataset.wa));
+  }
+  function enviarWhats(cid) {
+    const c = DB.get('clients', cid);
+    Integracao.ensurePortalToken(c);
+    if (!c.whatsapp) {
+      const s = UI.sheet({ title: 'WhatsApp de ' + esc(c.name), html: '<label class="field"><span>Número com DDD</span><input class="input" id="wa" inputmode="tel" placeholder="(11) 99999-9999"></label>', foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-white" id="ok">Continuar</button>' });
+      s.$('#ok').onclick = () => { const w = s.$('#wa').value.trim(); if (!w) return; c.whatsapp = w; DB.put('clients', c); s.close(); enviarWhats(cid); };
+      return;
+    }
+    const texto = `Olá, ${c.name}! Seus conteúdos estão prontos para aprovação 🎬\n\nÉ só abrir o link, conferir e aprovar (ou pedir ajuste):\n${Integracao.portalUrl(c)}`;
+    window.open(Integracao.whatsappLink(c, texto), '_blank');
+  }
+
+  function renderClientes() {
+    const ativos = DB.list('clients').filter(c => c.status !== 'encerrado');
+    $('clientes').innerHTML = ativos.map(c => {
+      const ts = T.conteudos().filter(t => (t.client || '').toLowerCase() === c.name.toLowerCase() && (t.date || '').startsWith(mes));
+      const meta = Number(c.quantidadeMes) || ts.length || 0;
+      const feitos = ts.filter(t => ['aprovadas', 'pronto'].includes(T.status(t))).length;
+      const pct = meta ? Math.min(100, Math.round(feitos * 100 / meta)) : 0;
+      return `<a class="item" href="${UI.keepParams('clients.html?c=' + encodeURIComponent(c.id))}"><div class="icon accent">${esc(UI.iniciais(c.name))}</div><div class="grow"><div class="row-between"><span class="title truncate">${esc(c.name)}</span><span class="small muted num">${feitos}/${meta || '—'}</span></div><div class="bar mt-2"><span style="width:${pct}%"></span></div></div></a>`;
+    }).join('') || '<div class="empty">Nenhum cliente ativo.</div>';
+  }
+
+  function renderAll() { renderKpis(); renderSemana(); renderAprovacao(); renderClientes(); }
+  renderAll();
+</script>
+</body>
+</html>

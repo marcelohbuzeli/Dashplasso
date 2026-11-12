@@ -3,147 +3,113 @@
 <head>
 <meta charset="UTF-8">
 <meta name="robots" content="noindex, nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#04100c">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Lançar">
-<meta name="theme-color" content="#030712">
 <title>Plassô | Lançar</title>
-<script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script>tailwind.config = { theme: { extend: { colors: { dark: { 950: '#030712', 900: '#0b0f19', 850: '#111827', 800: '#1f2937' } } } } }</script>
+<link rel="stylesheet" href="assets/ui.css?v=4">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-  body { font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: env(safe-area-inset-bottom); }
-  .chip.on { background: #2563eb; border-color: #2563eb; color: #fff; }
-  .seg button.on { background: #1f2937; color: #fff; }
-  input, select { font-size: 16px !important; } /* evita zoom no iOS */
+  .wrap { max-width: 520px; }
+  .valor-box { display: flex; align-items: baseline; gap: 8px; padding: 18px 20px; border-radius: 24px; background: rgba(255,255,255,.06); border: 1px solid var(--line); }
+  .valor-box:focus-within { border-color: color-mix(in srgb, var(--accent) 70%, transparent); }
+  .valor-box input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: #fff; font: 500 44px/1 var(--font); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips button { height: 40px; padding: 0 14px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); color: var(--ink-2); font-size: 14px; display: inline-flex; align-items: center; gap: 7px; }
+  .chips button.on { background: #fff; color: #0b0b0d; border-color: #fff; }
 </style>
 </head>
-<body class="bg-dark-950 text-slate-200 antialiased min-h-screen">
-<main class="max-w-md mx-auto px-4 pt-6 pb-10 space-y-5">
-  <div class="flex items-center justify-between">
-    <div>
-      <p class="text-[10px] font-mono tracking-widest text-blue-400">PLASSÔ · FINANCEIRO</p>
-      <h1 class="text-xl font-bold text-white">Novo lançamento</h1>
-    </div>
-    <a href="finance.html" class="text-slate-400 text-sm" aria-label="Abrir financeiro"><i class="fa-solid fa-chart-column"></i></a>
-  </div>
+<body data-theme="fin">
+<div class="wrap" style="padding-bottom:calc(40px + var(--safe-b))">
+  <header class="top">
+    <div class="brand"><div class="brand-mark"><i class="fa-solid fa-bolt"></i></div><div><div class="brand-name">Lançamento rápido</div><div class="brand-sub">Financeiro</div></div></div>
+    <a href="finance.html" data-keep class="chip-btn" aria-label="Abrir Financeiro"><i class="fa-solid fa-xmark"></i></a>
+  </header>
 
-  <form id="f" class="space-y-5">
-    <div class="seg grid grid-cols-2 bg-dark-900 border border-dark-800 rounded-2xl p-1 text-sm" id="tipo">
-      <button type="button" data-v="saida" class="on py-2.5 rounded-xl text-slate-400">Saída</button>
-      <button type="button" data-v="entrada" class="py-2.5 rounded-xl text-slate-400">Entrada</button>
+  <form id="f" class="stack-lg">
+    <div class="seg" id="tipo" style="display:grid;grid-template-columns:1fr 1fr">
+      <button type="button" data-v="saida" class="on" style="justify-content:center"><i class="fa-solid fa-arrow-up"></i>Saída</button>
+      <button type="button" data-v="entrada" style="justify-content:center"><i class="fa-solid fa-arrow-down"></i>Entrada</button>
     </div>
 
-    <label class="block">
-      <span class="text-xs text-slate-400">Empresa</span>
-      <input id="empresa" required autocomplete="off" class="mt-1 w-full bg-dark-900 border border-dark-800 rounded-2xl px-4 py-3.5 text-white outline-none focus:border-blue-500">
-    </label>
+    <div class="valor-box"><span class="muted" style="font-size:22px">R$</span><input id="valor" inputmode="decimal" placeholder="0,00" autocomplete="off" aria-label="Valor"></div>
 
-    <label class="block">
-      <span class="text-xs text-slate-400">Valor</span>
-      <div class="mt-1 flex items-center bg-dark-900 border border-dark-800 rounded-2xl px-4 focus-within:border-blue-500">
-        <span class="text-slate-500 font-mono">R$</span>
-        <input id="valor" required inputmode="decimal" placeholder="0,00" class="flex-1 bg-transparent px-2 py-3.5 text-white text-2xl font-bold font-mono outline-none">
-      </div>
-    </label>
+    <label class="field"><span>Empresa</span><input class="input" id="empresa" autocomplete="off" list="dl-emp" placeholder="Onde foi?"></label>
+    <datalist id="dl-emp"></datalist>
 
-    <div>
-      <span class="text-xs text-slate-400">Categoria</span>
-      <div id="chips" class="mt-2 flex flex-wrap gap-2"></div>
-      <input id="categoria" placeholder="ou digite outra…" list="dl" class="mt-2 w-full bg-dark-900 border border-dark-800 rounded-2xl px-4 py-3 text-white outline-none focus:border-blue-500">
-      <datalist id="dl"></datalist>
+    <div class="field"><span>Categoria</span><div class="chips" id="chips"></div>
+      <input class="input mt-2" id="categoria" list="dl" placeholder="ou digite outra…" autocomplete="off"><datalist id="dl"></datalist></div>
+
+    <div class="form-grid">
+      <label class="field"><span>Data</span><input class="input" type="date" id="data"></label>
+      <label class="field"><span>Conta</span><select class="select" id="conta"><option>Pessoal</option><option>Empresa</option></select></label>
     </div>
 
-    <div class="grid grid-cols-2 gap-3">
-      <label class="block"><span class="text-xs text-slate-400">Data</span>
-        <input id="data" type="date" class="mt-1 w-full bg-dark-900 border border-dark-800 rounded-2xl px-3 py-3 text-white outline-none"></label>
-      <label class="block"><span class="text-xs text-slate-400">Conta</span>
-        <select id="conta" class="mt-1 w-full bg-dark-900 border border-dark-800 rounded-2xl px-3 py-3 text-white outline-none"><option>Pessoal</option><option>Empresa</option></select></label>
-    </div>
-
-    <details class="bg-dark-900 border border-dark-800 rounded-2xl px-4 py-3">
-      <summary class="text-sm text-slate-300 cursor-pointer">Parcelado / mais opções</summary>
-      <div class="grid grid-cols-2 gap-3 mt-3">
-        <label class="block"><span class="text-xs text-slate-400">Parcelas</span>
-          <input id="parcelas" type="number" min="1" max="72" value="1" class="mt-1 w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2.5 text-white outline-none"></label>
-        <label class="block"><span class="text-xs text-slate-400">Valor digitado é</span>
-          <select id="valorModo" class="mt-1 w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2.5 text-white outline-none"><option value="total">Total</option><option value="parcela">Cada parcela</option></select></label>
-        <label class="block col-span-2"><span class="text-xs text-slate-400">Cartão / forma</span>
-          <input id="forma" class="mt-1 w-full bg-dark-950 border border-dark-800 rounded-xl px-3 py-2.5 text-white outline-none"></label>
+    <details class="card card-tight">
+      <summary class="small soft" style="cursor:pointer;list-style:none"><i class="fa-solid fa-sliders"></i> Parcelado e mais opções</summary>
+      <div class="form-grid mt-3">
+        <label class="field"><span>Parcelas</span><input class="input" type="number" id="parcelas" min="1" max="72" value="1"></label>
+        <label class="field"><span>Valor digitado é</span><select class="select" id="valorModo"><option value="total">o total</option><option value="parcela">cada parcela</option></select></label>
+        <label class="field full"><span>Cartão / forma</span><input class="input" id="forma"></label>
       </div>
     </details>
 
-    <button id="save" class="w-full bg-blue-600 active:bg-blue-700 text-white font-bold rounded-2xl py-4 text-base">Lançar</button>
+    <button class="btn btn-white btn-lg btn-block" id="save" style="height:58px;font-size:16px">Lançar</button>
   </form>
 
-  <div id="done" class="hidden text-center space-y-4 pt-10">
-    <div class="w-16 h-16 mx-auto rounded-full bg-emerald-600 flex items-center justify-center text-2xl text-white"><i class="fa-solid fa-check"></i></div>
-    <p class="text-white font-bold text-lg">Lançado!</p>
-    <p id="done-text" class="text-sm text-slate-400"></p>
-    <div class="flex gap-3 justify-center">
-      <button onclick="undo()" class="px-4 py-2.5 rounded-xl bg-dark-900 border border-dark-800 text-sm text-slate-300">Desfazer</button>
-      <button onclick="location.href='lancar.html'" class="px-4 py-2.5 rounded-xl bg-blue-600 text-sm text-white font-semibold">Novo</button>
+  <div id="done" class="hidden center stack-lg" style="padding-top:12vh;align-items:center">
+    <div class="brand-mark" style="width:76px;height:76px;border-radius:50%;font-size:30px;margin:0 auto"><i class="fa-solid fa-check"></i></div>
+    <h1 class="h1">Lançado!</h1>
+    <p class="soft" id="done-text"></p>
+    <div class="row" style="justify-content:center">
+      <button class="btn btn-ghost" onclick="undo()">Desfazer</button>
+      <a class="btn btn-white" href="lancar.html" data-keep>Novo lançamento</a>
     </div>
-    <p class="text-[11px] text-slate-600">Pode fechar esta aba.</p>
+    <a class="small muted" href="finance.html" data-keep>Abrir Financeiro</a>
   </div>
-</main>
+</div>
 
-<script src="assets/config.js?v=3"></script>
-<script src="assets/core.js?v=3" data-mode="app"></script>
-<script src="assets/financas.js?v=3"></script>
+<script src="assets/config.js?v=4"></script>
+<script src="assets/core.js?v=4" data-mode="app"></script>
+<script src="assets/ui.js?v=4"></script>
+<script src="assets/financas.js?v=4"></script>
 <script type="text/plain" data-app>
-  const F = Financas;
-  const q = new URLSearchParams(location.search);
-  let tipo = q.get('tipo') === 'entrada' ? 'entrada' : 'saida';
-  let ultimos = [];
-
-  // "R$ 1.234,56", "1234.56", "12,3" -> número
-  function parseValor(s) {
-    s = String(s || '').replace(/[^\d,.-]/g, '');
-    if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
-    const n = parseFloat(s); return isNaN(n) ? '' : n;
-  }
+  document.body.dataset.theme = 'fin';
+  document.querySelectorAll('a[data-keep]').forEach(a => a.href = UI.keepParams(a.getAttribute('href')));
+  const F = Financas, $ = id => document.getElementById(id), q = new URLSearchParams(location.search);
+  let tipo = q.get('tipo') === 'entrada' ? 'entrada' : 'saida', ultimos = [];
+  const parseValor = s => { s = String(s || '').replace(/[^\d,.-]/g, ''); if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.'); const n = parseFloat(s); return isNaN(n) ? '' : n; };
   const fmt = n => n === '' ? '' : Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  const $ = id => document.getElementById(id);
   $('empresa').value = q.get('empresa') || q.get('estabelecimento') || '';
   $('valor').value = fmt(parseValor(q.get('valor')));
-  $('data').value = q.get('data') || new Date().toLocaleDateString('sv-SE');
+  $('data').value = q.get('data') || UI.hoje();
   $('forma').value = q.get('cartao') || q.get('forma') || '';
   if (q.get('conta')) $('conta').value = q.get('conta');
+  $('dl-emp').innerHTML = [...new Set(F.todos().map(l => l.empresa || l.descricao))].slice(0, 200).map(e => `<option value="${UI.esc(e)}">`).join('');
 
-  document.querySelectorAll('#tipo button').forEach(b => b.onclick = () => {
-    tipo = b.dataset.v;
-    document.querySelectorAll('#tipo button').forEach(x => x.classList.toggle('on', x === b));
-    chips();
-  });
-  document.querySelectorAll('#tipo button').forEach(x => x.classList.toggle('on', x.dataset.v === tipo));
-
+  function setTipo(v) { tipo = v; document.querySelectorAll('#tipo button').forEach(x => x.classList.toggle('on', x.dataset.v === v)); chips(); }
+  document.querySelectorAll('#tipo button').forEach(b => b.onclick = () => setTipo(b.dataset.v));
   function chips() {
-    const cats = F.categoriasRecentes(tipo, 9);
-    $('chips').innerHTML = cats.map(c => `<button type="button" class="chip px-3 py-2 rounded-xl border border-dark-800 bg-dark-900 text-sm text-slate-300">${App.esc(c)}</button>`).join('');
-    $('chips').querySelectorAll('.chip').forEach(b => b.onclick = () => { $('categoria').value = b.textContent; mark(); });
-    $('dl').innerHTML = F.categorias(tipo).map(c => `<option value="${App.esc(c)}">`).join('');
+    $('chips').innerHTML = F.categoriasRecentes(tipo, 8).map(c => `<button type="button">${UI.esc(c)}</button>`).join('');
+    $('chips').querySelectorAll('button').forEach(b => b.onclick = () => { $('categoria').value = b.textContent; mark(); });
+    $('dl').innerHTML = F.categorias(tipo).map(c => `<option value="${UI.esc(c)}">`).join('');
     mark();
   }
-  function mark() { $('chips').querySelectorAll('.chip').forEach(b => b.classList.toggle('on', b.textContent === $('categoria').value)); }
+  const mark = () => $('chips').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.textContent === $('categoria').value));
   $('categoria').addEventListener('input', mark);
-  function sugerir() { if (!$('categoria').value) { $('categoria').value = F.sugerirCategoria($('empresa').value); mark(); } }
+  const sugerir = () => { if (!$('categoria').value) { $('categoria').value = F.sugerirCategoria($('empresa').value); mark(); } };
   $('empresa').addEventListener('change', sugerir);
-  chips(); sugerir();
-
   $('valor').addEventListener('blur', () => { $('valor').value = fmt(parseValor($('valor').value)); });
+  setTipo(tipo); sugerir();
 
   async function salvar() {
     const valor = parseValor($('valor').value);
-    if (!$('empresa').value.trim() || !valor) { App.toast('Preencha empresa e valor.', 'warn'); return; }
+    if (!$('empresa').value.trim() || !valor) { App.toast('Preencha valor e empresa.', 'warn'); return; }
     const antes = new Set(F.todos().map(l => l.id));
-    const base = {
-      tipo, descricao: $('empresa').value.trim(), empresa: $('empresa').value.trim(), valor,
-      data: $('data').value, categoria: $('categoria').value.trim(), conta: $('conta').value,
-      forma: $('forma').value.trim(), status: 'pago', origem: 'iphone'
-    };
+    const base = { tipo, descricao: $('empresa').value.trim(), empresa: $('empresa').value.trim(), valor, data: $('data').value || UI.hoje(), categoria: $('categoria').value.trim(), conta: $('conta').value, forma: $('forma').value.trim(), status: 'pago', origem: 'iphone' };
     const n = Math.max(1, parseInt($('parcelas').value, 10) || 1);
     F.criar(base, n > 1 ? 'parcelada' : 'unica', { parcelas: n, valorModo: $('valorModo').value });
     ultimos = F.todos().filter(l => !antes.has(l.id)).map(l => l.id);
@@ -152,17 +118,10 @@
     $('f').classList.add('hidden'); $('done').classList.remove('hidden');
     $('done-text').textContent = `${base.descricao} · ${F.brl(valor)}${n > 1 ? ` em ${n}×` : ''}${base.categoria ? ' · ' + base.categoria : ''}`;
   }
-  async function undo() {
-    ultimos.forEach(id => DB.remove('fin_lancamentos', id));
-    await DB.flush();
-    App.toast('Lançamento desfeito.', 'ok');
-    setTimeout(() => location.href = 'lancar.html', 600);
-  }
+  async function undo() { ultimos.forEach(id => DB.remove('fin_lancamentos', id)); await DB.flush(); App.toast('Lançamento desfeito.', 'ok'); setTimeout(() => location.href = UI.keepParams('lancar.html'), 600); }
   $('f').addEventListener('submit', e => { e.preventDefault(); salvar(); });
-
-  // modo automático: o atalho manda auto=1 e o lançamento é salvo sem tocar em nada
   if (q.get('auto') === '1' && $('empresa').value && parseValor($('valor').value)) salvar();
-  else if (!$('empresa').value) $('empresa').focus(); else if (!$('valor').value) $('valor').focus();
+  else if (!$('valor').value) setTimeout(() => $('valor').focus(), 200); else if (!$('empresa').value) $('empresa').focus();
 </script>
 </body>
 </html>

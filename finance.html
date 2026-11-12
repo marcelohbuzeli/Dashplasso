@@ -3,307 +3,195 @@
 <head>
 <meta charset="UTF-8">
 <meta name="robots" content="noindex, nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#04100c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Plassô | Financeiro</title>
-<script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script>
-  tailwind.config = { theme: { extend: { colors: { dark: { 950: '#030712', 900: '#0b0f19', 850: '#111827', 800: '#1f2937' }, inc: '#0284c7', exp: '#ea580c' } } } }
-</script>
+<link rel="stylesheet" href="assets/ui.css?v=4">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-  body { font-family: 'Plus Jakarta Sans', sans-serif; }
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-track { background: #030712; }
-  ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
-  .seg button.on { background: #1f2937; color: #fff; }
-  .bar { transition: opacity .15s; }
-  .col:hover .bar { opacity: .85; }
-  #tip { pointer-events: none; }
+  :root { --inc: #12a982; --exp: #e8590c; }
+  .tile { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px; border-radius: 20px; background: rgba(255,255,255,.05); border: 1px solid var(--line); min-width: 0; }
+  .tile .ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: rgba(255,255,255,.08); color: var(--accent); }
+  .lanc-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; width: 100%; text-align: left; background: none; border: 0; }
+  .lanc-row + .lanc-row { border-top: 1px solid var(--line); }
+  .val-in { color: #5ee9bd; } .val-out { color: #ffa36e; }
 </style>
 </head>
-<body class="bg-dark-950 text-slate-200 antialiased overflow-hidden selection:bg-blue-600 selection:text-white">
-<div class="flex flex-row h-screen w-screen overflow-hidden">
-  <aside id="sidebar" class="hidden md:flex bg-dark-900 border-r border-dark-800 flex-col w-64 shrink-0 h-full">
-    <div class="h-20 flex items-center gap-3 px-4 border-b border-dark-800/60 shrink-0">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center font-bold text-white text-lg font-mono">P</div>
-      <div class="flex flex-col"><span class="font-bold tracking-widest text-white uppercase">Plassô</span><span class="text-[9px] text-blue-400 font-mono tracking-wider">MARKETING</span></div>
+<body data-theme="fin">
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="brand-mark"><i class="fa-solid fa-wallet"></i></div><div><div class="brand-name">Financeiro</div><div class="brand-sub" id="mes-sub"></div></div></div>
+    <div class="row">
+      <a href="lancar.html" data-keep class="chip-btn" aria-label="Lançamento rápido (iPhone)"><i class="fa-solid fa-mobile-screen"></i></a>
+      <button class="chip-btn" onclick="UI.menu()" aria-label="Menu"><i class="fa-solid fa-ellipsis"></i></button>
     </div>
-    <nav class="p-3 space-y-1 font-medium text-xs flex-1 overflow-y-auto"></nav>
-  </aside>
+  </header>
 
-  <main class="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
-    <header class="min-h-20 border-b border-dark-800/60 px-4 md:px-8 py-3 flex flex-wrap gap-3 items-center justify-between bg-dark-900/30 shrink-0">
-      <h1 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-wallet text-blue-500 text-xs"></i> Financeiro</h1>
-      <div class="flex flex-wrap items-center gap-2">
-        <div class="flex items-center bg-dark-900 border border-dark-800 rounded-xl">
-          <button onclick="shiftMonth(-1)" class="px-3 py-2 text-slate-400 hover:text-white" aria-label="Mês anterior"><i class="fa-solid fa-chevron-left text-xs"></i></button>
-          <span id="month-label" class="text-xs font-semibold text-white w-36 text-center"></span>
-          <button onclick="shiftMonth(1)" class="px-3 py-2 text-slate-400 hover:text-white" aria-label="Próximo mês"><i class="fa-solid fa-chevron-right text-xs"></i></button>
-        </div>
-        <div class="seg flex bg-dark-900 border border-dark-800 rounded-xl p-0.5 text-xs" id="conta-filter">
-          <button data-v="" class="on px-3 py-1.5 rounded-lg text-slate-400">Tudo</button>
-          <button data-v="Empresa" class="px-3 py-1.5 rounded-lg text-slate-400">Empresa</button>
-          <button data-v="Pessoal" class="px-3 py-1.5 rounded-lg text-slate-400">Pessoal</button>
-        </div>
-        <button onclick="openForm()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold"><i class="fa-solid fa-plus mr-1"></i> Lançamento</button>
+  <!-- saldo -->
+  <section class="card card-lg card-accent">
+    <div class="row-between" style="flex-wrap:wrap;gap:10px">
+      <div class="row">
+        <button class="chip-btn" onclick="shiftMonth(-1)" aria-label="Mês anterior"><i class="fa-solid fa-chevron-left"></i></button>
+        <span class="h3" id="mes-label" style="min-width:150px;text-align:center"></span>
+        <button class="chip-btn" onclick="shiftMonth(1)" aria-label="Próximo mês"><i class="fa-solid fa-chevron-right"></i></button>
       </div>
-    </header>
-
-    <div class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
-      <!-- KPIs -->
-      <section class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="kpis"></section>
-
-      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <!-- Projeção -->
-        <section class="xl:col-span-2 bg-dark-900 border border-dark-800 rounded-2xl p-5">
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <div>
-              <h2 class="text-sm font-bold text-white">Previsão — próximos 6 meses</h2>
-              <p class="text-[11px] text-slate-500">Inclui o que já foi pago e o que está previsto (a conferir, parcelas e recorrentes).</p>
-            </div>
-            <div class="flex items-center gap-4 text-[11px] text-slate-400">
-              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-inc"></span>Entradas</span>
-              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-exp"></span>Saídas</span>
-            </div>
-          </div>
-          <div id="chart" class="relative h-52"></div>
-          <div class="overflow-x-auto mt-4">
-            <table class="w-full text-xs font-mono" id="proj-table"></table>
-          </div>
-        </section>
-
-        <!-- A conferir -->
-        <section class="bg-dark-900 border border-dark-800 rounded-2xl p-5 flex flex-col">
-          <div class="flex items-center justify-between mb-3">
-            <h2 class="text-sm font-bold text-white">A conferir neste mês</h2>
-            <span id="pend-count" class="text-[11px] font-mono bg-amber-950 text-amber-300 px-2 py-0.5 rounded-full border border-amber-800">0</span>
-          </div>
-          <div id="pend-list" class="space-y-2 overflow-y-auto max-h-96"></div>
-        </section>
-      </div>
-
-      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <!-- Lançamentos -->
-        <section class="xl:col-span-2 bg-dark-900 border border-dark-800 rounded-2xl p-5">
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <h2 class="text-sm font-bold text-white">Lançamentos do mês</h2>
-            <div class="flex gap-2">
-              <input id="search" placeholder="Buscar…" class="bg-dark-950 border border-dark-800 rounded-xl px-3 py-1.5 text-xs text-white w-36 outline-none focus:border-blue-500">
-              <div class="seg flex bg-dark-950 border border-dark-800 rounded-xl p-0.5 text-xs" id="tipo-filter">
-                <button data-v="" class="on px-3 py-1 rounded-lg text-slate-400">Todos</button>
-                <button data-v="entrada" class="px-3 py-1 rounded-lg text-slate-400">Entradas</button>
-                <button data-v="saida" class="px-3 py-1 rounded-lg text-slate-400">Saídas</button>
-              </div>
-            </div>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-xs">
-              <thead class="text-[10px] uppercase tracking-wider text-slate-500 text-left">
-                <tr><th class="py-2 pr-2">Data</th><th class="pr-2">Descrição</th><th class="pr-2">Categoria</th><th class="pr-2">Status</th><th class="pr-2 text-right">Valor</th><th></th></tr>
-              </thead>
-              <tbody id="rows"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <div class="space-y-6">
-          <!-- Categorias -->
-          <section class="bg-dark-900 border border-dark-800 rounded-2xl p-5">
-            <h2 class="text-sm font-bold text-white mb-3">Saídas por categoria</h2>
-            <div id="cats" class="space-y-2.5"></div>
-          </section>
-          <!-- iPhone -->
-          <section class="bg-dark-900 border border-dark-800 rounded-2xl p-5 space-y-3">
-            <h2 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-brands fa-apple"></i> Lançar pelo iPhone</h2>
-            <p class="text-xs text-slate-400">Página de lançamento rápido, feita para o atalho do iPhone (Carteira / Apple Pay):</p>
-            <div class="flex gap-2">
-              <input id="quick-url" readonly class="flex-1 bg-dark-950 border border-dark-800 rounded-xl px-3 py-2 text-[11px] font-mono text-blue-300">
-              <button onclick="copyQuick()" class="bg-dark-800 border border-slate-700 rounded-xl px-3 text-xs" aria-label="Copiar"><i class="fa-regular fa-copy"></i></button>
-            </div>
-            <a href="lancar.html" class="inline-block text-xs text-blue-400 hover:underline">Abrir lançamento rápido →</a>
-            <p class="text-[11px] text-slate-500">O passo a passo do atalho está no arquivo <b>docs/ATALHO-IPHONE.md</b>.</p>
-          </section>
-        </div>
-      </div>
+      <div class="seg" id="conta-filter"><button data-v="" class="on">Tudo</button><button data-v="Empresa">Empresa</button><button data-v="Pessoal">Pessoal</button></div>
     </div>
-  </main>
+    <div class="mt-6 small soft">Saldo previsto do mês</div>
+    <div class="big-num mt-2" id="saldo"></div>
+    <div class="small soft mt-2" id="saldo-sub"></div>
+    <div class="grid g-2 mt-6" style="max-width:520px">
+      <button class="btn btn-ghost btn-lg" onclick="openForm(null,'entrada')"><i class="fa-solid fa-arrow-down"></i> Entrada</button>
+      <button class="btn btn-accent btn-lg" onclick="openForm(null,'saida')"><i class="fa-solid fa-arrow-up"></i> Saída</button>
+    </div>
+  </section>
+
+  <div class="grid g-2 lg-g-4 mt-4" id="kpis"></div>
+
+  <div class="grid lg-g-main mt-4" style="align-items:start">
+    <div class="stack-lg" style="min-width:0">
+      <section class="card card-lg">
+        <div class="card-head">
+          <div><h2 class="h2">Próximos 6 meses</h2><div class="small muted mt-1">Pago + previsto (a conferir, parcelas e fixas)</div></div>
+        </div>
+        <div class="row small soft mb-3" style="gap:16px"><span class="row" style="gap:6px"><i class="dot" style="background:var(--inc)"></i>Entradas</span><span class="row" style="gap:6px"><i class="dot" style="background:var(--exp)"></i>Saídas</span></div>
+        <div class="chart" id="chart"></div>
+        <div style="overflow-x:auto" class="mt-4"><table class="table" id="proj"></table></div>
+      </section>
+
+      <section class="card card-lg">
+        <div class="card-head" style="flex-wrap:wrap">
+          <h2 class="h2">Lançamentos</h2>
+          <div class="seg" id="tipo-filter"><button data-v="" class="on">Todos</button><button data-v="entrada">Entradas</button><button data-v="saida">Saídas</button></div>
+        </div>
+        <div style="position:relative" class="mb-2">
+          <i class="fa-solid fa-magnifying-glass muted" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:13px"></i>
+          <input class="input" id="busca" placeholder="Buscar lançamento…" style="padding-left:40px">
+        </div>
+        <div id="rows"></div>
+      </section>
+    </div>
+
+    <div class="stack-lg" style="min-width:0">
+      <section class="card card-lg">
+        <div class="card-head"><h2 class="h2">A conferir</h2><span class="pill" id="pend-count"></span></div>
+        <div id="pend"></div>
+      </section>
+      <section class="card card-lg">
+        <div class="card-head"><h2 class="h2">Saídas por categoria</h2></div>
+        <div class="grid g-2" id="tiles"></div>
+        <div class="stack mt-4" id="cats"></div>
+      </section>
+      <section class="card card-lg">
+        <h2 class="h2"><i class="fa-brands fa-apple"></i> Lançar pelo iPhone</h2>
+        <p class="small soft mt-2">Pagou com Apple Pay? O atalho da Carteira abre o lançamento já preenchido com empresa e valor.</p>
+        <div class="row mt-3"><input class="input grow" id="quick-url" readonly style="font-size:13px"><button class="chip-btn" onclick="copyQuick()" aria-label="Copiar"><i class="fa-regular fa-copy"></i></button></div>
+        <a href="lancar.html" data-keep class="btn btn-white btn-block mt-3">Abrir lançamento rápido</a>
+        <p class="tiny muted mt-2">Passo a passo do atalho: docs/ATALHO-IPHONE.md</p>
+      </section>
+    </div>
+  </div>
 </div>
+<div id="tip" class="tip hidden"></div>
 
-<div id="tip" class="hidden fixed z-50 bg-dark-850 border border-dark-800 rounded-xl px-3 py-2 text-xs shadow-xl"></div>
-
-<!-- Modal lançamento -->
-<div id="form-modal" class="hidden fixed inset-0 z-40 bg-black/70 backdrop-blur-sm items-center justify-center p-4">
-  <form id="form" class="bg-dark-900 border border-dark-800 rounded-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto p-6 space-y-4 shadow-2xl">
-    <div class="flex items-center justify-between">
-      <h3 id="form-title" class="text-white font-bold">Novo lançamento</h3>
-      <button type="button" onclick="closeForm()" class="text-slate-400 hover:text-white p-1" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <input type="hidden" name="id">
-    <div class="seg grid grid-cols-2 bg-dark-950 border border-dark-800 rounded-xl p-1 text-sm" id="f-tipo">
-      <button type="button" data-v="saida" class="on py-2 rounded-lg text-slate-400"><i class="fa-solid fa-arrow-up mr-1 text-exp"></i> Saída</button>
-      <button type="button" data-v="entrada" class="py-2 rounded-lg text-slate-400"><i class="fa-solid fa-arrow-down mr-1 text-inc"></i> Entrada</button>
-    </div>
-    <div class="grid grid-cols-2 gap-3 text-xs text-slate-400">
-      <label class="col-span-2">Empresa / descrição<input name="descricao" required class="fi" list="dl-empresas" autocomplete="off"></label>
-      <label>Valor (R$)<input name="valor" type="number" step="0.01" min="0" required class="fi" inputmode="decimal"></label>
-      <label>Data<input name="data" type="date" required class="fi"></label>
-      <label>Categoria<input name="categoria" class="fi" list="dl-cats" autocomplete="off"></label>
-      <label>Conta<select name="conta" class="fi"><option>Empresa</option><option>Pessoal</option></select></label>
-      <label>Forma de pagamento<select name="forma" class="fi"><option value="">—</option><option>Cartão de crédito</option><option>Cartão de débito</option><option>Pix</option><option>Boleto</option><option>Dinheiro</option><option>Transferência</option></select></label>
-      <label>Status<select name="status" class="fi"><option value="pago">Pago / recebido</option><option value="a_conferir">A conferir</option></select></label>
-    </div>
-    <div id="repeat-box" class="bg-dark-950 border border-dark-800 rounded-xl p-3 space-y-3 text-xs text-slate-400">
-      <div class="seg grid grid-cols-3 bg-dark-900 border border-dark-800 rounded-lg p-0.5" id="f-rep">
-        <button type="button" data-v="unica" class="on py-1.5 rounded-md text-slate-400">Única</button>
-        <button type="button" data-v="parcelada" class="py-1.5 rounded-md text-slate-400">Parcelada</button>
-        <button type="button" data-v="recorrente" class="py-1.5 rounded-md text-slate-400">Mensal fixa</button>
-      </div>
-      <div id="rep-parc" class="hidden grid grid-cols-2 gap-3">
-        <label>Nº de parcelas<input name="parcelas" type="number" min="2" max="72" value="2" class="fi"></label>
-        <label>O valor digitado é<select name="valorModo" class="fi"><option value="total">o total da compra</option><option value="parcela">o valor de cada parcela</option></select></label>
-      </div>
-      <div id="rep-rec" class="hidden">
-        <label>Repetir por quantos meses<input name="meses" type="number" min="2" max="60" value="12" class="fi"></label>
-      </div>
-      <p id="rep-preview" class="font-mono text-[11px] text-slate-500"></p>
-    </div>
-    <label class="block text-xs text-slate-400">Observação<input name="obs" class="fi"></label>
-    <div class="flex justify-end gap-2 pt-1">
-      <button type="button" onclick="closeForm()" class="px-4 py-2 rounded-xl text-slate-300 hover:bg-dark-800 text-sm">Cancelar</button>
-      <button class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm font-semibold">Salvar</button>
-    </div>
-  </form>
-</div>
-<datalist id="dl-cats"></datalist>
-<datalist id="dl-empresas"></datalist>
-<style>.fi{margin-top:4px;width:100%;background:#030712;border:1px solid #1f2937;border-radius:12px;padding:8px 12px;font-size:14px;color:#fff;outline:none}.fi:focus{border-color:#3b82f6}</style>
-
-<script src="assets/config.js?v=3"></script>
-<script src="assets/core.js?v=3" data-mode="app"></script>
-<script src="assets/integracao.js?v=3"></script>
-<script src="assets/financas.js?v=3"></script>
+<script src="assets/config.js?v=4"></script>
+<script src="assets/core.js?v=4" data-mode="app"></script>
+<script src="assets/ui.js?v=4"></script>
+<script src="assets/integracao.js?v=4"></script>
+<script src="assets/financas.js?v=4"></script>
 <script type="text/plain" data-app>
-  const F = Financas;
-  const esc = App.esc;
-  const brl = F.brl;
-  let month = new Date().toISOString().slice(0, 7);
-  let conta = '';
-  let tipoFiltro = '';
-  let busca = '';
-
+  UI.mount({ tab: 'fin' });
+  const F = Financas, { esc } = UI, brl = F.brl;
+  const $ = id => document.getElementById(id);
+  const qp = new URLSearchParams(location.search);
+  let month = qp.get('mes') || UI.hoje().slice(0, 7);
+  let conta = '', tipoFiltro = '', busca = '';
   F.migrarAntigos();
 
-  function seg(id, onChange) {
-    const el = document.getElementById(id);
-    el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
-      el.querySelectorAll('button').forEach(x => x.classList.remove('on'));
-      b.classList.add('on'); onChange(b.dataset.v);
-    }));
-    return v => el.querySelectorAll('button').forEach(x => x.classList.toggle('on', x.dataset.v === v));
-  }
+  const CAT_ICON = { 'Alimentação': 'fa-utensils', 'Mercado': 'fa-cart-shopping', 'Transporte': 'fa-bus', 'Combustível': 'fa-gas-pump', 'Moradia': 'fa-house', 'Contas da casa': 'fa-bolt', 'Saúde': 'fa-heart-pulse', 'Educação': 'fa-graduation-cap', 'Lazer': 'fa-champagne-glasses', 'Assinaturas': 'fa-repeat', 'Ferramentas / Software': 'fa-laptop-code', 'Equipamentos': 'fa-camera', 'Marketing / Anúncios': 'fa-bullhorn', 'Impostos': 'fa-landmark', 'Taxas bancárias': 'fa-building-columns', 'Vestuário': 'fa-shirt', 'Clientes': 'fa-user-tie', 'Serviço avulso': 'fa-briefcase' };
+  const icone = c => CAT_ICON[c] || 'fa-tag';
+
+  function seg(id, fn) { const el = $(id); el.querySelectorAll('button').forEach(b => b.onclick = () => { el.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); fn(b.dataset.v); }); }
   seg('conta-filter', v => { conta = v; render(); });
   seg('tipo-filter', v => { tipoFiltro = v; renderRows(); });
-  document.getElementById('search').addEventListener('input', e => { busca = e.target.value.toLowerCase(); renderRows(); });
+  $('busca').addEventListener('input', e => { busca = e.target.value.toLowerCase(); renderRows(); });
 
   function shiftMonth(n) { month = F.addMonthsKey(month, n); render(); }
-  function monthName(k) { const [y, m] = k.split('-').map(Number); const t = new Date(y, m - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); return t.charAt(0).toUpperCase() + t.slice(1); }
-  function monthShort(k) { const [y, m] = k.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '') + '/' + String(y).slice(2); }
+  const monthShort = k => { const [y, m] = k.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '') + '/' + String(y).slice(2); };
+  const itens = () => F.ativos().filter(l => !conta || (l.conta || 'Empresa') === conta);
 
-  function itens() { return F.ativos().filter(l => !conta || (l.conta || 'Empresa') === conta); }
+  function render() { renderSaldo(); renderKpis(); renderChart(); renderPend(); renderRows(); renderCats(); }
 
-  function render() {
-    document.getElementById('month-label').textContent = monthName(month);
-    renderKpis(); renderChart(); renderPend(); renderRows(); renderCats(); fillLists();
+  function renderSaldo() {
+    $('mes-label').textContent = UI.mesNome(month);
+    $('mes-sub').textContent = UI.mesNome(month);
+    const s = F.resumoMes(itens(), month);
+    const p = UI.brlParts(Math.abs(s.saldoPrev));
+    $('saldo').innerHTML = `${s.saldoPrev < 0 ? '−' : ''}R$ ${p.int}<span class="cents">${p.cents}</span>`;
+    $('saldo-sub').textContent = `Realizado até agora: ${brl(s.entPago - s.saiPago)}`;
   }
 
   function renderKpis() {
     const s = F.resumoMes(itens(), month);
     const goals = JSON.parse(Store.getItem('plasso_monthly_goals') || '{}');
-    const goal = Number(goals[month] || Store.getItem('plasso_goal') || 0);
-    const pct = goal ? Math.min(100, Math.round(s.entPago * 100 / goal)) : 0;
-    const card = (label, big, sub, color, extra = '') => `
-      <div class="bg-dark-900 border border-dark-800 rounded-2xl p-4">
-        <p class="text-[10px] uppercase tracking-wider text-slate-500 flex items-center gap-1.5">${color ? `<span class="w-2 h-2 rounded-sm" style="background:${color}"></span>` : ''}${label}</p>
-        <p class="text-xl md:text-2xl font-bold font-mono text-white mt-1">${big}</p>
-        <p class="text-[11px] text-slate-400 mt-1 font-mono">${sub}</p>${extra}
-      </div>`;
-    document.getElementById('kpis').innerHTML =
-      card('Entradas', brl(s.entPago), `+ ${brl(s.entPrev)} a receber`, '#0284c7') +
-      card('Saídas', brl(s.saiPago), `+ ${brl(s.saiPrev)} a pagar`, '#ea580c') +
-      card('Saldo previsto', `<span class="${s.saldoPrev < 0 ? 'text-red-400' : ''}">${brl(s.saldoPrev)}</span>`, `realizado: ${brl(s.entPago - s.saiPago)}`) +
-      card('Meta de faturamento', goal ? pct + '%' : '—', goal ? `${brl(s.entPago)} de ${brl(goal)}` : 'sem meta definida',
-        '', `<div class="flex items-center gap-2 mt-2"><div class="flex-1 h-1.5 bg-dark-950 rounded-full overflow-hidden border border-dark-800"><div class="h-full bg-inc" style="width:${pct}%"></div></div><button onclick="editGoal()" class="text-[10px] text-blue-400 hover:underline">alterar</button></div>`);
+    const meta = Number(goals[month] || Store.getItem('plasso_goal') || 0);
+    const pct = meta ? Math.min(100, Math.round(s.entPago * 100 / meta)) : 0;
+    const k = (icon, cor, l, v, h, extra = '') => `<div class="card stat"><span class="label"><i class="fa-solid ${icon}" style="color:${cor}"></i>${l}</span><span class="value">${v}</span><span class="hint">${h}</span>${extra}</div>`;
+    $('kpis').innerHTML =
+      k('fa-arrow-down', 'var(--inc)', 'Entradas', brl(s.entPago).replace(',00', ''), `+ ${brl(s.entPrev).replace(',00', '')} a receber`) +
+      k('fa-arrow-up', 'var(--exp)', 'Saídas', brl(s.saiPago).replace(',00', ''), `+ ${brl(s.saiPrev).replace(',00', '')} a pagar`) +
+      k('fa-hourglass-half', 'var(--accent)', 'A conferir', itens().filter(l => l.data.slice(0, 7) === month && l.status === 'a_conferir').length, 'lançamentos no mês') +
+      `<button class="card card-link stat" onclick="editGoal()" style="text-align:left"><span class="label"><i class="fa-solid fa-bullseye accent-text"></i>Meta de faturamento</span><span class="value">${meta ? pct + '%' : '—'}</span><span class="hint">${meta ? `${brl(s.entPago).replace(',00', '')} de ${brl(meta).replace(',00', '')}` : 'toque para definir'}</span>${meta ? `<div class="bar mt-1"><span style="width:${pct}%"></span></div>` : ''}</button>`;
   }
 
   function editGoal() {
     const goals = JSON.parse(Store.getItem('plasso_monthly_goals') || '{}');
-    const v = prompt('Meta de faturamento para ' + monthName(month) + ' (R$):', goals[month] || '');
-    if (v === null) return;
-    goals[month] = parseFloat(String(v).replace(/\./g, '').replace(',', '.')) || 0;
-    Store.setItem('plasso_monthly_goals', JSON.stringify(goals));
-    renderKpis();
+    const s = UI.sheet({ title: 'Meta de ' + UI.mesNome(month), html: `<label class="field"><span>Meta de faturamento (R$)</span><input class="input" type="number" step="0.01" inputmode="decimal" id="g" value="${goals[month] || ''}"></label>`, foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-white" id="ok">Salvar</button>' });
+    s.$('#ok').onclick = () => { goals[month] = Number(s.$('#g').value) || 0; Store.setItem('plasso_monthly_goals', JSON.stringify(goals)); s.close(); renderKpis(); App.toast('Meta salva.', 'ok'); };
   }
 
   function renderChart() {
     const months = Array.from({ length: 6 }, (_, i) => F.addMonthsKey(month, i));
     const data = months.map(k => ({ k, ...F.resumoMes(itens(), k) }));
     const max = Math.max(1, ...data.map(d => Math.max(d.entTotal, d.saiTotal)));
-    const el = document.getElementById('chart');
-    el.innerHTML = `
-      <div class="absolute inset-0 flex flex-col justify-between pointer-events-none">
-        ${[1, .5, 0].map(f => `<div class="border-t border-dark-800/70 text-[9px] font-mono text-slate-600 -mt-px"><span class="bg-dark-900 pr-1 relative -top-2">${f ? brl(max * f).replace(',00', '') : ''}</span></div>`).join('')}
-      </div>
-      <div class="absolute inset-0 pl-14 flex items-end justify-around gap-2">
-        ${data.map((d, i) => `
-          <div class="col h-full flex-1 flex flex-col justify-end items-center cursor-default" data-i="${i}">
-            <div class="flex items-end gap-[2px] h-[calc(100%-18px)] w-full justify-center">
-              <div class="bar w-1/3 max-w-[22px] bg-inc rounded-t" style="height:${d.entTotal / max * 100}%"></div>
-              <div class="bar w-1/3 max-w-[22px] bg-exp rounded-t" style="height:${d.saiTotal / max * 100}%"></div>
-            </div>
-            <span class="text-[10px] text-slate-500 mt-1 capitalize ${i === 0 ? 'text-white font-semibold' : ''}">${monthShort(d.k)}</span>
-          </div>`).join('')}
-      </div>`;
-    const tip = document.getElementById('tip');
-    el.querySelectorAll('.col').forEach(c => {
-      c.addEventListener('mousemove', e => {
-        const d = data[c.dataset.i];
-        tip.innerHTML = `<p class="font-semibold text-white mb-1">${monthName(d.k)}</p>
-          <p class="flex justify-between gap-6"><span class="flex items-center gap-1.5 text-slate-400"><span class="w-2 h-2 rounded-sm bg-inc"></span>Entradas</span><span class="font-mono text-white">${brl(d.entTotal)}</span></p>
-          <p class="flex justify-between gap-6"><span class="flex items-center gap-1.5 text-slate-400"><span class="w-2 h-2 rounded-sm bg-exp"></span>Saídas</span><span class="font-mono text-white">${brl(d.saiTotal)}</span></p>
-          <p class="flex justify-between gap-6 border-t border-dark-800 mt-1 pt-1"><span class="text-slate-400">Saldo</span><span class="font-mono text-white">${brl(d.entTotal - d.saiTotal)}</span></p>`;
-        tip.classList.remove('hidden');
-        tip.style.left = Math.min(e.clientX + 14, innerWidth - 220) + 'px';
-        tip.style.top = (e.clientY + 14) + 'px';
-      });
-      c.addEventListener('mouseleave', () => tip.classList.add('hidden'));
-      c.addEventListener('click', () => { month = data[c.dataset.i].k; render(); });
+    $('chart').innerHTML = data.map((d, i) => `
+      <div class="colb ${i === 0 ? 'cur' : ''}" data-i="${i}">
+        <div class="bars"><div class="b" style="background:var(--inc);height:${d.entTotal / max * 100}%"></div><div class="b" style="background:var(--exp);height:${d.saiTotal / max * 100}%"></div></div>
+        <span class="lbl">${monthShort(d.k)}</span>
+      </div>`).join('');
+    const tip = $('tip');
+    $('chart').querySelectorAll('.colb').forEach(c => {
+      const d = data[c.dataset.i];
+      const show = e => { tip.innerHTML = `<div class="h3 mb-2">${UI.mesNome(d.k)}</div><div class="row-between"><span class="row" style="gap:6px"><i class="dot" style="background:var(--inc)"></i>Entradas</span><b class="num">${brl(d.entTotal)}</b></div><div class="row-between mt-1"><span class="row" style="gap:6px"><i class="dot" style="background:var(--exp)"></i>Saídas</span><b class="num">${brl(d.saiTotal)}</b></div><div class="row-between mt-2" style="border-top:1px solid var(--line);padding-top:6px"><span class="muted">Saldo</span><b class="num">${brl(d.entTotal - d.saiTotal)}</b></div>`; tip.classList.remove('hidden'); const x = e.touches ? e.touches[0].clientX : e.clientX, y = e.touches ? e.touches[0].clientY : e.clientY; tip.style.left = Math.min(x + 12, innerWidth - 200) + 'px'; tip.style.top = (y + 14) + 'px'; };
+      c.addEventListener('mousemove', show); c.addEventListener('mouseleave', () => tip.classList.add('hidden'));
+      c.addEventListener('click', () => { month = d.k; render(); tip.classList.add('hidden'); });
     });
     let acc = 0;
-    document.getElementById('proj-table').innerHTML = `
-      <thead class="text-[10px] uppercase tracking-wider text-slate-500"><tr><th class="text-left py-1.5">Mês</th><th class="text-right">Entradas</th><th class="text-right">Saídas</th><th class="text-right">Saldo</th><th class="text-right">Acumulado</th></tr></thead>
-      <tbody>${data.map(d => { const sal = d.entTotal - d.saiTotal; acc += sal; return `
-        <tr class="border-t border-dark-800/60"><td class="py-1.5 capitalize text-slate-300">${monthShort(d.k)}</td><td class="text-right text-slate-200">${brl(d.entTotal)}</td><td class="text-right text-slate-200">${brl(d.saiTotal)}</td><td class="text-right ${sal < 0 ? 'text-red-400' : 'text-white'}">${brl(sal)}</td><td class="text-right ${acc < 0 ? 'text-red-400' : 'text-slate-400'}">${brl(acc)}</td></tr>`; }).join('')}</tbody>`;
+    $('proj').innerHTML = `<thead><tr><th>Mês</th><th class="r">Entradas</th><th class="r">Saídas</th><th class="r">Saldo</th><th class="r sm-hide">Acumulado</th></tr></thead><tbody>${data.map(d => { const s = d.entTotal - d.saiTotal; acc += s; return `<tr><td style="text-transform:capitalize">${monthShort(d.k)}</td><td class="r">${brl(d.entTotal).replace('R$ ', '')}</td><td class="r">${brl(d.saiTotal).replace('R$ ', '')}</td><td class="r" style="${s < 0 ? 'color:#ff9aa7' : ''}">${brl(s).replace('R$ ', '')}</td><td class="r muted sm-hide">${brl(acc).replace('R$ ', '')}</td></tr>`; }).join('')}</tbody>`;
   }
 
-  function statusBadge(l) {
-    if (l.status === 'pago') return `<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-900"><i class="fa-solid fa-check mr-1"></i>${l.tipo === 'entrada' ? 'Recebido' : 'Pago'}</span>`;
-    return `<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-900"><i class="fa-regular fa-clock mr-1"></i>A conferir</span>`;
+  function lancRow(l, conferir = false) {
+    const ent = l.tipo === 'entrada';
+    return `<div class="lanc-row">
+      <button class="row grow" style="background:none;border:0;padding:0;text-align:left;min-width:0" onclick="openForm('${l.id}')">
+        <div class="tile" style="padding:0;width:42px;height:42px;border-radius:14px;align-items:center;justify-content:center;flex-shrink:0;background:${ent ? 'rgba(18,169,130,.18)' : 'rgba(232,89,12,.16)'}"><i class="fa-solid ${icone(l.categoria)}" style="color:${ent ? '#5ee9bd' : '#ffa36e'}"></i></div>
+        <div class="grow" style="min-width:0"><div class="title truncate" style="font-weight:500">${esc(l.descricao)}</div>
+          <div class="small muted truncate">${UI.diaMes(l.data)} · ${esc(l.categoria || 'Sem categoria')}${l.totalParcelas > 1 ? ` · ${l.recorrente ? 'mês' : 'parc.'} ${l.parcela}/${l.totalParcelas}` : ''}${l.origem === 'crm' ? ' · CRM' : ''}${l.origem === 'iphone' ? ' · iPhone' : ''}</div></div>
+      </button>
+      <div class="right" style="flex-shrink:0">
+        <div class="num ${ent ? 'val-in' : 'val-out'}" style="font-weight:500">${ent ? '+' : '−'} ${brl(l.valor).replace('R$ ', '')}</div>
+        ${conferir ? `<button class="btn btn-white btn-sm mt-1" style="height:30px;padding:0 12px" onclick="confirmar('${l.id}')"><i class="fa-solid fa-check"></i> ${ent ? 'Recebi' : 'Paguei'}</button>`
+          : `<button class="pill ${l.status === 'pago' ? 'pill-ok' : 'pill-warn'} mt-1" onclick="toggleStatus('${l.id}')" style="cursor:pointer">${l.status === 'pago' ? (ent ? 'recebido' : 'pago') : 'a conferir'}</button>`}
+      </div>
+    </div>`;
   }
 
   function renderPend() {
-    const list = itens().filter(l => l.data.slice(0, 7) === month && l.status === 'a_conferir').sort((a, b) => a.data.localeCompare(b.data));
-    document.getElementById('pend-count').textContent = list.length;
-    document.getElementById('pend-list').innerHTML = list.length ? list.map(l => `
-      <div class="bg-dark-950 border border-dark-800 rounded-xl p-3 flex items-center gap-3">
-        <i class="fa-solid ${l.tipo === 'entrada' ? 'fa-arrow-down text-inc' : 'fa-arrow-up text-exp'} text-xs" aria-label="${l.tipo}"></i>
-        <div class="flex-1 min-w-0">
-          <p class="text-xs text-white font-semibold truncate">${esc(l.descricao)}</p>
-          <p class="text-[10px] text-slate-500 font-mono">${F.fmtData(l.data)}${l.totalParcelas > 1 ? ` · ${l.parcela}/${l.totalParcelas}` : ''}</p>
-        </div>
-        <span class="text-xs font-mono text-white">${brl(l.valor)}</span>
-        <button onclick="confirmar('${l.id}')" class="w-8 h-8 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-xs" title="${l.tipo === 'entrada' ? 'Marcar como recebido' : 'Marcar como pago'}" aria-label="Confirmar"><i class="fa-solid fa-check"></i></button>
-      </div>`).join('') : '<p class="text-xs text-slate-500 text-center py-6">Nada pendente neste mês.</p>';
+    const list = itens().filter(l => l.data.slice(0, 7) <= month && l.data.slice(0, 7) >= F.addMonthsKey(month, -2) && l.status === 'a_conferir' && l.data <= (month === UI.hoje().slice(0, 7) ? UI.addDias(UI.hoje(), 7) : month + '-31')).sort((a, b) => a.data.localeCompare(b.data));
+    $('pend-count').textContent = list.length;
+    $('pend').innerHTML = list.map(l => lancRow(l, true)).join('') || '<div class="empty"><i class="fa-solid fa-circle-check"></i>Tudo conferido.</div>';
   }
 
   function renderRows() {
@@ -311,131 +199,96 @@
     if (tipoFiltro) list = list.filter(l => l.tipo === tipoFiltro);
     if (busca) list = list.filter(l => (l.descricao + ' ' + (l.categoria || '') + ' ' + (l.obs || '')).toLowerCase().includes(busca));
     list.sort((a, b) => b.data.localeCompare(a.data));
-    document.getElementById('rows').innerHTML = list.length ? list.map(l => `
-      <tr class="border-t border-dark-800/60 hover:bg-dark-850/40">
-        <td class="py-2.5 pr-2 font-mono text-slate-400 whitespace-nowrap">${F.fmtData(l.data).slice(0, 5)}</td>
-        <td class="pr-2"><p class="text-white font-medium">${esc(l.descricao)}</p><p class="text-[10px] text-slate-500">${esc(l.conta || 'Empresa')}${l.forma ? ' · ' + esc(l.forma) : ''}${l.totalParcelas > 1 ? ` · ${l.recorrente ? 'mês' : 'parcela'} ${l.parcela}/${l.totalParcelas}` : ''}${l.origem === 'crm' ? ' · via CRM' : ''}${l.origem === 'iphone' ? ' · via iPhone' : ''}</p></td>
-        <td class="pr-2 text-slate-300">${esc(l.categoria || '—')}</td>
-        <td class="pr-2"><button onclick="toggleStatus('${l.id}')" title="Alternar status">${statusBadge(l)}</button></td>
-        <td class="pr-2 text-right font-mono whitespace-nowrap ${l.tipo === 'entrada' ? 'text-sky-300' : 'text-orange-300'}">${l.tipo === 'entrada' ? '+' : '−'} ${brl(l.valor)}</td>
-        <td class="text-right whitespace-nowrap">
-          <button onclick="openForm('${l.id}')" class="text-slate-500 hover:text-white px-1.5" aria-label="Editar"><i class="fa-solid fa-pen text-[11px]"></i></button>
-          <button onclick="remover('${l.id}')" class="text-slate-500 hover:text-red-400 px-1.5" aria-label="Excluir"><i class="fa-solid fa-trash text-[11px]"></i></button>
-        </td>
-      </tr>`).join('') : '<tr><td colspan="6" class="text-center text-slate-500 py-8">Nenhum lançamento neste mês.</td></tr>';
+    $('rows').innerHTML = list.map(l => lancRow(l)).join('') || '<div class="empty"><i class="fa-solid fa-receipt"></i>Nenhum lançamento neste mês.</div>';
   }
 
   function renderCats() {
     const map = {};
     itens().filter(l => l.tipo === 'saida' && l.data.slice(0, 7) === month).forEach(l => { const c = l.categoria || 'Sem categoria'; map[c] = (map[c] || 0) + Number(l.valor); });
     const arr = Object.entries(map).sort((a, b) => b[1] - a[1]);
-    const max = arr.length ? arr[0][1] : 1;
-    const total = arr.reduce((a, x) => a + x[1], 0);
-    document.getElementById('cats').innerHTML = arr.length ? arr.map(([c, v]) => `
-      <div title="${esc(c)}: ${brl(v)}">
-        <div class="flex justify-between text-xs mb-1"><span class="text-slate-300">${esc(c)}</span><span class="font-mono text-slate-400">${brl(v)} · ${Math.round(v * 100 / total)}%</span></div>
-        <div class="h-1.5 bg-dark-950 rounded-full overflow-hidden"><div class="h-full bg-exp rounded-full" style="width:${v / max * 100}%"></div></div>
-      </div>`).join('') : '<p class="text-xs text-slate-500">Sem saídas neste mês.</p>';
-  }
-
-  function fillLists() {
-    document.getElementById('dl-cats').innerHTML = F.categorias().map(c => `<option value="${esc(c)}">`).join('');
-    document.getElementById('dl-empresas').innerHTML = [...new Set(F.todos().map(l => l.empresa || l.descricao))].slice(0, 300).map(c => `<option value="${esc(c)}">`).join('');
+    const total = arr.reduce((a, x) => a + x[1], 0), max = arr.length ? arr[0][1] : 1;
+    $('tiles').innerHTML = arr.slice(0, 4).map(([c, v]) => `<div class="tile"><div class="ic"><i class="fa-solid ${icone(c)}"></i></div><div style="min-width:0;width:100%"><div class="small muted truncate">${esc(c)}</div><div class="h3 num">${brl(v).replace(',00', '')}</div></div></div>`).join('');
+    $('cats').innerHTML = arr.map(([c, v]) => `<div><div class="row-between small mb-2"><span class="soft truncate">${esc(c)}</span><span class="muted num">${brl(v)} · ${Math.round(v * 100 / total)}%</span></div><div class="bar"><span style="width:${v / max * 100}%;background:var(--exp)"></span></div></div>`).join('') || '<div class="empty">Sem saídas neste mês.</div>';
   }
 
   function confirmar(id) { F.setStatus(id, 'pago'); render(); App.toast('Confirmado.', 'ok'); }
   function toggleStatus(id) { const l = DB.get('fin_lancamentos', id); F.setStatus(id, l.status === 'pago' ? 'a_conferir' : 'pago'); render(); }
 
-  function remover(id) {
-    const l = DB.get('fin_lancamentos', id); if (!l) return;
-    if (l.grupoId && l.totalParcelas > 1) {
-      const r = prompt(`"${l.descricao}" faz parte de uma série (${l.parcela}/${l.totalParcelas}).\n\nDigite:\n1 = apagar só este\n2 = apagar este e os próximos\n3 = apagar a série inteira`, '1');
-      if (!r) return;
-      F.remover(id, r === '3' ? 'todos' : r === '2' ? 'proximos' : 'este');
-    } else {
-      if (!confirm(`Excluir "${l.descricao}" (${brl(l.valor)})?`)) return;
-      F.remover(id, 'este');
-    }
-    render();
-  }
-
   // ---------- formulário ----------
-  const form = document.getElementById('form');
-  let fTipo = 'saida', fRep = 'unica';
-  const setTipo = seg('f-tipo', v => { fTipo = v; });
-  const setRep = seg('f-rep', v => { fRep = v; repUI(); });
-  function repUI() {
-    document.getElementById('rep-parc').classList.toggle('hidden', fRep !== 'parcelada');
-    document.getElementById('rep-rec').classList.toggle('hidden', fRep !== 'recorrente');
-    const v = Number(form.valor.value) || 0;
-    let t = '';
-    if (fRep === 'parcelada') {
-      const n = Math.max(2, Number(form.parcelas.value) || 2);
-      const parc = form.valorModo.value === 'total' ? v / n : v;
-      t = `${n}× de ${brl(parc)} · total ${brl(parc * n)} · lançadas nos meses seguintes`;
-    } else if (fRep === 'recorrente') {
-      const n = Math.max(2, Number(form.meses.value) || 12);
-      t = `${brl(v)} todo mês por ${n} meses · total ${brl(v * n)}`;
-    }
-    document.getElementById('rep-preview').textContent = t;
-  }
-  form.addEventListener('input', repUI);
-  form.descricao.addEventListener('change', () => {
-    if (form.id.value || form.categoria.value) return;
-    const sug = F.sugerirCategoria(form.descricao.value);
-    if (sug) form.categoria.value = sug;
-  });
-
-  function openForm(id) {
-    form.reset();
+  function openForm(id, tipoInicial = 'saida') {
     const l = id ? DB.get('fin_lancamentos', id) : null;
-    document.getElementById('form-title').textContent = l ? 'Editar lançamento' : 'Novo lançamento';
-    document.getElementById('repeat-box').classList.toggle('hidden', !!l);
-    form.id.value = l ? l.id : '';
-    fTipo = l ? l.tipo : 'saida'; setTipo(fTipo);
-    fRep = 'unica'; setRep('unica');
-    form.descricao.value = l ? l.descricao : '';
-    form.valor.value = l ? l.valor : '';
-    form.data.value = l ? l.data : (month === new Date().toISOString().slice(0, 7) ? new Date().toISOString().slice(0, 10) : month + '-01');
-    form.categoria.value = l ? (l.categoria || '') : '';
-    form.conta.value = l ? (l.conta || 'Empresa') : (conta || 'Empresa');
-    form.forma.value = l ? (l.forma || '') : '';
-    form.status.value = l ? l.status : 'pago';
-    form.obs.value = l ? (l.obs || '') : '';
-    repUI();
-    const m = document.getElementById('form-modal'); m.classList.remove('hidden'); m.classList.add('flex');
-    setTimeout(() => form.descricao.focus(), 50);
-  }
-  function closeForm() { const m = document.getElementById('form-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
-
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const base = {
-      tipo: fTipo, descricao: form.descricao.value.trim(), empresa: form.descricao.value.trim(), valor: Number(form.valor.value),
-      data: form.data.value, categoria: form.categoria.value.trim(), conta: form.conta.value, forma: form.forma.value,
-      status: form.status.value, obs: form.obs.value.trim()
+    let tipo = l ? l.tipo : tipoInicial, rep = 'unica';
+    const hojeISO = UI.hoje();
+    const dataPadrao = month === hojeISO.slice(0, 7) ? hojeISO : month + '-01';
+    const s = UI.sheet({
+      title: l ? 'Editar lançamento' : 'Novo lançamento',
+      html: `
+        <div class="seg mb-4" data-tipo><button type="button" data-v="saida" class="${tipo === 'saida' ? 'on' : ''}"><i class="fa-solid fa-arrow-up"></i>Saída</button><button type="button" data-v="entrada" class="${tipo === 'entrada' ? 'on' : ''}"><i class="fa-solid fa-arrow-down"></i>Entrada</button></div>
+        <datalist id="dl-cats">${F.categorias().map(c => `<option value="${esc(c)}">`).join('')}</datalist>
+        <datalist id="dl-emp">${[...new Set(F.todos().map(x => x.empresa || x.descricao))].slice(0, 300).map(c => `<option value="${esc(c)}">`).join('')}</datalist>
+        <div class="form-grid">
+          <label class="field full"><span>Empresa / descrição</span><input class="input" name="descricao" list="dl-emp" autocomplete="off" value="${esc(l ? l.descricao : '')}"></label>
+          <label class="field"><span>Valor (R$)</span><input class="input" type="number" step="0.01" min="0" inputmode="decimal" name="valor" value="${l ? l.valor : ''}"></label>
+          <label class="field"><span>Data</span><input class="input" type="date" name="data" value="${l ? l.data : dataPadrao}"></label>
+          <label class="field"><span>Categoria</span><input class="input" name="categoria" list="dl-cats" autocomplete="off" value="${esc(l ? l.categoria || '' : '')}"></label>
+          <label class="field"><span>Conta</span><select class="select" name="conta">${['Empresa', 'Pessoal'].map(c => `<option ${(l ? l.conta || 'Empresa' : conta || 'Empresa') === c ? 'selected' : ''}>${c}</option>`).join('')}</select></label>
+          <label class="field"><span>Forma de pagamento</span><select class="select" name="forma">${['', 'Cartão de crédito', 'Cartão de débito', 'Pix', 'Boleto', 'Dinheiro', 'Transferência'].map(f => `<option value="${f}" ${l && l.forma === f ? 'selected' : ''}>${f || '—'}</option>`).join('')}</select></label>
+          <label class="field"><span>Status</span><select class="select" name="status"><option value="pago" ${!l || l.status === 'pago' ? 'selected' : ''}>Pago / recebido</option><option value="a_conferir" ${l && l.status === 'a_conferir' ? 'selected' : ''}>A conferir</option></select></label>
+          <label class="field full"><span>Observação</span><input class="input" name="obs" value="${esc(l ? l.obs || '' : '')}"></label>
+        </div>
+        ${l ? (l.totalParcelas > 1 ? `<p class="small muted mt-3">Faz parte de uma série (${l.parcela}/${l.totalParcelas}).</p>` : '') : `
+        <div class="card card-tight mt-4 stack">
+          <div class="seg" data-rep><button type="button" data-v="unica" class="on">Única</button><button type="button" data-v="parcelada">Parcelada</button><button type="button" data-v="recorrente">Mensal fixa</button></div>
+          <div class="form-grid hidden" data-parc>
+            <label class="field"><span>Nº de parcelas</span><input class="input" type="number" min="2" max="72" name="parcelas" value="2"></label>
+            <label class="field"><span>O valor digitado é</span><select class="select" name="valorModo"><option value="total">o total</option><option value="parcela">cada parcela</option></select></label>
+          </div>
+          <label class="field hidden" data-rec><span>Repetir por quantos meses</span><input class="input" type="number" min="2" max="60" name="meses" value="12"></label>
+          <div class="small muted" data-prev></div>
+        </div>`}`,
+      foot: `${l ? '<button class="btn btn-danger" data-del><i class="fa-solid fa-trash"></i></button>' : ''}<button class="btn btn-white" data-save>Salvar</button>`
+    });
+    s.$$('[data-tipo] button').forEach(b => b.onclick = () => { tipo = b.dataset.v; s.$$('[data-tipo] button').forEach(x => x.classList.toggle('on', x === b)); });
+    const prev = () => {
+      if (l) return;
+      const f = UI.formData(s.el), v = Number(f.valor) || 0;
+      s.$('[data-parc]').classList.toggle('hidden', rep !== 'parcelada');
+      s.$('[data-rec]').classList.toggle('hidden', rep !== 'recorrente');
+      let t = '';
+      if (rep === 'parcelada') { const n = Math.max(2, Number(f.parcelas) || 2); const p = f.valorModo === 'total' ? v / n : v; t = `${n}× de ${brl(p)} · total ${brl(p * n)} · uma por mês`; }
+      if (rep === 'recorrente') { const n = Math.max(2, Number(f.meses) || 12); t = `${brl(v)} todo mês por ${n} meses · total ${brl(v * n)}`; }
+      s.$('[data-prev]').textContent = t;
     };
-    if (form.id.value) {
-      const l = DB.get('fin_lancamentos', form.id.value);
-      let aplicar = 'este';
-      if (l.grupoId && l.totalParcelas > 1 && confirm('Aplicar a mudança de descrição/categoria/valor também às próximas parcelas desta série?')) aplicar = 'proximos';
-      F.editar(l.id, base, aplicar);
-      App.toast('Lançamento atualizado.', 'ok');
-    } else {
-      const n = F.criar(base, fRep, { parcelas: Number(form.parcelas.value), valorModo: form.valorModo.value, meses: Number(form.meses.value) });
-      App.toast(n > 1 ? `${n} lançamentos criados.` : 'Lançamento criado.', 'ok');
-    }
-    closeForm(); render();
-  });
+    if (!l) { s.$$('[data-rep] button').forEach(b => b.onclick = () => { rep = b.dataset.v; s.$$('[data-rep] button').forEach(x => x.classList.toggle('on', x === b)); prev(); }); s.el.addEventListener('input', prev); }
+    s.$('[name=descricao]').addEventListener('change', () => { const c = s.$('[name=categoria]'); if (!c.value) c.value = F.sugerirCategoria(s.$('[name=descricao]').value); });
+    s.$('[data-save]').onclick = () => {
+      const f = UI.formData(s.el);
+      const base = { tipo, descricao: f.descricao.trim(), empresa: f.descricao.trim(), valor: Number(f.valor), data: f.data, categoria: f.categoria.trim(), conta: f.conta, forma: f.forma, status: f.status, obs: f.obs.trim() };
+      if (!base.descricao || !(base.valor > 0) || !base.data) { App.toast('Preencha descrição, valor e data.', 'warn'); return; }
+      if (l) {
+        let aplicar = 'este';
+        if (l.grupoId && l.totalParcelas > 1 && confirm('Aplicar descrição, categoria e valor também às próximas parcelas desta série?')) aplicar = 'proximos';
+        F.editar(l.id, base, aplicar); App.toast('Lançamento atualizado.', 'ok');
+      } else {
+        const n = F.criar(base, rep, { parcelas: Number(f.parcelas), valorModo: f.valorModo, meses: Number(f.meses) });
+        App.toast(n > 1 ? `${n} lançamentos criados.` : 'Lançamento criado.', 'ok');
+      }
+      s.close(); render();
+    };
+    const del = s.$('[data-del]');
+    if (del) del.onclick = () => {
+      if (l.grupoId && l.totalParcelas > 1) {
+        s.close();
+        const r = UI.sheet({ title: 'Excluir parcela', html: `<p class="small soft">"${esc(l.descricao)}" faz parte de uma série (${l.parcela}/${l.totalParcelas}).</p>`, foot: '<button class="btn btn-ghost" data-m="este">Só esta</button><button class="btn btn-ghost" data-m="proximos">Esta e as próximas</button><button class="btn btn-danger" data-m="todos">A série inteira</button>' });
+        r.$$('[data-m]').forEach(b => b.onclick = () => { F.remover(l.id, b.dataset.m); r.close(); render(); App.toast('Excluído.', 'ok'); });
+      } else { if (!confirm(`Excluir "${l.descricao}" (${brl(l.valor)})?`)) return; F.remover(l.id, 'este'); s.close(); render(); App.toast('Excluído.', 'ok'); }
+    };
+  }
 
-  document.getElementById('quick-url').value = location.href.replace(/[^/]*$/, '') + 'lancar.html?empresa=NOME&valor=0,00';
-  async function copyQuick() { try { await navigator.clipboard.writeText(document.getElementById('quick-url').value); App.toast('Copiado.', 'ok'); } catch (e) {} }
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeForm(); });
-
-  const qp = new URLSearchParams(location.search);
-  if (qp.get('mes')) month = qp.get('mes');
+  $('quick-url').value = location.href.replace(/[^/]*$/, '').split('?')[0] + 'lancar.html?empresa=NOME&valor=0,00';
+  async function copyQuick() { try { await navigator.clipboard.writeText($('quick-url').value); App.toast('Copiado.', 'ok'); } catch (e) { $('quick-url').select(); } }
   render();
-  if (qp.get('novo')) openForm();
+  if (qp.get('novo')) openForm(null, qp.get('novo') === 'entrada' ? 'entrada' : 'saida');
 </script>
 </body>
 </html>
