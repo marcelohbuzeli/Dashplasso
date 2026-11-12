@@ -67,6 +67,7 @@
   }
   function hideLoading() { const l = document.getElementById('plasso-loading'); if (l) l.remove(); }
   function setLoadingText(t) { const l = document.getElementById('plasso-loading-text'); if (l) l.textContent = t; }
+  function failLoading(t) { setLoadingText(t); const sp = document.querySelector('#plasso-loading > span'); if (sp && sp.id !== 'plasso-loading-text') sp.remove(); }
   function saveBadge(state) {
     const b = document.getElementById('plasso-save'); if (!b) return;
     if (state === 'saving') { b.textContent = '● salvando…'; b.style.color = '#ffb547'; b.style.opacity = 1; }
@@ -322,7 +323,7 @@
           // só em testes locais: simula o portal a partir dos dados locais
           const tk = qs.get('t');
           const c = DB.list('clients').find(x => x.portalToken && x.portalToken === tk);
-          if (!c) { setLoadingText('Link inválido ou expirado. Peça um novo link à agência.'); return; }
+          if (!c) { failLoading('Link inválido ou expirado. Peça um novo link à agência.'); return; }
           const tasks = DB.list('tasks').filter(t => (t.client || '').toLowerCase() === c.name.toLowerCase() && !String(t.notes || '').startsWith('crm_'));
           Object.keys(cache).forEach(k => delete cache[k]);
           cache.clients = [c]; cache.tasks = tasks; primeSnapshot('clients'); primeSnapshot('tasks');
@@ -335,7 +336,7 @@
         if (MODE === 'portal') {
           portalToken = new URLSearchParams(location.search).get('t');
           const { data, error } = await sb.rpc('portal_load', { p_token: portalToken });
-          if (error || !data) { setLoadingText('Link inválido ou expirado. Peça um novo link à agência.'); return; }
+          if (error || !data) { failLoading('Link inválido ou expirado. Peça um novo link à agência.'); return; }
           cache.clients = [data.client];
           cache.tasks = data.tasks || [];
           primeSnapshot('clients'); primeSnapshot('tasks');
@@ -353,7 +354,7 @@
       runPageScripts();
     } catch (e) {
       console.error(e);
-      setLoadingText('Erro: ' + (e.message || e));
+      failLoading('Erro ao carregar: ' + (e.message || e) + ' — recarregue a página.');
       return;
     }
     hideLoading();
