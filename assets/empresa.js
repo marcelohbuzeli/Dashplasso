@@ -11,6 +11,68 @@
   const nomesClientes = () => [...new Set([...DB.list('clients').map(c => c.name), ...DB.list('crm').map(l => l.name)].filter(Boolean))].sort((a, b) => a.localeCompare(b));
   const datalist = () => `<datalist id="dl-clientes">${nomesClientes().map(n => `<option value="${esc(n)}">`).join('')}</datalist>`;
 
+  // ---------- objetivo e fase (mesmos nomes do Notion) ----------
+  const OBJETIVOS = ['Vendas', 'Conexão', 'Desejo', 'Autoridade', 'Educativo', 'Humor', 'Trend'];
+  const FASES = ['Planejamento', 'Captação', 'Edição', 'Criação', 'Legendas', 'Postagem / Agendamento', 'Agendado', 'Postado', 'Falhou'];
+  const FORMATOS_ED = [...FORMATOS, 'Reels Teste', 'A definir'];
+  const faseTxt = t => [t.fase, t.nivel].filter(Boolean).join(' ');
+
+  // ---------- agentes (Editor de vídeo e Design) ----------
+  // O botão só coloca o conteúdo na fila. Quem executa é o agente no Mac (tarefa agendada do Claude),
+  // que lê a fila por window.AGENTES_API. Nada roda sem a confirmação.
+  const AGENTES = {
+    editor: { nome: 'Editor de vídeo', icon: 'fa-film', serve: t => /reel|v[ií]deo/i.test(t.type || '') },
+    design: { nome: 'Design', icon: 'fa-pen-ruler', serve: t => /carrossel|est[aá]tico|foto/i.test(t.type || '') }
+  };
+  const AG_STATUS = { na_fila: 'Na fila', trabalhando: 'Trabalhando', pronto: 'Entregue', erro: 'Com erro' };
+  const agenteDe = t => Object.keys(AGENTES).find(k => AGENTES[k].serve(t));
+  function agenteInfo(t) {
+    const k = agenteDe(t); if (!k) return '';
+    const a = (t.agentes || {})[k]; if (!a || !a.status) return '';
+    const cor = a.status === 'erro' ? 'pill-danger' : a.status === 'pronto' ? 'pill-ok' : 'pill-warn';
+    return `<span class="pill ${cor}"><i class="fa-solid ${AGENTES[k].icon}"></i>${AGENTES[k].nome}: ${AG_STATUS[a.status] || a.status}</span>`;
+  }
+  function botaoAgente(t) {
+    const k = agenteDe(t); if (!k) return '';
+    const a = (t.agentes || {})[k];
+    const ocupado = a && (a.status === 'na_fila' || a.status === 'trabalhando');
+    return `<button class="btn btn-ghost" data-agente="${k}" ${ocupado ? 'disabled' : ''}><i class="fa-solid ${AGENTES[k].icon}"></i> ${ocupado ? AG_STATUS[a.status] : 'Chamar ' + AGENTES[k].nome}</button>`;
+  }
+  function chamarAgente(id, k, onDone) {
+    const t = DB.get('tasks', id); const ag = AGENTES[k]; if (!t || !ag) return;
+    const aviso = k === 'editor'
+      ? (t.drive ? 'O Editor vai usar o material do link do Drive deste conteúdo.' : 'Este conteúdo não tem link do Drive: o Editor vai procurar a pasta BRUTE do cliente.')
+      : (t.roteiro || t.legenda ? 'O Design vai usar o roteiro/texto deste conteúdo, sem alterar o texto.' : 'Este conteúdo ainda não tem roteiro ou texto. O Design vai precisar de um texto para montar as lâminas.');
+    const s = UI.sheet({
+      title: `Chamar o ${ag.nome}?`,
+      html: `<div class="card card-tight"><div class="title">${esc(T.titulo(t))}</div><div class="small muted mt-2">${esc([t.client, t.type, t.date ? UI.dataBR(t.date) : ''].filter(Boolean).join(' · '))}</div></div>
+        <p class="small soft mt-3">${esc(aviso)}</p>
+        <p class="small muted mt-2"><i class="fa-solid fa-circle-info"></i> O ${esc(ag.nome)} só começa depois que você confirmar. Ele entra na fila e roda na próxima verificação do agente no seu Mac.</p>`,
+      foot: `<button class="btn btn-ghost" data-nao>Cancelar</button><button class="btn btn-white" data-sim><i class="fa-solid ${ag.icon}"></i> Sim, chamar</button>`
+    });
+    s.$('[data-nao]').onclick = () => s.close();
+    s.$('[data-sim]').onclick = () => {
+      const atual = DB.get('tasks', id);
+      atual.agentes = { ...(atual.agentes || {}), [k]: { status: 'na_fila', pedidoEm: new Date().toISOString() } };
+      DB.put('tasks', atual); s.close();
+      App.toast(`${ag.nome} chamado. O conteúdo entrou na fila.`, 'ok'); onDone && onDone(atual);
+    };
+  }
+  // fila para os agentes (usada pelas tarefas agendadas do Claude no navegador do app)
+  window.AGENTES_API = {
+    fila(k) {
+      return DB.list('tasks').filter(t => t.agentes && t.agentes[k] && t.agentes[k].status === 'na_fila')
+        .map(t => ({ id: t.id, cliente: t.client, titulo: T.titulo(t), headline: t.headline, formato: t.type, objetivo: t.objetivo || '', data: t.date, drive: t.drive || '', roteiro: t.roteiro || '', legenda: t.legenda || t.caption || '', observacoes: t.observacoes || '', pedidoEm: t.agentes[k].pedidoEm }));
+    },
+    async atualizar(id, k, dados) {
+      const t = DB.get('tasks', id); if (!t) return 'não encontrado';
+      t.agentes = { ...(t.agentes || {}), [k]: { ...((t.agentes || {})[k] || {}), ...dados, atualizadoEm: new Date().toISOString() } };
+      if (dados.drive) t.drive = dados.drive;
+      if (dados.fase) t.fase = dados.fase;
+      DB.put('tasks', t); await DB.flush(); return 'ok';
+    }
+  };
+
   function card(t, { showClient = true } = {}) {
     const st = T.statusInfo(T.status(t));
     const capa = UI.capaUrl(t);
@@ -24,8 +86,11 @@
           ${showClient && t.client ? `<span><i class="fa-solid fa-user tiny"></i> ${esc(t.client)}</span>` : ''}
           ${t.type ? `<span><i class="fa-solid fa-clapperboard tiny"></i> ${esc(t.type)}</span>` : ''}
           ${t.date ? `<span><i class="fa-regular fa-calendar tiny"></i> ${UI.quando(t.date)}</span>` : ''}
+          ${t.objetivo ? `<span><i class="fa-solid fa-bullseye tiny"></i> ${esc(t.objetivo)}</span>` : ''}
+          ${faseTxt(t) ? `<span><i class="fa-solid fa-diagram-next tiny"></i> ${esc(faseTxt(t))}</span>` : ''}
           ${t.drive ? '<span><i class="fa-brands fa-google-drive tiny"></i> Drive</span>' : ''}
         </div>
+        ${agenteInfo(t) ? `<div class="mt-2">${agenteInfo(t)}</div>` : ''}
         ${t.isRejected && t.notes ? `<div class="small mt-2" style="color:#ff9aa7">${esc(String(t.notes).replace(/^Reprovado pelo cliente:\s*/, 'Cliente pediu: '))}</div>` : ''}
       </button>`;
   }
@@ -43,22 +108,24 @@
         <div class="form-grid">
           <label class="field full"><span>Título / headline</span><input class="input" name="headline" value="${esc(t.headline || '')}" placeholder="Ex.: 3 sinais de que sua pele precisa de cuidado"></label>
           <label class="field"><span>Cliente</span><input class="input" name="client" list="dl-clientes" value="${esc(t.client || '')}" autocomplete="off"></label>
-          <label class="field"><span>Formato</span><select class="select" name="type">${[...new Set([...FORMATOS, t.type].filter(Boolean))].map(f => `<option ${f === t.type ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select></label>
+          <label class="field"><span>Formato</span><select class="select" name="type">${[...new Set([...FORMATOS_ED, t.type].filter(Boolean))].map(f => `<option ${f === t.type ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select></label>
           <label class="field"><span>Data da postagem</span><input class="input" type="date" name="date" value="${esc(t.date || '')}"></label>
           <label class="field"><span>Status</span><select class="select" name="status">${STATUS.map(x => `<option value="${x.id}" ${x.id === st ? 'selected' : ''}>${x.label}</option>`).join('')}</select></label>
+          <label class="field"><span>Objetivo</span><select class="select" name="objetivo"><option value="">—</option>${[...new Set([...OBJETIVOS, t.objetivo].filter(Boolean))].map(o => `<option ${o === t.objetivo ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></label>
+          <label class="field"><span>Momento (fase)</span><select class="select" name="fase"><option value="">—</option>${[...new Set([...FASES, t.fase].filter(Boolean))].map(o => `<option ${o === t.fase ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></label>
           <div class="full midia-box">
             <label class="field"><span><i class="fa-brands fa-google-drive"></i> Link do Drive com o material (pasta ou arquivo)</span>
               <div class="row"><input class="input grow" type="url" name="drive" value="${esc(t.drive || '')}" placeholder="Cole o link da pasta do Drive"><button type="button" class="btn btn-ghost" data-buscar>Buscar</button></div></label>
             <p class="tiny muted mt-2" data-midia-status>${(t.midias || []).length ? `${t.midias.length} arquivo(s) carregado(s) do Drive.` : 'Cole o link e as fotos/vídeos aparecem aqui, na ordem do Drive. A pasta precisa estar como "Qualquer pessoa com o link".'}</p>
             <div class="mt-3" data-midia>${UI.carrossel(t.midias)}</div>
           </div>
-          <label class="field full"><span>Roteiro</span><textarea class="textarea" name="roteiro" rows="6">${esc(t.roteiro || '')}</textarea></label>
+          <label class="field full"><span>Roteiro / descrição</span><textarea class="textarea" name="roteiro" rows="6">${esc(t.roteiro || '')}</textarea></label>
           <label class="field full"><span>Legenda</span><textarea class="textarea" name="legenda" rows="4">${esc(t.legenda || t.caption || '')}</textarea></label>
           <label class="field full"><span>Observações</span><textarea class="textarea" name="observacoes" rows="2">${esc(t.observacoes || '')}</textarea></label>
           ${t.isRejected ? `<div class="full card card-tight" style="border-color:rgba(255,90,110,.4)"><div class="small" style="color:#ff9aa7"><i class="fa-solid fa-rotate-left"></i> ${esc(t.notes || 'Ajuste pedido pelo cliente')}</div><label class="check mt-2 small"><input type="checkbox" name="resolvido"> Ajuste feito (tirar o aviso)</label></div>` : ''}
         </div>
         ${t.tempoGasto ? `<p class="muted small mt-3"><i class="fa-solid fa-stopwatch"></i> Tempo gasto no Modo Trabalho: ${Math.round(t.tempoGasto / 60)} min</p>` : ''}`,
-      foot: `${novo ? '' : '<button class="btn btn-danger" data-del><i class="fa-solid fa-trash"></i></button>'}${t.drive ? `<a class="btn btn-ghost" href="${esc(t.drive)}" target="_blank" rel="noopener"><i class="fa-brands fa-google-drive"></i> Drive</a>` : ''}<button class="btn btn-white" data-save>Salvar</button>`
+      foot: `${novo ? '' : '<button class="btn btn-danger" data-del><i class="fa-solid fa-trash"></i></button>'}${novo ? '' : botaoAgente(t)}${t.drive ? `<a class="btn btn-ghost" href="${esc(t.drive)}" target="_blank" rel="noopener"><i class="fa-brands fa-google-drive"></i> Drive</a>` : ''}<button class="btn btn-white" data-save>Salvar</button>`
     });
     let midias = (t.midias || []).slice();
     let linkBuscado = (t.midias || []).length ? (t.drive || '') : '';
@@ -77,6 +144,8 @@
       } catch (e) { s.$('[data-midia-status]').innerHTML = `<span style="color:#ff9aa7">${esc(e.message)}</span>`; }
     };
     s.$('[data-buscar]').onclick = () => { linkBuscado = ''; buscar(); };
+    const bAg = s.$('[data-agente]');
+    if (bAg) bAg.onclick = () => { s.close(); setTimeout(() => chamarAgente(id, bAg.dataset.agente, onDone), 220); };
     s.$('[name=drive]').addEventListener('change', buscar);
     s.$('[name=drive]').addEventListener('paste', () => setTimeout(buscar, 50));
 
@@ -85,7 +154,7 @@
       if (!f.headline.trim()) { App.toast('Dê um título ao conteúdo.', 'warn'); return; }
       if (f.drive.trim() && f.drive.trim() !== linkBuscado) await buscar();
       const orig = novo ? {} : DB.get('tasks', id);
-      const out = { ...orig, ...t, headline: f.headline.trim(), client: f.client.trim(), type: f.type, date: f.date, drive: f.drive.trim(), roteiro: f.roteiro, legenda: f.legenda, caption: f.legenda, observacoes: f.observacoes };
+      const out = { ...orig, ...t, headline: f.headline.trim(), client: f.client.trim(), type: f.type, date: f.date, drive: f.drive.trim(), roteiro: f.roteiro, legenda: f.legenda, caption: f.legenda, observacoes: f.observacoes, objetivo: f.objetivo, fase: f.fase };
       out.kind = 'post';
       out.midias = f.drive.trim() ? midias : [];
       out.midiasEm = new Date().toISOString();
@@ -188,18 +257,20 @@
     const st = T.status(t);
     const s = UI.sheet({
       title: esc(T.titulo(t)), wide: true,
-      html: `<div class="row mb-3" style="flex-wrap:wrap"><span class="pill ${T.statusInfo(st).pill}">${T.statusInfo(st).label}</span>${t.client ? `<span class="pill">${esc(t.client)}</span>` : ''}${t.type ? `<span class="pill">${esc(t.type)}</span>` : ''}${t.date ? `<span class="pill"><i class="fa-regular fa-calendar"></i>${UI.dataBR(t.date)}</span>` : ''}</div>
+      html: `<div class="row mb-3" style="flex-wrap:wrap"><span class="pill ${T.statusInfo(st).pill}">${T.statusInfo(st).label}</span>${t.client ? `<span class="pill">${esc(t.client)}</span>` : ''}${t.type ? `<span class="pill">${esc(t.type)}</span>` : ''}${t.objetivo ? `<span class="pill"><i class="fa-solid fa-bullseye"></i>${esc(t.objetivo)}</span>` : ''}${faseTxt(t) ? `<span class="pill"><i class="fa-solid fa-diagram-next"></i>${esc(faseTxt(t))}</span>` : ''}${t.date ? `<span class="pill"><i class="fa-regular fa-calendar"></i>${UI.dataBR(t.date)}</span>` : ''}${agenteInfo(t)}</div>
         ${t.isRejected ? `<div class="card card-tight mb-3" style="border-color:rgba(255,90,110,.45)"><div class="small" style="color:#ff9aa7"><i class="fa-solid fa-rotate-left"></i> <b>Cliente pediu ajuste:</b> ${esc(String(t.notes || '').replace(/^Reprovado pelo cliente:\s*/, ''))}</div></div>` : ''}
         ${UI.carrossel(t.midias) || `<div class="card empty"><i class="fa-brands fa-google-drive"></i>Sem mídia ainda. Edite o conteúdo e cole o link do Drive.</div>`}
         ${t.legenda || t.caption ? `<div class="eyebrow mt-4 mb-2">Legenda</div><div class="small soft" style="white-space:pre-line">${esc(t.legenda || t.caption)}</div>` : ''}
-        ${t.roteiro ? `<details class="mt-3"><summary class="small muted" style="cursor:pointer">Ver roteiro</summary><div class="small soft mt-2" style="white-space:pre-line">${esc(t.roteiro)}</div></details>` : ''}
+        ${t.roteiro ? `<details class="mt-3" ${t.legenda || t.caption ? '' : 'open'}><summary class="small muted" style="cursor:pointer">Roteiro / descrição</summary><div class="small soft mt-2" style="white-space:pre-line">${esc(t.roteiro)}</div></details>` : ''}
         ${(t.historicoAjustes || []).length ? `<details class="mt-3"><summary class="small muted" style="cursor:pointer">Ajustes anteriores (${t.historicoAjustes.length})</summary>${t.historicoAjustes.map(h => `<div class="small soft mt-2">• ${esc(h.pedido)} <span class="muted">— resolvido em ${UI.dataBR((h.resolvidoEm || '').slice(0, 10))}</span></div>`).join('')}</details>` : ''}`,
-      foot: `<button class="btn btn-ghost" data-edit><i class="fa-solid fa-pen"></i> Editar</button>
+      foot: `<button class="btn btn-ghost" data-edit><i class="fa-solid fa-pen"></i> Editar</button>${botaoAgente(t)}
         ${st !== 'pronto' && st !== 'aprovadas' ? '<button class="btn btn-white" data-pronto><i class="fa-solid fa-paper-plane"></i> Pronto p/ cliente</button>' : ''}
         ${st !== 'aprovadas' ? '<button class="btn btn-ghost" data-aprovar><i class="fa-solid fa-check"></i> Marcar aprovado</button>' : ''}`
     });
     UI.ativarCarrosseis(s.el);
     s.$('[data-edit]').onclick = () => { s.close(); setTimeout(() => editarConteudo(id, {}, onDone), 220); };
+    const bAg = s.$('[data-agente]');
+    if (bAg) bAg.onclick = () => { s.close(); setTimeout(() => chamarAgente(id, bAg.dataset.agente, onDone), 220); };
     const pr = s.$('[data-pronto]'); if (pr) pr.onclick = () => { marcar(id, 'pronto'); s.close(); App.toast('Pronto: aparece para o cliente aprovar.', 'ok'); onDone && onDone(); };
     const ap = s.$('[data-aprovar]'); if (ap) ap.onclick = () => { marcar(id, 'aprovadas'); s.close(); App.toast('Marcado como aprovado.', 'ok'); onDone && onDone(); };
   }
@@ -211,5 +282,5 @@
     DB.put('tasks', t);
   }
 
-  window.Empresa = { preview, marcar, card, editarConteudo, editarCompromisso, abrir, novoNoDia, mover, nomesClientes };
+  window.Empresa = { preview, marcar, card, editarConteudo, editarCompromisso, abrir, novoNoDia, mover, nomesClientes, chamarAgente, agenteDe, OBJETIVOS, FASES };
 })();

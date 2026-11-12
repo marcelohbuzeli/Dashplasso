@@ -421,3 +421,5 @@ button.card { font: inherit; }
 .midia-box { border: 1px dashed var(--line-2); border-radius: 18px; padding: 14px; }
 
 .cal .day .mini.gc { background: rgba(66,133,244,.28); }
+
+.btn:disabled { opacity: .5; cursor: default; }
