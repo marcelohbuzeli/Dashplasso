@@ -10,7 +10,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.50.0";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-user-token",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -58,7 +58,9 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "Método não permitido" }, 405);
 
-  const auth = req.headers.get("Authorization") ?? "";
+  // token do usuário em x-user-token (o gateway só aceita a chave pública no apikey)
+  const tok = req.headers.get("x-user-token") || (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+  const auth = "Bearer " + tok;
   const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {
     global: { headers: { Authorization: auth } },
   });
