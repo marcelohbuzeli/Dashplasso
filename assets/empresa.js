@@ -162,6 +162,9 @@
       out.midiasEm = new Date().toISOString();
       // status escolhido à mão fica fixo; se não mexeu, continua automático (urgente quando faltar 48h)
       if (novo || f.status !== st) { out.status = f.status; out.manuallyMovedToPronto = !novo || f.status !== 'afazer'; }
+      if (f.fase === 'Postado' && f.status === st && st !== 'postado') out.status = 'postado';
+      if (out.status === 'postado') { out.fase = 'Postado'; out.postadoEm = out.postadoEm || new Date().toISOString(); }
+      else if (out.fase === 'Postado') out.fase = '';
       if (out.isRejected && (f.resolvido || f.status === 'pronto' || f.status === 'aprovadas')) {
         out.historicoAjustes = [...(out.historicoAjustes || []), { pedido: String(out.notes || '').replace(/^Reprovado pelo cliente:\s*/, ''), resolvidoEm: new Date().toISOString() }];
         out.isRejected = false; out.notes = '';
@@ -247,6 +250,8 @@
 
   function mover(id, status) {
     const t = DB.get('tasks', id); if (!t) return;
+    if (status === 'postado') { t.fase = 'Postado'; t.postadoEm = t.postadoEm || new Date().toISOString(); }
+    else if (t.fase === 'Postado') t.fase = '';
     t.status = status;
     t.manuallyMovedToPronto = true; // status escolhido à mão
     if ((status === 'aprovadas' || status === 'pronto') && t.isRejected) { t.historicoAjustes = [...(t.historicoAjustes || []), { pedido: String(t.notes || '').replace(/^Reprovado pelo cliente:\s*/, ''), resolvidoEm: new Date().toISOString() }]; t.isRejected = false; t.notes = ''; }
@@ -261,20 +266,23 @@
       title: esc(T.titulo(t)), wide: true,
       html: `<div class="row mb-3" style="flex-wrap:wrap"><span class="pill ${T.statusInfo(st).pill}">${T.statusInfo(st).label}</span>${t.client ? `<span class="pill">${esc(t.client)}</span>` : ''}${t.type ? `<span class="pill">${esc(t.type)}</span>` : ''}${t.objetivo ? `<span class="pill"><i class="fa-solid fa-bullseye"></i>${esc(t.objetivo)}</span>` : ''}${faseTxt(t) ? `<span class="pill"><i class="fa-solid fa-diagram-next"></i>${esc(faseTxt(t))}</span>` : ''}${t.date ? `<span class="pill"><i class="fa-regular fa-calendar"></i>${UI.dataBR(t.date)}</span>` : ''}${agenteInfo(t)}</div>
         ${(() => { const k = agenteDe(t); const a = k && (t.agentes || {})[k]; if (!a || !a.status) return ''; const linhas = [a.observacao ? `<b>Suas observações:</b> ${esc(a.observacao)}` : '', a.resumo ? `<b>Entrega:</b> ${esc(a.resumo)}` : '', a.onde ? `<b>Onde:</b> ${/^https?:/.test(a.onde) ? `<a href="${esc(a.onde)}" target="_blank" rel="noopener">${esc(a.onde)}</a>` : esc(a.onde)}` : '', a.erro ? `<span style="color:#ff9aa7"><b>Erro:</b> ${esc(a.erro)}</span>` : ''].filter(Boolean); return linhas.length ? `<div class="card card-tight mb-3 small soft">${linhas.join('<br>')}</div>` : ''; })()}
+        ${st === 'pronto' && !T.completo(t) ? `<div class="card card-tight mb-3 small" style="border-color:rgba(255,190,80,.45);color:#ffd28a"><i class="fa-solid fa-triangle-exclamation"></i> Sem link do Drive: o cliente ainda não vê este conteúdo. Cole o link da versão final para ele aprovar.</div>` : ''}
         ${t.isRejected ? `<div class="card card-tight mb-3" style="border-color:rgba(255,90,110,.45)"><div class="small" style="color:#ff9aa7"><i class="fa-solid fa-rotate-left"></i> <b>Cliente pediu ajuste:</b> ${esc(String(t.notes || '').replace(/^Reprovado pelo cliente:\s*/, ''))}</div></div>` : ''}
         ${UI.carrossel(t.midias) || `<div class="card empty"><i class="fa-brands fa-google-drive"></i>Sem mídia ainda. Edite o conteúdo e cole o link do Drive.</div>`}
         ${t.legenda || t.caption ? `<div class="eyebrow mt-4 mb-2">Legenda</div><div class="small soft" style="white-space:pre-line">${esc(t.legenda || t.caption)}</div>` : ''}
         ${t.roteiro ? `<details class="mt-3" ${t.legenda || t.caption ? '' : 'open'}><summary class="small muted" style="cursor:pointer">Roteiro / descrição</summary><div class="small soft mt-2" style="white-space:pre-line">${esc(t.roteiro)}</div></details>` : ''}
         ${(t.historicoAjustes || []).length ? `<details class="mt-3"><summary class="small muted" style="cursor:pointer">Ajustes anteriores (${t.historicoAjustes.length})</summary>${t.historicoAjustes.map(h => `<div class="small soft mt-2">• ${esc(h.pedido)} <span class="muted">— resolvido em ${UI.dataBR((h.resolvidoEm || '').slice(0, 10))}</span></div>`).join('')}</details>` : ''}`,
       foot: `<button class="btn btn-ghost" data-edit><i class="fa-solid fa-pen"></i> Editar</button>${botaoAgente(t)}
-        ${st !== 'pronto' && st !== 'aprovadas' ? '<button class="btn btn-white" data-pronto><i class="fa-solid fa-paper-plane"></i> Pronto p/ cliente</button>' : ''}
-        ${st !== 'aprovadas' ? '<button class="btn btn-ghost" data-aprovar><i class="fa-solid fa-check"></i> Marcar aprovado</button>' : ''}`
+        ${st !== 'pronto' && st !== 'aprovadas' && st !== 'postado' ? '<button class="btn btn-white" data-pronto><i class="fa-solid fa-paper-plane"></i> Pronto p/ cliente</button>' : ''}
+        ${st !== 'aprovadas' && st !== 'postado' ? '<button class="btn btn-ghost" data-aprovar><i class="fa-solid fa-check"></i> Marcar aprovado</button>' : ''}
+        ${st === 'aprovadas' ? '<button class="btn btn-white" data-postado><i class="fa-solid fa-paper-plane"></i> Marcar postado</button>' : ''}`
     });
     UI.ativarCarrosseis(s.el);
     s.$('[data-edit]').onclick = () => { s.close(); setTimeout(() => editarConteudo(id, {}, onDone), 220); };
     const bAg = s.$('[data-agente]');
     if (bAg) bAg.onclick = () => { s.close(); setTimeout(() => chamarAgente(id, bAg.dataset.agente, onDone), 220); };
-    const pr = s.$('[data-pronto]'); if (pr) pr.onclick = () => { marcar(id, 'pronto'); s.close(); App.toast('Pronto: aparece para o cliente aprovar.', 'ok'); onDone && onDone(); };
+    const po = s.$('[data-postado]'); if (po) po.onclick = () => { mover(id, 'postado'); s.close(); App.toast('Marcado como postado.', 'ok'); onDone && onDone(); };
+    const pr = s.$('[data-pronto]'); if (pr) pr.onclick = () => { if (!T.completo(DB.get('tasks', id))) { App.toast('Cole o link do Drive com a versão final antes de enviar ao cliente.', 'warn'); s.close(); setTimeout(() => editarConteudo(id, {}, onDone), 220); return; } marcar(id, 'pronto'); s.close(); App.toast('Pronto: aparece para o cliente aprovar.', 'ok'); onDone && onDone(); };
     const ap = s.$('[data-aprovar]'); if (ap) ap.onclick = () => { marcar(id, 'aprovadas'); s.close(); App.toast('Marcado como aprovado.', 'ok'); onDone && onDone(); };
   }
   function marcar(id, status) {

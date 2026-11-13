@@ -17,6 +17,8 @@ window.PLASSO_DEMO = function () {
     { id: 't5', client: 'Restaurante Sabor', headline: 'Prato da semana', type: 'Foto Única', date: d(8), status: 'afazer' },
     { id: 't6', client: 'Clínica Bella', headline: 'Depoimento da Dra. Carla', type: 'Reels', date: d(-4), status: 'aprovadas', midias: [{ id: 'demo-video', nome: 'depoimento.mp4', tipo: 'video' }] },
     { id: 't10', client: 'Clínica Bella', headline: 'Antes de fazer harmonização, saiba isso', type: 'Reels', date: d(6), status: 'pronto', manuallyMovedToPronto: true, midias: [{ id: 'demo-video', nome: 'reels.mp4', tipo: 'video' }] },
+    { id: 't11', client: 'Clínica Bella', headline: '[09h] Rotina de skincare da noite', type: 'Carrossel', date: d(-2), status: 'postado', fase: 'Postado' },
+    { id: 't12', client: 'Clínica Bella', headline: '[15h] Bioestimulador: o que é', type: 'Reels', date: d(2), status: 'pronto', manuallyMovedToPronto: true },
     { id: 't7', client: 'Studio Lumi', headline: 'Como escolher o fotógrafo', type: 'Story', date: d(12), status: 'afazer' },
     { id: 't8', client: 'Padaria Grão', headline: '[15h] Reunião Padaria Grão', type: 'Reels', date: d(0), status: 'afazer', notes: 'crm_meeting', kind: 'reuniao', time: '15:00', caption: 'Reunião agendada às 15:00' },
     { id: 't9', client: 'Academia Força', headline: 'Follow Up: Follow (Academia Força)', type: 'Story', date: d(0), status: 'afazer', notes: 'crm_follow', kind: 'follow', time: '09:00' }

@@ -132,7 +132,8 @@
     { id: 'urgent', label: 'Urgente', pill: 'pill-danger' },
     { id: 'afazer', label: 'A fazer', pill: '' },
     { id: 'pronto', label: 'Pronto', pill: 'pill-warn' },
-    { id: 'aprovadas', label: 'Aprovado', pill: 'pill-ok' }
+    { id: 'aprovadas', label: 'Aprovado', pill: 'pill-ok' },
+    { id: 'postado', label: 'Postado', pill: 'pill-post' }
   ];
   const FORMATOS = ['Reels', 'Carrossel', 'Story', 'Foto Única', 'Estático', 'Vídeo'];
   const T = {
@@ -157,6 +158,7 @@
     },
     // status efetivo (mesma regra do kanban antigo: vence em até 48h ou reprovado = urgente)
     status(t) {
+      if (t.status === 'postado') return 'postado';
       if (t.status === 'aprovadas' || t.status === 'approved') return 'aprovadas';
       if (t.status === 'pronto') return 'pronto';
       if (t.isRejected) return 'urgent';
@@ -167,6 +169,11 @@
       }
       return t.status === 'urgent' && !t.date ? 'urgent' : 'afazer';
     },
+    // conteúdo completo = tem o link do Drive com a versão final (só esses vão para o cliente aprovar)
+    completo(t) { return !!(String(t.drive || '').trim() || (t.midias || []).length); },
+    // está com o cliente para aprovar agora
+    paraCliente(t) { return T.status(t) === 'pronto' && !t.isRejected && T.completo(t); },
+    encerrado(t) { const s = T.status(t); return s === 'aprovadas' || s === 'postado'; },
     statusInfo(id) { return STATUS.find(s => s.id === id) || STATUS[1]; },
     conteudos() { return DB.list('tasks').filter(T.isConteudo); },
     // tudo que aparece no calendário (tarefas + eventos antigos)
