@@ -30,7 +30,7 @@
     const k = agenteDe(t); if (!k) return '';
     const a = (t.agentes || {})[k]; if (!a || !a.status) return '';
     const cor = a.status === 'erro' ? 'pill-danger' : a.status === 'pronto' ? 'pill-ok' : 'pill-warn';
-    return `<span class="pill ${cor}"><i class="fa-solid ${AGENTES[k].icon}"></i>${AGENTES[k].nome}: ${AG_STATUS[a.status] || a.status}</span>`;
+    return `<span class="pill ${cor}" title="${esc([a.observacao ? 'Obs.: ' + a.observacao : '', a.erro || a.resumo || '', a.onde || ''].filter(Boolean).join(' | '))}"><i class="fa-solid ${AGENTES[k].icon}"></i>${AGENTES[k].nome}: ${AG_STATUS[a.status] || a.status}</span>`;
   }
   function botaoAgente(t) {
     const k = agenteDe(t); if (!k) return '';
@@ -47,13 +47,15 @@
       title: `Chamar o ${ag.nome}?`,
       html: `<div class="card card-tight"><div class="title">${esc(T.titulo(t))}</div><div class="small muted mt-2">${esc([t.client, t.type, t.date ? UI.dataBR(t.date) : ''].filter(Boolean).join(' · '))}</div></div>
         <p class="small soft mt-3">${esc(aviso)}</p>
-        <p class="small muted mt-2"><i class="fa-solid fa-circle-info"></i> O ${esc(ag.nome)} só começa depois que você confirmar. Ele entra na fila e roda na próxima verificação do agente no seu Mac.</p>`,
+        <label class="field mt-3"><span>Observações para o ${esc(ag.nome)} (opcional)</span>
+          <textarea class="textarea" name="obs-agente" rows="4" placeholder="${k === 'editor' ? 'Ex.: sem motion; corte mais seco; usar a trilha da pasta' : 'Ex.: tudo com a fonte Montserrat; usar a foto 3 na capa'}">${esc(((t.agentes || {})[k] || {}).observacao || '')}</textarea></label>
+        <p class="small muted mt-2"><i class="fa-solid fa-circle-info"></i> O ${esc(ag.nome)} só começa depois que você confirmar. Ele recebe o formato, o link do Drive, o roteiro e estas observações.</p>`,
       foot: `<button class="btn btn-ghost" data-nao>Cancelar</button><button class="btn btn-white" data-sim><i class="fa-solid ${ag.icon}"></i> Sim, chamar</button>`
     });
     s.$('[data-nao]').onclick = () => s.close();
     s.$('[data-sim]').onclick = () => {
       const atual = DB.get('tasks', id);
-      atual.agentes = { ...(atual.agentes || {}), [k]: { status: 'na_fila', pedidoEm: new Date().toISOString() } };
+      atual.agentes = { ...(atual.agentes || {}), [k]: { status: 'na_fila', pedidoEm: new Date().toISOString(), observacao: s.$('[name="obs-agente"]').value.trim() } };
       DB.put('tasks', atual); s.close();
       App.toast(`${ag.nome} chamado. O conteúdo entrou na fila.`, 'ok'); onDone && onDone(atual);
     };
@@ -62,7 +64,7 @@
   window.AGENTES_API = {
     fila(k) {
       return DB.list('tasks').filter(t => t.agentes && t.agentes[k] && t.agentes[k].status === 'na_fila')
-        .map(t => ({ id: t.id, cliente: t.client, titulo: T.titulo(t), headline: t.headline, formato: t.type, objetivo: t.objetivo || '', data: t.date, drive: t.drive || '', roteiro: t.roteiro || '', legenda: t.legenda || t.caption || '', observacoes: t.observacoes || '', pedidoEm: t.agentes[k].pedidoEm }));
+        .map(t => ({ id: t.id, cliente: t.client, titulo: T.titulo(t), headline: t.headline, formato: t.type, objetivo: t.objetivo || '', data: t.date, drive: t.drive || '', roteiro: t.roteiro || '', legenda: t.legenda || t.caption || '', observacoes: t.observacoes || '', observacaoAgente: t.agentes[k].observacao || '', pedidoEm: t.agentes[k].pedidoEm }));
     },
     async atualizar(id, k, dados) {
       const t = DB.get('tasks', id); if (!t) return 'não encontrado';
@@ -258,6 +260,7 @@
     const s = UI.sheet({
       title: esc(T.titulo(t)), wide: true,
       html: `<div class="row mb-3" style="flex-wrap:wrap"><span class="pill ${T.statusInfo(st).pill}">${T.statusInfo(st).label}</span>${t.client ? `<span class="pill">${esc(t.client)}</span>` : ''}${t.type ? `<span class="pill">${esc(t.type)}</span>` : ''}${t.objetivo ? `<span class="pill"><i class="fa-solid fa-bullseye"></i>${esc(t.objetivo)}</span>` : ''}${faseTxt(t) ? `<span class="pill"><i class="fa-solid fa-diagram-next"></i>${esc(faseTxt(t))}</span>` : ''}${t.date ? `<span class="pill"><i class="fa-regular fa-calendar"></i>${UI.dataBR(t.date)}</span>` : ''}${agenteInfo(t)}</div>
+        ${(() => { const k = agenteDe(t); const a = k && (t.agentes || {})[k]; if (!a || !a.status) return ''; const linhas = [a.observacao ? `<b>Suas observações:</b> ${esc(a.observacao)}` : '', a.resumo ? `<b>Entrega:</b> ${esc(a.resumo)}` : '', a.onde ? `<b>Onde:</b> ${/^https?:/.test(a.onde) ? `<a href="${esc(a.onde)}" target="_blank" rel="noopener">${esc(a.onde)}</a>` : esc(a.onde)}` : '', a.erro ? `<span style="color:#ff9aa7"><b>Erro:</b> ${esc(a.erro)}</span>` : ''].filter(Boolean); return linhas.length ? `<div class="card card-tight mb-3 small soft">${linhas.join('<br>')}</div>` : ''; })()}
         ${t.isRejected ? `<div class="card card-tight mb-3" style="border-color:rgba(255,90,110,.45)"><div class="small" style="color:#ff9aa7"><i class="fa-solid fa-rotate-left"></i> <b>Cliente pediu ajuste:</b> ${esc(String(t.notes || '').replace(/^Reprovado pelo cliente:\s*/, ''))}</div></div>` : ''}
         ${UI.carrossel(t.midias) || `<div class="card empty"><i class="fa-brands fa-google-drive"></i>Sem mídia ainda. Edite o conteúdo e cole o link do Drive.</div>`}
         ${t.legenda || t.caption ? `<div class="eyebrow mt-4 mb-2">Legenda</div><div class="small soft" style="white-space:pre-line">${esc(t.legenda || t.caption)}</div>` : ''}
