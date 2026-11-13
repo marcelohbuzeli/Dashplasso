@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Plassô | Aprovação</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="assets/ui.css?v=8">
+<link rel="stylesheet" href="assets/ui.css?v=9">
 </head>
 <body data-theme="empresa">
 <div class="wrap">
@@ -25,7 +25,7 @@
   <div class="hero">
     <div class="eyebrow" id="resumo"></div>
     <h1 class="display mt-2">Central de<br><span class="soft">aprovação</span></h1>
-    <p>Pedidos de ajuste ficam sempre no topo. Quando você corrige e marca <b>Pronto</b>, o conteúdo volta para o cliente aprovar.</p>
+    <p>Pedidos de ajuste ficam sempre no topo. O cliente só vê o conteúdo marcado como <b>Pronto</b> e com o link do Drive da versão final. Aprovados e postados saem daqui.</p>
   </div>
 
   <div class="grid g-2 lg-g-4 mb-4" id="kpis"></div>
@@ -37,15 +37,16 @@
 
   <section id="sec-ajustes"></section>
   <section id="sec-cliente"></section>
+  <section id="sec-semdrive"></section>
   <section id="sec-producao"></section>
   <section id="sec-aprovados"></section>
 </div>
 
-<script src="assets/config.js?v=8"></script>
-<script src="assets/core.js?v=8" data-mode="app"></script>
-<script src="assets/ui.js?v=8"></script>
-<script src="assets/integracao.js?v=8"></script>
-<script src="assets/empresa.js?v=8"></script>
+<script src="assets/config.js?v=9"></script>
+<script src="assets/core.js?v=9" data-mode="app"></script>
+<script src="assets/ui.js?v=9"></script>
+<script src="assets/integracao.js?v=9"></script>
+<script src="assets/empresa.js?v=9"></script>
 <script type="text/plain" data-app>
   UI.mount({ tab: 'empresa', sub: 'aprovacao' });
   const { esc, T } = UI;
@@ -87,17 +88,19 @@
     }
     const all = base();
     const ajustes = ord(all.filter(t => t.isRejected));
-    const comCliente = ord(all.filter(t => !t.isRejected && T.status(t) === 'pronto'));
+    const comCliente = ord(all.filter(t => T.paraCliente(t)));
+    const semDrive = ord(all.filter(t => !t.isRejected && T.status(t) === 'pronto' && !T.completo(t)));
     const producao = ord(all.filter(t => !t.isRejected && ['urgent', 'afazer'].includes(T.status(t))));
-    const lim = UI.addDias(UI.hoje(), -45);
-    const aprovados = all.filter(t => T.status(t) === 'aprovadas' && (t.date || '') >= lim).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    const aprovados = ord(all.filter(t => T.status(t) === 'aprovadas'));
     const k = (icon, cor, l, v, h) => `<div class="card stat"><span class="label"><i class="fa-solid ${icon}" style="color:${cor}"></i>${l}</span><span class="value">${v}</span><span class="hint">${h}</span></div>`;
-    $('kpis').innerHTML = k('fa-rotate-left', 'var(--danger)', 'Ajustes', ajustes.length, 'pedidos pelo cliente') + k('fa-hourglass-half', 'var(--warn)', 'Com o cliente', comCliente.length, 'aguardando aprovação') + k('fa-clapperboard', 'var(--accent)', 'Em produção', producao.length, 'para finalizar') + k('fa-circle-check', 'var(--ok)', 'Aprovados', aprovados.length, 'últimos 45 dias');
+    $('kpis').innerHTML = k('fa-rotate-left', 'var(--danger)', 'Ajustes', ajustes.length, 'pedidos pelo cliente') + k('fa-hourglass-half', 'var(--warn)', 'Com o cliente', comCliente.length, 'aguardando aprovação') + k('fa-clapperboard', 'var(--accent)', 'Em produção', producao.length, 'para finalizar') + k('fa-circle-check', 'var(--ok)', 'Aprovados', aprovados.length, 'aguardando postar');
     $('resumo').textContent = ajustes.length ? `${ajustes.length} ajuste${ajustes.length > 1 ? 's' : ''} para fazer agora` : comCliente.length ? `${comCliente.length} aguardando o cliente` : 'Tudo em dia';
     secao('sec-ajustes', 'Ajustes pedidos', 'fa-rotate-left', ajustes, '<i class="fa-solid fa-face-smile"></i>Nenhum pedido de ajuste.');
-    secao('sec-cliente', 'Com o cliente', 'fa-hourglass-half', comCliente, 'Nada aguardando o cliente. Marque um conteúdo como <b>Pronto</b> para ele aparecer aqui e no link do cliente.');
+    secao('sec-cliente', 'Com o cliente', 'fa-hourglass-half', comCliente, 'Nada aguardando o cliente. Marque um conteúdo como <b>Pronto</b> e cole o link do Drive para ele aparecer aqui e no link do cliente.');
+    secao('sec-semdrive', 'Prontos sem link do Drive', 'fa-link-slash', semDrive, 'Nenhum. Tudo que está pronto já tem o link da versão final.');
     secao('sec-producao', 'Em produção', 'fa-clapperboard', producao, 'Nada em produção.');
-    secao('sec-aprovados', 'Aprovados', 'fa-circle-check', aprovados, 'Nenhum aprovado nos últimos 45 dias.');
+    secao('sec-aprovados', 'Aprovados (aguardando postar)', 'fa-circle-check', aprovados, 'Nenhum aprovado aguardando postagem.');
+    $('sec-semdrive').style.display = semDrive.length ? '' : 'none';
     document.querySelectorAll('[data-q]').forEach(b => b.onclick = () => Empresa.preview(b.dataset.q, render));
   }
   $('f-cliente').addEventListener('change', e => { cliente = e.target.value; render(); });

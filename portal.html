@@ -7,11 +7,28 @@
 <meta name="theme-color" content="#060918">
 <title>Aprovação de conteúdos</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="assets/ui.css?v=8">
+<link rel="stylesheet" href="assets/ui.css?v=9">
 <style>
   .wrap { max-width: 860px; padding-bottom: calc(40px + var(--safe-b)); }
   .preview { white-space: pre-line; font-size: 14px; color: var(--ink-2); max-height: 7.5em; overflow: hidden; position: relative; }
   .preview.open { max-height: none; }
+  .wrap { max-width: 1180px; }
+  .semana { display: grid; gap: 10px; }
+  @media (min-width: 900px) { .semana { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
+  .dia { padding: 12px; }
+  @media (min-width: 900px) { .dia { min-height: 160px; } }
+  @media (max-width: 899px) { .dia.vazio { padding: 10px 12px; } .dia.vazio .dia-h { margin-bottom: 0; } .dia.vazio .tiny { display: none; } }
+  .dia.hoje { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .dia-h { display: flex; align-items: baseline; gap: 6px; margin-bottom: 10px; }
+  .dia-h .n { font-size: 20px; font-weight: 500; }
+  .dia-h .w { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+  .ci { display: block; width: 100%; text-align: left; border-radius: 12px; padding: 8px 9px 9px 12px; margin-top: 8px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); position: relative; color: inherit; cursor: pointer; }
+  .ci::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: var(--c, #888); }
+  .ci img { width: 100%; aspect-ratio: 4/5; object-fit: cover; border-radius: 8px; margin-bottom: 7px; background: #111; display: block; }
+  .ci .t { font-size: 13px; line-height: 1.3; font-weight: 500; }
+  .ci .s { font-size: 11px; color: var(--ink-3); margin-top: 4px; }
+  .lg { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,.05); }
+  .lg i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); display: inline-block; }
 </style>
 </head>
 <body data-theme="empresa">
@@ -23,73 +40,133 @@
   <div class="hero">
     <div class="eyebrow">Olá,</div>
     <h1 class="display mt-2" id="cliente-nome"></h1>
-    <p>Confira os conteúdos abaixo. Aprove ou peça ajuste. A agência recebe sua resposta na hora.</p>
+    <p>Aqui ficam as versões finais para você aprovar e o calendário com o que vai sair em cada dia. A agência recebe sua resposta na hora.</p>
   </div>
 
   <div class="grid g-2 md-g-4 mb-4" id="kpis"></div>
-  <div class="seg mb-3" id="filtro"></div>
-  <div id="lista" class="stack"></div>
+  <div class="seg mb-4" id="abas"></div>
+  <section id="v-aprovar"><div id="lista" class="stack"></div></section>
+  <section id="v-cal" class="hidden">
+    <div class="row-between mb-3" style="flex-wrap:wrap;gap:10px">
+      <div><div class="eyebrow">Calendário da semana</div><div class="h2 mt-1" id="semana-txt"></div></div>
+      <div class="row"><button class="chip-btn" id="sem-ant" aria-label="Semana anterior"><i class="fa-solid fa-chevron-left"></i></button><button class="btn btn-ghost btn-sm" id="sem-hoje">Esta semana</button><button class="chip-btn" id="sem-prox" aria-label="Próxima semana"><i class="fa-solid fa-chevron-right"></i></button></div>
+    </div>
+    <div class="row mb-3 small" id="legenda" style="flex-wrap:wrap;gap:6px"></div>
+    <div class="semana" id="semana"></div>
+  </section>
   <p class="tiny muted center mt-8">Link exclusivo seu. Não compartilhe.</p>
 </div>
 
-<script src="assets/config.js?v=8"></script>
-<script src="assets/core.js?v=8" data-mode="portal"></script>
-<script src="assets/ui.js?v=8"></script>
+<script src="assets/config.js?v=9"></script>
+<script src="assets/core.js?v=9" data-mode="portal"></script>
+<script src="assets/ui.js?v=9"></script>
 <script type="text/plain" data-app>
   const { esc, T } = UI;
   const $ = id => document.getElementById(id);
   const cliente = DB.list('clients')[0] || { name: '' };
   $('cliente-nome').textContent = cliente.name;
   document.title = 'Aprovação · ' + cliente.name;
-  let filtro = 'aprovar';
 
   const conteudos = () => DB.list('tasks').filter(t => T.isConteudo(t));
-  const estado = t => (t.status === 'aprovadas' || t.status === 'approved') ? 'aprovado' : t.isRejected ? 'ajuste' : t.status === 'pronto' ? 'aprovar' : 'producao';
-  const LABEL = { aprovar: 'Para aprovar', ajuste: 'Ajuste pedido', aprovado: 'Aprovados', producao: 'Em produção' };
+  // aprovar = pronto + com link do Drive (versão final). Sem o link, para o cliente ainda está em produção.
+  const estado = t => t.status === 'postado' ? 'postado' : (t.status === 'aprovadas' || t.status === 'approved') ? 'aprovado' : t.isRejected ? 'ajuste' : (t.status === 'pronto' && T.completo(t)) ? 'aprovar' : 'producao';
+  const EST = {
+    aprovar: { l: 'Para aprovar', pill: 'pill-accent', c: '#3d5bff' },
+    ajuste: { l: 'Ajuste pedido', pill: 'pill-danger', c: '#ff5a6e' },
+    producao: { l: 'Em produção', pill: '', c: '#8b93a7' },
+    aprovado: { l: 'Aprovado', pill: 'pill-ok', c: '#2bd47d' },
+    postado: { l: 'Postado', pill: 'pill-post', c: '#a78bfa' }
+  };
+  const inicioSemana = iso => UI.addDias(iso, -new Date(iso + 'T12:00').getDay()); // domingo
+  let semana = inicioSemana(UI.hoje());
+  let aba = null;
+
+  function corpo(t, compacto) {
+    const e = estado(t);
+    const podeVer = e !== 'producao';
+    return `${podeVer && (t.midias || []).length ? `<div class="mt-3">${UI.carrossel(t.midias)}</div>${t.midias.length > 1 ? '<p class="tiny muted center mt-2"><i class="fa-solid fa-hand-pointer"></i> Arraste para o lado para ver todos</p>' : ''}` : ''}
+      ${podeVer && (t.legenda || t.caption) ? `<div class="eyebrow mt-4 mb-2">Legenda</div><div class="preview ${compacto ? '' : 'open'}" data-prev>${esc(t.legenda || t.caption)}</div>${compacto ? '<button class="btn btn-ghost btn-sm mt-2" data-mais>Ver tudo</button>' : ''}` : ''}
+      ${e === 'producao' ? '<p class="small muted mt-3"><i class="fa-solid fa-clapperboard"></i> Em produção. Assim que a versão final estiver pronta, ela aparece aqui para você aprovar.</p>' : ''}
+      ${e === 'ajuste' && t.notes ? `<div class="card card-tight mt-3 small" style="border-color:rgba(255,90,110,.4)"><b>Seu pedido:</b> ${esc(String(t.notes).replace(/^Reprovado pelo cliente:\s*/, ''))}</div>` : ''}
+      <div class="wrap-row mt-4">
+        ${podeVer && t.drive && !(t.midias || []).length ? `<a class="btn btn-ghost" href="${esc(t.drive)}" target="_blank" rel="noopener"><i class="fa-brands fa-google-drive"></i> Ver material</a>` : ''}
+        ${e === 'aprovar' ? `<button class="btn btn-white" data-ok="${esc(t.id)}"><i class="fa-solid fa-check"></i> Aprovar</button><button class="btn btn-ghost" data-adj="${esc(t.id)}"><i class="fa-solid fa-pen"></i> Pedir ajuste</button>` : ''}
+        ${e === 'aprovado' ? '<span class="small muted"><i class="fa-solid fa-circle-check"></i> Aprovado</span>' : ''}
+        ${e === 'postado' ? '<span class="small muted"><i class="fa-solid fa-paper-plane"></i> Já postado</span>' : ''}
+      </div>`;
+  }
+  function ligar(root, aoMudar) {
+    UI.ativarCarrosseis(root);
+    root.querySelectorAll('[data-mais]').forEach(b => b.onclick = () => { const p = b.previousElementSibling; p.classList.toggle('open'); b.textContent = p.classList.contains('open') ? 'Ver menos' : 'Ver tudo'; });
+    root.querySelectorAll('[data-ok]').forEach(b => b.onclick = () => aprovar(b.dataset.ok, aoMudar));
+    root.querySelectorAll('[data-adj]').forEach(b => b.onclick = () => ajuste(b.dataset.adj, aoMudar));
+  }
+
+  function renderAprovar(arr) {
+    $('lista').innerHTML = arr.map(t => `<article class="card card-lg">
+        <div class="row-between" style="align-items:flex-start"><div style="min-width:0"><div class="small muted">${esc(t.type || 'Conteúdo')}${t.date ? ' · ' + UI.diaSemana(t.date) + ', ' + UI.dataBR(t.date) : ''}</div><h2 class="h2 mt-1">${esc(T.titulo(t))}</h2></div><span class="pill pill-accent" style="flex-shrink:0">Para aprovar</span></div>
+        ${corpo(t, true)}
+      </article>`).join('') || '<div class="card empty"><i class="fa-solid fa-mug-hot"></i>Nada para aprovar agora.<br><button class="btn btn-white btn-sm mt-3" data-ir-cal>Ver o calendário da semana</button></div>';
+    const ir = $('lista').querySelector('[data-ir-cal]'); if (ir) ir.onclick = () => { aba = 'cal'; render(); };
+    ligar($('lista'), render);
+  }
+
+  function renderCal(all) {
+    const fim = UI.addDias(semana, 6);
+    const f = iso => new Date(iso + 'T12:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }).replace('.', '');
+    $('semana-txt').textContent = `${f(semana)} – ${f(fim)}`;
+    $('legenda').innerHTML = Object.values(EST).map(x => `<span class="lg" style="--c:${x.c}"><i></i>${x.l}</span>`).join('');
+    const hoje = UI.hoje();
+    let html = '';
+    for (let i = 0; i < 7; i++) {
+      const d = UI.addDias(semana, i);
+      const doDia = all.filter(t => t.date === d).sort((a, b) => (T.hora(a) || '99').localeCompare(T.hora(b) || '99'));
+      html += `<div class="card dia ${d === hoje ? 'hoje' : ''} ${doDia.length ? '' : 'vazio'}">
+        <div class="dia-h"><span class="n">${d.slice(8, 10)}</span><span class="w">${UI.diaSemana(d)}${d === hoje ? ' · hoje' : ''}</span></div>
+        ${doDia.map(t => { const e = estado(t); const capa = e !== 'producao' ? UI.capaUrl(t) : ''; return `<button class="ci" style="--c:${EST[e].c}" data-ver="${esc(t.id)}">${capa ? `<img src="${capa}" alt="" loading="lazy" onerror="this.remove()">` : ''}<div class="t">${esc(T.titulo(t))}</div><div class="s">${esc([T.hora(t), t.type].filter(Boolean).join(' · '))}</div><div class="mt-2"><span class="pill ${EST[e].pill}" style="font-size:11px">${EST[e].l}</span></div></button>`; }).join('') || '<div class="tiny muted">Sem conteúdo</div>'}
+      </div>`;
+    }
+    $('semana').innerHTML = html;
+    $('semana').querySelectorAll('[data-ver]').forEach(b => b.onclick = () => detalhe(b.dataset.ver));
+  }
+
+  function detalhe(id) {
+    const t = DB.get('tasks', id); if (!t) return;
+    const e = estado(t);
+    const s = UI.sheet({ title: esc(T.titulo(t)), wide: true, html: `<div class="row" style="flex-wrap:wrap"><span class="pill ${EST[e].pill}">${EST[e].l}</span>${t.type ? `<span class="pill">${esc(t.type)}</span>` : ''}${t.date ? `<span class="pill"><i class="fa-regular fa-calendar"></i>${UI.diaSemana(t.date)}, ${UI.dataBR(t.date)}</span>` : ''}</div>${corpo(t, false)}` });
+    ligar(s.el, () => { s.close(); render(); });
+  }
 
   function render() {
     const all = conteudos();
+    const para = all.filter(t => estado(t) === 'aprovar').sort((a, b) => (a.date || '9').localeCompare(b.date || '9'));
     const cont = k => all.filter(t => estado(t) === k).length;
-    $('kpis').innerHTML = ['aprovar', 'ajuste', 'aprovado', 'producao'].map(k => `<div class="card stat"><span class="label">${LABEL[k]}</span><span class="value">${cont(k)}</span></div>`).join('');
-    if (filtro === 'aprovar' && !cont('aprovar')) filtro = 'todos';
-    $('filtro').innerHTML = [['aprovar', 'Para aprovar'], ['ajuste', 'Ajustes'], ['aprovado', 'Aprovados'], ['todos', 'Todos']].map(([k, l]) => `<button data-f="${k}" class="${k === filtro ? 'on' : ''}">${l}<span class="count">${k === 'todos' ? all.length : cont(k)}</span></button>`).join('');
-    $('filtro').querySelectorAll('button').forEach(b => b.onclick = () => { filtro = b.dataset.f; render(); });
-    const arr = all.filter(t => filtro === 'todos' || estado(t) === filtro).sort((a, b) => (a.date || '9').localeCompare(b.date || '9'));
-    $('lista').innerHTML = arr.map(t => {
-      const e = estado(t);
-      const pill = { aprovar: 'pill-accent', ajuste: 'pill-danger', aprovado: 'pill-ok', producao: '' }[e];
-      return `<article class="card card-lg">
-        <div class="row-between" style="align-items:flex-start"><div style="min-width:0"><div class="small muted">${esc(t.type || 'Conteúdo')}${t.date ? ' · ' + UI.dataBR(t.date) : ''}</div><h2 class="h2 mt-1">${esc(T.titulo(t))}</h2></div><span class="pill ${pill}" style="flex-shrink:0">${LABEL[e]}</span></div>
-        ${(t.midias || []).length ? `<div class="mt-3">${UI.carrossel(t.midias)}</div>${t.midias.length > 1 ? '<p class="tiny muted center mt-2"><i class="fa-solid fa-hand-pointer"></i> Arraste para o lado para ver todos</p>' : ''}` : ''}
-        ${t.legenda || t.caption ? `<div class="eyebrow mt-4 mb-2">Legenda</div><div class="preview" data-prev>${esc(t.legenda || t.caption)}</div><button class="btn btn-ghost btn-sm mt-2" data-mais>Ver tudo</button>` : ''}
-        ${!(t.midias || []).length && t.roteiro ? `<div class="eyebrow mt-4 mb-2">Roteiro</div><div class="preview" data-prev>${esc(t.roteiro)}</div><button class="btn btn-ghost btn-sm mt-2" data-mais>Ver tudo</button>` : ''}
-        ${e === 'ajuste' && t.notes ? `<div class="card card-tight mt-3 small" style="border-color:rgba(255,90,110,.4)"><b>Seu pedido:</b> ${esc(String(t.notes).replace(/^Reprovado pelo cliente:\s*/, ''))}</div>` : ''}
-        <div class="wrap-row mt-4">
-          ${t.drive && !(t.midias || []).length ? `<a class="btn btn-ghost" href="${esc(t.drive)}" target="_blank" rel="noopener"><i class="fa-brands fa-google-drive"></i> Ver material</a>` : ''}
-          ${e !== 'aprovado' ? `<button class="btn btn-white" data-ok="${esc(t.id)}"><i class="fa-solid fa-check"></i> Aprovar</button><button class="btn btn-ghost" data-adj="${esc(t.id)}"><i class="fa-solid fa-pen"></i> Pedir ajuste</button>` : '<span class="small muted"><i class="fa-solid fa-circle-check"></i> Aprovado</span>'}
-        </div>
-      </article>`;
-    }).join('') || '<div class="card empty"><i class="fa-solid fa-mug-hot"></i>Nada por aqui no momento.</div>';
-    UI.ativarCarrosseis($('lista'));
-    $('lista').querySelectorAll('[data-mais]').forEach(b => b.onclick = () => { const p = b.previousElementSibling; p.classList.toggle('open'); b.textContent = p.classList.contains('open') ? 'Ver menos' : 'Ver tudo'; });
-    $('lista').querySelectorAll('[data-ok]').forEach(b => b.onclick = () => aprovar(b.dataset.ok));
-    $('lista').querySelectorAll('[data-adj]').forEach(b => b.onclick = () => ajuste(b.dataset.adj));
+    $('kpis').innerHTML = [['aprovar', para.length], ['ajuste', cont('ajuste')], ['aprovado', cont('aprovado')], ['postado', cont('postado')]].map(([k, n]) => `<div class="card stat"><span class="label">${EST[k].l}</span><span class="value">${n}</span></div>`).join('');
+    if (!aba) aba = para.length ? 'aprovar' : 'cal';
+    $('abas').innerHTML = `<button data-a="aprovar" class="${aba === 'aprovar' ? 'on' : ''}"><i class="fa-solid fa-check"></i>Para aprovar<span class="count">${para.length}</span></button><button data-a="cal" class="${aba === 'cal' ? 'on' : ''}"><i class="fa-regular fa-calendar"></i>Calendário</button>`;
+    $('abas').querySelectorAll('button').forEach(b => b.onclick = () => { aba = b.dataset.a; render(); });
+    $('v-aprovar').classList.toggle('hidden', aba !== 'aprovar');
+    $('v-cal').classList.toggle('hidden', aba !== 'cal');
+    if (aba === 'aprovar') renderAprovar(para); else renderCal(all);
   }
+  $('sem-ant').onclick = () => { semana = UI.addDias(semana, -7); render(); };
+  $('sem-prox').onclick = () => { semana = UI.addDias(semana, 7); render(); };
+  $('sem-hoje').onclick = () => { semana = inicioSemana(UI.hoje()); render(); };
 
-  async function aprovar(id) {
+  async function aprovar(id, depois) {
     const t = DB.get('tasks', id); if (!t) return;
     t.status = 'aprovadas'; t.isRejected = false;
     DB.put('tasks', t); await DB.flush();
-    render(); App.toast('Conteúdo aprovado. Obrigado!', 'ok');
+    (depois || render)(); App.toast('Conteúdo aprovado. Obrigado!', 'ok');
   }
-  function ajuste(id) {
+  function ajuste(id, depois) {
     const t = DB.get('tasks', id); if (!t) return;
     const s = UI.sheet({ title: 'Pedir ajuste', html: `<p class="small soft">${esc(T.titulo(t))}</p><label class="field mt-3"><span>O que você quer mudar?</span><textarea class="textarea" id="m" rows="5" placeholder="Ex.: trocar a foto da capa, deixar o texto mais curto…"></textarea></label>`, foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-white" id="ok">Enviar pedido</button>' });
     s.$('#ok').onclick = async () => {
       const m = s.$('#m').value.trim(); if (!m) { App.toast('Escreva o que precisa mudar.', 'warn'); return; }
       t.status = 'urgent'; t.isRejected = true; t.notes = 'Reprovado pelo cliente: ' + m;
       DB.put('tasks', t); await DB.flush();
-      s.close(); render(); App.toast('Pedido de ajuste enviado.', 'ok');
+      s.close(); (depois || render)(); App.toast('Pedido de ajuste enviado.', 'ok');
     };
   }
   render();

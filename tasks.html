@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Plassô | Tasks</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="assets/ui.css?v=8">
+<link rel="stylesheet" href="assets/ui.css?v=9">
 </head>
 <body data-theme="empresa">
 <div class="wrap">
@@ -46,7 +46,7 @@
     <div id="lista" class="stack"></div>
   </div>
   <!-- desktop: quadro -->
-  <div class="board" id="board" style="--cols:4"></div>
+  <div class="board" id="board" style="--cols:5"></div>
 </div>
 
 <style>
@@ -54,10 +54,10 @@
   @media (min-width: 900px) { #board { display: grid; } .md-hide-board { display: none; } }
 </style>
 
-<script src="assets/config.js?v=8"></script>
-<script src="assets/core.js?v=8" data-mode="app"></script>
-<script src="assets/ui.js?v=8"></script>
-<script src="assets/empresa.js?v=8"></script>
+<script src="assets/config.js?v=9"></script>
+<script src="assets/core.js?v=9" data-mode="app"></script>
+<script src="assets/ui.js?v=9"></script>
+<script src="assets/empresa.js?v=9"></script>
 <script type="text/plain" data-app>
   UI.mount({ tab: 'empresa', sub: 'tasks' });
   const { esc, T, STATUS } = UI;
@@ -76,17 +76,17 @@
     const nomes = [...new Set(T.conteudos().map(t => t.client).filter(Boolean))].sort((a, b) => a.localeCompare(b));
     $('f-cliente').innerHTML = `<option value="">Todos os clientes</option>` + nomes.map(n => `<option ${n === cliente ? 'selected' : ''}>${esc(n)}</option>`).join('');
     const base = filtrados();
-    const cont = id => id === 'ativos' ? base.filter(t => T.status(t) !== 'aprovadas').length : id === 'todos' ? base.length : base.filter(t => T.status(t) === id).length;
+    const cont = id => id === 'ativos' ? base.filter(t => !T.encerrado(t)).length : id === 'todos' ? base.length : base.filter(t => T.status(t) === id).length;
     const opts = [{ id: 'ativos', label: 'Em aberto' }, ...STATUS, { id: 'todos', label: 'Todos' }];
     $('f-status').innerHTML = opts.map(o => `<button data-s="${o.id}" class="${o.id === status ? 'on' : ''}">${o.label}<span class="count">${cont(o.id)}</span></button>`).join('');
     $('f-status').querySelectorAll('button').forEach(b => b.onclick = () => { status = b.dataset.s; render(); });
     const total = T.conteudos(), urg = total.filter(t => T.status(t) === 'urgent').length;
-    $('resumo').textContent = `${total.filter(t => T.status(t) !== 'aprovadas').length} em aberto · ${urg} urgente${urg !== 1 ? 's' : ''}`;
+    $('resumo').textContent = `${total.filter(t => !T.encerrado(t)).length} em aberto · ${urg} urgente${urg !== 1 ? 's' : ''}`;
   }
 
   function renderLista() {
     let arr = filtrados();
-    if (status === 'ativos') arr = arr.filter(t => T.status(t) !== 'aprovadas');
+    if (status === 'ativos') arr = arr.filter(t => !T.encerrado(t));
     else if (status !== 'todos') arr = arr.filter(t => T.status(t) === status);
     ordenar(arr);
     $('lista').innerHTML = arr.map(t => Empresa.card(t)).join('') || `<div class="card empty"><i class="fa-solid fa-list-check"></i>Nada aqui.<br><button class="btn btn-white btn-sm mt-3" onclick="novo()">Novo conteúdo</button></div>`;
@@ -95,7 +95,8 @@
   function renderBoard() {
     const base = filtrados();
     $('board').innerHTML = STATUS.map(s => {
-      const arr = ordenar(base.filter(t => T.status(t) === s.id));
+      let arr = ordenar(base.filter(t => T.status(t) === s.id));
+      if (s.id === 'postado') arr = arr.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
       return `<div class="col">
         <div class="col-head"><span class="h3">${s.label}</span><span class="pill ${s.pill}">${arr.length}</span></div>
         <div class="col-drop" data-col="${s.id}">${arr.map(t => Empresa.card(t).replace('<button ', '<button draggable="true" ')).join('') || '<div class="muted small center" style="padding:18px 6px">Arraste para cá</div>'}</div>
