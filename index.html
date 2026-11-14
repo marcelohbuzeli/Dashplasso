@@ -276,7 +276,7 @@
   // ---------- empresa ----------
   function tarefasEmpresa() {
     const t0 = hoje();
-    return T.conteudos().filter(t => !['pronto', 'aprovadas'].includes(T.status(t)) && !t.feitoNoModoTrabalho).map(t => {
+    return T.conteudos().filter(t => !['pronto', 'aprovadas', 'postado'].includes(T.status(t)) && !t.feitoNoModoTrabalho).map(t => {
       const st = T.status(t), d = t.date ? UI.dias(t0, t.date) : 99;
       let score = 20;
       if (t.isRejected) score = 100; else if (d < 0) score = 90; else if (d === 0) score = 85; else if (st === 'urgent') score = 80; else if (d <= 3) score = 40;
