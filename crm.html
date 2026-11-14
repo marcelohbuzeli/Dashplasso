@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="assets/ui.css?v=9">
 <style>
   #board { display: none; }
-  @media (min-width: 900px) { body.quadro #board { display: grid; } body.quadro #lista-wrap { display: none; } }
+  @media (min-width: 900px) { body.crm-quadro #board { display: grid; grid-template-columns: repeat(var(--cols, 7), minmax(250px, 1fr)); overflow-x: auto; padding-bottom: 10px; } body.crm-quadro #lista-wrap { display: none; } }
   .tier { font: 600 11px var(--mono); padding: 3px 8px; border-radius: 8px; border: 1px solid currentColor; flex-shrink: 0; }
   .tier.A { color: #6ee7b7; } .tier.B { color: #fcd34d; } .tier.C { color: #a8a29e; }
   .warm { color: #fda4af; }
@@ -92,7 +92,7 @@
   const PRODUTOS = ['Consultoria · R$ 3.000', 'Vídeos 1 · R$ 220', 'Vídeos 4 · R$ 800/mês', 'Vídeos 8 · R$ 1.400/mês', 'Vídeos 12 · R$ 1.800/mês', 'Vídeos 30 · R$ 2.200/mês', 'Design 01 · R$ 400/mês', 'Design 02 · R$ 800/mês', 'Design 03 · R$ 1.200/mês', 'Vídeos 4 + Design 01 · R$ 1.200/mês', 'Vídeos 8 + Design 02 · R$ 2.200/mês', 'Vídeos 12 + Design 03 · R$ 3.000/mês', 'Gerenciamento · a partir de R$ 9.000', 'Ilha de link · R$ 250 + custos'];
   let etapa = new URLSearchParams(location.search).get('etapa') || 'novo', vista = 'pipe', limite = 30;
   let busca = '', fTier = '', fSeg = '', fOrd = 'score';
-  try { if (localStorage.getItem('crm_modo') === 'quadro') document.body.classList.add('quadro'); } catch (e) {}
+  try { if (localStorage.getItem('crm_modo') === 'quadro') document.body.classList.add('crm-quadro'); } catch (e) {}
 
   const agoraISO = () => new Date().toISOString();
   const hist = (l, txt) => { l.historyArray = l.historyArray || []; l.historyArray.push(`${new Date().toLocaleDateString('pt-BR')} — ${txt}`); };
@@ -320,9 +320,9 @@
   };
 
   // ---------- eventos ----------
-  function setModo(m) { document.body.classList.toggle('quadro', m === 'quadro'); try { localStorage.setItem('crm_modo', m); } catch (e) {} document.querySelectorAll('#modo button').forEach(x => x.classList.toggle('on', x.dataset.m === m)); renderPipe(); }
+  function setModo(m) { document.body.classList.toggle('crm-quadro', m === 'quadro'); try { localStorage.setItem('crm_modo', m); } catch (e) {} document.querySelectorAll('#modo button').forEach(x => x.classList.toggle('on', x.dataset.m === m)); renderPipe(); }
   document.querySelectorAll('#modo button').forEach(b => b.onclick = () => setModo(b.dataset.m));
-  document.querySelectorAll('#modo button').forEach(x => x.classList.toggle('on', x.dataset.m === (document.body.classList.contains('quadro') ? 'quadro' : 'lista')));
+  document.querySelectorAll('#modo button').forEach(x => x.classList.toggle('on', x.dataset.m === (document.body.classList.contains('crm-quadro') ? 'quadro' : 'lista')));
   document.querySelectorAll('#vista button').forEach(b => b.onclick = () => { vista = b.dataset.v; document.querySelectorAll('#vista button').forEach(x => x.classList.toggle('on', x === b)); ['pipe', 'ganhos', 'perdidos'].forEach(v => $('v-' + v).classList.toggle('hidden', v !== vista)); });
   $('busca').addEventListener('input', e => { busca = e.target.value.toLowerCase().trim(); limite = 30; renderPipe(); });
   $('f-tier').addEventListener('change', e => { fTier = e.target.value; limite = 30; renderPipe(); });
