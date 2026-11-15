@@ -10,6 +10,40 @@
 <title>Plassô | Clientes</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="assets/ui.css?v=9">
+<style>
+  /* calendário de conteúdos do cliente (estilo Notion) */
+  @media (min-width: 768px) { .sheet.wide:has([data-p="conteudos"]:not(.hidden)) { max-width: min(1240px, 96vw); } }
+  .ccal-head { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: 6px; }
+  .ccal-head span { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.45); padding: 0 6px; }
+  .ccal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+  .ccal-day { min-height: 118px; border: 1px solid var(--line); border-radius: 14px; padding: 6px; display: flex; flex-direction: column; gap: 5px; background: rgba(255,255,255,.02); min-width: 0; }
+  .ccal-day.fora { opacity: .35; background: transparent; }
+  .ccal-day.hoje { border-color: color-mix(in srgb, var(--accent) 70%, transparent); }
+  .ccal-num { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,.6); padding: 0 2px; min-height: 20px; }
+  .ccal-num b { font-weight: 500; }
+  .ccal-day.hoje .ccal-num b { background: var(--accent); color: var(--on-accent, #fff); border-radius: 999px; padding: 1px 7px; }
+  .ccal-add { border: 0; background: none; color: inherit; opacity: 0; padding: 0 4px; font-size: 12px; cursor: pointer; }
+  .ccal-day:hover .ccal-add, .ccal-add:focus-visible { opacity: .8; }
+  .ccard { display: flex; gap: 7px; align-items: center; width: 100%; text-align: left; padding: 5px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,255,255,.06); font: inherit; color: inherit; cursor: pointer; min-width: 0; }
+  .ccard:hover { border-color: var(--line-2); background: rgba(255,255,255,.1); }
+  .ccard.rejeitado { border-color: rgba(255,90,110,.6); }
+  .ccard-thumb { flex: 0 0 34px; height: 42px; border-radius: 7px; overflow: hidden; background: rgba(255,255,255,.06); display: grid; place-items: center; color: rgba(255,255,255,.45); font-size: 13px; }
+  .ccard-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ccard-txt { min-width: 0; flex: 1; display: block; }
+  .ccard-t { font-size: 12px; font-weight: 500; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .ccard-s { font-size: 10.5px; color: rgba(255,255,255,.55); margin-top: 3px; display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+  .ccard-s .pill { font-size: 10px; padding: 1px 6px; }
+  .ccal-lbl { display: none; }
+  @media (max-width: 767px) {
+    .ccal-head { display: none; }
+    .ccal-grid { display: flex; flex-direction: column; }
+    .ccal-day { min-height: 0; }
+    .ccal-day.vazio, .ccal-day.fora { display: none; }
+    .ccal-num b { display: none; }
+    .ccal-lbl { display: inline; }
+    .ccal-add { opacity: .8; }
+  }
+</style>
 </head>
 <body data-theme="empresa">
 <div class="wrap">
@@ -135,11 +169,17 @@
         </div>
 
         <div data-p="conteudos" class="hidden">
+          <div class="row-between mb-2" style="flex-wrap:wrap;gap:10px">
+            <div class="row" style="gap:6px"><button class="chip-btn" data-mes="-1" aria-label="Mês anterior"><i class="fa-solid fa-chevron-left"></i></button><span class="h3" data-mes-nome style="min-width:160px;text-align:center"></span><button class="chip-btn" data-mes="1" aria-label="Próximo mês"><i class="fa-solid fa-chevron-right"></i></button><button class="btn btn-ghost btn-sm" data-mes="0">Mês atual</button></div>
+            <div class="seg" data-vis><button data-v="cal" class="on"><i class="fa-regular fa-calendar"></i>Calendário</button><button data-v="gal"><i class="fa-solid fa-table-cells-large"></i>Galeria</button></div>
+          </div>
+          <div class="small muted mb-3" data-mes-resumo></div>
           <div class="row-between mb-3" style="flex-wrap:wrap">
             <div class="seg" data-gfil><button data-g="todos" class="on">Todos</button><button data-g="ajuste">Ajustes</button><button data-g="pronto">Com o cliente</button><button data-g="aprovadas">Aprovados</button></div>
             <div class="row"><a class="btn btn-ghost btn-sm" href="${UI.keepParams('aprovacao.html?cliente=' + encodeURIComponent(c.name))}"><i class="fa-solid fa-circle-check"></i> Central</a><button class="btn btn-white btn-sm" data-act="novo-conteudo"><i class="fa-solid fa-plus"></i> Conteúdo</button></div>
           </div>
-          <div class="galeria" data-galeria></div>
+          <div data-cal></div>
+          <div class="galeria hidden" data-galeria></div>
         </div>
 
         <div data-p="financeiro" class="hidden">
@@ -161,12 +201,61 @@
         <div class="q-top"><span class="pill ${t.isRejected ? 'pill-danger' : st.pill}">${t.isRejected ? 'Ajuste' : st.label}</span>${n > 1 ? `<span class="pill"><i class="fa-solid fa-clone"></i>${n}</span>` : ''}</div>
         <div class="q-info"><div class="t">${esc(T.titulo(t))}</div><div class="s">${esc([t.type, t.date ? UI.diaMes(t.date) : ''].filter(Boolean).join(' · '))}</div></div></button>`;
     };
-    let gfil = 'todos';
-    const drawGal = () => {
-      const arr = ts.filter(t => gfil === 'todos' || (gfil === 'ajuste' ? t.isRejected : !t.isRejected && T.status(t) === gfil));
-      s.$('[data-galeria]').innerHTML = arr.map(quadro).join('') || '<div class="empty" style="grid-column:1/-1">Nenhum conteúdo aqui.</div>';
-      s.$$('[data-q]').forEach(b => b.onclick = () => Empresa.preview(b.dataset.q, () => { s.close(); render(); abrirCliente(id); }));
+    let gfil = 'todos', cmes = mes, vis = 'cal';
+    try { vis = localStorage.getItem('cli_conteudos_vis') === 'gal' ? 'gal' : 'cal'; } catch (e) {}
+    const reabrir = () => { s.close(); render(); abrirCliente(id); };
+    const icone = t => /carrossel/i.test(t.type || '') ? 'fa-images' : /reels|v[ií]deo/i.test(t.type || '') ? 'fa-film' : 'fa-image';
+    const passaFiltro = t => gfil === 'todos' || (gfil === 'ajuste' ? t.isRejected : !t.isRejected && T.status(t) === gfil);
+    // card horizontal do calendário: miniatura + headline + tipo/data + status
+    const ccard = t => {
+      const st = T.statusInfo(T.status(t)); const capa = UI.capaUrl(t);
+      return `<button class="ccard ${t.isRejected ? 'rejeitado' : ''}" data-q="${esc(t.id)}" title="${esc(T.titulo(t))}">
+        <span class="ccard-thumb">${capa ? `<img src="${capa}" alt="" loading="lazy" onerror="this.remove()">` : `<i class="fa-solid ${icone(t)}"></i>`}</span>
+        <span class="ccard-txt"><span class="ccard-t">${esc(T.titulo(t))}</span>
+          <span class="ccard-s">${esc([t.type, t.date ? UI.diaMes(t.date) : ''].filter(Boolean).join(' · '))}<span class="pill ${t.isRejected ? 'pill-danger' : st.pill}">${t.isRejected ? 'Ajuste' : st.label}</span></span></span>
+      </button>`;
     };
+    const desenharCal = arr => {
+      const [y, m] = cmes.split('-').map(Number);
+      const offset = new Date(y, m - 1, 1).getDay();
+      const total = Math.ceil((offset + new Date(y, m, 0).getDate()) / 7) * 7;
+      const porDia = {}; arr.forEach(t => { (porDia[t.date] = porDia[t.date] || []).push(t); });
+      const hoje = UI.hoje();
+      let html = '<div class="ccal-head">' + ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(d => `<span>${d}</span>`).join('') + '</div><div class="ccal-grid">';
+      for (let i = 0; i < total; i++) {
+        const d = new Date(y, m - 1, 1 - offset + i), iso = d.toLocaleDateString('sv-SE'), fora = iso.slice(0, 7) !== cmes;
+        const itens = fora ? [] : (porDia[iso] || []);
+        html += `<div class="ccal-day ${fora ? 'fora' : ''} ${iso === hoje ? 'hoje' : ''} ${itens.length ? '' : 'vazio'}">
+          <div class="ccal-num"><b>${d.getDate()}</b><span class="ccal-lbl">${UI.diaSemana(iso)}, ${UI.diaMes(iso)}</span>${fora ? '' : `<button class="ccal-add" data-novo="${iso}" aria-label="Novo conteúdo em ${UI.diaMes(iso)}"><i class="fa-solid fa-plus"></i></button>`}</div>
+          ${itens.map(ccard).join('')}</div>`;
+      }
+      html += '</div>';
+      if (!arr.length) html += '<div class="empty mt-3">Nenhum conteúdo neste mês com esse filtro.</div>';
+      const semData = ts.filter(t => !t.date && passaFiltro(t));
+      if (semData.length) html += `<div class="h3 mt-4 mb-2" style="font-size:14px">Sem data <span class="muted">(${semData.length})</span></div><div class="grid md-g-2 lg-g-3" style="gap:6px">${semData.map(ccard).join('')}</div>`;
+      return html;
+    };
+    const drawGal = () => {
+      const doM = ts.filter(t => (t.date || '').startsWith(cmes));
+      const arr = doM.filter(passaFiltro);
+      const meta = Number(c.quantidadeMes) || 0;
+      const prontos = doM.filter(t => ['pronto', 'aprovadas', 'postado'].includes(T.status(t))).length;
+      s.$('[data-mes-nome]').textContent = UI.mesNome(cmes);
+      s.$('[data-mes-resumo]').textContent = `${doM.length} conteúdo${doM.length !== 1 ? 's' : ''} criado${doM.length !== 1 ? 's' : ''} no mês${meta ? ` de ${meta} do contrato` + (meta > doM.length ? ` (faltam ${meta - doM.length})` : '') : ''} · ${prontos} já pronto${prontos !== 1 ? 's' : ''}, aprovado${prontos !== 1 ? 's' : ''} ou postado${prontos !== 1 ? 's' : ''}`;
+      s.$$('[data-vis] button').forEach(x => x.classList.toggle('on', x.dataset.v === vis));
+      s.$('[data-cal]').classList.toggle('hidden', vis !== 'cal');
+      s.$('[data-galeria]').classList.toggle('hidden', vis !== 'gal');
+      if (vis === 'cal') s.$('[data-cal]').innerHTML = desenharCal(arr);
+      else s.$('[data-galeria]').innerHTML = arr.map(quadro).join('') || '<div class="empty" style="grid-column:1/-1">Nenhum conteúdo neste mês.</div>';
+      s.$$('[data-q]').forEach(b => b.onclick = () => Empresa.preview(b.dataset.q, reabrir));
+      s.$$('[data-novo]').forEach(b => b.onclick = () => Empresa.editarConteudo(null, { client: c.name, date: b.dataset.novo }, reabrir));
+    };
+    s.$$('[data-mes]').forEach(b => b.onclick = () => {
+      const n = Number(b.dataset.mes);
+      if (!n) cmes = mes; else { const [y, m] = cmes.split('-').map(Number); cmes = new Date(y, m - 1 + n, 1).toLocaleDateString('sv-SE').slice(0, 7); }
+      drawGal();
+    });
+    s.$$('[data-vis] button').forEach(b => b.onclick = () => { vis = b.dataset.v; try { localStorage.setItem('cli_conteudos_vis', vis); } catch (e) {} drawGal(); });
     s.$$('[data-gfil] button').forEach(b => b.onclick = () => { gfil = b.dataset.g; s.$$('[data-gfil] button').forEach(x => x.classList.toggle('on', x === b)); drawGal(); });
     drawGal();
 
