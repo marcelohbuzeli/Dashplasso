@@ -1,5 +1,8 @@
 # Atalho do iPhone: lançar compras automaticamente
 
+> **Novo (recomendado):** lançar direto no banco, sem abrir a página e sem problema de link cortado.
+> Veja `APPLE-WATCH.md`, parte 4. Este guia continua valendo para quem quer conferir antes de salvar.
+
 O iPhone tem uma automação chamada **Transação**. Ela dispara quando você paga com **Apple Pay** usando um cartão da Carteira e entrega ao atalho o **nome do estabelecimento**, o **valor** e o **cartão**.
 
 > **Limite:** só funciona com Apple Pay (aproximação no celular ou relógio, ou Apple Pay em sites e apps).
@@ -27,9 +30,14 @@ O endereço do seu sistema aparece abaixo como `SEU-SITE`. Se ele estiver no Git
 
 | # | Ação | Configuração |
 |---|------|--------------|
-| 1 | **Codificar URL** | Entrada: variável **Entrada do Atalho → Comerciante** |
-| 2 | **Texto** | `SEU-SITE/lancar.html?empresa=` + *(resultado da ação 1)* + `&valor=` + *(Entrada do Atalho → Valor)* + `&cartao=` + *(Entrada do Atalho → Cartão ou Nome)* |
-| 3 | **Abrir URLs** | Entrada: o *Texto* da ação 2 |
+| 1 | **Codificar URL** | Entrada: **Entrada do Atalho → Comerciante**. Renomeie o resultado para **Empresa** |
+| 2 | **Codificar URL** | Entrada: **Entrada do Atalho → Valor**. Renomeie para **Valor** |
+| 3 | **Codificar URL** | Entrada: **Entrada do Atalho → Cartão ou Passe**. Renomeie para **Cartao** |
+| 4 | **Texto** | `SEU-SITE/lancar.html?empresa=` **Empresa** `&valor=` **Valor** `&cartao=` **Cartao** (sem espaços no texto) |
+| 5 | **Abrir URLs** | Entrada: o *Texto* da ação 4 |
+
+> **Importante:** as três variáveis precisam passar pelo *Codificar URL*. O valor chega como `R$ 23,50`, com espaço,
+> e o iPhone corta o link no primeiro espaço. Era por isso que a tela abria sem nada preenchido.
 
 **Como funciona:** ao pagar, abre a tela de lançamento já preenchida com empresa, valor e cartão. A categoria é sugerida automaticamente quando você já comprou naquela empresa antes. Confira e toque em **Lançar**.
 
