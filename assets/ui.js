@@ -170,7 +170,7 @@
       return t.status === 'urgent' && !t.date ? 'urgent' : 'afazer';
     },
     // conteúdo completo = tem o link do Drive com a versão final (só esses vão para o cliente aprovar)
-    completo(t) { return !!(String(t.drive || '').trim() || (t.midias || []).length); },
+    completo(t) { return !!(linkOk(t.drive) || (t.midias || []).length); },
     // está com o cliente para aprovar agora
     paraCliente(t) { return T.status(t) === 'pronto' && !t.isRejected && T.completo(t); },
     encerrado(t) { const s = T.status(t); return s === 'aprovadas' || s === 'postado'; },
@@ -209,6 +209,18 @@
     return out;
   }
 
+  // ---------- link do Drive ----------
+  // só vale o link do navegador (https://drive.google.com/...). O caminho da pasta no computador
+  // (/Users/.../Google Drive/...) só existe no seu Mac: não abre no navegador nem para o cliente.
+  const linkOk = v => /^https?:\/\/\S+$/i.test(String(v || '').trim());
+  const linkProblema = v => {
+    const s = String(v || '').trim();
+    if (!s || linkOk(s)) return '';
+    if (/^(\/|~|[a-z]:\\|file:)/i.test(s) || /GoogleDrive|Google Drive|Meu Drive|My Drive|CloudStorage/i.test(s))
+      return 'Isso é o caminho da pasta no seu computador, não abre no navegador. Abra drive.google.com, clique com o botão direito na pasta > Compartilhar > Copiar link e cole aqui.';
+    return 'Cole o link completo, começando com https:// (no Drive: botão direito na pasta > Compartilhar > Copiar link).';
+  };
+
   // ---------- mídia do Google Drive ----------
   const DEMO_MIDIAS = [ // só no modo de teste local (pasta pública de exemplo)
     { id: '16olTbbGOLaJUwua2c_QZhGn1o5U6Fp0F', nome: 'lamina-01.png', tipo: 'imagem' },
@@ -217,6 +229,7 @@
     { id: 'demo-video', nome: 'reels-final.mp4', tipo: 'video' }
   ];
   async function driveBuscar(url) {
+    if (linkProblema(url)) throw new Error(linkProblema(url));
     if (!url || !/drive\.google\.com|docs\.google\.com/.test(url)) throw new Error('Cole um link do Google Drive.');
     try {
       const out = await chamarFuncao('drive-midia', { url });
@@ -416,5 +429,5 @@
     };
   }
 
-  window.UI = { mount, sheet, menu, trocarSenha, chamarFuncao, driveBuscar, carrossel, ativarCarrosseis, capaUrl, midiaImg, agenda, formData, esc, keepParams, TABS, hoje, agoraHM, brl, brlParts, dataBR, diaMes, dias, addDias, mesNome, diaSemana, quando, saudacao, iniciais, STATUS, FORMATOS, T };
+  window.UI = { mount, sheet, menu, trocarSenha, chamarFuncao, driveBuscar, linkOk, linkProblema, carrossel, ativarCarrosseis, capaUrl, midiaImg, agenda, formData, esc, keepParams, TABS, hoje, agoraHM, brl, brlParts, dataBR, diaMes, dias, addDias, mesNome, diaSemana, quando, saudacao, iniciais, STATUS, FORMATOS, T };
 })();

@@ -388,6 +388,9 @@ button.card { font: inherit; }
 
 /* ---------- carrossel de mídia (Drive) ---------- */
 .carousel { position: relative; border-radius: 20px; overflow: hidden; background: #050507; border: 1px solid var(--line); }
+/* tamanho de post do Instagram (468 px de largura no computador) e nunca mais alto que a tela */
+.carousel { width: 100%; margin-inline: auto; max-width: min(468px, max(260px, calc((100vh - 240px) * 4 / 5))); }
+@supports (height: 100dvh) { .carousel { max-width: min(468px, max(260px, calc((100dvh - 240px) * 4 / 5))); } }
 .car-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .car-track::-webkit-scrollbar { display: none; }
 .car-slide { flex: 0 0 100%; scroll-snap-align: center; aspect-ratio: var(--ratio, 4/5); display: grid; place-items: center; background: #050507; position: relative; }
