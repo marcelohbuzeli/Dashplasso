@@ -23,7 +23,8 @@ Carteira do iPhone (Apple Pay) ──► lancar.html ──► Financeiro
 
 1. [`docs/CONFIGURAR-BANCO.md`](docs/CONFIGURAR-BANCO.md): criar o banco gratuito e ligar o site a ele.
 2. [`docs/ATALHO-IPHONE.md`](docs/ATALHO-IPHONE.md): lançar compras do Apple Pay automaticamente.
-3. [`docs/AGENTE-CRIACAO.md`](docs/AGENTE-CRIACAO.md): publicar a função de IA que cria os conteúdos.
+3. [`docs/APPLE-WATCH.md`](docs/APPLE-WATCH.md): Modo Trabalho pelo Apple Watch e Apple Pay lançando direto no banco.
+4. [`docs/AGENTE-CRIACAO.md`](docs/AGENTE-CRIACAO.md): publicar a função de IA que cria os conteúdos.
 
 Sem o banco configurado, o sistema funciona em **modo local**: os dados ficam só neste navegador, como antes.
 
@@ -35,5 +36,5 @@ assets/core.js         login, sincronização com o banco, menu, backup
 assets/integracao.js   CRM → Gestão → Financeiro
 assets/financas.js     regras do financeiro (parcelas, previsão, categorias)
 supabase/schema.sql    tabela + regras de segurança (RLS) + funções do portal
-supabase/functions/    função de IA do agente de criação
+supabase/functions/    funções: agente de criação (IA), Drive, agenda e atalho (Apple Watch / Apple Pay)
 ```

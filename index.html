@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Plassô">
 <title>Plassô | Home</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="assets/ui.css?v=9">
+<link rel="stylesheet" href="assets/ui.css?v=10">
 <style>.btn-trabalho{width:100%;max-width:380px;height:60px;justify-content:space-between;padding:0 8px 0 24px;font-size:16px}.btn-trabalho .play-in{width:46px;height:46px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}</style>
 </head>
 <body data-theme="home">
@@ -133,10 +133,10 @@
   </section>
 </div>
 
-<script src="assets/config.js?v=9"></script>
-<script src="assets/core.js?v=9" data-mode="app"></script>
-<script src="assets/ui.js?v=9"></script>
-<script src="assets/financas.js?v=9"></script>
+<script src="assets/config.js?v=10"></script>
+<script src="assets/core.js?v=10" data-mode="app"></script>
+<script src="assets/ui.js?v=10"></script>
+<script src="assets/financas.js?v=10"></script>
 <script type="text/plain" data-app>
   UI.mount({ tab: 'home' });
   const { esc, T } = UI;
@@ -375,13 +375,34 @@
     const sess = { id: S.id, inicio: new Date(S.inicio).toISOString(), fim: new Date(fim).toISOString(), data: new Date(S.inicio).toLocaleDateString('sv-SE'), duracaoTotal: (fim - S.inicio) / 1000, itens: S.itens };
     DB.put('life_sessoes', sess);
     S = null; DB.setValue('life_sessao_ativa', null);
+    sairModo();
+    App.toast(`Sessão salva: ${fmtDur(sess.duracaoTotal)} · ${sess.itens.filter(i => i.concluido).length} tarefas concluídas`, 'ok');
+  }
+  function sairModo() {
     clearInterval(tick);
     document.body.classList.remove('work');
     document.querySelector('meta[name=theme-color]').setAttribute('content', '#100a07');
     $('work').classList.add('hidden'); $('normal').classList.remove('hidden');
     renderAll(); trocaTab('relatorio'); window.scrollTo(0, 0);
-    App.toast(`Sessão salva: ${fmtDur(sess.duracaoTotal)} · ${sess.itens.filter(i => i.concluido).length} tarefas concluídas`, 'ok');
   }
+  // o Apple Watch (Atalho) muda a sessão direto no banco: a página confere a cada 15 s e ao voltar para ela
+  let sincronizando = false;
+  async function sincronizar() {
+    if (sincronizando || document.hidden || document.querySelector('.sheet-backdrop, .sheet')) return;
+    sincronizando = true;
+    try {
+      if (!(await DB.reload(['life_sessao_ativa', 'life_sessoes', 'tasks', 'life_casa']))) return;
+      const novo = DB.getValue('life_sessao_ativa', null);
+      const estava = !!S;
+      S = novo && novo.inicio && Array.isArray(novo.itens) ? novo : null;
+      if (S && !estava) { renderAll(); entrarModo(); App.toast('Modo trabalho iniciado pelo relógio.', 'ok'); }
+      else if (!S && estava) { sairModo(); App.toast('Sessão encerrada pelo relógio.', 'ok'); }
+      else if (S) renderWork(); else renderAll();
+    } finally { sincronizando = false; }
+  }
+  document.addEventListener('visibilitychange', sincronizar);
+  window.addEventListener('focus', sincronizar);
+  setInterval(sincronizar, 15000);
   function renderTick() {
     if (!S) return;
     $('w-total').textContent = clock((agora() - S.inicio) / 1000);
