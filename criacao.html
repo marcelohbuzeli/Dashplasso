@@ -9,11 +9,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Plassô | Criação IA</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="assets/ui.css?v=10">
+<link rel="stylesheet" href="assets/ui.css?v=11">
 <style>#col-lista{order:2}#col-gerar{order:1}@media(min-width:1100px){#col-lista{order:1}#col-gerar{order:2;position:sticky;top:16px}}</style>
-<link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
-<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="icon" href="assets/icons/favicon-empresa.svg" type="image/svg+xml">
+<link rel="icon" href="assets/icons/favicon-empresa-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon-empresa.png">
 </head>
 <body data-theme="empresa">
 <div class="wrap">
@@ -64,7 +64,7 @@
 
 <script src="assets/config.js?v=10"></script>
 <script src="assets/core.js?v=10" data-mode="app"></script>
-<script src="assets/ui.js?v=10"></script>
+<script src="assets/ui.js?v=11"></script>
 <script type="text/plain" data-app>
   UI.mount({ tab: 'empresa', sub: 'criacao' });
   const { esc } = UI;
@@ -169,7 +169,7 @@
       <div class="form-grid">
         <label class="field full"><span>Legenda</span><textarea class="textarea" rows="4" onchange="campo('${x.id}','legenda',this.value)">${esc(x.legenda)}${x.hashtags && x.hashtags.length && !(x.legenda || '').includes('#') ? '\n\n' + esc(x.hashtags.map(h => h.startsWith('#') ? h : '#' + h).join(' ')) : ''}</textarea></label>
         <label class="field"><span>CTA</span><input class="input" value="${esc(x.cta)}" onchange="campo('${x.id}','cta',this.value)"></label>
-        <label class="field"><span>Pasta do Drive</span><input class="input" value="${esc(x.drive || '')}" onchange="campo('${x.id}','drive',this.value)" placeholder="https://drive.google.com/…"></label>
+        <label class="field"><span>Pasta do Drive</span><input class="input" value="${esc(x.drive || '')}" onchange="if (UI.linkProblema(this.value)) { App.toast(UI.linkProblema(this.value), 'warn'); return; } campo('${x.id}','drive',this.value)" placeholder="https://drive.google.com/…"></label>
         <label class="field full"><span>Orientações de gravação / design</span><textarea class="textarea" rows="2" onchange="campo('${x.id}','orientacoes',this.value)">${esc(x.orientacoes)}</textarea></label>
       </div>
       <div class="wrap-row">

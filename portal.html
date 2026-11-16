@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#060918">
 <title>Aprovação de conteúdos</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="assets/ui.css?v=10">
+<link rel="stylesheet" href="assets/ui.css?v=11">
 <style>
   .wrap { max-width: 860px; padding-bottom: calc(40px + var(--safe-b)); }
   .preview { white-space: pre-line; font-size: 14px; color: var(--ink-2); max-height: 7.5em; overflow: hidden; position: relative; }
@@ -30,9 +30,9 @@
   .lg { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,.05); }
   .lg i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); display: inline-block; }
 </style>
-<link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
-<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="icon" href="assets/icons/favicon-empresa.svg" type="image/svg+xml">
+<link rel="icon" href="assets/icons/favicon-empresa-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon-empresa.png">
 </head>
 <body data-theme="empresa">
 <div class="wrap">
@@ -62,7 +62,7 @@
 
 <script src="assets/config.js?v=10"></script>
 <script src="assets/core.js?v=10" data-mode="portal"></script>
-<script src="assets/ui.js?v=10"></script>
+<script src="assets/ui.js?v=11"></script>
 <script type="text/plain" data-app>
   const { esc, T } = UI;
   const $ = id => document.getElementById(id);
@@ -92,7 +92,7 @@
       ${e === 'producao' ? '<p class="small muted mt-3"><i class="fa-solid fa-clapperboard"></i> Em produção. Assim que a versão final estiver pronta, ela aparece aqui para você aprovar.</p>' : ''}
       ${e === 'ajuste' && t.notes ? `<div class="card card-tight mt-3 small" style="border-color:rgba(255,90,110,.4)"><b>Seu pedido:</b> ${esc(String(t.notes).replace(/^Reprovado pelo cliente:\s*/, ''))}</div>` : ''}
       <div class="wrap-row mt-4">
-        ${podeVer && t.drive && !(t.midias || []).length ? `<a class="btn btn-ghost" href="${esc(t.drive)}" target="_blank" rel="noopener"><i class="fa-brands fa-google-drive"></i> Ver material</a>` : ''}
+        ${podeVer && UI.linkOk(t.drive) && !(t.midias || []).length ? `<a class="btn btn-ghost" href="${esc(t.drive)}" target="_blank" rel="noopener"><i class="fa-brands fa-google-drive"></i> Ver material</a>` : ''}
         ${e === 'aprovar' ? `<button class="btn btn-white" data-ok="${esc(t.id)}"><i class="fa-solid fa-check"></i> Aprovar</button><button class="btn btn-ghost" data-adj="${esc(t.id)}"><i class="fa-solid fa-pen"></i> Pedir ajuste</button>` : ''}
         ${e === 'aprovado' ? '<span class="small muted"><i class="fa-solid fa-circle-check"></i> Aprovado</span>' : ''}
         ${e === 'postado' ? '<span class="small muted"><i class="fa-solid fa-paper-plane"></i> Já postado</span>' : ''}
