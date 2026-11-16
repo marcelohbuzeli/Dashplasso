@@ -47,9 +47,10 @@
       title: `Chamar o ${ag.nome}?`,
       html: `<div class="card card-tight"><div class="title">${esc(T.titulo(t))}</div><div class="small muted mt-2">${esc([t.client, t.type, t.date ? UI.dataBR(t.date) : ''].filter(Boolean).join(' · '))}</div></div>
         <p class="small soft mt-3">${esc(aviso)}</p>
+        <p class="small soft mt-2"><i class="fa-solid fa-images"></i> ${(t.referencias || []).length + Refs.links(t).length ? `Vai junto: ${(t.referencias || []).length} imagem(ns) e ${Refs.links(t).length} link(s) de referência.` : 'Sem referências visuais. Se quiser, adicione no conteúdo antes de chamar.'}</p>
         <label class="field mt-3"><span>Observações para o ${esc(ag.nome)} (opcional)</span>
           <textarea class="textarea" name="obs-agente" rows="4" placeholder="${k === 'editor' ? 'Ex.: sem motion; corte mais seco; usar a trilha da pasta' : 'Ex.: tudo com a fonte Montserrat; usar a foto 3 na capa'}">${esc(((t.agentes || {})[k] || {}).observacao || '')}</textarea></label>
-        <p class="small muted mt-2"><i class="fa-solid fa-circle-info"></i> O ${esc(ag.nome)} só começa depois que você confirmar. Ele recebe o formato, o link do Drive, o roteiro e estas observações.</p>`,
+        <p class="small muted mt-2"><i class="fa-solid fa-circle-info"></i> O ${esc(ag.nome)} só começa depois que você confirmar. Ele recebe o formato, o link do Drive, o roteiro, as referências e estas observações.</p>`,
       foot: `<button class="btn btn-ghost" data-nao>Cancelar</button><button class="btn btn-white" data-sim><i class="fa-solid ${ag.icon}"></i> Sim, chamar</button>`
     });
     s.$('[data-nao]').onclick = () => s.close();
@@ -60,11 +61,53 @@
       App.toast(`${ag.nome} chamado. O conteúdo entrou na fila.`, 'ok'); onDone && onDone(atual);
     };
   }
+  // ---------- referências visuais (imagens no Storage "referencias" + links) ----------
+  const REF_BUCKET = 'referencias';
+  const Refs = {
+    ok() { return !!(window.App && App.configured && App.supabase && App.user); },
+    // reduz para no máx. 1600 px e salva em JPEG (fotos do iPhone, PNG, HEIC, WebP)
+    async reduzir(file) {
+      const url = URL.createObjectURL(file);
+      try {
+        const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Não consegui ler ' + file.name)); i.src = url; });
+        const k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+        const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+        const blob = await new Promise(res => c.toBlob(res, 'image/jpeg', 0.86));
+        return { blob, w: c.width, h: c.height };
+      } finally { URL.revokeObjectURL(url); }
+    },
+    async enviar(file, taskId) {
+      if (!Refs.ok()) throw new Error('Envio de imagens só funciona com o banco ligado.');
+      const { blob, w, h } = await Refs.reduzir(file);
+      const path = `${App.user.id}/${String(taskId).replace(/[^\w-]/g, '_')}/${App.uid('r_')}.jpg`;
+      const { error } = await App.supabase.storage.from(REF_BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: false });
+      if (error) throw new Error(/bucket|not found/i.test(error.message) ? 'Falta criar o espaço "referencias" no Supabase (rode de novo o supabase/schema.sql).' : error.message);
+      return { path, nome: file.name, w, h, em: new Date().toISOString() };
+    },
+    async urls(paths, segundos = 3600) {
+      if (!Refs.ok() || !paths.length) return {};
+      const { data, error } = await App.supabase.storage.from(REF_BUCKET).createSignedUrls(paths, segundos);
+      if (error) return {};
+      return Object.fromEntries((data || []).filter(d => d.signedUrl).map(d => [d.path, d.signedUrl]));
+    },
+    async apagar(paths) { if (Refs.ok() && paths.length) await App.supabase.storage.from(REF_BUCKET).remove(paths); },
+    links: t => String(t.referenciasLinks || '').split(/\s+/).filter(x => /^https?:\/\//.test(x))
+  };
+
   // fila para os agentes (usada pelas tarefas agendadas do Claude no navegador do app)
   window.AGENTES_API = {
     fila(k) {
       return DB.list('tasks').filter(t => t.agentes && t.agentes[k] && t.agentes[k].status === 'na_fila')
-        .map(t => ({ id: t.id, cliente: t.client, titulo: T.titulo(t), headline: t.headline, formato: t.type, objetivo: t.objetivo || '', data: t.date, drive: t.drive || '', roteiro: t.roteiro || '', legenda: t.legenda || t.caption || '', observacoes: t.observacoes || '', observacaoAgente: t.agentes[k].observacao || '', pedidoEm: t.agentes[k].pedidoEm }));
+        .map(t => ({ id: t.id, cliente: t.client, titulo: T.titulo(t), headline: t.headline, formato: t.type, objetivo: t.objetivo || '', data: t.date, drive: t.drive || '', roteiro: t.roteiro || '', legenda: t.legenda || t.caption || '', observacoes: t.observacoes || '', observacaoAgente: t.agentes[k].observacao || '', pedidoEm: t.agentes[k].pedidoEm, referencias: (t.referencias || []).length, referenciasLinks: Refs.links(t) }));
+    },
+    // links temporários (válidos por 1 h) para baixar as imagens de referência de um conteúdo
+    async referencias(id) {
+      const t = DB.get('tasks', id); if (!t) return { imagens: [], links: [] };
+      const lista = t.referencias || [];
+      const u = await Refs.urls(lista.map(r => r.path));
+      return { imagens: lista.map(r => ({ nome: r.nome, url: u[r.path] || null, largura: r.w, altura: r.h })), links: Refs.links(t) };
     },
     async atualizar(id, k, dados) {
       const t = DB.get('tasks', id); if (!t) return 'não encontrado';
@@ -91,6 +134,7 @@
           ${t.objetivo ? `<span><i class="fa-solid fa-bullseye tiny"></i> ${esc(t.objetivo)}</span>` : ''}
           ${faseTxt(t) ? `<span><i class="fa-solid fa-diagram-next tiny"></i> ${esc(faseTxt(t))}</span>` : ''}
           ${t.drive ? '<span><i class="fa-brands fa-google-drive tiny"></i> Drive</span>' : ''}
+          ${(t.referencias || []).length + Refs.links(t).length ? `<span><i class="fa-solid fa-images tiny"></i> ${(t.referencias || []).length + Refs.links(t).length} ref.</span>` : ''}
         </div>
         ${agenteInfo(t) ? `<div class="mt-2">${agenteInfo(t)}</div>` : ''}
         ${t.isRejected && t.notes ? `<div class="small mt-2" style="color:#ff9aa7">${esc(String(t.notes).replace(/^Reprovado pelo cliente:\s*/, 'Cliente pediu: '))}</div>` : ''}
@@ -124,6 +168,16 @@
           <label class="field full"><span>Roteiro / descrição</span><textarea class="textarea" name="roteiro" rows="6">${esc(t.roteiro || '')}</textarea></label>
           <label class="field full"><span>Legenda</span><textarea class="textarea" name="legenda" rows="4">${esc(t.legenda || t.caption || '')}</textarea></label>
           <label class="field full"><span>Observações</span><textarea class="textarea" name="observacoes" rows="2">${esc(t.observacoes || '')}</textarea></label>
+          <div class="full midia-box">
+            <div class="field"><span><i class="fa-solid fa-images"></i> Referências para o Design / Editor</span></div>
+            <p class="tiny muted mt-1">Prefira enviar a imagem (.jpg ou .png, print serve). Links do Instagram e do Pinterest muitas vezes pedem login e o agente não consegue abrir.</p>
+            <div data-refs style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px"></div>
+            <div class="row mt-2" style="flex-wrap:wrap;gap:8px">
+              <label class="btn btn-ghost btn-sm" style="cursor:pointer"><i class="fa-solid fa-upload"></i> Enviar imagens<input type="file" accept="image/*" multiple hidden data-ref-file></label>
+              <span class="tiny muted" data-ref-status></span>
+            </div>
+            <label class="field mt-3"><span>Links de referência (um por linha)</span><textarea class="textarea" name="referenciasLinks" rows="2" placeholder="https://pin.it/…&#10;https://www.instagram.com/p/…">${esc(t.referenciasLinks || '')}</textarea></label>
+          </div>
           ${t.isRejected ? `<div class="full card card-tight" style="border-color:rgba(255,90,110,.4)"><div class="small" style="color:#ff9aa7"><i class="fa-solid fa-rotate-left"></i> ${esc(t.notes || 'Ajuste pedido pelo cliente')}</div><label class="check mt-2 small"><input type="checkbox" name="resolvido"> Ajuste feito (tirar o aviso)</label></div>` : ''}
         </div>
         ${t.tempoGasto ? `<p class="muted small mt-3"><i class="fa-solid fa-stopwatch"></i> Tempo gasto no Modo Trabalho: ${Math.round(t.tempoGasto / 60)} min</p>` : ''}`,
@@ -151,6 +205,32 @@
     s.$('[name=drive]').addEventListener('change', buscar);
     s.$('[name=drive]').addEventListener('paste', () => setTimeout(buscar, 50));
 
+    // referências
+    let refs = (t.referencias || []).slice();
+    const removidas = [];
+    let refUrls = {};
+    const desenharRefs = () => {
+      s.$('[data-refs]').innerHTML = refs.map((r, i) => `
+        <div style="position:relative;width:76px;height:96px;border-radius:12px;overflow:hidden;background:#111;border:1px solid var(--line)">
+          ${refUrls[r.path] ? `<a href="${esc(refUrls[r.path])}" target="_blank" rel="noopener"><img src="${esc(refUrls[r.path])}" alt="${esc(r.nome || 'referência')}" style="width:100%;height:100%;object-fit:cover"></a>` : '<div class="tiny muted center" style="padding-top:38px"><i class="fa-regular fa-image"></i></div>'}
+          <button type="button" data-ref-del="${i}" aria-label="Remover referência" style="position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;border:0;font-size:12px"><i class="fa-solid fa-xmark"></i></button>
+        </div>`).join('');
+      s.$('[data-refs]').querySelectorAll('[data-ref-del]').forEach(b => b.onclick = () => { removidas.push(refs[+b.dataset.refDel].path); refs.splice(+b.dataset.refDel, 1); desenharRefs(); });
+    };
+    if (refs.length) Refs.urls(refs.map(r => r.path)).then(u => { refUrls = { ...refUrls, ...u }; desenharRefs(); });
+    desenharRefs();
+    s.$('[data-ref-file]').onchange = async e => {
+      const files = [...e.target.files]; e.target.value = '';
+      if (!files.length) return;
+      const st = s.$('[data-ref-status]');
+      for (const [i, f] of files.entries()) {
+        st.innerHTML = `<span class="live">●</span> Enviando ${i + 1} de ${files.length}…`;
+        try { const r = await Refs.enviar(f, t.id); refs.push(r); Object.assign(refUrls, await Refs.urls([r.path])); desenharRefs(); }
+        catch (err) { st.innerHTML = `<span style="color:#ff9aa7">${esc(err.message)}</span>`; return; }
+      }
+      st.textContent = `${refs.length} imagem(ns) de referência. Clique em Salvar.`;
+    };
+
     s.$('[data-save]').onclick = async () => {
       const f = UI.formData(s.el);
       if (!f.headline.trim()) { App.toast('Dê um título ao conteúdo.', 'warn'); return; }
@@ -158,6 +238,9 @@
       const orig = novo ? {} : DB.get('tasks', id);
       const out = { ...orig, ...t, headline: f.headline.trim(), client: f.client.trim(), type: f.type, date: f.date, drive: f.drive.trim(), roteiro: f.roteiro, legenda: f.legenda, caption: f.legenda, observacoes: f.observacoes, objetivo: f.objetivo, fase: f.fase };
       out.kind = 'post';
+      out.referencias = refs;
+      out.referenciasLinks = (f.referenciasLinks || '').trim();
+      if (removidas.length) Refs.apagar(removidas).catch(() => {});
       out.midias = f.drive.trim() ? midias : [];
       out.midiasEm = new Date().toISOString();
       // status escolhido à mão fica fixo; se não mexeu, continua automático (urgente quando faltar 48h)

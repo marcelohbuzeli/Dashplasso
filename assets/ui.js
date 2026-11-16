@@ -352,6 +352,7 @@
       html: `<div class="list">
         <a class="item" href="${keepParams('lancar.html')}"><div class="icon accent"><i class="fa-solid fa-plus"></i></div><div class="grow"><div class="title">Lançar gasto rápido</div><div class="sub">Abre o lançamento do financeiro</div></div></a>
         <a class="item" href="${keepParams('criacao.html')}"><div class="icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div class="grow"><div class="title">Agente de criação</div><div class="sub">Conteúdos com IA a partir do briefing</div></div></a>
+        ${window.App && App.configured ? `<button class="item item-btn" id="m-relogio"><div class="icon accent"><i class="fa-solid fa-clock"></i></div><div class="grow"><div class="title">Apple Watch e iPhone</div><div class="sub">Token dos Atalhos (Modo Trabalho e Apple Pay)</div></div></button>` : ''}
         <button class="item item-btn" id="m-backup"><div class="icon"><i class="fa-solid fa-download"></i></div><div class="grow"><div class="title">Baixar backup</div><div class="sub">Arquivo com todos os seus dados</div></div></button>
         ${window.App && App.configured ? `<button class="item item-btn" id="m-senha"><div class="icon accent"><i class="fa-solid fa-key"></i></div><div class="grow"><div class="title">Criar / trocar senha</div><div class="sub">Defina a senha de acesso desta conta</div></div></button>` : ''}
         ${window.App && App.configured ? `<button class="item item-btn" id="m-sair"><div class="icon"><i class="fa-solid fa-right-from-bracket"></i></div><div class="grow"><div class="title">Sair</div><div class="sub">${esc((App.user && App.user.email) || '')}</div></div></button>` : ''}
@@ -360,6 +361,34 @@
     s.$('#m-backup').onclick = () => { App.exportBackup(); s.close(); };
     const sair = s.$('#m-sair'); if (sair) sair.onclick = () => App.logout();
     const senha = s.$('#m-senha'); if (senha) senha.onclick = () => { s.close(); setTimeout(trocarSenha, 220); };
+    const rel = s.$('#m-relogio'); if (rel) rel.onclick = () => { s.close(); setTimeout(tokenAtalho, 220); };
+  }
+
+  // token dos Atalhos da Apple: o banco guarda só o hash; o token aparece uma única vez
+  function tokenAtalho() {
+    const tem = !!(DB.getValue('atalho_token', null) || {}).hash;
+    const url = PLASSO_CONFIG.SUPABASE_URL + '/functions/v1/atalho';
+    const s = sheet({
+      title: 'Apple Watch e iPhone',
+      html: `<p class="small soft">Os Atalhos do relógio e do iPhone falam com o sistema por este endereço, usando um <b>token</b> no lugar da senha.</p>
+        <label class="field mt-3"><span>Endereço (URL) do atalho</span><input class="input" readonly value="${esc(url)}" onclick="this.select()"></label>
+        <div class="card card-tight mt-3" id="tk-box"><div class="small">${tem ? '<i class="fa-solid fa-circle-check accent-text"></i> Já existe um token ativo. Gerar outro desliga o antigo (refaça os atalhos).' : 'Nenhum token criado ainda.'}</div></div>
+        <p class="tiny muted mt-3"><i class="fa-solid fa-lock"></i> Quem tiver o token consegue ver suas demandas e lançar gastos. Não compartilhe. O passo a passo está em docs/APPLE-WATCH.md.</p>`,
+      foot: `<button class="btn btn-ghost" data-close>Fechar</button><button class="btn btn-white" id="tk-novo"><i class="fa-solid fa-key"></i> ${tem ? 'Gerar novo token' : 'Gerar token'}</button>`
+    });
+    s.$('#tk-novo').onclick = async () => {
+      if (tem && !confirm('Gerar um novo token? Os atalhos com o token antigo param de funcionar.')) return;
+      const tk = 'plt_' + App.randomToken(40);
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(tk));
+      const hash = Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
+      DB.setValue('atalho_token', { hash });
+      await DB.flush();
+      s.$('#tk-box').innerHTML = `<div class="small soft">Copie agora e cole nos atalhos. Ele <b>não</b> aparece de novo.</div>
+        <div class="row mt-2"><input class="input grow" readonly id="tk-val" value="${tk}"><button class="btn btn-white" id="tk-copy"><i class="fa-regular fa-copy"></i> Copiar</button></div>`;
+      s.$('#tk-copy').onclick = async () => { try { await navigator.clipboard.writeText(tk); toastOk('Token copiado.'); } catch (e) { s.$('#tk-val').select(); } };
+      s.$('#tk-novo').remove();
+    };
+    function toastOk(m) { window.App && App.toast(m, 'ok'); }
   }
 
   // criar / trocar a senha estando logado (não precisa de e-mail)

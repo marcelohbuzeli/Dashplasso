@@ -223,7 +223,31 @@
     removeWhere(col, fn) { cache[col] = DB.list(col).filter(x => !fn(x)); syncCollection(col); },
     getValue(col, fallback = null) { const v = cache[col]; if (Array.isArray(v)) return v; if (!v || v.__scalar === undefined) return fallback; try { return JSON.parse(v.__scalar); } catch (e) { return v.__scalar; } },
     setValue(col, value) { cache[col] = { __scalar: JSON.stringify(value) }; syncCollection(col); },
-    flush() { return queue; }
+    flush() { return queue; },
+    // busca de novo no banco as coleções indicadas (ex.: o que o Apple Watch mudou).
+    // Devolve true se algo mudou. Espera os salvamentos pendentes para não perder nada.
+    async reload(cols) {
+      if (!configured || MODE !== 'app' || !sb || !user) return false;
+      await queue;
+      if (pending) return false;
+      const { data, error } = await sb.from('records').select('collection,id,data').in('collection', cols);
+      if (error || pending) return false;
+      const fresh = {};
+      data.forEach(r => {
+        if (r.id === '__value') fresh[r.collection] = { __scalar: r.data.v };
+        else (fresh[r.collection] = Array.isArray(fresh[r.collection]) ? fresh[r.collection] : []).push(r.data);
+      });
+      const norm = v => v === undefined ? 'null' : Array.isArray(v) ? JSON.stringify(v.map(x => JSON.stringify(x)).sort()) : JSON.stringify(v);
+      let mudou = false;
+      cols.forEach(c => {
+        const nv = fresh[c] !== undefined ? fresh[c] : (Array.isArray(cache[c]) ? [] : undefined);
+        if (norm(nv) === norm(cache[c])) return;
+        mudou = true;
+        if (nv === undefined) delete cache[c]; else cache[c] = nv;
+        primeSnapshot(c);
+      });
+      return mudou;
+    }
   };
 
   // ---------- carregamento ----------
