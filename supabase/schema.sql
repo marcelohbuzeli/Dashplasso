@@ -121,3 +121,16 @@ revoke all on function public.portal_load(text) from public;
 revoke all on function public.portal_update(text, text, jsonb) from public;
 grant execute on function public.portal_load(text) to anon, authenticated;
 grant execute on function public.portal_update(text, text, jsonb) to anon, authenticated;
+
+-- 4) Referências visuais dos conteúdos (imagens enviadas no card, para o Design/Editor).
+--    Espaço privado "referencias". Cada usuário só mexe na própria pasta (<id do usuário>/...).
+--    O site gera links temporários (1 h) para mostrar e para o agente baixar.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('referencias', 'referencias', false, 10485760, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do nothing;
+
+drop policy if exists "referencias do dono" on storage.objects;
+create policy "referencias do dono" on storage.objects
+  for all to authenticated
+  using (bucket_id = 'referencias' and (storage.foldername(name))[1] = auth.uid()::text)
+  with check (bucket_id = 'referencias' and (storage.foldername(name))[1] = auth.uid()::text);
