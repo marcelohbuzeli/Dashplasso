@@ -1,0 +1,7 @@
+sounddevice
+numpy
+openwakeword
+mlx-whisper
+mcp
+websockets
+keyring
