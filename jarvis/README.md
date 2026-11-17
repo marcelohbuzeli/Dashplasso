@@ -24,8 +24,11 @@ mesmas skills e conectores que você já tem (editor-plasso, Premiere, Canva, Dr
 2. **Configure:** crie `config.json` nesta pasta com `{"dash_email": "...", "dash_senha": "...", "elevenlabs_chave": "..."}`
    (as duas últimas vão para o Keychain sozinhas) e copie `workspace/CLAUDE.exemplo.md` para `workspace/CLAUDE.md`.
 
-3. **Ligue o Jarvis:** dois cliques em `ligar.command` (ou rode `./ligar.command` no Terminal).
+3. **Ligue o Jarvis:** dois cliques em `ligar.command` (ou o botão "Ligar Jarvis no Mac" da aba Jarvis).
+   Ele roda em **segundo plano**: a janela do Terminal abre, espera ele ficar pronto e fecha sozinha.
    Na primeira vez o Mac pede permissão de **microfone** para o Terminal: aceite.
+   **Desligar:** abra o app "Ligar Jarvis" com ele ligado e escolha **Desligar** (ou dois cliques em `desligar.command`).
+   Para ver tudo ao vivo numa janela (testes): `./ligar.command --janela`. Registro: `logs/jarvis.log`.
    Ele diz "Online, Marcelo." quando estiver pronto (uns 20 segundos).
 
 ## Segurança

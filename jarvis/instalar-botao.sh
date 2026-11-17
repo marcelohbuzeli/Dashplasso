@@ -22,15 +22,19 @@ cat > "$TMP/ligar.applescript" <<APPLESCRIPT
 property pastaJarvis : "$DIR_AS"
 
 on ligarJarvis()
-	-- já está rodando? não abre outro
+	-- já está rodando? oferece desligar
 	try
-		do shell script "/usr/bin/pgrep -f '[.]venv/bin/python -m jarvis'"
-		display notification "O Jarvis já está ligado." with title "Jarvis"
+		do shell script "/usr/bin/pgrep -f '[.]venv/bin/python -m jarvis$'"
+		set r to button returned of (display dialog "O Jarvis já está ligado (em segundo plano)." buttons {"Desligar", "Ok"} default button "Ok" with title "Jarvis" giving up after 20)
+		if r is "Desligar" then
+			do shell script "/bin/bash " & quoted form of (pastaJarvis & "/desligar.command")
+			display notification "Jarvis desligado." with title "Jarvis"
+		end if
 		return
 	end try
-	-- abre no Terminal (é ele que tem a permissão de microfone)
+	-- abre pelo Terminal (é ele que tem a permissão de microfone); a janela fecha sozinha quando ele fica pronto
 	do shell script "/usr/bin/open -a Terminal " & quoted form of (pastaJarvis & "/ligar.command")
-	display notification "Ligando… ele diz \"Online\" quando estiver pronto." with title "Jarvis"
+	display notification "Ligando em segundo plano… ele diz \"Online\" quando estiver pronto." with title "Jarvis"
 end ligarJarvis
 
 on run
