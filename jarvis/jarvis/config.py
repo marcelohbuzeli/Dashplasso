@@ -53,7 +53,9 @@ class Config:
     # --- cérebro (Claude Code) ---
     claude_bin: str = ""                # vazio = acha sozinho
     permissao: str = "auto"             # auto | acceptEdits | manual | bypassPermissions
-    modelo: str = ""                    # vazio = o padrão do seu Claude Code
+    modelo: str = ""                    # tarefas pesadas (editar, design...). vazio = o padrão do seu Claude Code
+    modo_rapido: bool = True            # perguntas do dia a dia num Claude sempre aberto, modelo leve
+    modelo_rapido: str = "haiku"        # "haiku" (mais rápido) ou "sonnet"
     nova_conversa_min: float = 20.0     # depois de X min parado, começa conversa nova
     aviso_trabalhando_s: float = 12.0   # se demorar, avisa "só um instante"
 
@@ -75,9 +77,9 @@ class Config:
                     setattr(cfg, k, v)
                 else:
                     cfg.extras[k] = v
+        Path(cfg.logs).mkdir(parents=True, exist_ok=True)
         cfg._segredos(arq)
         cfg.elevenlabs_chave = cfg.elevenlabs_chave or os.environ.get("ELEVENLABS_API_KEY", "")
-        Path(cfg.logs).mkdir(parents=True, exist_ok=True)
         return cfg
 
     # ---------- segredos no Porta-chaves (Keychain) do macOS ----------

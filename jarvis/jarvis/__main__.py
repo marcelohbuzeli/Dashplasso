@@ -43,6 +43,15 @@ class Jarvis:
         self.cfg = cfg
         self.fala = Fala(cfg)
         self.cerebro = Cerebro(cfg, log=self.log)
+        self.rapido = None
+        self.dia = None
+        self.historico: list[str] = []   # últimas falas, para o Jarvis completo saber do que se falava
+        if cfg.modo_rapido:
+            from .cerebro import CerebroRapido
+            from .dia import DiaPronto
+            self.rapido = CerebroRapido(cfg, self.cerebro, log=self.log)
+            self.dia = DiaPronto(cfg, log=self.log)
+            self.rapido.aquecer()
         self.aguardando_continuacao = False
         self.painel = None
         self.ouvindo = False
@@ -87,7 +96,7 @@ class Jarvis:
                 e = "falando"
             elif self.ouvindo:
                 e = "ouvindo"
-            elif self.cerebro.ocupado():
+            elif self.cerebro.ocupado() or (self.rapido and self.rapido.ocupado()):
                 e = "pensando"
             else:
                 e = "repouso"
@@ -105,22 +114,32 @@ class Jarvis:
         n = normal(texto)
         if n in COMANDOS_PARAR or any(n.startswith(c + " ") and len(n) < 25 for c in COMANDOS_PARAR):
             self.fala.calar()
-            k = self.cerebro.cancelar_tudo()
+            k = self.cerebro.cancelar_tudo() + (self.rapido.cancelar() if self.rapido else 0)
             self.fala.dizer("Parei." if k else "Ok.")
             return
         if any(c in n for c in COMANDOS_NOVA) and len(n) < 40:
             self.cerebro.nova_conversa()
+            self.historico.clear()
+            if self.rapido:
+                self.rapido.nova_conversa()
             self.fala.dizer("Certo, começando do zero.")
             return
 
-        from .voz import Frases
+        self.log(f"[você] {texto}")
+        self.emitir({"tipo": "fala", "quem": "voce", "texto": texto})
         if self.contexto and time.time() - self.contexto_hora < 180:
             texto_cerebro = f"[Contexto: {self.contexto}]\nO Marcelo respondeu: {texto}"
             self.contexto = ""
-        else:
-            texto_cerebro = texto
-            self.contexto = ""
-        paralela = self.cerebro.ocupado()
+            return self.executar(texto, texto_cerebro, rapido=False)   # pedido da fila: vai direto ao completo
+        self.contexto = ""
+        return self.executar(texto, texto, rapido=self.rapido is not None)
+
+    def executar(self, texto: str, texto_cerebro: str, rapido: bool):
+        from .voz import Frases
+        if not rapido and self.historico:
+            texto_cerebro = ("[Conversa recente com o Jarvis rápido:\n" + "\n".join(self.historico[-6:]) +
+                             "]\n\n" + texto_cerebro)
+        paralela = (not rapido) and self.cerebro.ocupado()
         if paralela:
             self.fala.dizer("Ainda estou na tarefa anterior, mas já cuido disso também.")
         frases = Frases(self.fala)
@@ -145,6 +164,16 @@ class Jarvis:
         def ao_terminar(t):
             frases.terminar()
             dur = (t.fim or time.time()) - t.inicio
+            if self.dia and (t.escreveu or not rapido):
+                self.dia.atualizar_logo()
+            if rapido and t.escalar and not t.cancelada:
+                self.log(f"[rápido → completo] {texto}")
+                self.executar(texto, texto, rapido=False)
+                return
+            if rapido and t.erro and not t.cancelada:      # modo rápido falhou: tenta no completo
+                self.log(f"[rápido] erro, usando o completo: {t.erro}")
+                self.executar(texto, texto, rapido=False)
+                return
             if t.cancelada:
                 self.log(f"[cancelado] {t.pedido}")
                 return
@@ -157,7 +186,8 @@ class Jarvis:
                 notificar("Jarvis — erro", t.erro)
                 return
             resposta = t.resposta or frases.tudo
-            self.log(f"[jarvis {dur:.0f}s] {resposta.strip()}")
+            self.log(f"[jarvis {'rápido ' if rapido else ''}{dur:.1f}s] {resposta.strip()}")
+            self.historico = (self.historico + [f"Marcelo: {texto}", f"Jarvis: {resposta.split('LINKS:')[0].strip()[:300]}"])[-10:]
             if not estado["falou"] and resposta.strip():
                 self.fala.dizer(resposta.split("LINKS:")[0])
             Path(self.cfg.logs, "ultima-resposta.txt").write_text(resposta, encoding="utf-8")
@@ -169,9 +199,10 @@ class Jarvis:
             notificar("Jarvis", corpo[1].strip() if len(corpo) > 1 else corpo[0].strip())
             self.aguardando_continuacao = self.mic is not None
 
-        self.log(f"[você] {texto}")
-        self.emitir({"tipo": "fala", "quem": "voce", "texto": texto})
-        t = self.cerebro.perguntar(texto_cerebro, ao_texto, ao_terminar, paralela=paralela)
+        if rapido:
+            t = self.rapido.perguntar(texto_cerebro, self.dia.bloco() if self.dia else "", ao_texto, ao_terminar)
+        else:
+            t = self.cerebro.perguntar(texto_cerebro, ao_texto, ao_terminar, paralela=paralela)
 
         def aviso():
             time.sleep(self.cfg.aviso_trabalhando_s)
@@ -358,8 +389,16 @@ def main():
         return
     if a.texto:
         j = Jarvis(cfg, com_microfone=False)
+        if j.dia:                      # espera o painel do dia (no uso normal ele já está pronto)
+            for _ in range(50):
+                if j.dia.texto:
+                    break
+                time.sleep(0.2)
         t = j.pedir(a.texto)
-        while t is not None and t.fim is None:
+        ocioso = 0
+        while ocioso < 8:              # espera tudo terminar (inclusive se foi para o completo)
+            ocupado = (t is not None and t.fim is None) or j.cerebro.ocupado() or (j.rapido and j.rapido.ocupado())
+            ocioso = 0 if ocupado else ocioso + 1
             time.sleep(0.2)
         j.fala.esperar()
         sys.exit(1 if t is not None and t.erro else 0)
