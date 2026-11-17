@@ -13,7 +13,8 @@
     { id: 'home', href: 'index.html', icon: 'fa-house', label: 'Home', color: '#ff6d29', ink: '#ffffff' },
     { id: 'empresa', href: 'empresa.html', icon: 'fa-briefcase', label: 'Empresa', color: '#3d5bff', ink: '#ffffff' },
     { id: 'crm', href: 'crm.html', icon: 'fa-bullseye', label: 'CRM', color: '#fe2e4b', ink: '#ffffff' },
-    { id: 'fin', href: 'finance.html', icon: 'fa-wallet', label: 'Financeiro', color: '#2bf0b4', ink: '#03140e' }
+    { id: 'fin', href: 'finance.html', icon: 'fa-wallet', label: 'Financeiro', color: '#2bf0b4', ink: '#03140e' },
+    { id: 'jarvis', href: 'jarvis.html', icon: 'fa-circle-dot', label: 'Jarvis', color: '#22e4ff', ink: '#00151a' }
   ];
   const EMPRESA_SUB = [
     { id: 'geral', href: 'empresa.html', label: 'Visão geral', icon: 'fa-chart-simple' },

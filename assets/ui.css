@@ -45,6 +45,7 @@ body[data-theme="home"] { --accent:#ff6d29; --accent-2:#ffa06b; --on-accent:#fff
 body[data-theme="empresa"] { --accent:#3d5bff; --accent-2:#2affcc; --on-accent:#fff; --bg0:#060918; --bg1:#0c1233; --glow:rgba(38,49,173,.85); --glow-2:rgba(37,99,235,.5); }
 body[data-theme="crm"] { --accent:#fe2e4b; --accent-2:#ff7d8f; --on-accent:#fff; --bg0:#0d0809; --bg1:#1d0b10; --glow:rgba(254,46,75,.5); --glow-2:rgba(90,14,28,.9); }
 body[data-theme="fin"] { --accent:#2bf0b4; --accent-2:#c6f432; --on-accent:#03140e; --bg0:#04100c; --bg1:#072019; --glow:rgba(16,140,100,.6); --glow-2:rgba(8,70,52,.9); }
+body[data-theme="jarvis"] { --accent:#22e4ff; --accent-2:#7af3ff; --on-accent:#00151a; --bg0:#020b0f; --bg1:#04202a; --glow:rgba(0,190,230,.55); --glow-2:rgba(0,70,95,.9); }
 body.work { --accent:#ffffff; --accent-2:#ffffff; --on-accent:#000; --bg0:#000; --bg1:#000; --glow:rgba(0,0,0,0); --glow-2:rgba(0,0,0,0); }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
