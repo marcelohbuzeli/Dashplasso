@@ -1,7 +1,8 @@
 """O dia na ponta da língua: um resumo curto do Dashplasso que o Jarvis mantém sempre pronto.
 
-Atualiza sozinho a cada poucos minutos (e logo depois de qualquer alteração), para que perguntas
-como "o que eu tenho pra hoje?" sejam respondidas na hora, sem consultar o banco.
+Busca os dados ao ligar, quando o Dashplasso avisa que algo mudou (avisos.py), na virada do dia
+ou quando ele pede "atualiza os dados". Sem alteração, o painel fica igual o dia todo. Assim, perguntas
+como "o que eu tenho pra hoje?" são respondidas na hora, sem consultar o banco.
 Inclui: agenda de hoje e amanhã, conteúdos (atrasados, hoje, próximos dias, urgentes, ajustes
 pedidos, com o cliente), tarefas da casa vencidas e tarefas extras pendentes.
 """
@@ -123,10 +124,10 @@ def montar(db, hoje: dt.date | None = None) -> str:
 
 
 class DiaPronto:
-    """Mantém o resumo atualizado em segundo plano."""
+    """Mantém o resumo pronto. Só busca os dados de novo quando o Dashplasso avisa que algo mudou."""
 
-    def __init__(self, cfg: Config, log: Callable[[str], None] = print, intervalo_s: float = 180):
-        self.cfg, self.log, self.intervalo = cfg, log, intervalo_s
+    def __init__(self, cfg: Config, log: Callable[[str], None] = print):
+        self.cfg, self.log = cfg, log
         self.texto = ""
         self.hora = 0.0
         self._acordar = threading.Event()
@@ -135,6 +136,18 @@ class DiaPronto:
     def atualizar_logo(self):
         """Chamar depois de uma alteração (ex.: marcou uma tarefa)."""
         self._acordar.set()
+
+    def atualizar_agora(self, espera_s: float = 20) -> bool:
+        """Atualiza o resumo já e espera terminar (comando de voz "atualiza os dados")."""
+        antes = self.hora
+        self._agora = True
+        self._acordar.set()
+        fim = time.time() + espera_s
+        while time.time() < fim:
+            if self.hora != antes:
+                return True
+            time.sleep(0.2)
+        return False
 
     def _laco(self):
         from .dashplasso import Dashplasso
@@ -148,9 +161,14 @@ class DiaPronto:
                 self.log(f"[dia] resumo do Dashplasso atualizado ({time.time() - t0:.1f}s, {len(self.texto)} caracteres)")
             except Exception as e:  # noqa: BLE001
                 self.log(f"[dia] não consegui atualizar o resumo: {e}")
-            self._acordar.wait(self.intervalo)
+            # Sem consulta periódica: dorme até chegar um aviso do Dashplasso (atualizar_logo)
+            # ou até a virada do dia (para "hoje", "amanhã" e "atrasados" mudarem de data).
+            amanha = dt.datetime.combine(dt.date.today() + dt.timedelta(days=1), dt.time(0, 0, 30))
+            self._acordar.wait(max(30.0, (amanha - dt.datetime.now()).total_seconds()))
             self._acordar.clear()
-            time.sleep(2)   # junta várias alterações seguidas numa atualização só
+            if not getattr(self, "_agora", False):
+                time.sleep(2)   # junta várias alterações seguidas numa atualização só
+            self._agora = False
 
     def bloco(self) -> str:
         if not self.texto:

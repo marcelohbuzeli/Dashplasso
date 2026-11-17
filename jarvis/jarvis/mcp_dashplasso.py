@@ -317,6 +317,37 @@ def dash_concluir_envio(criacao_id: str, link_final: str = "", observacao: str =
 
 
 @srv.tool()
+def dash_agente_atualizar(id: str, agente: str, status: str, resumo: str = "", onde: str = "",
+                          drive: str = "", erro: str = "") -> str:
+    """Devolve o resultado de um pedido do botão "Chamar Design" / "Chamar Editor de vídeo".
+    agente: "design" ou "editor". status: "pronto" ou "erro".
+    pronto: resumo (1 a 2 frases), onde (link do Canva / onde está aberto), drive (pasta com os arquivos).
+    erro: erro (motivo curto e claro)."""
+    try:
+        if agente not in ("design", "editor"):
+            return 'agente deve ser "design" ou "editor".'
+        if status not in ("pronto", "erro"):
+            return 'status deve ser "pronto" ou "erro".'
+        t = db.obter("tasks", id)
+        if not t:
+            return "não encontrado"
+        ag = dict((t.get("agentes") or {}).get(agente) or {})
+        ag.update({k: v for k, v in {"status": status, "resumo": resumo, "onde": onde, "drive": drive,
+                                      "erro": erro}.items() if v or k == "status"})
+        ag["atualizadoEm"] = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+        t["agentes"] = dict(t.get("agentes") or {}, **{agente: ag})
+        if drive:
+            t["drive"] = drive
+        db.salvar("tasks", t)
+        with open(LOG_ALTERACOES, "a", encoding="utf-8") as f:
+            f.write(_json({"hora": time.strftime("%F %T"), "colecao": "tasks", "id": id, "agente": agente,
+                           "depois": ag}) + "\n")
+        return "ok"
+    except ErroDash as e:
+        return _erro(e)
+
+
+@srv.tool()
 def dash_metricas(cliente: str = "", de: str = "", ate: str = "") -> str:
     """Lê a aba de métricas (coleções que começam com 'metric'). Filtra por cliente e período
     (AAAA-MM-DD). Use para responder 'como estamos', comparar posts e dizer o que funciona melhor."""

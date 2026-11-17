@@ -20,6 +20,9 @@ from .config import Config
 
 COMANDOS_PARAR = ("para", "parar", "pare", "cancela", "cancelar", "chega", "silêncio", "cala a boca")
 COMANDOS_NOVA = ("nova conversa", "começar de novo", "esquece isso", "esquece tudo")
+COMANDOS_ATUALIZAR = ("atualiza os dados", "atualizar os dados", "atualize os dados", "atualiza o painel",
+                      "atualizar o painel", "atualiza o dashplasso", "atualiza os dados do dashplasso",
+                      "recarrega os dados", "atualiza tudo")
 
 
 def agora() -> str:
@@ -52,6 +55,9 @@ class Jarvis:
             self.rapido = CerebroRapido(cfg, self.cerebro, log=self.log)
             self.dia = DiaPronto(cfg, log=self.log)
             self.rapido.aquecer()
+        from .agentes import Agentes
+        self.agentes = Agentes(cfg, self.cerebro, log=self.log, dizer=self.fala.dizer, notificar=notificar)
+        self._envios_vistos = None
         self.aguardando_continuacao = False
         self.painel = None
         self.ouvindo = False
@@ -125,6 +131,11 @@ class Jarvis:
             self.fala.dizer("Certo, começando do zero.")
             return
 
+        if self.dia and len(n) < 45 and any(c in n for c in COMANDOS_ATUALIZAR):
+            self.log(f"[você] {texto} → atualizando só os dados")
+            ok = self.dia.atualizar_agora()
+            self.fala.dizer("Pronto, dados atualizados." if ok else "Não consegui atualizar agora. Deixei o erro no registro.")
+            return
         self.log(f"[você] {texto}")
         self.emitir({"tipo": "fala", "quem": "voce", "texto": texto})
         if self.contexto and time.time() - self.contexto_hora < 180:
@@ -211,53 +222,71 @@ class Jarvis:
         threading.Thread(target=aviso, daemon=True).start()
         return t
 
-    # ---------- avisos do Dashplasso ----------
-    def vigiar_fila(self):
-        """A cada minuto, olha se chegou pedido de 'Enviar para edição/design' no Dashplasso."""
+    # ---------- avisos do Dashplasso (só quando algo muda; nada de consultar de tempos em tempos) ----------
+    PAINEL_COLS = {"tasks", "events", "life_casa", "life_extras", "config_agenda"}
+
+    def ao_mudar(self, cols: set):
+        """O site avisou que estas coleções mudaram. Só agora o Jarvis lê o banco."""
+        self.log(f"[avisos] mudou no Dashplasso: {', '.join(sorted(cols))}")
+        if self.dia and (cols & self.PAINEL_COLS or "?" in cols):
+            self.dia.atualizar_logo()
+        if "tasks" in cols or "?" in cols:
+            self.agentes.verificar()          # botão "Chamar Design/Editor"
+        if "criacao" in cols or "?" in cols:
+            self.verificar_envios()           # botão "Enviar para edição/design" da Criação
+
+    def ligar_avisos(self):
+        from .avisos import Avisos
+        self.avisos = Avisos(self.cfg, self.ao_mudar, log=self.log)
+
+        def primeira_vez():   # ao ligar: confere uma vez o que já estava pedido
+            for f in (self.agentes.verificar, self.verificar_envios):
+                try:
+                    f()
+                except Exception as e:  # noqa: BLE001
+                    self.log(f"[dashplasso] erro: {e}")
+        threading.Thread(target=primeira_vez, daemon=True).start()
+
+    def verificar_envios(self):
+        """Pedidos de 'Enviar para edição/design' (Criação): avisa por voz e pergunta se pode começar."""
         from .dashplasso import Dashplasso, ErroDash
-        db = Dashplasso(self.cfg)
         arq = Path(self.cfg.logs) / "fila-vista.json"
         try:
-            vistos = set(json.loads(arq.read_text())) if arq.exists() else None
-        except json.JSONDecodeError:
-            vistos = None
-        while True:
-            try:
-                novos = []
-                atuais = set()
-                for c in db.lista("criacao"):
-                    env = c.get("envio")
-                    if not isinstance(env, dict) or env.get("concluido"):
-                        continue
-                    chave = f"{c.get('id')}|{env.get('em')}"
-                    atuais.add(chave)
-                    if vistos is not None and chave not in vistos:
-                        novos.append(c)
-                if vistos is None:            # primeira vez: o que já estava na fila não é novidade
-                    self.log(f"[dashplasso] conectado; {len(atuais)} pedido(s) já na fila")
-                vistos = (vistos or set()) | atuais
-                arq.write_text(json.dumps(sorted(vistos)))
-                for c in novos:
-                    tipo = "edição" if c["envio"].get("tipo") == "edicao" else "design"
-                    fmt = (c.get("formato") or "conteúdo").lower()
-                    self.log(f"[dashplasso] novo pedido de {tipo}: {c.get('cliente')} — {c.get('titulo')}")
-                    self.contexto_hora = time.time()
-                    self.contexto = (f"Acabei de avisar por voz que chegou do Dashplasso um pedido de {tipo} "
-                                     f"(criacao id {c.get('id')}): {fmt} da {c.get('cliente')}, \"{c.get('titulo')}\". "
-                                     f"Perguntei se pode começar. Se ele disser que sim, pegue os dados com "
-                                     f"dash_fila_edicao e faça (edição: skill editor-plasso; design: skill design-padrao); "
-                                     f"ao terminar, use dash_concluir_envio.")
-                    self.fala.dizer(f"Marcelo, chegou um pedido de {tipo} no Dashplasso: {fmt} da "
-                                    f"{c.get('cliente')}, {c.get('titulo')}. Quer que eu comece?")
-                    self.aguardando_continuacao = self.mic is not None
-                    notificar("Jarvis — Dashplasso", f"Pedido de {tipo}: {c.get('cliente')} — {c.get('titulo')}")
-            except ErroDash as e:
-                self.log(f"[dashplasso] {e}")
-                if "dash_email" in str(e):
-                    return
-            except Exception as e:  # noqa: BLE001
-                self.log(f"[dashplasso] erro: {e}")
-            time.sleep(60)
+            if self._envios_vistos is None:
+                try:
+                    self._envios_vistos = set(json.loads(arq.read_text())) if arq.exists() else None
+                except json.JSONDecodeError:
+                    self._envios_vistos = None
+            vistos = self._envios_vistos
+            novos, atuais = [], set()
+            for c in Dashplasso(self.cfg).lista("criacao"):
+                env = c.get("envio")
+                if not isinstance(env, dict) or env.get("concluido"):
+                    continue
+                chave = f"{c.get('id')}|{env.get('em')}"
+                atuais.add(chave)
+                if vistos is not None and chave not in vistos:
+                    novos.append(c)
+            if vistos is None:            # primeira vez: o que já estava na fila não é novidade
+                self.log(f"[dashplasso] {len(atuais)} pedido(s) de envio já na fila")
+            self._envios_vistos = (vistos or set()) | atuais
+            arq.write_text(json.dumps(sorted(self._envios_vistos)))
+            for c in novos:
+                tipo = "edição" if c["envio"].get("tipo") == "edicao" else "design"
+                fmt = (c.get("formato") or "conteúdo").lower()
+                self.log(f"[dashplasso] novo pedido de {tipo}: {c.get('cliente')} — {c.get('titulo')}")
+                self.contexto_hora = time.time()
+                self.contexto = (f"Acabei de avisar por voz que chegou do Dashplasso um pedido de {tipo} "
+                                 f"(criacao id {c.get('id')}): {fmt} da {c.get('cliente')}, \"{c.get('titulo')}\". "
+                                 f"Perguntei se pode começar. Se ele disser que sim, pegue os dados com "
+                                 f"dash_fila_edicao e faça (edição: skill editor-plasso; design: skill design-padrao); "
+                                 f"ao terminar, use dash_concluir_envio.")
+                self.fala.dizer(f"Marcelo, chegou um pedido de {tipo} no Dashplasso: {fmt} da "
+                                f"{c.get('cliente')}, {c.get('titulo')}. Quer que eu comece?")
+                self.aguardando_continuacao = self.mic is not None
+                notificar("Jarvis — Dashplasso", f"Pedido de {tipo}: {c.get('cliente')} — {c.get('titulo')}")
+        except ErroDash as e:
+            self.log(f"[dashplasso] {e}")
 
     # ---------- laço do microfone ----------
     def ouvir_e_pedir(self, espera: float | None = None) -> bool:
@@ -292,7 +321,7 @@ class Jarvis:
         palmas = "duas palmas" if self.palmas else ""
         self.log(f"[pronto] chame com {' ou '.join(x for x in (nome, palmas) if x)}. Ctrl+C para sair.")
         self.fala.dizer("Online, Marcelo.")
-        threading.Thread(target=self.vigiar_fila, daemon=True).start()
+        self.ligar_avisos()
         try:
             while True:
                 b = self.mic.ler()
