@@ -7,6 +7,7 @@ São sistemas separados, conectados pelo mesmo banco de dados privado (Supabase)
 | **Gestão** | `index`, `tasks`, `clients`, `calendar`, `criacao`, `portal` | Clientes, kanban, calendário, agente de criação (IA) e portal de aprovação do cliente |
 | **CRM** | `crm` | Funil de leads. Ao fechar contrato, cria o cliente na Gestão e os recebimentos no Financeiro |
 | **Financeiro** | `finance`, `lancar` | Entradas e saídas, contas a conferir, parcelas, contas fixas, previsão de 6 meses e lançamento rápido pelo iPhone |
+| **Jarvis** | `jarvis` | Tela do assistente de voz: o círculo reage quando ele ouve, pensa e fala, e mostra links, vídeos, pastas e relatórios que ele abrir |
 | **Crescimento** | `pessoal` | Hábitos (água, treino, leitura, estudos), tarefas da casa, Modo Trabalho com cronômetro e médias de tempo |
 
 ## Conexões

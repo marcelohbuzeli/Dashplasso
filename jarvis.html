@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#020b0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Plassô | Jarvis</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="assets/ui.css?v=12">
+<link rel="icon" href="assets/icons/favicon-jarvis.svg" type="image/svg+xml">
+<style>
+  .jv-grid { display: grid; gap: 18px; grid-template-columns: 1fr; }
+  @media (min-width: 1024px) { .jv-grid { grid-template-columns: minmax(340px, 420px) 1fr; align-items: start; } .jv-side { position: sticky; top: 18px; } }
+  .orb-box { position: relative; width: min(78vw, 360px); aspect-ratio: 1; margin: 0 auto; }
+  .orb-box canvas { width: 100%; height: 100%; display: block; }
+  .jv-estado { text-align: center; margin-top: 4px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); transition: color .3s; }
+  .jv-estado.vivo { color: var(--accent); }
+  .jv-legenda { text-align: center; min-height: 48px; margin: 10px auto 0; max-width: 360px; color: var(--ink-2); font-size: 15px; line-height: 1.45; }
+  .jv-legenda .quem { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 4px; }
+  .jv-conexao { display: inline-flex; align-items: center; gap: 6px; }
+  .jv-conexao .dot { background: var(--ink-4); }
+  .jv-conexao.on .dot { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+  .jv-input { display: flex; gap: 8px; margin-top: 16px; }
+  .jv-input .input { flex: 1; }
+  .jv-conversa { max-height: 260px; overflow: auto; display: flex; flex-direction: column; gap: 8px; }
+  .jv-msg { padding: 10px 12px; border-radius: 14px; background: var(--glass); border: 1px solid var(--line); font-size: 14px; line-height: 1.45; color: var(--ink-2); max-width: 92%; }
+  .jv-msg.voce { align-self: flex-end; background: color-mix(in srgb, var(--accent) 14%, transparent); border-color: color-mix(in srgb, var(--accent) 30%, transparent); color: #fff; }
+  .stage { min-height: 420px; display: flex; flex-direction: column; }
+  .stage-body { flex: 1; display: flex; flex-direction: column; min-height: 340px; }
+  .stage-body iframe, .stage-body video, .stage-body img { width: 100%; border: 0; border-radius: 16px; background: rgba(0,0,0,.35); }
+  .stage-body iframe { flex: 1; min-height: 62vh; }
+  .stage-body img, .stage-body video { max-height: 70vh; object-fit: contain; }
+  .stage-vazio { flex: 1; display: grid; place-items: center; text-align: center; color: var(--ink-3); padding: 40px 10px; }
+  .stage-vazio i { font-size: 34px; color: color-mix(in srgb, var(--accent) 60%, transparent); margin-bottom: 12px; }
+  .md { color: var(--ink-2); line-height: 1.6; font-size: 15px; overflow-wrap: anywhere; }
+  .md h1, .md h2, .md h3 { color: #fff; margin: 18px 0 8px; letter-spacing: -.02em; }
+  .md h1 { font-size: 24px; } .md h2 { font-size: 19px; } .md h3 { font-size: 16px; }
+  .md ul, .md ol { padding-left: 20px; margin: 8px 0; }
+  .md a { color: var(--accent); }
+  .md table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+  .md th, .md td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; }
+  .md th { color: #fff; font-weight: 500; }
+  .md code { font-family: var(--mono); background: var(--glass-2); padding: 1px 5px; border-radius: 6px; font-size: 13px; }
+  .link-card { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 18px; background: var(--glass); border: 1px solid var(--line); }
+  .link-card .ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); flex-shrink: 0; font-size: 18px; }
+  .hist .item { cursor: pointer; }
+  .hist .item.on { border-color: color-mix(in srgb, var(--accent) 50%, transparent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+</style>
+</head>
+<body data-theme="jarvis">
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark"><i class="fa-solid fa-circle-dot"></i></div>
+      <div><div class="brand-name">Jarvis</div><div class="brand-sub jv-conexao" id="conexao"><span class="dot"></span><span id="conexao-txt">Conectando…</span></div></div>
+    </div>
+    <div class="row"><button class="chip-btn" onclick="UI.menu()" aria-label="Menu"><i class="fa-solid fa-ellipsis"></i></button></div>
+  </header>
+
+  <div class="jv-grid">
+    <!-- ESQUERDA: o Jarvis -->
+    <div class="jv-side stack-lg">
+      <div class="card card-lg">
+        <div class="orb-box"><canvas id="orb" aria-label="Jarvis"></canvas></div>
+        <div class="jv-estado" id="estado">Em repouso</div>
+        <div class="jv-legenda" id="legenda"><span class="small soft">Diga “Ei, Jarvis” ou bata duas palmas.</span></div>
+        <form class="jv-input" id="form">
+          <input class="input" id="pedido" placeholder="Ou digite para o Jarvis…" autocomplete="off" disabled>
+          <button class="btn btn-accent" id="enviar" aria-label="Enviar" disabled><i class="fa-solid fa-arrow-up"></i></button>
+        </form>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2 class="h2">Conversa</h2><span class="pill" id="conversa-n">0</span></div>
+        <div class="jv-conversa" id="conversa"><div class="small soft">Nada por aqui ainda.</div></div>
+      </div>
+    </div>
+
+    <!-- DIREITA: a tela (o "cérebro") -->
+    <div class="stack-lg" style="min-width:0">
+      <div class="card card-lg stage">
+        <div class="card-head">
+          <div style="min-width:0">
+            <div class="eyebrow" id="tela-hora">Tela</div>
+            <h2 class="h2 mt-1" id="tela-titulo" style="overflow-wrap:anywhere">O que o Jarvis mostrar aparece aqui</h2>
+          </div>
+          <a class="btn btn-ghost btn-sm hidden" id="tela-abrir" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir</a>
+        </div>
+        <div class="stage-body" id="tela">
+          <div class="stage-vazio"><div><i class="fa-solid fa-circle-nodes"></i><div>Links, vídeos, pastas do Drive, designs e relatórios<br>que você pedir vão aparecer nesta tela.</div></div></div>
+        </div>
+      </div>
+      <div class="card hist">
+        <div class="card-head"><h2 class="h2">Mostrados recentemente</h2></div>
+        <div class="list" id="historico"><div class="small soft">Nada ainda.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/config.js?v=10"></script>
+<script src="assets/core.js?v=10" data-mode="app"></script>
+<script src="assets/ui.js?v=12"></script>
+<script type="text/plain" data-app>
+  UI.mount({ tab: 'jarvis' });
+  const { esc } = UI;
+  const $ = id => document.getElementById(id);
+
+  // ================= ORBE =================
+  const cv = $('orb'), ctx = cv.getContext('2d');
+  let W = 0, H = 0, dpr = 1;
+  function medir() { dpr = Math.min(2, window.devicePixelRatio || 1); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * dpr; cv.height = H * dpr; }
+  medir(); window.addEventListener('resize', medir);
+
+  const S = { estado: 'repouso', alvo: 0, nivel: 0, ondas: [] };
+  const ESTADOS = { repouso: 'Em repouso', ouvindo: 'Ouvindo', pensando: 'Pensando', falando: 'Falando', offline: 'Desligado' };
+  const COR = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#22e4ff';
+
+  function desenhar(ms) {
+    const t = ms / 1000;
+    S.nivel += (S.alvo - S.nivel) * (S.alvo > S.nivel ? 0.45 : 0.12);  // sobe rápido, desce suave
+    S.alvo *= 0.92;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    const cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.3;
+    const off = S.estado === 'offline';
+
+    // brilho de fundo
+    const g = ctx.createRadialGradient(cx, cy, R * 0.2, cx, cy, R * 1.9);
+    g.addColorStop(0, off ? 'rgba(120,140,150,.10)' : 'rgba(34,228,255,.20)');
+    g.addColorStop(1, 'rgba(34,228,255,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R * 1.9, 0, Math.PI * 2); ctx.fill();
+
+    // ouvindo: anéis que se espalham
+    if (S.estado === 'ouvindo' && (!S.ondas.length || t - S.ondas[S.ondas.length - 1] > 0.7)) S.ondas.push(t);
+    S.ondas = S.ondas.filter(o => t - o < 2.2);
+    S.ondas.forEach(o => {
+      const k = (t - o) / 2.2;
+      ctx.strokeStyle = `rgba(34,228,255,${0.35 * (1 - k)})`; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(cx, cy, R * (1.05 + k * 0.6), 0, Math.PI * 2); ctx.stroke();
+    });
+
+    // contorno: parado em repouso, ondulado conforme a voz
+    const respira = off ? 0 : 0.012 + 0.008 * Math.sin(t * 1.6);
+    const amp = S.estado === 'falando' ? 0.03 + S.nivel * 0.22 : S.estado === 'ouvindo' ? 0.02 + S.nivel * 0.14 : respira;
+    const camadas = [
+      { a: 1.0, w: 2.4, f: 1.0, ph: 0 },
+      { a: 0.45, w: 1.4, f: 1.35, ph: 1.7 },
+      { a: 0.25, w: 1.0, f: 0.8, ph: 3.1 }
+    ];
+    camadas.forEach((c, i) => {
+      ctx.beginPath();
+      const N = 200;
+      for (let j = 0; j <= N; j++) {
+        const th = (j / N) * Math.PI * 2;
+        const d = Math.sin(3 * th + t * 2.1 * c.f + c.ph) * 0.5 + Math.sin(5 * th - t * 2.9 * c.f + c.ph) * 0.3 + Math.sin(8 * th + t * 4.3 * c.f) * 0.2;
+        const r = R * (1 + amp * d * (1 + i * 0.25));
+        const x = cx + r * Math.cos(th), y = cy + r * Math.sin(th);
+        j ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = off ? `rgba(160,180,190,${c.a * 0.5})` : `rgba(34,228,255,${c.a})`;
+      ctx.lineWidth = c.w;
+      ctx.shadowColor = off ? 'transparent' : COR; ctx.shadowBlur = i === 0 ? 18 + S.nivel * 30 : 0;
+      ctx.stroke();
+    });
+    ctx.shadowBlur = 0;
+
+    // núcleo
+    const n = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 0.95);
+    n.addColorStop(0, off ? 'rgba(160,180,190,.10)' : `rgba(122,243,255,${0.16 + S.nivel * 0.25})`);
+    n.addColorStop(1, 'rgba(34,228,255,0)');
+    ctx.fillStyle = n; ctx.beginPath(); ctx.arc(cx, cy, R * 0.95, 0, Math.PI * 2); ctx.fill();
+
+    // pensando: arco girando por fora
+    if (S.estado === 'pensando') {
+      const a0 = t * 2.4;
+      ctx.strokeStyle = 'rgba(122,243,255,.9)'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.arc(cx, cy, R * 1.18, a0, a0 + 1.1); ctx.stroke();
+      ctx.strokeStyle = 'rgba(122,243,255,.35)';
+      ctx.beginPath(); ctx.arc(cx, cy, R * 1.18, a0 + Math.PI, a0 + Math.PI + 0.6); ctx.stroke();
+    }
+    requestAnimationFrame(desenhar);
+  }
+  requestAnimationFrame(desenhar);
+
+  function setEstado(e) {
+    S.estado = e;
+    $('estado').textContent = ESTADOS[e] || e;
+    $('estado').classList.toggle('vivo', e !== 'repouso' && e !== 'offline');
+  }
+
+  // ================= CONVERSA =================
+  const falas = [];
+  function addFala(f) {
+    falas.push(f); if (falas.length > 40) falas.shift();
+    $('conversa').innerHTML = falas.map(x => `<div class="jv-msg ${x.quem === 'voce' ? 'voce' : ''}">${esc(x.texto)}</div>`).join('');
+    $('conversa').scrollTop = 1e9;
+    $('conversa-n').textContent = falas.length;
+    $('legenda').innerHTML = `<span class="quem">${x_quem(f.quem)}</span>${esc(f.texto.length > 220 ? f.texto.slice(0, 217) + '…' : f.texto)}`;
+  }
+  const x_quem = q => q === 'voce' ? 'Você' : 'Jarvis';
+
+  // ================= TELA =================
+  let telas = [], atual = null;
+  const idDrive = u => (u.match(/\/folders\/([\w-]{10,})/) || u.match(/\/d\/([\w-]{10,})/) || u.match(/[?&]id=([\w-]{10,})/) || [])[1];
+  function embutir(t) {
+    const u = (t.url || '').trim();
+    const k = t.kind && t.kind !== 'auto' ? t.kind : '';
+    if (!u) return { html: '' };
+    const yt = u.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/);
+    if (yt) return { html: `<iframe src="https://www.youtube.com/embed/${yt[1]}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>` };
+    if (/drive\.google\.com\/drive\/(u\/\d+\/)?folders\//.test(u) || k === 'drive' && /folders/.test(u))
+      return { html: `<iframe src="https://drive.google.com/embeddedfolderview?id=${idDrive(u)}#grid"></iframe>` };
+    if (/drive\.google\.com\/(file\/d|open\?id=)/.test(u)) return { html: `<iframe src="https://drive.google.com/file/d/${idDrive(u)}/preview" allow="autoplay" allowfullscreen></iframe>` };
+    if (/docs\.google\.com\/(document|spreadsheets|presentation)\//.test(u)) return { html: `<iframe src="${esc(u.replace(/\/(edit|view)([?#].*)?$/, '/preview'))}"></iframe>` };
+    if (/canva\.com\/design\/[\w-]+/.test(u)) { const b = u.match(/(https:\/\/www\.canva\.com\/design\/[\w-]+\/[\w-]+)/); if (b) return { html: `<iframe src="${esc(b[1])}/view?embed" allowfullscreen></iframe>` }; }
+    if (k === 'imagem' || /\.(png|jpe?g|gif|webp|avif|svg)(\?|$)/i.test(u)) return { html: `<img src="${esc(u)}" alt="${esc(t.titulo || '')}">` };
+    if (k === 'video' || /\.(mp4|mov|webm|m4v)(\?|$)/i.test(u)) return { html: `<video src="${esc(u)}" controls playsinline autoplay></video>` };
+    let host = ''; try { host = new URL(u).hostname.replace(/^www\./, ''); } catch (e) {}
+    return { html: `<div class="link-card"><div class="ico"><i class="fa-solid fa-link"></i></div><div class="grow" style="min-width:0"><div class="title" style="overflow-wrap:anywhere">${esc(t.titulo || host)}</div><div class="sub small soft">${esc(host)}</div></div><a class="btn btn-accent btn-sm" href="${esc(u)}" target="_blank" rel="noopener">Abrir</a></div>
+      <button class="btn btn-ghost btn-sm mt-3" style="align-self:flex-start" onclick="tentarAqui()"><i class="fa-solid fa-display"></i> Tentar mostrar aqui</button>` };
+  }
+  window.tentarAqui = () => { if (atual && atual.url) $('tela').innerHTML = `<iframe src="${esc(atual.url)}"></iframe><div class="small soft mt-2">Se ficar em branco, o site não deixa ser mostrado dentro de outra página: use “Abrir”.</div>`; };
+
+  function md(txt) {
+    const linhas = String(txt || '').replace(/\r/g, '').split('\n');
+    const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+      .replace(/(^|\s)(https?:\/\/[^\s<]+)/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>');
+    let out = '', lista = null, tabela = null;
+    const fecha = () => { if (lista) { out += `</${lista}>`; lista = null; } if (tabela) { out += '</table>'; tabela = null; } };
+    for (const l of linhas) {
+      let m;
+      if (/^\s*\|.*\|\s*$/.test(l)) {
+        if (/^\s*\|[\s:|-]+\|\s*$/.test(l)) continue;
+        const cel = l.trim().slice(1, -1).split('|').map(c => inline(c.trim()));
+        if (!tabela) { fecha(); out += '<table>'; tabela = 1; out += '<tr>' + cel.map(c => `<th>${c}</th>`).join('') + '</tr>'; }
+        else out += '<tr>' + cel.map(c => `<td>${c}</td>`).join('') + '</tr>';
+        continue;
+      }
+      if ((m = l.match(/^(#{1,3})\s+(.*)/))) { fecha(); out += `<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`; continue; }
+      if ((m = l.match(/^\s*[-*•]\s+(.*)/))) { if (lista !== 'ul') { fecha(); out += '<ul>'; lista = 'ul'; } out += `<li>${inline(m[1])}</li>`; continue; }
+      if ((m = l.match(/^\s*\d+[.)]\s+(.*)/))) { if (lista !== 'ol') { fecha(); out += '<ol>'; lista = 'ol'; } out += `<li>${inline(m[1])}</li>`; continue; }
+      fecha();
+      if (l.trim()) out += `<p>${inline(l)}</p>`;
+    }
+    fecha();
+    return out;
+  }
+
+  const hora = iso => { try { return new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } };
+  function mostrar(t) {
+    atual = t;
+    $('tela-titulo').textContent = t.titulo || 'Sem título';
+    $('tela-hora').textContent = 'Tela · ' + hora(t.hora);
+    const ab = $('tela-abrir');
+    if (t.url) { ab.href = t.url; ab.classList.remove('hidden'); } else ab.classList.add('hidden');
+    const e = embutir(t);
+    $('tela').innerHTML = (e.html || '') + (t.texto ? `<div class="md ${e.html ? 'mt-4' : ''}">${md(t.texto)}</div>` : '') ||
+      '<div class="stage-vazio">Sem conteúdo.</div>';
+    renderHist();
+  }
+  function renderHist() {
+    if (!telas.length) return;
+    $('historico').innerHTML = telas.slice().reverse().map(t => `
+      <div class="item ${atual && atual.id === t.id ? 'on' : ''}" data-id="${esc(t.id)}">
+        <div class="icon accent"><i class="fa-solid ${t.url ? (/drive|docs\.google/.test(t.url) ? 'fa-brands fa-google-drive' : /youtu/.test(t.url) ? 'fa-brands fa-youtube' : 'fa-link') : 'fa-align-left'}"></i></div>
+        <div class="grow" style="min-width:0"><div class="title" style="overflow-wrap:anywhere">${esc(t.titulo || 'Sem título')}</div><div class="sub">${hora(t.hora)}</div></div>
+      </div>`).join('');
+    $('historico').querySelectorAll('.item').forEach(el => el.onclick = () => { const t = telas.find(x => x.id === el.dataset.id); if (t) mostrar(t); });
+  }
+  function addTela(t, exibir = true) {
+    if (telas.some(x => x.id === t.id)) return;
+    telas.push(t); if (telas.length > 30) telas.shift();
+    exibir ? mostrar(t) : renderHist();
+  }
+
+  // ================= CONEXÃO COM O JARVIS DO MAC =================
+  const WS_URL = localStorage.getItem('jarvis_ws') || 'ws://127.0.0.1:8765';
+  let ws = null, espera = 1000;
+  function conexao(on, txt) {
+    $('conexao').classList.toggle('on', on);
+    $('conexao-txt').textContent = txt;
+    $('pedido').disabled = !on; $('enviar').disabled = !on;
+  }
+  function carregarSalvas() {   // quando o Mac está desligado: a última tela guardada no Dashplasso
+    const r = DB.get('jarvis_telas', 'recentes');
+    (r && r.telas || []).forEach(t => addTela(t, false));
+    if (!atual && telas.length) mostrar(telas[telas.length - 1]);
+  }
+  function conectar() {
+    try { ws = new WebSocket(WS_URL); } catch (e) { return falhou(); }
+    ws.onopen = () => { espera = 1000; conexao(true, 'Conectado ao Mac'); };
+    ws.onmessage = ev => {
+      let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+      if (m.tipo === 'inicio') { setEstado(m.estado || 'repouso'); (m.falas || []).forEach(f => { if (!falas.some(x => x.texto === f.texto)) addFala(f); }); (m.telas || []).forEach(t => addTela(t, false)); if (telas.length) mostrar(telas[telas.length - 1]); }
+      else if (m.tipo === 'estado') setEstado(m.valor);
+      else if (m.tipo === 'nivel') S.alvo = Math.max(S.alvo, Number(m.valor) || 0);
+      else if (m.tipo === 'fala') addFala(m);
+      else if (m.tipo === 'tela') addTela(m, true);
+    };
+    ws.onclose = falhou;
+    ws.onerror = () => {};
+  }
+  function falhou() {
+    conexao(false, 'Jarvis desligado no Mac');
+    setEstado('offline');
+    setTimeout(conectar, espera); espera = Math.min(espera * 1.6, 15000);
+  }
+  $('form').onsubmit = e => {
+    e.preventDefault();
+    const v = $('pedido').value.trim();
+    if (!v || !ws || ws.readyState !== 1) return;
+    ws.send(JSON.stringify({ tipo: 'pedido', texto: v }));
+    $('pedido').value = '';
+  };
+
+  carregarSalvas();
+  conectar();
+  setInterval(async () => { if (!ws || ws.readyState !== 1) { if (await DB.reload(['jarvis_telas'])) carregarSalvas(); } }, 20000);
+</script>
+</body>
+</html>
