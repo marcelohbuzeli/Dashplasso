@@ -118,6 +118,11 @@ Deno.serve(async (req) => {
   try { body = await req.json(); } catch { return json({ error: "JSON inválido" }, 400); }
   let url = String(body.url || "").trim().replace(/^webcal:\/\//i, "https://");
   if (!/^https:\/\//i.test(url)) return json({ error: "Cole o endereço iCal (começa com https://)." }, 400);
+  // só busca em servidores de agenda conhecidos (evita usar a função para acessar outros endereços)
+  let host = "";
+  try { host = new URL(url).hostname.toLowerCase(); } catch { /* inválido */ }
+  const HOSTS = [/^calendar\.google\.com$/, /^outlook\.(office365|live|office)\.com$/, /^p\d+-caldav\.icloud\.com$/, /(^|\.)icloud\.com$/, /(^|\.)notion\.so$/, /(^|\.)calendar\.notion\.so$/];
+  if (!HOSTS.some((r) => r.test(host))) return json({ error: "Use o endereço iCal do Google Agenda, Outlook ou iCloud." }, 400);
   const de = body.de ? new Date(body.de + "T00:00:00Z") : new Date(Date.now() - 45 * 864e5);
   const ate = body.ate ? new Date(body.ate + "T23:59:59Z") : new Date(Date.now() + 180 * 864e5);
   try {
