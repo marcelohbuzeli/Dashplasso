@@ -39,6 +39,20 @@ mesmas skills e conectores que você já tem (editor-plasso, Premiere, Canva, Dr
   ele pergunta "Posso?". Textos de clientes, páginas e documentos são tratados como dados, nunca como ordens.
 - O cérebro não tem permissão para ler `config.json`, `logs/` nem o Keychain.
 
+## Rápido e completo
+
+O Jarvis tem dois "cérebros":
+
+- **Rápido** (padrão para tudo): um Claude Code que fica sempre aberto, com modelo leve (`haiku`) e só as
+  ferramentas do Dashplasso. Ele já tem na ponta da língua a agenda de hoje e amanhã, os conteúdos
+  (atrasados, de hoje, urgentes, próximos dias, com o cliente), as tarefas da casa e as extras, atualizados
+  a cada 3 minutos. Perguntas como "o que eu tenho pra hoje?" saem em 1 a 3 segundos.
+- **Completo**: quando o pedido precisa de mais (editar vídeo, design, Canva, Drive, navegador, internet),
+  o rápido passa sozinho para o completo, que tem todas as skills e conectores (mais lento, e tudo bem).
+
+Ajustes no `config.json`: `"modelo_rapido": "sonnet"` (um pouco mais esperto, um pouco mais lento),
+`"modo_rapido": false` (desliga o rápido), `"modelo": "..."` (modelo do completo).
+
 ## Como falar com ele
 
 | Você | O que acontece |
@@ -118,6 +132,19 @@ Crie `config.json` nesta pasta só com o que quiser mudar:
 ```bash
 ./ligar.command --texto "Quais clientes eu tenho na pasta do Drive?"
 ```
+
+## Botão "Ligar Jarvis no Mac" (aba Jarvis)
+
+Quando o Jarvis está desligado, a aba Jarvis mostra o botão **Ligar Jarvis no Mac**. Para ele funcionar,
+instale uma vez neste Mac o app que o botão chama:
+
+```bash
+./instalar-botao.sh
+```
+
+Isso cria `~/Applications/Ligar Jarvis.app` (também dá para abrir pelo Spotlight). Na primeira vez o Chrome pergunta
+se pode abrir o app: marque "sempre permitir". Se ele já estiver ligado, o app só avisa e não abre outro.
+Mudou a pasta do Jarvis de lugar? Rode `./instalar-botao.sh` de novo.
 
 ## Ligar sozinho quando o Mac iniciar
 
