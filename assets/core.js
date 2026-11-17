@@ -163,7 +163,26 @@
         const { error } = await sb.from('records').delete().eq('collection', col).in('id', deletes);
         if (error) throw error;
       }
+      avisarJarvis(col);
     });
+  }
+
+  // ---------- aviso ao Jarvis no Mac (Supabase Realtime) ----------
+  // Depois de salvar, manda só "a coleção X mudou" (sem dados). O Jarvis lê o banco apenas quando
+  // recebe esse sinal, em vez de ficar consultando de tempos em tempos.
+  let canalJarvis = null, avisoTimer = null;
+  const avisoCols = new Set();
+  function avisarJarvis(col) {
+    if (!sb || !user) return;
+    avisoCols.add(col);
+    clearTimeout(avisoTimer);
+    avisoTimer = setTimeout(() => {
+      const cols = [...avisoCols]; avisoCols.clear();
+      try {
+        if (!canalJarvis) canalJarvis = sb.channel('dp-' + user.id, { config: { broadcast: { self: false } } });
+        cols.forEach(c => Promise.resolve(canalJarvis.send({ type: 'broadcast', event: 'mudou', payload: { col: c } })).catch(() => {}));
+      } catch (e) { /* o aviso é opcional: o dado já foi salvo */ }
+    }, 600);
   }
 
   function primeSnapshot(col) {
