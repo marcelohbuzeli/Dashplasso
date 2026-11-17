@@ -205,9 +205,11 @@
 
   // ================= TELA =================
   let telas = [], atual = null;
+  // só links http(s): bloqueia javascript:, data: etc. (nada roda dentro da página)
+  const urlSegura = u => { try { const x = new URL(String(u || '').trim()); return /^https?:$/.test(x.protocol) ? x.href : ''; } catch (e) { return ''; } };
   const idDrive = u => (u.match(/\/folders\/([\w-]{10,})/) || u.match(/\/d\/([\w-]{10,})/) || u.match(/[?&]id=([\w-]{10,})/) || [])[1];
   function embutir(t) {
-    const u = (t.url || '').trim();
+    const u = urlSegura(t.url);
     const k = t.kind && t.kind !== 'auto' ? t.kind : '';
     if (!u) return { html: '' };
     const yt = u.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/);
@@ -220,10 +222,11 @@
     if (k === 'imagem' || /\.(png|jpe?g|gif|webp|avif|svg)(\?|$)/i.test(u)) return { html: `<img src="${esc(u)}" alt="${esc(t.titulo || '')}">` };
     if (k === 'video' || /\.(mp4|mov|webm|m4v)(\?|$)/i.test(u)) return { html: `<video src="${esc(u)}" controls playsinline autoplay></video>` };
     let host = ''; try { host = new URL(u).hostname.replace(/^www\./, ''); } catch (e) {}
+    if (!u) return { html: '' };
     return { html: `<div class="link-card"><div class="ico"><i class="fa-solid fa-link"></i></div><div class="grow" style="min-width:0"><div class="title" style="overflow-wrap:anywhere">${esc(t.titulo || host)}</div><div class="sub small soft">${esc(host)}</div></div><a class="btn btn-accent btn-sm" href="${esc(u)}" target="_blank" rel="noopener">Abrir</a></div>
       <button class="btn btn-ghost btn-sm mt-3" style="align-self:flex-start" onclick="tentarAqui()"><i class="fa-solid fa-display"></i> Tentar mostrar aqui</button>` };
   }
-  window.tentarAqui = () => { if (atual && atual.url) $('tela').innerHTML = `<iframe src="${esc(atual.url)}"></iframe><div class="small soft mt-2">Se ficar em branco, o site não deixa ser mostrado dentro de outra página: use “Abrir”.</div>`; };
+  window.tentarAqui = () => { const u = atual && urlSegura(atual.url); if (u) $('tela').innerHTML = `<iframe src="${esc(u)}" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe><div class="small soft mt-2">Se ficar em branco, o site não deixa ser mostrado dentro de outra página: use “Abrir”.</div>`; };
 
   function md(txt) {
     const linhas = String(txt || '').replace(/\r/g, '').split('\n');
@@ -257,7 +260,8 @@
     $('tela-titulo').textContent = t.titulo || 'Sem título';
     $('tela-hora').textContent = 'Tela · ' + hora(t.hora);
     const ab = $('tela-abrir');
-    if (t.url) { ab.href = t.url; ab.classList.remove('hidden'); } else ab.classList.add('hidden');
+    const seg = urlSegura(t.url);
+    if (seg) { ab.href = seg; ab.classList.remove('hidden'); } else ab.classList.add('hidden');
     const e = embutir(t);
     $('tela').innerHTML = (e.html || '') + (t.texto ? `<div class="md ${e.html ? 'mt-4' : ''}">${md(t.texto)}</div>` : '') ||
       '<div class="stage-vazio">Sem conteúdo.</div>';
@@ -293,10 +297,17 @@
   }
   function conectar() {
     try { ws = new WebSocket(WS_URL); } catch (e) { return falhou(); }
-    ws.onopen = () => { espera = 1000; conexao(true, 'Conectado ao Mac'); };
+    ws.onopen = async () => {
+      // prova para o Jarvis que é você (o token do login; ele confere no Supabase se é o mesmo dono)
+      try {
+        const { data: { session } } = App.supabase ? await App.supabase.auth.getSession() : { data: {} };
+        ws.send(JSON.stringify({ tipo: 'ola', token: (session && session.access_token) || '' }));
+      } catch (e) { ws.send(JSON.stringify({ tipo: 'ola', token: '' })); }
+      conexao(false, 'Verificando seu login…');
+    };
     ws.onmessage = ev => {
       let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
-      if (m.tipo === 'inicio') { setEstado(m.estado || 'repouso'); (m.falas || []).forEach(f => { if (!falas.some(x => x.texto === f.texto)) addFala(f); }); (m.telas || []).forEach(t => addTela(t, false)); if (telas.length) mostrar(telas[telas.length - 1]); }
+      if (m.tipo === 'inicio') { espera = 1000; conexao(true, 'Conectado ao Mac'); setEstado(m.estado || 'repouso'); (m.falas || []).forEach(f => { if (!falas.some(x => x.texto === f.texto)) addFala(f); }); (m.telas || []).forEach(t => addTela(t, false)); if (telas.length) mostrar(telas[telas.length - 1]); }
       else if (m.tipo === 'estado') setEstado(m.valor);
       else if (m.tipo === 'nivel') S.alvo = Math.max(S.alvo, Number(m.valor) || 0);
       else if (m.tipo === 'fala') addFala(m);
@@ -305,8 +316,8 @@
     ws.onclose = falhou;
     ws.onerror = () => {};
   }
-  function falhou() {
-    conexao(false, 'Jarvis desligado no Mac');
+  function falhou(ev) {
+    conexao(false, ev && ev.code === 4001 ? 'Login não confere com o Jarvis' : 'Jarvis desligado no Mac');
     setEstado('offline');
     setTimeout(conectar, espera); espera = Math.min(espera * 1.6, 15000);
   }
