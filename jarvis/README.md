@@ -45,13 +45,26 @@ O Jarvis tem dois "cérebros":
 
 - **Rápido** (padrão para tudo): um Claude Code que fica sempre aberto, com modelo leve (`haiku`) e só as
   ferramentas do Dashplasso. Ele já tem na ponta da língua a agenda de hoje e amanhã, os conteúdos
-  (atrasados, de hoje, urgentes, próximos dias, com o cliente), as tarefas da casa e as extras, atualizados
-  a cada 3 minutos. Perguntas como "o que eu tenho pra hoje?" saem em 1 a 3 segundos.
+  (atrasados, de hoje, urgentes, próximos dias, com o cliente), as tarefas da casa e as extras. Perguntas como "o que eu tenho pra hoje?" saem em 1 a 3 segundos.
 - **Completo**: quando o pedido precisa de mais (editar vídeo, design, Canva, Drive, navegador, internet),
   o rápido passa sozinho para o completo, que tem todas as skills e conectores (mais lento, e tudo bem).
 
 Ajustes no `config.json`: `"modelo_rapido": "sonnet"` (um pouco mais esperto, um pouco mais lento),
 `"modo_rapido": false` (desliga o rápido), `"modelo": "..."` (modelo do completo).
+
+## Só atualiza quando algo muda
+
+O Jarvis **não fica consultando** o Dashplasso de tempos em tempos. Toda vez que o site salva alguma coisa
+(tarefa da casa feita, extra criada ou concluída, conteúdo que mudou de etapa, agenda), ele manda um sinal
+curto pelo Supabase Realtime ("a coleção X mudou", sem dados). Só então o Jarvis lê o banco e refaz o painel do dia.
+Se nada mudar, o painel fica igual o dia todo. Ele também refaz o painel na virada do dia e quando você diz
+"atualiza os dados" (útil depois de mexer direto no Google Agenda).
+
+**Chamar Design / Chamar Editor de vídeo**: o clique no botão avisa o Jarvis na hora. Ele confere a fila
+(sem IA, sem custo) e abre o Claude completo com a skill `design-padrao` ou `editor-plasso`, um pedido por vez.
+Avisa por voz quando começa e quando termina, e o resultado aparece no conteúdo. Com o Jarvis desligado,
+nada roda; pedidos feitos nas últimas 24 h começam quando ele ligar. As antigas tarefas agendadas
+"Plassô: Chamar Design/Editor" ficam desligadas (não precisam mais rodar).
 
 ## Como falar com ele
 
