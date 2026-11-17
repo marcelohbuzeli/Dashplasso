@@ -22,6 +22,10 @@
   .jv-legenda .quem { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 4px; }
   .jv-conexao { display: inline-flex; align-items: center; gap: 6px; }
   .jv-conexao .dot { background: var(--ink-4); }
+  .jv-ligar { display: none; margin-top: 14px; }
+  .jv-ligar.show { display: block; }
+  .jv-ligar .btn { width: 100%; }
+  .jv-ligar .dica { margin-top: 8px; text-align: center; }
   .jv-conexao.on .dot { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
   .jv-input { display: flex; gap: 8px; margin-top: 16px; }
   .jv-input .input { flex: 1; }
@@ -67,6 +71,10 @@
         <div class="orb-box"><canvas id="orb" aria-label="Jarvis"></canvas></div>
         <div class="jv-estado" id="estado">Em repouso</div>
         <div class="jv-legenda" id="legenda"><span class="small soft">Diga “Ei, Jarvis” ou bata duas palmas.</span></div>
+        <div class="jv-ligar" id="ligar-box">
+          <button class="btn btn-accent" id="ligar" type="button"><i class="fa-solid fa-power-off"></i> <span id="ligar-txt">Ligar Jarvis no Mac</span></button>
+          <div class="dica tiny muted" id="ligar-dica"></div>
+        </div>
         <form class="jv-input" id="form">
           <input class="input" id="pedido" placeholder="Ou digite para o Jarvis…" autocomplete="off" disabled>
           <button class="btn btn-accent" id="enviar" aria-label="Enviar" disabled><i class="fa-solid fa-arrow-up"></i></button>
@@ -285,7 +293,25 @@
   // ================= CONEXÃO COM O JARVIS DO MAC =================
   const WS_URL = localStorage.getItem('jarvis_ws') || 'ws://127.0.0.1:8765';
   let ws = null, espera = 1000;
+  // botão "Ligar": abre o app Ligar Jarvis do Mac (instalado por jarvis/instalar-botao.sh)
+  const NO_MAC = /Macintosh/.test(navigator.userAgent) && !('ontouchend' in document);
+  let ligando = null;
+  function mostrarLigar(on, desligado) {
+    $('ligar-box').classList.toggle('show', NO_MAC && desligado);
+    if (on && ligando) { clearTimeout(ligando); ligando = null; $('ligar').disabled = false; $('ligar-txt').textContent = 'Ligar Jarvis no Mac'; $('ligar-dica').textContent = ''; }
+  }
+  $('ligar').onclick = () => {
+    $('ligar').disabled = true; $('ligar-txt').textContent = 'Ligando…';
+    $('ligar-dica').textContent = 'Ele leva uns 20 segundos e diz “Online” quando estiver pronto.';
+    location.href = 'plasso-jarvis://ligar';
+    espera = 1000; clearTimeout(ligando);
+    ligando = setTimeout(() => {   // 60 s sem conectar: o app provavelmente não está instalado neste Mac
+      ligando = null; $('ligar').disabled = false; $('ligar-txt').textContent = 'Tentar de novo';
+      $('ligar-dica').innerHTML = 'Não ligou? Neste Mac, rode uma vez no Terminal: <code>jarvis/instalar-botao.sh</code> (ou dê dois cliques em ligar.command).';
+    }, 60000);
+  };
   function conexao(on, txt) {
+    mostrarLigar(on, !on && txt === 'Jarvis desligado no Mac');
     $('conexao').classList.toggle('on', on);
     $('conexao-txt').textContent = txt;
     $('pedido').disabled = !on; $('enviar').disabled = !on;
@@ -319,7 +345,7 @@
   function falhou(ev) {
     conexao(false, ev && ev.code === 4001 ? 'Login não confere com o Jarvis' : 'Jarvis desligado no Mac');
     setEstado('offline');
-    setTimeout(conectar, espera); espera = Math.min(espera * 1.6, 15000);
+    setTimeout(conectar, ligando ? 2000 : espera); espera = Math.min(espera * 1.6, 15000);
   }
   $('form').onsubmit = e => {
     e.preventDefault();

@@ -96,6 +96,14 @@
             <div id="casa-hoje" class="list"></div>
           </div>
           <div class="card card-lg">
+            <div class="card-head"><h2 class="h2">Extras</h2><span class="pill" id="extra-count"></span></div>
+            <div id="extra-hoje" class="list"></div>
+            <form class="row mt-3 extra-form">
+              <input name="nome" required maxlength="120" placeholder="Ex.: Ir ao mercado" class="input grow" style="min-width:0" aria-label="Nova tarefa extra">
+              <button class="chip-btn accent" aria-label="Adicionar tarefa extra"><i class="fa-solid fa-plus"></i></button>
+            </form>
+          </div>
+          <div class="card card-lg">
             <div class="card-head"><h2 class="h2">Empresa</h2><a href="tasks.html" data-keep class="btn btn-ghost btn-sm">Tasks</a></div>
             <div id="empresa-hoje" class="list"></div>
           </div>
@@ -117,6 +125,16 @@
           </select>
           <button class="btn btn-accent">Adicionar</button>
         </form>
+      </div>
+      <div class="card card-lg">
+        <h2 class="h2">Tarefas extras</h2>
+        <p class="muted small mt-1">Coisas que aparecem de vez em quando (ir ao mercado, editar um anúncio, um vídeo). Ficam em "Hoje" e no Modo Trabalho até você marcar como feita.</p>
+        <div id="extra-lista" class="list mt-3"></div>
+        <form class="row mt-4 extra-form" style="flex-wrap:wrap">
+          <input name="nome" required maxlength="120" placeholder="Ex.: Editar vídeo Aline" class="input grow" style="min-width:180px" aria-label="Nova tarefa extra">
+          <button class="btn btn-accent">Adicionar</button>
+        </form>
+        <div id="extra-feitas" class="mt-3"></div>
       </div>
     </div>
 
@@ -175,6 +193,8 @@
     if (comp) partes.push(`${comp} compromisso${comp > 1 ? 's' : ''}`);
     if (urg) partes.push(`${urg} demanda${urg > 1 ? 's' : ''} urgente${urg > 1 ? 's' : ''}`);
     if (casa) partes.push(`${casa} tarefa${casa > 1 ? 's' : ''} da casa`);
+    const ext = extrasPendentes().length;
+    if (ext) partes.push(`${ext} extra${ext > 1 ? 's' : ''}`);
     $('resumo-frase').textContent = partes.length ? 'Hoje você tem ' + partes.join(', ').replace(/, ([^,]*)$/, ' e $1') + '.' : 'Dia tranquilo. Nada urgente por aqui.';
   }
 
@@ -276,6 +296,41 @@
   function casaDel(id) { const c = DB.get('life_casa', id); if (confirm(`Remover "${c.nome}"?`)) { DB.remove('life_casa', id); renderAll(); } }
   $('casa-form').addEventListener('submit', e => { e.preventDefault(); const f = e.target; DB.put('life_casa', { id: App.uid('ca_'), nome: f.nome.value.trim(), freq: +f.freq.value, ultimaVez: null }); f.reset(); f.freq.value = 7; renderAll(); App.toast('Tarefa adicionada.', 'ok'); });
 
+  // ---------- extras (tarefas esporádicas: some ao marcar) ----------
+  const extrasPendentes = () => DB.list('life_extras').filter(x => !x.feitaEm).sort((a, b) => String(a.criadaEm).localeCompare(String(b.criadaEm)));
+  function feitoExtra(id) {
+    const x = DB.get('life_extras', id); if (!x) return;
+    x.feitaEm = hoje(); DB.put('life_extras', x); renderAll();
+    App.toast(`${x.nome} ✓ (dá para desfazer na aba Casa)`, 'ok');
+  }
+  function desfazerExtra(id) { const x = DB.get('life_extras', id); if (!x) return; x.feitaEm = null; DB.put('life_extras', x); renderAll(); }
+  function extraDel(id) { const x = DB.get('life_extras', id); if (x && confirm(`Remover "${x.nome}"?`)) { DB.remove('life_extras', id); renderAll(); } }
+  function addExtra(nome) {
+    nome = String(nome || '').trim(); if (!nome) return;
+    DB.put('life_extras', { id: App.uid('ex_'), nome, criadaEm: new Date().toISOString(), feitaEm: null });
+    renderAll(); App.toast('Extra adicionada.', 'ok');
+  }
+  const extraItem = (x, lixeira) => `
+      <div class="item">
+        <button class="chip-btn" onclick="feitoExtra('${x.id}')" aria-label="Marcar ${esc(x.nome)} como feita"><i class="fa-regular fa-circle"></i></button>
+        <div class="grow"><div class="title truncate">${esc(x.nome)}</div><div class="sub">${UI.dias(String(x.criadaEm).slice(0, 10), hoje()) > 0 ? 'desde ' + UI.diaMes(String(x.criadaEm).slice(0, 10)) : 'adicionada hoje'}</div></div>
+        ${lixeira ? `<button class="chip-btn" onclick="extraDel('${x.id}')" aria-label="Remover"><i class="fa-solid fa-trash"></i></button>` : ''}
+      </div>`;
+  function renderExtras() {
+    const v = extrasPendentes();
+    $('extra-count').textContent = v.length ? `${v.length} pendente${v.length > 1 ? 's' : ''}` : 'em dia';
+    $('extra-hoje').innerHTML = v.length ? v.slice(0, 6).map(x => extraItem(x, false)).join('') + (v.length > 6 ? `<div class="item"><span class="muted small">+ ${v.length - 6} na aba Casa</span></div>` : '')
+      : '<div class="empty"><i class="fa-solid fa-circle-check"></i>Nenhuma extra pendente</div>';
+    $('extra-lista').innerHTML = v.map(x => extraItem(x, true)).join('') || '<div class="empty">Nenhuma extra pendente.</div>';
+    const feitas = DB.list('life_extras').filter(x => x.feitaEm).sort((a, b) => String(b.feitaEm).localeCompare(String(a.feitaEm))).slice(0, 10);
+    $('extra-feitas').innerHTML = feitas.length ? `<details><summary class="muted small" style="cursor:pointer">Feitas recentemente (${feitas.length})</summary><div class="list mt-2">${feitas.map(x => `
+      <div class="item"><div class="grow"><div class="title truncate soft">${esc(x.nome)}</div><div class="sub">feita em ${UI.diaMes(x.feitaEm)}</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="desfazerExtra('${x.id}')">Voltar</button></div>`).join('')}</div></details>` : '';
+  }
+  document.querySelectorAll('.extra-form').forEach(f => f.addEventListener('submit', e => { e.preventDefault(); addExtra(f.nome.value); f.reset(); }));
+  // limpeza: extras feitas há mais de 30 dias saem do banco
+  DB.list('life_extras').filter(x => x.feitaEm && UI.dias(x.feitaEm, hoje()) > 30).forEach(x => DB.remove('life_extras', x.id));
+
   // ---------- empresa ----------
   function tarefasEmpresa() {
     const t0 = hoje();
@@ -318,8 +373,9 @@
   function fila() {
     const casa = casaVencidas().map(c => ({ ref: c.id, origem: 'casa', titulo: c.nome, sub: c.atraso >= 999 ? 'Casa · nunca feito' : `Casa · ${c.atraso ? c.atraso + 'd de atraso' : 'vence hoje'}`, chave: c.nome, score: 45 + Math.min(c.atraso, 30) }));
     const avulsas = (S?.avulsas || []).map(a => ({ ...a, origem: 'avulsa', score: 70 }));
+    const extras = extrasPendentes().map(x => ({ ref: x.id, origem: 'extra', titulo: x.nome, sub: 'Extra', chave: x.nome, score: 60 }));
     const feitos = new Set((S?.itens || []).filter(i => i.concluido).map(i => i.origem + ':' + i.ref));
-    return [...avulsas, ...tarefasEmpresa(), ...casa].filter(x => !feitos.has(x.origem + ':' + x.ref)).sort((a, b) => b.score - a.score);
+    return [...avulsas, ...tarefasEmpresa(), ...extras, ...casa].filter(x => !feitos.has(x.origem + ':' + x.ref)).sort((a, b) => b.score - a.score);
   }
   function inicioTrabalho() { S = { id: App.uid('ss_'), inicio: agora(), itens: [], atual: null, avulsas: [] }; salvarS(); entrarModo(); }
   function entrarModo() {
@@ -355,6 +411,7 @@
     S.itens.push({ origem: a.origem, ref: a.ref, titulo: a.titulo, chave: a.chave, segundos: total, concluido: true, fim: agora() });
     S.atual = null;
     if (a.origem === 'casa') { const c = DB.get('life_casa', a.ref); if (c) { c.ultimaVez = hoje(); DB.put('life_casa', c); } }
+    if (a.origem === 'extra') { const x = DB.get('life_extras', a.ref); if (x) { x.feitaEm = hoje(); DB.put('life_extras', x); } }
     if (a.origem === 'gestao') {
       const t = DB.get('tasks', a.ref);
       if (t) { t.tempoGasto = (t.tempoGasto || 0) + total; t.feitoNoModoTrabalho = hoje(); if (!['pronto', 'aprovadas'].includes(t.status)) { t.status = 'pronto'; t.manuallyMovedToPronto = true; } if (t.isRejected) { t.isRejected = false; t.ajusteFeitoEm = hoje(); } DB.put('tasks', t); }
@@ -394,7 +451,7 @@
     if (sincronizando || document.hidden || document.querySelector('.sheet-backdrop, .sheet')) return;
     sincronizando = true;
     try {
-      if (!(await DB.reload(['life_sessao_ativa', 'life_sessoes', 'tasks', 'life_casa']))) return;
+      if (!(await DB.reload(['life_sessao_ativa', 'life_sessoes', 'tasks', 'life_casa', 'life_extras']))) return;
       const novo = DB.getValue('life_sessao_ativa', null);
       const estava = !!S;
       S = novo && novo.inicio && Array.isArray(novo.itens) ? novo : null;
@@ -437,7 +494,7 @@
     $('w-lista').innerHTML = f.length ? f.map(x => {
       const media = mediaDe(x.chave);
       const cabe = livreMin != null && media != null ? (media / 60 <= livreMin) : null;
-      const ic = x.origem === 'casa' ? 'fa-house' : x.origem === 'avulsa' ? 'fa-bolt' : 'fa-briefcase';
+      const ic = x.origem === 'casa' ? 'fa-house' : x.origem === 'avulsa' ? 'fa-bolt' : x.origem === 'extra' ? 'fa-list-check' : 'fa-briefcase';
       return `<div class="item">
         <div class="icon"><i class="fa-solid ${ic}"></i></div>
         <div class="grow"><div class="title truncate">${x.score >= 80 ? '<span style="color:var(--danger)">! </span>' : ''}${esc(x.titulo)}</div>
@@ -475,7 +532,7 @@
   }
   document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => trocaTab(b.dataset.tab));
 
-  function renderAll() { renderHero(); renderKpis(); renderHabitos(); renderCasa(); renderEmpresa(); renderAgenda(); renderRelatorio(); }
+  function renderAll() { renderHero(); renderKpis(); renderHabitos(); renderCasa(); renderExtras(); renderEmpresa(); renderAgenda(); renderRelatorio(); }
   renderAll();
   if (S) entrarModo();
   UI.agenda.carregar().then(() => { renderHero(); renderKpis(); renderAgenda(); if (S) renderWork(); });
