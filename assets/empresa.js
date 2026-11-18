@@ -181,7 +181,7 @@
           ${t.isRejected ? `<div class="full card card-tight" style="border-color:rgba(255,90,110,.4)"><div class="small" style="color:#ff9aa7"><i class="fa-solid fa-rotate-left"></i> ${esc(t.notes || 'Ajuste pedido pelo cliente')}</div><label class="check mt-2 small"><input type="checkbox" name="resolvido"> Ajuste feito (tirar o aviso)</label></div>` : ''}
         </div>
         ${t.tempoGasto ? `<p class="muted small mt-3"><i class="fa-solid fa-stopwatch"></i> Tempo gasto no Modo Trabalho: ${Math.round(t.tempoGasto / 60)} min</p>` : ''}`,
-      foot: `${novo ? '' : '<button class="btn btn-danger" data-del><i class="fa-solid fa-trash"></i></button>'}${novo ? '' : botaoAgente(t)}${UI.linkOk(t.drive) ? `<a class="btn btn-ghost" href="${esc(t.drive)}" target="_blank" rel="noopener"><i class="fa-brands fa-google-drive"></i> Drive</a>` : ''}<button class="btn btn-white" data-save>Salvar</button>`
+      foot: `${novo ? '' : '<button class="btn btn-danger" data-del><i class="fa-solid fa-trash"></i></button>'}${novo ? '' : botaoAgente(t)}${UI.linkOk(t.drive) ? `<a class="btn btn-ghost" href="${esc(t.drive)}" target="_blank" rel="noopener"><i class="fa-brands fa-google-drive"></i> Drive</a>` : ''}${UI.linkOk(t.projetoEditor) ? `<a class="btn btn-ghost" href="${esc(t.projetoEditor)}" target="_blank" rel="noopener"><i class="fa-solid fa-film"></i> Ajustar no Editor</a>` : ''}<button class="btn btn-white" data-save>Salvar</button>`
     });
     let midias = (t.midias || []).slice();
     let linkBuscado = (t.midias || []).length ? (t.drive || '') : '';
