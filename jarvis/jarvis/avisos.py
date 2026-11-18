@@ -31,6 +31,7 @@ class Avisos:
                  juntar_s: float = 2.0):
         self.cfg, self.ao_mudar, self.log, self.juntar = cfg, ao_mudar, log, juntar_s
         self.conectado = False
+        self._ja_ligou = False      # na 1ª conexão o Jarvis já confere tudo; nas reconexões, confere de novo
         self._pendentes: set[str] = set()
         self._trava = threading.Lock()
         self._timer: threading.Timer | None = None
@@ -108,6 +109,10 @@ class Avisos:
                             if not self.conectado:
                                 self.log("[avisos] ligado: o Jarvis só atualiza quando algo muda no Dashplasso")
                             self.conectado = True
+                            if self._ja_ligou:
+                                # um clique em "Chamar Editor/Design" enquanto a conexão estava caída não pode se perder
+                                self._sinal("?")
+                            self._ja_ligou = True
                         else:
                             raise RuntimeError(f"Realtime recusou: {str(m.get('payload'))[:200]}")
                     elif ev == "broadcast" and m.get("topic") == topico:

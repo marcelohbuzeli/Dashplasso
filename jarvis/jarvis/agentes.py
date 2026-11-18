@@ -67,7 +67,8 @@ O QUE FAZER
   NÃO use o Premiere, a menos que a observação peça Premiere (aí use a skill premiere-video-cliente).
 - Brutos: pelo link do "drive", ou no Drive para desktop em CLIENTES/<CLIENTE>/<ANO>/<MM - Mês>/BRUTE/[DD] .../Reels (DD = dia da data do conteúdo).
 - Roteiro como guia dos cortes (vazio: use o da pasta, se houver). Identidade: perfil.md na pasta IDENTIDADE VISUAL do cliente.
-- Problemas que só o Marcelo resolve (chave da Groq não colada no Editor, Chrome pedindo permissão, brutos não encontrados): marque erro e explique.
+- Transcrição: SEMPRE no Mac com transcrever-local.py + __agente.usarPalavras(), como a skill explica (não depende da chave da Groq).
+- Problemas que só o Marcelo resolve (Chrome pedindo permissão, brutos não encontrados): marque erro e explique.
 
 NO FIM (obrigatório)
 - Deu certo: dash_agente_atualizar(id, "editor", status="pronto", resumo="<1 a 2 frases: duração final, cortes, como as observações foram atendidas>", onde="Aberto no Meu Editor (Chrome): https://marcelohbuzeli.github.io/Editor/")
