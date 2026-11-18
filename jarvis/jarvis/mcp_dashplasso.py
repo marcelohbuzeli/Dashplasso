@@ -7,6 +7,7 @@ Roda via stdio; o Jarvis passa este servidor com --mcp-config.
 from __future__ import annotations
 
 import datetime as dt
+import re
 import json
 import time
 import unicodedata
@@ -318,10 +319,13 @@ def dash_concluir_envio(criacao_id: str, link_final: str = "", observacao: str =
 
 @srv.tool()
 def dash_agente_atualizar(id: str, agente: str, status: str, resumo: str = "", onde: str = "",
-                          drive: str = "", erro: str = "") -> str:
+                          drive: str = "", erro: str = "", projeto: str = "", mover_pronto: bool = False) -> str:
     """Devolve o resultado de um pedido do botão "Chamar Design" / "Chamar Editor de vídeo".
     agente: "design" ou "editor". status: "pronto" ou "erro".
-    pronto: resumo (1 a 2 frases), onde (link do Canva / onde está aberto), drive (pasta com os arquivos).
+    pronto: resumo (1 a 2 frases), onde (link do Canva / onde está aberto), drive (link do arquivo final no Drive:
+    vídeo exportado ou pasta dos PNGs; vira o link "Ver material" do card e do portal do cliente).
+    projeto: link do projeto editável (Editor: https://marcelohbuzeli.github.io/Editor/?projeto=<id>).
+    mover_pronto: true move o card para "Pronto" (vai para a aprovação do cliente). Só com o arquivo final no drive.
     erro: erro (motivo curto e claro)."""
     try:
         if agente not in ("design", "editor"):
@@ -338,6 +342,22 @@ def dash_agente_atualizar(id: str, agente: str, status: str, resumo: str = "", o
         t["agentes"] = dict(t.get("agentes") or {}, **{agente: ag})
         if drive:
             t["drive"] = drive
+            m = re.search(r"/file/d/([A-Za-z0-9_-]{10,})", drive)
+            if m:   # link de UM arquivo (vídeo exportado): vira a mídia do card e do portal do cliente
+                t["midias"] = [{"id": m.group(1), "nome": f"{t.get('headline') or t.get('title') or 'video'}.mp4",
+                                "tipo": "video" if agente == "editor" else "imagem"}]
+                t["midiasEm"] = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+        if projeto:
+            t["projetoEditor" if agente == "editor" else "projetoDesign"] = projeto
+        if status == "pronto" and mover_pronto and drive:
+            if t.get("isRejected"):   # igual ao site: o ajuste pedido vai para o histórico e o aviso sai
+                pedido = str(t.get("notes") or "").replace("Reprovado pelo cliente:", "").strip()
+                t["historicoAjustes"] = list(t.get("historicoAjustes") or []) + [
+                    {"pedido": pedido, "resolvidoEm": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}]
+                t["notes"] = ""
+            t["status"] = "pronto"
+            t["isRejected"] = False
+            t["manuallyMovedToPronto"] = True
         db.salvar("tasks", t)
         with open(LOG_ALTERACOES, "a", encoding="utf-8") as f:
             f.write(_json({"hora": time.strftime("%F %T"), "colecao": "tasks", "id": id, "agente": agente,

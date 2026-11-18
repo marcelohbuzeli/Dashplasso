@@ -62,18 +62,23 @@ NO FIM (obrigatório)
 
 EDITOR = """
 O QUE FAZER
-- Carregue a skill editor-plasso (ferramenta Skill) e siga tudo o que ela manda: edição no MEU EDITOR do Marcelo
-  (https://marcelohbuzeli.github.io/Editor/), no Chrome dele (ferramentas mcp__claude-in-chrome__*; carregue-as com ToolSearch numa chamada só).
+- Carregue a skill editor-plasso (ferramenta Skill) e siga TUDO o que ela manda, do começo à entrega: edição no MEU EDITOR do
+  Marcelo (https://marcelohbuzeli.github.io/Editor/), no Chrome dele (ferramentas mcp__claude-in-chrome__*; carregue-as com ToolSearch numa chamada só).
   NÃO use o Premiere, a menos que a observação peça Premiere (aí use a skill premiere-video-cliente).
 - Brutos: pelo link do "drive", ou no Drive para desktop em CLIENTES/<CLIENTE>/<ANO>/<MM - Mês>/BRUTE/[DD] .../Reels (DD = dia da data do conteúdo).
 - Roteiro como guia dos cortes (vazio: use o da pasta, se houver). Identidade: perfil.md na pasta IDENTIDADE VISUAL do cliente.
 - Transcrição: SEMPRE no Mac com transcrever-local.py + __agente.usarPalavras(), como a skill explica (não depende da chave da Groq).
-- Problemas que só o Marcelo resolve (Chrome pedindo permissão, brutos não encontrados): marque erro e explique.
+- Entrega (a skill explica): salvar na galeria (taskId = o "id" do pedido), exportar o vídeo, gravar na pasta EDITADO do conteúdo
+  no Drive e pegar o link do arquivo.
+- Problemas que só o Marcelo resolve (Chrome pedindo permissão, brutos não encontrados, Editor sem login no Dashplasso): marque erro e explique.
 
 NO FIM (obrigatório)
-- Deu certo: dash_agente_atualizar(id, "editor", status="pronto", resumo="<1 a 2 frases: duração final, cortes, como as observações foram atendidas>", onde="Aberto no Meu Editor (Chrome): https://marcelohbuzeli.github.io/Editor/")
+- Deu certo: dash_agente_atualizar(id, "editor", status="pronto", resumo="<1 a 2 frases: duração final, cortes, como as observações foram atendidas>",
+  onde="<link do projeto na galeria>", projeto="<link do projeto na galeria>", drive="<link do VÍDEO exportado no Drive>", mover_pronto=true)
+  Isso cola o vídeo no card, move para "Pronto" (aprovação do cliente) e deixa o botão "Ajustar no Editor".
+- Se o vídeo não foi exportado/enviado ao Drive: NÃO use mover_pronto; marque erro com o motivo (o projeto continua salvo na galeria).
 - Não deu: dash_agente_atualizar(id, "editor", status="erro", erro="<motivo curto e claro>")
-- Responda em 2 frases: cliente + título, se deu certo e que está aberto no Meu Editor para ele conferir e exportar.
+- Responda em 2 frases: cliente + título, se deu certo, o link do vídeo e que o projeto está na galeria do Editor para ajustes.
 """
 
 
