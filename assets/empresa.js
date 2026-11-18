@@ -357,6 +357,7 @@
         ${t.roteiro ? `<details class="mt-3" ${t.legenda || t.caption ? '' : 'open'}><summary class="small muted" style="cursor:pointer">Roteiro / descrição</summary><div class="small soft mt-2" style="white-space:pre-line">${esc(t.roteiro)}</div></details>` : ''}
         ${(t.historicoAjustes || []).length ? `<details class="mt-3"><summary class="small muted" style="cursor:pointer">Ajustes anteriores (${t.historicoAjustes.length})</summary>${t.historicoAjustes.map(h => `<div class="small soft mt-2">• ${esc(h.pedido)} <span class="muted">— resolvido em ${UI.dataBR((h.resolvidoEm || '').slice(0, 10))}</span></div>`).join('')}</details>` : ''}`,
       foot: `<button class="btn btn-ghost" data-edit><i class="fa-solid fa-pen"></i> Editar</button>${botaoAgente(t)}
+        ${UI.linkOk(t.projetoEditor) ? `<a class="btn btn-ghost" href="${esc(t.projetoEditor)}" target="_blank" rel="noopener"><i class="fa-solid fa-film"></i> Ajustar no Editor</a>` : ''}
         ${st !== 'pronto' && st !== 'aprovadas' && st !== 'postado' ? '<button class="btn btn-white" data-pronto><i class="fa-solid fa-paper-plane"></i> Pronto p/ cliente</button>' : ''}
         ${st !== 'aprovadas' && st !== 'postado' ? '<button class="btn btn-ghost" data-aprovar><i class="fa-solid fa-check"></i> Marcar aprovado</button>' : ''}
         ${st === 'aprovadas' ? '<button class="btn btn-white" data-postado><i class="fa-solid fa-paper-plane"></i> Marcar postado</button>' : ''}`
