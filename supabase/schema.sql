@@ -151,3 +151,15 @@ create policy "referencias do dono" on storage.objects
   for all to authenticated
   using (bucket_id = 'referencias' and (storage.foldername(name))[1] = auth.uid()::text)
   with check (bucket_id = 'referencias' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- 5) Projetos do Meu Editor (galeria). Espaço privado "projetos": <id do usuário>/<id do projeto>.json e .jpg.
+--    A lista leve fica em records (coleção editor_projetos); o projeto inteiro fica aqui, fora do Dashplasso.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('projetos', 'projetos', false, 20971520, array['application/json', 'image/jpeg'])
+on conflict (id) do nothing;
+
+drop policy if exists "projetos do dono" on storage.objects;
+create policy "projetos do dono" on storage.objects
+  for all to authenticated
+  using (bucket_id = 'projetos' and (storage.foldername(name))[1] = auth.uid()::text)
+  with check (bucket_id = 'projetos' and (storage.foldername(name))[1] = auth.uid()::text);
