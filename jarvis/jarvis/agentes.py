@@ -163,6 +163,8 @@ class Agentes:
             "referencias": self._referencias(db, t),
             "referenciasLinks": [x for x in str(t.get("referenciasLinks") or "").split() if x.startswith("http")],
         }
+        if k == "editor" and t.get("projetoEditor"):   # já editado antes: o agente reabre o projeto da galeria e ajusta
+            pedido["projetoEditor"] = t.get("projetoEditor")
         prompt = REGRAS.format(nome=nome, tipo_obs="design: fonte, foto, cor, referência" if k == "design" else "edição",
                                pedido=json.dumps(pedido, ensure_ascii=False, indent=1)) + (DESIGN if k == "design" else EDITOR)
         cmd = [self.cerebro.bin, "-p", prompt,
