@@ -61,6 +61,92 @@
       App.toast(`${ag.nome} chamado. O conteúdo entrou na fila.`, 'ok'); onDone && onDone(atual);
     };
   }
+
+  // ---------- Instagram: agendar pela API oficial (Supabase: tabela ig_agendamentos + função instagram-publicar) ----------
+  const IG_LIMITE = 50 * 1024 * 1024; // plano gratuito do Supabase: 50 MB por arquivo
+  const igServe = t => /reel|v[ií]deo|carrossel|est[aá]tico|foto/i.test(t.type || '');
+  function botaoInstagram(t) {
+    if (!igServe(t)) return '';
+    const ig = t.instagram || {};
+    if (t.linkPost) return `<a class="btn btn-ghost" href="${esc(t.linkPost)}" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i> Ver no Instagram</a>`;
+    if (ig.status === 'agendado') return `<button class="btn btn-ghost" data-ig><i class="fa-brands fa-instagram"></i> Agendado ${esc(UI.dataBR((ig.publicarEm || '').slice(0, 10)))} ${esc((ig.hora || ''))}</button>`;
+    return `<button class="btn btn-ghost" data-ig><i class="fa-brands fa-instagram"></i> Agendar no Instagram</button>`;
+  }
+  async function paraJpeg(file) {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Não consegui ler ' + file.name)); i.src = url; });
+      const k = Math.min(1, 1440 / img.naturalWidth);
+      const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+      return await new Promise(res => c.toBlob(res, 'image/jpeg', 0.92));
+    } finally { URL.revokeObjectURL(url); }
+  }
+  function agendarInstagram(id, onDone) {
+    const t = DB.get('tasks', id); if (!t) return;
+    if (!(window.App && App.supabase && App.user)) { App.toast('Agendar no Instagram só funciona com o banco ligado.', 'warn'); return; }
+    const ig = t.instagram || {};
+    const ehReel = /reel|v[ií]deo/i.test(t.type || '');
+    const s = UI.sheet({
+      title: 'Agendar no Instagram',
+      html: `<div class="card card-tight"><div class="title">${esc(T.titulo(t))}</div><div class="small muted mt-2">${esc([t.client, t.type].filter(Boolean).join(' · '))}</div></div>
+        ${ig.status === 'agendado' ? `<p class="small mt-3" style="color:#9fe0b0"><i class="fa-solid fa-clock"></i> Já agendado para ${esc(UI.dataBR((ig.publicarEm || '').slice(0, 10)))} às ${esc(ig.hora || '')}. Para trocar, cancele e agende de novo.</p>` : ''}
+        <div class="grid mt-3" style="grid-template-columns:1fr 1fr;gap:12px">
+          <label class="field"><span>Dia</span><input class="input" type="date" name="ig-dia" value="${esc((ig.publicarEm || t.date || '').slice(0, 10))}"></label>
+          <label class="field"><span>Hora</span><input class="input" type="time" name="ig-hora" value="${esc(ig.hora || '18:30')}"></label>
+        </div>
+        <label class="field mt-3"><span>Legenda</span><textarea class="textarea" name="ig-legenda" rows="5">${esc(t.legenda || t.caption || '')}</textarea></label>
+        <label class="field mt-3"><span>${ehReel ? 'Vídeo final (MP4, até 50 MB)' : 'Imagens do post, na ordem (até 10)'}</span>
+          <input class="input" type="file" name="ig-arquivos" accept="${ehReel ? 'video/mp4,video/quicktime' : 'image/*'}" ${ehReel ? '' : 'multiple'}></label>
+        <p class="tiny muted mt-2">Só no Instagram. O post sai sozinho no horário (o Dashplasso confere a cada 5 minutos) e o card vira "Postado" com o link.</p>
+        <p class="small mt-2" data-ig-status></p>`,
+      foot: `${ig.status === 'agendado' ? '<button class="btn btn-danger" data-ig-cancelar>Cancelar agendamento</button>' : ''}<button class="btn btn-ghost" data-nao>Fechar</button>${ig.status === 'agendado' ? '' : '<button class="btn btn-white" data-ig-ok><i class="fa-brands fa-instagram"></i> Agendar</button>'}`
+    });
+    const st = msg => { s.$('[data-ig-status]').innerHTML = msg; };
+    s.$('[data-nao]').onclick = () => s.close();
+    const canc = s.$('[data-ig-cancelar]');
+    if (canc) canc.onclick = async () => {
+      const { error } = await App.supabase.from('ig_agendamentos').update({ status: 'cancelado' }).eq('id', ig.agendamentoId).eq('status', 'agendado');
+      if (error) { st(`<span style="color:#ff9aa7">${esc(error.message)}</span>`); return; }
+      const a = DB.get('tasks', id); a.instagram = { ...ig, status: 'cancelado' }; if (a.fase === 'Agendado') a.fase = 'Postagem / Agendamento'; DB.put('tasks', a); await DB.flush();
+      s.close(); App.toast('Agendamento cancelado.', 'ok'); onDone && onDone(a);
+    };
+    const ok = s.$('[data-ig-ok]');
+    if (ok) ok.onclick = async () => {
+      const dia = s.$('[name=ig-dia]').value, hora = s.$('[name=ig-hora]').value || '18:30';
+      const files = [...s.$('[name=ig-arquivos]').files];
+      if (!dia) { st('<span style="color:#ffd28a">Escolha o dia.</span>'); return; }
+      if (!files.length) { st('<span style="color:#ffd28a">Escolha o arquivo final.</span>'); return; }
+      const quando = new Date(`${dia}T${hora}:00`);
+      if (quando.getTime() < Date.now() - 60000) { st('<span style="color:#ffd28a">Esse horário já passou.</span>'); return; }
+      if (files.length > 10) { st('<span style="color:#ffd28a">No máximo 10 imagens.</span>'); return; }
+      ok.disabled = true;
+      try {
+        const caminhos = [];
+        for (const [i, f] of files.entries()) {
+          const video = /^video\//.test(f.type) || /\.(mp4|mov)$/i.test(f.name);
+          const blob = video ? f : await paraJpeg(f);
+          if (blob.size > IG_LIMITE) throw new Error(`${f.name} tem ${(blob.size / 1048576).toFixed(0)} MB. O limite é 50 MB: exporte uma versão 1080p mais leve.`);
+          st(`<span class="live">●</span> Enviando ${i + 1} de ${files.length}…`);
+          const nome = (video ? f.name : f.name.replace(/\.\w+$/, '') + '.jpg').normalize('NFD').replace(/[^\w.-]+/g, '_').slice(-80);
+          const caminho = `${App.user.id}/${Date.now()}-${i + 1}-${nome}`;
+          const { error } = await App.supabase.storage.from('postagens').upload(caminho, blob, { contentType: video ? 'video/mp4' : 'image/jpeg', upsert: false });
+          if (error) throw new Error(error.message);
+          caminhos.push(caminho);
+        }
+        const tipo = ehReel ? 'REELS' : (caminhos.length > 1 ? 'CAROUSEL' : 'IMAGE');
+        const legenda = s.$('[name=ig-legenda]').value;
+        const { data, error } = await App.supabase.from('ig_agendamentos').insert({ task_id: id, tipo, legenda, midias: caminhos, publicar_em: quando.toISOString() }).select('id').single();
+        if (error) throw new Error(error.message);
+        const a = DB.get('tasks', id);
+        a.instagram = { agendamentoId: data.id, status: 'agendado', publicarEm: dia, hora };
+        a.fase = 'Agendado';
+        if (!a.legenda) a.legenda = legenda;
+        DB.put('tasks', a); await DB.flush();
+        s.close(); App.toast(`Agendado no Instagram: ${UI.dataBR(dia)} às ${hora}.`, 'ok'); onDone && onDone(a);
+      } catch (e) { st(`<span style="color:#ff9aa7">${esc(e.message)}</span>`); ok.disabled = false; }
+    };
+  }
   // ---------- referências visuais (imagens no Storage "referencias" + links) ----------
   const REF_BUCKET = 'referencias';
   const Refs = {
@@ -181,7 +267,7 @@
           ${t.isRejected ? `<div class="full card card-tight" style="border-color:rgba(255,90,110,.4)"><div class="small" style="color:#ff9aa7"><i class="fa-solid fa-rotate-left"></i> ${esc(t.notes || 'Ajuste pedido pelo cliente')}</div><label class="check mt-2 small"><input type="checkbox" name="resolvido"> Ajuste feito (tirar o aviso)</label></div>` : ''}
         </div>
         ${t.tempoGasto ? `<p class="muted small mt-3"><i class="fa-solid fa-stopwatch"></i> Tempo gasto no Modo Trabalho: ${Math.round(t.tempoGasto / 60)} min</p>` : ''}`,
-      foot: `${novo ? '' : '<button class="btn btn-danger" data-del><i class="fa-solid fa-trash"></i></button>'}${novo ? '' : botaoAgente(t)}${UI.linkOk(t.drive) ? `<a class="btn btn-ghost" href="${esc(t.drive)}" target="_blank" rel="noopener"><i class="fa-brands fa-google-drive"></i> Drive</a>` : ''}${UI.linkOk(t.projetoEditor) ? `<a class="btn btn-ghost" href="${esc(t.projetoEditor)}" target="_blank" rel="noopener"><i class="fa-solid fa-film"></i> Ajustar no Editor</a>` : ''}<button class="btn btn-white" data-save>Salvar</button>`
+      foot: `${novo ? '' : '<button class="btn btn-danger" data-del><i class="fa-solid fa-trash"></i></button>'}${novo ? '' : botaoAgente(t)}${novo ? '' : botaoInstagram(t)}${UI.linkOk(t.drive) ? `<a class="btn btn-ghost" href="${esc(t.drive)}" target="_blank" rel="noopener"><i class="fa-brands fa-google-drive"></i> Drive</a>` : ''}${UI.linkOk(t.projetoEditor) ? `<a class="btn btn-ghost" href="${esc(t.projetoEditor)}" target="_blank" rel="noopener"><i class="fa-solid fa-film"></i> Ajustar no Editor</a>` : ''}<button class="btn btn-white" data-save>Salvar</button>`
     });
     let midias = (t.midias || []).slice();
     let linkBuscado = (t.midias || []).length ? (t.drive || '') : '';
@@ -202,6 +288,8 @@
     s.$('[data-buscar]').onclick = () => { linkBuscado = ''; buscar(); };
     const bAg = s.$('[data-agente]');
     if (bAg) bAg.onclick = () => { s.close(); setTimeout(() => chamarAgente(id, bAg.dataset.agente, onDone), 220); };
+    const bIg = s.$('[data-ig]');
+    if (bIg) bIg.onclick = () => { s.close(); setTimeout(() => agendarInstagram(id, onDone), 220); };
     s.$('[name=drive]').addEventListener('change', buscar);
     s.$('[name=drive]').addEventListener('paste', () => setTimeout(buscar, 50));
 
@@ -356,7 +444,7 @@
         ${t.legenda || t.caption ? `<div class="eyebrow mt-4 mb-2">Legenda</div><div class="small soft" style="white-space:pre-line">${esc(t.legenda || t.caption)}</div>` : ''}
         ${t.roteiro ? `<details class="mt-3" ${t.legenda || t.caption ? '' : 'open'}><summary class="small muted" style="cursor:pointer">Roteiro / descrição</summary><div class="small soft mt-2" style="white-space:pre-line">${esc(t.roteiro)}</div></details>` : ''}
         ${(t.historicoAjustes || []).length ? `<details class="mt-3"><summary class="small muted" style="cursor:pointer">Ajustes anteriores (${t.historicoAjustes.length})</summary>${t.historicoAjustes.map(h => `<div class="small soft mt-2">• ${esc(h.pedido)} <span class="muted">— resolvido em ${UI.dataBR((h.resolvidoEm || '').slice(0, 10))}</span></div>`).join('')}</details>` : ''}`,
-      foot: `<button class="btn btn-ghost" data-edit><i class="fa-solid fa-pen"></i> Editar</button>${botaoAgente(t)}
+      foot: `<button class="btn btn-ghost" data-edit><i class="fa-solid fa-pen"></i> Editar</button>${botaoAgente(t)}${botaoInstagram(t)}
         ${UI.linkOk(t.projetoEditor) ? `<a class="btn btn-ghost" href="${esc(t.projetoEditor)}" target="_blank" rel="noopener"><i class="fa-solid fa-film"></i> Ajustar no Editor</a>` : ''}
         ${st !== 'pronto' && st !== 'aprovadas' && st !== 'postado' ? '<button class="btn btn-white" data-pronto><i class="fa-solid fa-paper-plane"></i> Pronto p/ cliente</button>' : ''}
         ${st !== 'aprovadas' && st !== 'postado' ? '<button class="btn btn-ghost" data-aprovar><i class="fa-solid fa-check"></i> Marcar aprovado</button>' : ''}
@@ -366,6 +454,8 @@
     s.$('[data-edit]').onclick = () => { s.close(); setTimeout(() => editarConteudo(id, {}, onDone), 220); };
     const bAg = s.$('[data-agente]');
     if (bAg) bAg.onclick = () => { s.close(); setTimeout(() => chamarAgente(id, bAg.dataset.agente, onDone), 220); };
+    const bIg = s.$('[data-ig]');
+    if (bIg) bIg.onclick = () => { s.close(); setTimeout(() => agendarInstagram(id, onDone), 220); };
     const po = s.$('[data-postado]'); if (po) po.onclick = () => { mover(id, 'postado'); s.close(); App.toast('Marcado como postado.', 'ok'); onDone && onDone(); };
     const pr = s.$('[data-pronto]'); if (pr) pr.onclick = () => { if (!T.completo(DB.get('tasks', id))) { App.toast('Cole o link do Drive com a versão final antes de enviar ao cliente.', 'warn'); s.close(); setTimeout(() => editarConteudo(id, {}, onDone), 220); return; } marcar(id, 'pronto'); s.close(); App.toast('Pronto: aparece para o cliente aprovar.', 'ok'); onDone && onDone(); };
     const ap = s.$('[data-aprovar]'); if (ap) ap.onclick = () => { marcar(id, 'aprovadas'); s.close(); App.toast('Marcado como aprovado.', 'ok'); onDone && onDone(); };
