@@ -105,10 +105,27 @@
         <label class="field mt-3"><span>${ehReel ? 'Vídeo final (MP4, até 50 MB)' : 'Imagens do post, na ordem (até 10)'}</span>
           <input class="input" type="file" name="ig-arquivos" accept="${ehReel ? 'video/mp4,video/quicktime' : 'image/*'}" ${ehReel ? '' : 'multiple'}></label>
         <p class="tiny muted mt-2">Publica no Instagram @marcelohbuzeli. O post sai sozinho no horário (o Dashplasso confere a cada 5 minutos) e o card vira "Postado" com o link.</p>
+        <div class="mt-3" data-ig-conf></div>
         <p class="small mt-2" data-ig-status></p>`,
       foot: `${ig.status === 'agendado' ? '<button class="btn btn-danger" data-ig-cancelar>Cancelar agendamento</button>' : ''}<button class="btn btn-ghost" data-nao>Fechar</button>${ig.status === 'agendado' ? '' : '<button class="btn btn-white" data-ig-ok><i class="fa-brands fa-instagram"></i> Agendar</button>'}`
     });
     const st = msg => { s.$('[data-ig-status]').innerHTML = msg; };
+    // conferência ao vivo: situação do agendamento + token, conta, cliente e arquivo (sem publicar)
+    const conferir = async () => {
+      const box = s.$('[data-ig-conf]'); if (!box || !ig.agendamentoId) return;
+      box.innerHTML = '<div class="card card-tight small soft"><span class="live">●</span> Conferindo o agendamento…</div>';
+      try {
+        const r = await App.supabase.functions.invoke('instagram-publicar', { body: { modo: 'conferir', id: ig.agendamentoId } });
+        let d = r.data; if (r.error) { try { d = await r.error.context.json(); } catch (e) { d = { ok: false, itens: [{ ok: false, texto: r.error.message }] }; } }
+        const linhas = (d.itens || []).map(i => `<div>${i.ok ? '<span style="color:#7fe0a0">✓</span>' : '<span style="color:#ff9aa7">✗</span>'} ${esc(i.texto)}</div>`).join('');
+        const topo = d.status === 'publicado'
+          ? `<b style="color:#7fe0a0">Publicado.</b> ${d.permalink ? `<a href="${esc(d.permalink)}" target="_blank" rel="noopener">Ver no Instagram</a>` : ''}`
+          : d.ok ? '<b style="color:#7fe0a0">Tudo certo: vai sair no horário.</b>' : '<b style="color:#ff9aa7">Atenção: tem algo que impede a publicação.</b>';
+        box.innerHTML = `<div class="card card-tight small">${topo}<div class="mt-2 soft">${linhas}</div><button class="btn btn-ghost btn-sm mt-2" data-ig-reconf><i class="fa-solid fa-rotate"></i> Conferir de novo</button></div>`;
+        s.$('[data-ig-reconf]').onclick = conferir;
+      } catch (e) { box.innerHTML = `<div class="card card-tight small" style="color:#ff9aa7">Não consegui conferir: ${esc(e.message)}</div>`; }
+    };
+    conferir();
     s.$('[data-nao]').onclick = () => s.close();
     const canc = s.$('[data-ig-cancelar]');
     if (canc) canc.onclick = async () => {
@@ -149,7 +166,8 @@
         a.fase = 'Agendado';
         if (!a.legenda) a.legenda = legenda;
         DB.put('tasks', a); await DB.flush();
-        s.close(); App.toast(`Agendado no Instagram: ${UI.dataBR(dia)} às ${hora}.`, 'ok'); onDone && onDone(a);
+        s.close(); App.toast(`Agendado no Instagram: ${UI.dataBR(dia)} às ${hora}. Conferindo…`, 'ok'); onDone && onDone(a);
+        setTimeout(() => agendarInstagram(id, onDone), 300);
       } catch (e) { st(`<span style="color:#ff9aa7">${esc(e.message)}</span>`); ok.disabled = false; }
     };
   }
