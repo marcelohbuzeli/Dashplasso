@@ -64,7 +64,12 @@
 
   // ---------- Instagram: agendar pela API oficial (Supabase: tabela ig_agendamentos + função instagram-publicar) ----------
   const IG_LIMITE = 50 * 1024 * 1024; // plano gratuito do Supabase: 50 MB por arquivo
-  const igServe = t => /reel|v[ií]deo|carrossel|est[aá]tico|foto/i.test(t.type || '');
+  // TRAVA: a conexão do Instagram é SÓ do perfil do Marcelo. Cliente novo só entra aqui quando tiver o token da conta dele
+  // (e também em CONTAS_POR_CLIENTE na função instagram-publicar).
+  const IG_CLIENTES = ['marcelo h buzeli'];
+  const igNorm = c => String(c || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const igCliente = t => IG_CLIENTES.includes(igNorm(t.client));
+  const igServe = t => igCliente(t) && /reel|v[ií]deo|carrossel|est[aá]tico|foto/i.test(t.type || '');
   function botaoInstagram(t) {
     if (!igServe(t)) return '';
     const ig = t.instagram || {};
@@ -85,6 +90,7 @@
   function agendarInstagram(id, onDone) {
     const t = DB.get('tasks', id); if (!t) return;
     if (!(window.App && App.supabase && App.user)) { App.toast('Agendar no Instagram só funciona com o banco ligado.', 'warn'); return; }
+    if (!igCliente(t)) { App.toast(`O Instagram de ${t.client || 'este cliente'} não está conectado. Só o perfil do Marcelo publica por aqui.`, 'warn'); return; }
     const ig = t.instagram || {};
     const ehReel = /reel|v[ií]deo/i.test(t.type || '');
     const s = UI.sheet({
@@ -98,7 +104,7 @@
         <label class="field mt-3"><span>Legenda</span><textarea class="textarea" name="ig-legenda" rows="5">${esc(t.legenda || t.caption || '')}</textarea></label>
         <label class="field mt-3"><span>${ehReel ? 'Vídeo final (MP4, até 50 MB)' : 'Imagens do post, na ordem (até 10)'}</span>
           <input class="input" type="file" name="ig-arquivos" accept="${ehReel ? 'video/mp4,video/quicktime' : 'image/*'}" ${ehReel ? '' : 'multiple'}></label>
-        <p class="tiny muted mt-2">Só no Instagram. O post sai sozinho no horário (o Dashplasso confere a cada 5 minutos) e o card vira "Postado" com o link.</p>
+        <p class="tiny muted mt-2">Publica no Instagram @marcelohbuzeli. O post sai sozinho no horário (o Dashplasso confere a cada 5 minutos) e o card vira "Postado" com o link.</p>
         <p class="small mt-2" data-ig-status></p>`,
       foot: `${ig.status === 'agendado' ? '<button class="btn btn-danger" data-ig-cancelar>Cancelar agendamento</button>' : ''}<button class="btn btn-ghost" data-nao>Fechar</button>${ig.status === 'agendado' ? '' : '<button class="btn btn-white" data-ig-ok><i class="fa-brands fa-instagram"></i> Agendar</button>'}`
     });
