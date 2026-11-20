@@ -242,7 +242,9 @@ Deno.serve(async (req) => {
     const q = new URL(req.url).searchParams;
     let b: Rec = {};
     if (req.method === "POST") { try { b = await req.json(); } catch { b = {}; } }
-    const token = String(b.token || req.headers.get("x-atalho-token") || q.get("token") || "");
+    // O token vem só no corpo JSON ou no cabeçalho x-atalho-token. Na URL (?token=) ele
+    // ficaria gravado em logs e no histórico, por isso não é aceito.
+    const token = String(b.token || req.headers.get("x-atalho-token") || "");
     const owner = await dono(token);
     if (!owner) return json({ erro: "Token inválido. Gere um novo no sistema: Menu → Apple Watch e iPhone.", mensagem: "Token inválido.", opcoes: ["OK"] }, 401);
 
