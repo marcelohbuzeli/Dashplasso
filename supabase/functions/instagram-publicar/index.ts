@@ -7,6 +7,7 @@
 //   { modo: "verificar" }                 -> (logado) confere o token e devolve a conta do Instagram.
 //   { modo: "upload", nome }              -> (logado) devolve um link temporário para enviar um arquivo ao bucket "postagens".
 //   { modo: "agora" }                     -> (logado) roda a fila na hora (mesmo processo do cron).
+//   { modo: "conferir", id }             -> (logado) confere token, conta, cliente e arquivo de um agendamento, sem publicar.
 //   { modo: "testar", caminho }           -> (logado) manda um reel pro Instagram processar, sem publicar.
 // Nesta função o "Verify JWT" fica DESLIGADO (o cron chama sem login);
 // os modos que mexem em arquivos ou na conta conferem o login aqui dentro.
@@ -214,6 +215,29 @@ Deno.serve(async (req) => {
       catch (e) { return json({ ok: false, erro: String((e as Error).message || e), tipoToken: TIPO_TOKEN, tamanhoToken: TOKEN.length, formato: { comecaIGAA: /^IGAA/i.test(TOKEN), comecaEAA: /^EAA/.test(TOKEN), temIgual: TOKEN.includes("="), temDoisPontos: TOKEN.includes(":"), soLetrasENumeros: /^[A-Za-z0-9]+$/.test(TOKEN), temNomeDoSegredo: /META_IG_TOKEN/i.test(TOKEN) } }); }
     }
     if (modo === "agora") return json({ ok: true, log: await rodarFila(user.id) });
+    if (modo === "conferir") {
+      // confere tudo o que a publicação vai precisar, SEM publicar
+      const itens: { ok: boolean; texto: string }[] = [];
+      const add = (ok: boolean, texto: string) => itens.push({ ok, texto });
+      const { data: a } = await db.from("ig_agendamentos").select("*").eq("id", String(body.id)).eq("owner", user.id).maybeSingle();
+      if (!a) return json({ ok: false, itens: [{ ok: false, texto: "Agendamento não encontrado." }] });
+      add(a.status === "agendado" || a.status === "processando" || a.status === "publicado", `Situação: ${a.status}${a.erro ? " (" + a.erro + ")" : ""}`);
+      const quando = new Date(a.publicar_em);
+      add(a.status === "publicado" || quando.getTime() > Date.now() - 10 * 60 * 1000, `Horário: ${quando.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`);
+      let igId = "";
+      try { const c = await conta(); igId = c.igId; add(true, `Conta conectada: @${c.username}`); } catch (e) { add(false, `Token do Instagram: ${(e as Error).message}`); }
+      if (igId) { try { await contaDoCliente(a.owner, a.task_id, igId); add(true, "Conteúdo é do cliente dono desta conta"); } catch (e) { add(false, (e as Error).message); } }
+      for (const m of a.midias as string[]) {
+        try {
+          const url = await linkLeitura(m);
+          const r = await fetch(url, { method: "HEAD" });
+          const mb = Number(r.headers.get("content-length") || 0) / 1048576;
+          add(r.ok, r.ok ? `Arquivo no Storage (${mb.toFixed(1)} MB)` : `Arquivo inacessível (${r.status})`);
+        } catch (e) { add(false, (e as Error).message); }
+      }
+      add(true, "O Dashplasso confere a fila a cada 5 minutos");
+      return json({ ok: itens.every((i) => i.ok), status: a.status, permalink: a.permalink, itens });
+    }
     if (modo === "testar") {
       // cria o contêiner do reel e espera o Instagram processar, SEM publicar (o contêiner expira sozinho em 24 h)
       const { igId } = await conta();
