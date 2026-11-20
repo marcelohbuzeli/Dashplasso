@@ -38,6 +38,24 @@ const db = createClient(Deno.env.get("SUPABASE_URL")!, chaveServico(), {
 });
 const BUCKET = "postagens";
 
+// TRAVA DE SEGURANÇA: o token conectado é SÓ do perfil do Marcelo.
+// Cada cliente só publica se estiver nesta lista, com o id da conta do Instagram dele.
+// Para conectar um cliente novo: gerar o token da conta dele e adicionar aqui (nunca reaproveitar o do Marcelo).
+const CONTAS_POR_CLIENTE: Record<string, string> = {
+  "marcelo h buzeli": "17841454339423114", // @marcelohbuzeli
+};
+const normCliente = (c: unknown) => String(c ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+
+async function contaDoCliente(owner: string, taskId: string | null, igIdToken: string) {
+  if (!taskId) throw new Error("Agendamento sem conteúdo vinculado: por segurança, não publico.");
+  const { data } = await db.from("records").select("data").eq("owner", owner).eq("collection", "tasks").eq("id", taskId).maybeSingle();
+  const cliente = data?.data?.client;
+  const esperado = CONTAS_POR_CLIENTE[normCliente(cliente)];
+  if (!esperado) throw new Error(`O cliente "${cliente || "sem cliente"}" não tem conta do Instagram conectada. Nada foi publicado.`);
+  if (esperado !== igIdToken) throw new Error(`O token conectado é de outra conta (${igIdToken}), não da conta de "${cliente}". Nada foi publicado.`);
+  return esperado;
+}
+
 async function graph(path: string, params: Record<string, string> = {}, method: "GET" | "POST" = "GET") {
   const p = new URLSearchParams({ ...params, access_token: TOKEN });
   const r = method === "GET"
@@ -167,6 +185,7 @@ async function rodarFila(owner?: string) {
       .eq("id", a.id).or(`trava_ate.is.null,trava_ate.lt.${agora}`).select("id");
     if (!ok?.length) { log.push(`${a.id}: já em andamento`); continue; }
     try {
+      await contaDoCliente(a.owner, a.task_id, igId); // trava: só publica na conta do próprio cliente
       log.push(`${a.id}: ${await passo(a, igId)}`);
     } catch (e) {
       const msg = String((e as Error).message || e);
