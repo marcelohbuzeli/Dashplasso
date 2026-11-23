@@ -9,6 +9,17 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="assets/ui.css?v=12">
 <style>
+  .barras { display: flex; align-items: flex-end; gap: 3px; height: 140px; padding-top: 8px; }
+  .barras > div { flex: 1; min-width: 3px; background: var(--accent); border-radius: 3px 3px 0 0; opacity: .85; }
+  .barras > div:hover { opacity: 1; }
+  .post { display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .post:last-child { border-bottom: 0; }
+  .post img, .post .sem-capa { width: 56px; height: 56px; object-fit: cover; border-radius: 10px; background: var(--glass-2); display: grid; place-items: center; }
+  .post .nums { display: flex; gap: 12px; font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+  .post .nums b { color: var(--ink); font-weight: 600; }
+  @media (max-width: 640px) { .post { grid-template-columns: 48px 1fr; } .post .nums { grid-column: 1 / -1; } }
+</style>
+<style>
   .wrap { max-width: 860px; padding-bottom: calc(40px + var(--safe-b)); }
   .preview { white-space: pre-line; font-size: 14px; color: var(--ink-2); max-height: 7.5em; overflow: hidden; position: relative; }
   .preview.open { max-height: none; }
@@ -49,6 +60,16 @@
   <div class="grid g-2 md-g-4 mb-4" id="kpis"></div>
   <div class="seg mb-4" id="abas"></div>
   <section id="v-aprovar"><div id="lista" class="stack"></div></section>
+  <section id="v-res" class="hidden">
+    <div class="row-between mb-3" style="flex-wrap:wrap;gap:10px">
+      <div><div class="eyebrow">Acompanhe seu perfil ao vivo</div><div class="h2 mt-1">Resultados</div></div>
+      <button class="btn btn-ghost btn-sm" id="res-atualizar"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+    </div>
+    <div class="grid g-2 md-g-4 mb-4" id="res-kpis"></div>
+    <div id="res-grafico" class="mb-4"></div>
+    <div id="res-posts"></div>
+    <p class="tiny muted mt-2" id="res-quando"></p>
+  </section>
   <section id="v-cal" class="hidden">
     <div class="row-between mb-3" style="flex-wrap:wrap;gap:10px">
       <div><div class="eyebrow">Calendário da semana</div><div class="h2 mt-1" id="semana-txt"></div></div>
@@ -66,6 +87,7 @@
 <script type="text/plain" data-app>
   const { esc, T } = UI;
   const $ = id => document.getElementById(id);
+  const num = v => v == null ? '–' : Number(v).toLocaleString('pt-BR');
   const cliente = DB.list('clients')[0] || { name: '' };
   $('cliente-nome').textContent = cliente.name;
   document.title = 'Aprovação · ' + cliente.name;
@@ -146,11 +168,75 @@
     const cont = k => all.filter(t => estado(t) === k).length;
     $('kpis').innerHTML = [['aprovar', para.length], ['ajuste', cont('ajuste')], ['aprovado', cont('aprovado')], ['postado', cont('postado')]].map(([k, n]) => `<div class="card stat"><span class="label">${EST[k].l}</span><span class="value">${n}</span></div>`).join('');
     if (!aba) aba = para.length ? 'aprovar' : 'cal';
-    $('abas').innerHTML = `<button data-a="aprovar" class="${aba === 'aprovar' ? 'on' : ''}"><i class="fa-solid fa-check"></i>Para aprovar<span class="count">${para.length}</span></button><button data-a="cal" class="${aba === 'cal' ? 'on' : ''}"><i class="fa-regular fa-calendar"></i>Calendário</button>`;
+    $('abas').innerHTML = `<button data-a="aprovar" class="${aba === 'aprovar' ? 'on' : ''}"><i class="fa-solid fa-check"></i>Para aprovar<span class="count">${para.length}</span></button><button data-a="cal" class="${aba === 'cal' ? 'on' : ''}"><i class="fa-regular fa-calendar"></i>Calendário</button><button data-a="res" class="${aba === 'res' ? 'on' : ''}"><i class="fa-solid fa-chart-line"></i>Resultados</button>`;
     $('abas').querySelectorAll('button').forEach(b => b.onclick = () => { aba = b.dataset.a; render(); });
     $('v-aprovar').classList.toggle('hidden', aba !== 'aprovar');
     $('v-cal').classList.toggle('hidden', aba !== 'cal');
-    if (aba === 'aprovar') renderAprovar(para); else renderCal(all);
+    $('v-res').classList.toggle('hidden', aba !== 'res');
+    if (aba === 'aprovar') renderAprovar(para);
+    else if (aba === 'res') { if (resCache) renderResultados(); else carregarResultados(); }
+    else renderCal(all);
+  }
+
+  // ---------- Resultados: só as métricas já salvas da conta do cliente (função portal_metricas) ----------
+  let resCache = null;
+  const mesIni = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-01'; };
+  async function carregarResultados() {
+    const token = new URLSearchParams(location.search).get('t');
+    if (!App.supabase || !token) { resCache = { conectado: false }; renderResultados(); return; }
+    $('res-kpis').innerHTML = '';
+    $('res-posts').innerHTML = '<div class="card card-tight small muted"><i class="fa-solid fa-spinner fa-spin"></i> Carregando resultados…</div>';
+    const { data, error } = await App.supabase.rpc('portal_metricas', { p_token: token });
+    if (error) { $('res-posts').innerHTML = '<div class="card card-tight small muted">Não foi possível carregar os resultados agora. Tente de novo em instantes.</div>'; return; }
+    resCache = data || { conectado: false };
+    renderResultados();
+  }
+  $('res-atualizar').onclick = async () => { $('res-atualizar').disabled = true; await carregarResultados(); $('res-atualizar').disabled = false; };
+
+  function renderResultados() {
+    const r = resCache;
+    if (!r || !r.conectado) {
+      $('res-kpis').innerHTML = ''; $('res-grafico').innerHTML = ''; $('res-quando').textContent = '';
+      $('res-posts').innerHTML = '<div class="card empty"><i class="fa-brands fa-instagram"></i>Os resultados aparecem aqui assim que o seu Instagram estiver conectado.</div>';
+      return;
+    }
+    const D = r.dias || [], P = r.posts || [];
+    const ini = mesIni();
+    const doMes = D.filter(d => d.dia >= ini);
+    const soma = (arr, k) => arr.reduce((a, d) => a + (Number(d.dados?.[k]) || 0), 0);
+    const seg = D.filter(d => d.seguidores != null);
+    const segAtual = seg.length ? seg[seg.length - 1].seguidores : null;
+    const antes = seg.filter(d => d.dia < ini);
+    const base = antes.length ? antes[antes.length - 1].seguidores : (seg.filter(d => d.dia >= ini)[0] || {}).seguidores;
+    const ganhosMes = segAtual != null && base != null ? segAtual - base : null;
+    const dCtr = r.inicio ? seg.find(d => d.dia >= r.inicio) : seg[0];
+    const ganhosCtr = segAtual != null && dCtr ? segAtual - dCtr.seguidores : null;
+    const postsMes = P.filter(p => (p.publicado || '').slice(0, 10) >= ini);
+    const sinal = n => (n >= 0 ? '+' : '') + num(n);
+    const k = (icon, label, v, hint) => `<div class="card stat"><span class="label"><i class="fa-solid ${icon} accent-text"></i>${label}</span><span class="value num">${v}</span><span class="hint">${hint}</span></div>`;
+    $('res-kpis').innerHTML =
+      k('fa-users', 'Seguidores', num(segAtual), ganhosMes != null ? `${sinal(ganhosMes)} neste mês` : 'histórico começa hoje') +
+      k('fa-eye', 'Alcance no mês', num(soma(doMes, 'reach')), `${num(soma(doMes, 'views'))} visualizações`) +
+      k('fa-heart', 'Interações no mês', num(soma(doMes, 'total_interactions')), `${num(soma(doMes, 'saves'))} salvos · ${num(soma(doMes, 'shares'))} compartilhamentos`) +
+      k('fa-trophy', 'Desde o início', ganhosCtr != null ? sinal(ganhosCtr) : '–', 'seguidores ganhos no seu contrato') +
+      k('fa-calendar-check', 'Posts no mês', num(postsMes.length), postsMes.length ? 'publicados com você' : 'nenhum post no período');
+
+    const serie = doMes.filter(d => d.dados && d.dados.reach != null);
+    const max = Math.max(1, ...serie.map(d => d.dados.reach));
+    $('res-grafico').innerHTML = serie.length ? `<div class="card"><div class="card-head"><span class="eyebrow">Alcance por dia neste mês</span></div>
+      <div class="barras">${serie.map(d => `<div style="height:${Math.max(2, d.dados.reach / max * 100)}%" title="${UI.dataBR(d.dia)}: ${num(d.dados.reach)} contas alcançadas"></div>`).join('')}</div></div>` : '';
+
+    const destaques = [...P].sort((a, b) => (b.dados?.views || b.dados?.reach || 0) - (a.dados?.views || a.dados?.reach || 0)).slice(0, 6);
+    const frase = ganhosMes > 0 ? `Seu perfil cresceu ${sinal(ganhosMes)} seguidores neste mês. ` : '';
+    const melhor = destaques[0] ? `Seu post mais visto somou ${num(destaques[0].dados?.views)} visualizações.` : '';
+    $('res-posts').innerHTML = (frase || melhor ? `<div class="card card-tight mb-3 small">${esc(frase + melhor)}</div>` : '') +
+      (destaques.length ? `<div class="card"><div class="card-head"><span class="eyebrow">Seus destaques · mais vistos primeiro</span></div>
+      ${destaques.map(p => `<a class="post" href="${esc(p.link || '#')}" target="_blank" rel="noopener">
+        ${p.capa ? `<img src="${esc(p.capa)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '<div class="sem-capa"><i class="fa-brands fa-instagram muted"></i></div>'}
+        <div style="min-width:0"><div class="small truncate"><b>${esc(p.tipo || '')}</b> · ${new Date(p.publicado).toLocaleDateString('pt-BR')}</div><div class="tiny muted truncate">${esc((p.legenda || '').split('\n')[0])}</div></div>
+        <div class="nums"><span><b>${num(p.dados?.views)}</b> views</span><span><b>${num(p.dados?.reach)}</b> alcance</span><span><b>${num(p.dados?.likes)}</b> curtidas</span><span><b>${num(p.dados?.saved)}</b> salvos</span></div>
+      </a>`).join('')}</div>` : '<div class="card empty">Ainda não há posts com métricas.</div>');
+    $('res-quando').textContent = r.atualizado ? `Números atualizados em ${new Date(r.atualizado).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}.` : '';
   }
   $('sem-ant').onclick = () => { semana = UI.addDias(semana, -7); render(); };
   $('sem-prox').onclick = () => { semana = UI.addDias(semana, 7); render(); };

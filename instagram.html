@@ -46,6 +46,7 @@
 
   <div class="row mb-4" style="flex-wrap:wrap">
     <select class="select" id="f-cliente" style="width:auto;min-width:220px;flex:1 1 220px" aria-label="Cliente"></select>
+    <div class="row" id="acoes-cliente"></div>
   </div>
 
   <section id="conexao" class="mb-4"></section>
@@ -60,7 +61,7 @@
 <script src="assets/ui.js?v=13"></script>
 <script type="text/plain" data-app>
   UI.mount({ tab: 'empresa', sub: 'instagram' });
-  const { esc } = UI;
+  const { esc, T } = UI;
   const $ = id => document.getElementById(id);
   const norm = c => String(c || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
   const num = v => v == null ? '–' : Number(v).toLocaleString('pt-BR');
@@ -223,10 +224,187 @@
     };
   }
 
-  async function recarregar() { await carregarContas(); render(); }
-  function render() { renderToken(); renderSelect(); renderConexao(); renderMetricas().catch(e => console.warn(e)); }
+  // ---------- relatório mensal em PDF (janela de impressão: "Salvar como PDF") ----------
+  const ym = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  const mesNome = m => { const [y, mm] = m.split('-').map(Number); const s = new Date(y, mm - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); return s.charAt(0).toUpperCase() + s.slice(1); };
+  const tarefasDoMes = mes => DB.list('tasks').filter(t => T.isConteudo(t) && (t.client || '').toLowerCase() === (cliente || '').toLowerCase() && (t.date || '').startsWith(mes));
+  const feita = t => ['postado', 'aprovadas', 'approved'].includes(t.status);
+  // métricas que fazem mais sentido para cada objetivo (marcadas por padrão no painel)
+  const OBJ_METRICAS = {
+    'Vendas': ['cliques', 'visualizacoes', 'alcance'],
+    'Conexão': ['interacoes', 'comentarios', 'compartilhamentos'],
+    'Desejo': ['visualizacoes', 'salvos', 'interacoes'],
+    'Autoridade': ['salvos', 'alcance', 'seguidores'],
+    'Educativo': ['salvos', 'alcance', 'seguidores'],
+    'Humor': ['interacoes', 'compartilhamentos', 'alcance'],
+    'Trend': ['alcance', 'visualizacoes', 'seguidores'],
+  };
+  const METRICAS = { seguidores: 'Seguidores ganhos no mês', alcance: 'Alcance (soma dos dias)', visualizacoes: 'Visualizações', interacoes: 'Interações', curtidas: 'Curtidas', comentarios: 'Comentários', compartilhamentos: 'Compartilhamentos', salvos: 'Salvos', cliques: 'Cliques no link do perfil' };
+  const CHAVE_DIA = { alcance: 'reach', visualizacoes: 'views', interacoes: 'total_interactions', curtidas: 'likes', comentarios: 'comments', compartilhamentos: 'shares', salvos: 'saves', cliques: 'profile_links_taps' };
 
-  $('f-cliente').onchange = e => { cliente = e.target.value; history.replaceState(null, '', '?cliente=' + encodeURIComponent(cliente)); renderConexao(); renderMetricas().catch(e => console.warn(e)); };
+  function renderAcoes() {
+    $('acoes-cliente').innerHTML = cliente ? '<button class="btn btn-white btn-sm" id="rel-pdf"><i class="fa-solid fa-file-pdf"></i> Gerar relatório PDF</button>' : '';
+    const b = $('rel-pdf'); if (b) b.onclick = abrirRelatorio;
+  }
+
+  function abrirRelatorio() {
+    const hoje = new Date();
+    const meses = [];
+    for (let i = 0; i < 12; i++) meses.push(ym(new Date(hoje.getFullYear(), hoje.getMonth() - i, 1)));
+    const opts = meses.map((m, i) => `<option value="${m}" ${i === 1 ? 'selected' : ''}>${esc(mesNome(m))}</option>`).join(''); // padrão: mês anterior (fechado)
+    const s = UI.sheet({ title: 'Relatório mensal', html: `
+      <p class="small soft">${esc(cliente)}</p>
+      <label class="field mt-3"><span>Mês de referência</span><select class="select" id="rel-mes">${opts}</select></label>
+      <div class="eyebrow mt-4">Métricas no relatório</div>
+      <div id="rel-metricas" class="stack mt-2"></div>
+      <p class="tiny muted mt-2">Objetivos e conteúdos saem sempre. As métricas marcadas aparecem na página 3.</p>`,
+      foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-white" id="rel-ok"><i class="fa-solid fa-file-pdf"></i> Gerar PDF</button>' });
+    const desenha = () => {
+      const mes = s.$('#rel-mes').value;
+      const objs = [...new Set(tarefasDoMes(mes).map(t => t.objetivo).filter(Boolean))];
+      const pad = [...new Set(objs.flatMap(o => OBJ_METRICAS[o] || []))];
+      const marcadas = pad.length ? pad : ['alcance', 'visualizacoes', 'interacoes', 'seguidores'];
+      s.$('#rel-metricas').innerHTML = Object.entries(METRICAS).map(([k, l]) => `<label class="row small" style="gap:8px;align-items:center"><input type="checkbox" value="${k}" ${marcadas.includes(k) ? 'checked' : ''}> ${esc(l)}</label>`).join('');
+    };
+    s.$('#rel-mes').onchange = desenha;
+    desenha();
+    s.$('#rel-ok').onclick = () => {
+      const mes = s.$('#rel-mes').value;
+      const metricas = [...s.el.querySelectorAll('#rel-metricas input:checked')].map(i => i.value);
+      s.close();
+      gerarPDF(mes, metricas);
+    };
+  }
+
+  async function gerarPDF(mes, metricas) {
+    // a janela abre já no clique (senão o navegador bloqueia), depois recebe o relatório
+    const w = window.open('', '_blank');
+    if (!w) { App.toast('O navegador bloqueou a janela do relatório. Libere pop-ups para este site.', 'err'); return; }
+    w.document.write('<p style="font:16px system-ui;padding:24px;background:#060918;color:#aab">Montando o relatório…</p>');
+    try {
+      const html = await montarRelatorio(mes, metricas);
+      w.document.open(); w.document.write(html); w.document.close();
+    } catch (e) {
+      w.document.open(); w.document.write(`<p style="font:16px system-ui;padding:24px">Não consegui montar o relatório: ${esc(e.message)}</p>`); w.document.close();
+    }
+  }
+
+  async function montarRelatorio(mes, metricas) {
+    const l = ligacao();
+    const [y, m] = mes.split('-').map(Number);
+    const ini = mes + '-01';
+    const fim = mes + '-' + String(new Date(y, m, 0).getDate()).padStart(2, '0');
+    const prox = ym(new Date(y, m, 1)) + '-01';
+    const iniAnt = ym(new Date(y, m - 2, 1)) + '-01';
+    let D = [], P = [];
+    if (l && sb()) {
+      const [dias, posts] = await Promise.all([
+        sb().from('ig_metricas_dia').select('dia,seguidores,dados').eq('ig_id', l.ig_id).gte('dia', iniAnt).lte('dia', fim).order('dia'),
+        sb().from('ig_metricas_posts').select('publicado,tipo,dados').eq('ig_id', l.ig_id).gte('publicado', ini).lt('publicado', prox).order('publicado'),
+      ]);
+      D = dias.data || []; P = posts.data || [];
+    }
+    // --- conteúdos do mês ---
+    const tarefas = tarefasDoMes(mes);
+    const feitos = tarefas.filter(feita).length;
+    const grupos = {};
+    tarefas.forEach(t => { const k = t.objetivo || 'Sem objetivo'; if (!grupos[k]) grupos[k] = { plan: 0, feito: 0 }; grupos[k].plan++; if (feita(t)) grupos[k].feito++; });
+    const ordGrupos = Object.entries(grupos).sort((a, b) => b[1].plan - a[1].plan);
+    const principal = ordGrupos.filter(([k]) => k !== 'Sem objetivo')[0];
+    const pct = tarefas.length ? Math.round(feitos / tarefas.length * 100) : 0;
+    // --- métricas ---
+    const doMes = D.filter(d => d.dia >= ini);
+    const antes = D.filter(d => d.dia < ini && d.seguidores != null);
+    const segs = doMes.filter(d => d.seguidores != null);
+    const segFim = segs.length ? segs[segs.length - 1].seguidores : null;
+    const segBase = antes.length ? antes[antes.length - 1].seguidores : (segs.length ? segs[0].seguidores : null);
+    const ganhos = segFim != null && segBase != null ? segFim - segBase : null;
+    const soma = k => doMes.reduce((a, d) => a + (Number(d.dados?.[CHAVE_DIA[k]]) || 0), 0);
+    const valor = k => !l ? '–' : k === 'seguidores' ? (ganhos == null ? '–' : (ganhos >= 0 ? '+' : '') + num(ganhos)) : num(soma(k));
+    const top = [...P].sort((a, b) => (b.dados?.views || 0) - (a.dados?.views || 0))[0];
+    const focoTxt = principal ? principal[0] : 'não definido';
+    const cards = metricas.filter(k => METRICAS[k]).map(k => `<div class="card"><span>${esc(METRICAS[k])}</span><b>${valor(k)}</b></div>`).join('');
+
+    let grafico = '';
+    if (l && metricas.includes('seguidores') && segBase != null && segFim != null) {
+      const max = Math.max(segBase, segFim, 1);
+      const col = (v, rot) => `<div class="col"><span>${num(v)}</span><div class="bar" style="height:${Math.max(4, v / max * 100)}%"></div><small>${esc(rot)}</small></div>`;
+      grafico = `<div class="eyebrow mt">Seguidores</div><div class="chart">${col(segBase, antes.length ? 'fim do mês anterior' : 'início do período')}${col(segFim, 'fim do mês')}</div>`;
+    }
+
+    const linhas = ordGrupos.map(([k, g]) => `<tr><td>${esc(k)}</td><td class="n">${g.plan}</td><td class="n">${g.feito}</td></tr>`).join('')
+      || '<tr><td colspan="3">Nenhum conteúdo cadastrado neste mês.</td></tr>';
+
+    const css = `
+      *{box-sizing:border-box}
+      @page{size:A4;margin:0}
+      html,body{margin:0;background:#0b0f22;color:#eef1f8;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .page{width:210mm;height:297mm;margin:0 auto;padding:20mm 18mm;position:relative;overflow:hidden;background:linear-gradient(160deg,#121a3d,#060918 70%);page-break-after:always}
+      .page:last-of-type{page-break-after:auto}
+      .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8fa2ff}
+      .marca{font-size:14px;color:#c9d2ef;font-weight:600}
+      h1{font-size:54px;line-height:1.02;margin:40mm 0 6mm;font-weight:600}
+      h2{font-size:32px;line-height:1.15;margin:4mm 0 8mm;font-weight:600}
+      .mes{font-size:22px;color:#c9d2ef}
+      .rodape{position:absolute;left:18mm;right:18mm;bottom:12mm;font-size:11px;color:#7d88aa}
+      .stats,.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6mm}
+      .stats>div,.card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px}
+      .stats b,.card b{display:block;font-size:30px;font-weight:600;margin-top:4px}
+      .stats span,.card span{font-size:12px;color:#aab4d4}
+      .mt{margin-top:10mm}
+      .barra{height:10px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin:6px 0}
+      .barra div{height:100%;background:#3d5bff}
+      table{width:100%;border-collapse:collapse;margin-top:6mm;font-size:14px}
+      th,td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left}
+      th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#8fa2ff;font-weight:600}
+      .n{text-align:right}
+      .chart{display:flex;gap:28px;align-items:flex-end;height:70mm;margin-top:4mm}
+      .col{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+      .bar{width:100%;background:linear-gradient(#8fa2ff,#3d5bff);border-radius:10px 10px 0 0}
+      .col span{font-size:20px;font-weight:600;margin-bottom:6px}
+      .col small{font-size:11px;color:#aab4d4;margin-top:6px}
+      .nop{padding:12px;text-align:center;background:#111a3a;font:14px system-ui}
+      .nop button{font:600 14px system-ui;padding:8px 16px;border-radius:99px;border:0;background:#fff;color:#0b0f22;cursor:pointer}
+      @media print{.nop{display:none}}`;
+
+    return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relatório · ${esc(cliente)} · ${esc(mesNome(mes))}</title><style>${css}</style></head><body>
+      <div class="nop"><button onclick="window.print()">Salvar como PDF</button></div>
+      <section class="page">
+        <div class="marca">Plassô Marketing</div>
+        <div class="eyebrow mt">Relatório mensal</div>
+        <h1>${esc(cliente)}</h1>
+        <div class="mes">${esc(mesNome(mes))}</div>
+        <div class="rodape">Instagram${l ? ' · @' + esc(l.username || l.ig_id) : ' · conta ainda não ligada'}</div>
+      </section>
+      <section class="page">
+        <div class="eyebrow">Objetivos e o que foi feito</div>
+        <h2>Foco do mês: ${esc(focoTxt)}</h2>
+        <div class="stats">
+          <div><span>conteúdos planejados</span><b>${tarefas.length}</b></div>
+          <div><span>aprovados ou postados</span><b>${feitos}</b></div>
+          <div><span>posts publicados no Instagram</span><b>${l ? P.length : '–'}</b></div>
+        </div>
+        <div class="eyebrow mt">Esperado x feito</div>
+        <div class="barra"><div style="width:${pct}%"></div></div>
+        <p class="small">${feitos} de ${tarefas.length} conteúdos (${pct}%)</p>
+        <table><thead><tr><th>Objetivo</th><th class="n">Planejados</th><th class="n">Feitos</th></tr></thead><tbody>${linhas}</tbody></table>
+        <div class="rodape">"Feito" = aprovado pelo cliente ou já postado.</div>
+      </section>
+      <section class="page">
+        <div class="eyebrow">Métricas e resultados</div>
+        <h2>${l ? 'Como o perfil respondeu' : 'Métricas indisponíveis'}</h2>
+        ${l ? `<div class="cards">${cards || '<div class="card"><span>Nenhuma métrica selecionada</span></div>'}</div>${grafico}
+          ${top ? `<div class="eyebrow mt">Post de destaque</div><p>${esc(top.tipo || 'Post')}, com <b>${num(top.dados?.views)}</b> visualizações, <b>${num(top.dados?.saved)}</b> salvos e <b>${num(top.dados?.shares)}</b> compartilhamentos.</p>` : ''}`
+          : '<p class="small">A conta do Instagram deste cliente ainda não está ligada ao Dashplassô. As métricas aparecem aqui depois da ligação.</p>'}
+        <div class="rodape">Métricas somadas dos dias do mês. Fonte: API oficial da Meta.</div>
+      </section>
+    </body></html>`;
+  }
+
+  async function recarregar() { await carregarContas(); render(); }
+  function render() { renderToken(); renderSelect(); renderConexao(); renderAcoes(); renderMetricas().catch(e => console.warn(e)); }
+
+  $('f-cliente').onchange = e => { cliente = e.target.value; history.replaceState(null, '', '?cliente=' + encodeURIComponent(cliente)); renderConexao(); renderAcoes(); renderMetricas().catch(e => console.warn(e)); };
   render();
   recarregar();
   // a análise chega pelo banco: confere a cada 20 s enquanto estiver na fila
