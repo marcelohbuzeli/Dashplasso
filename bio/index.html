@@ -13,16 +13,17 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Mrs+Saint+Delafield&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://use.typekit.net/whw1itf.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
   :root {
     --noite: #01132d; --marinho: #011e48; --azul: #324779; --ceu: #7fb3e3; --gelo: #d6e3f4; --neve: #f4f7fc; --branco: #fff;
     --t2: rgba(255,255,255,.74); --t3: rgba(255,255,255,.52);
     --linha: rgba(214,227,244,.14); --vidro: rgba(214,227,244,.06);
-    --serif: "Bodoni Moda", "Bodoni 72", Didot, Georgia, serif;
+    --serif: "Poppins", "Helvetica Neue", Arial, sans-serif;
     --sans: "Poppins", "Helvetica Neue", Arial, sans-serif;
-    --script: "Mrs Saint Delafield", cursive;
+    --script: "handsome-pro", cursive;
     --max: 1120px;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -37,9 +38,9 @@
 
   /* ---------- tipografia ---------- */
   .eyebrow { font: 500 12px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--ceu); margin: 0 0 16px; }
-  .h2 { font: 500 clamp(34px, 6vw, 56px)/1.04 var(--serif); letter-spacing: -.015em; margin: 0; }
-  .h2 em { font-style: italic; font-weight: 400; color: var(--gelo); }
-  .script { font: 400 clamp(46px, 8vw, 72px)/.8 var(--script); color: var(--ceu); display: inline-block; transform: rotate(-4deg); }
+  .h2 { font: 700 clamp(32px, 5.6vw, 52px)/1.02 var(--serif); letter-spacing: -.03em; margin: 0; }
+  .h2 em { font-style: normal; font-weight: 300; color: var(--ceu); }
+  .script { font: 400 clamp(50px, 9vw, 76px)/.9 var(--script); color: var(--ceu); display: inline-block; transform: rotate(-3deg); }
   .lead { color: var(--t2); font-weight: 300; font-size: 17px; max-width: 52ch; margin: 18px 0 0; }
 
   /* ---------- botões ---------- */
@@ -60,7 +61,7 @@
   .topo .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; }
   .marca { display: flex; align-items: center; gap: 10px; }
   .marca img { width: 54px; height: auto; }
-  .marca span { font: 400 13px/1 var(--serif); font-variant: small-caps; letter-spacing: .3em; text-transform: lowercase; color: var(--t2); }
+  .marca span { font: 500 11px/1 var(--sans); letter-spacing: .3em; text-transform: uppercase; color: var(--t2); }
   .menu { display: none; gap: 28px; font-size: 14px; color: var(--t2); }
   .menu a:hover { color: var(--branco); }
   @media (min-width: 900px) { .menu { display: flex; } }
@@ -71,8 +72,8 @@
   .hero-foto img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
   .hero-foto::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(1,19,45,.35) 0%, rgba(1,19,45,0) 22%, rgba(1,19,45,0) 55%, var(--noite) 100%); }
   .hero .wrap { position: relative; padding-bottom: calc(44px + env(safe-area-inset-bottom)); padding-top: 54svh; }
-  .hero h1 { font: 500 clamp(44px, 11vw, 92px)/.98 var(--serif); letter-spacing: -.02em; margin: 6px 0 0; max-width: 12ch; }
-  .hero h1 em { font-style: italic; font-weight: 400; color: var(--gelo); }
+  .hero h1 { font: 700 clamp(40px, 10vw, 84px)/.96 var(--serif); letter-spacing: -.035em; margin: 6px 0 0; max-width: 12ch; }
+  .hero h1 em { font-style: normal; font-weight: 300; color: var(--ceu); }
   .hero .script { margin-left: 4px; }
   .hero .lead { max-width: 40ch; }
   .hero-acoes { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
@@ -90,7 +91,7 @@
   /* ---------- faixa de clientes ---------- */
   .faixa { border-block: 1px solid var(--linha); padding: 20px 0; overflow: hidden; background: var(--noite); }
   .faixa-trilho { display: flex; gap: 48px; width: max-content; animation: corre 32s linear infinite; }
-  .faixa span { font: 400 22px/1 var(--serif); font-style: italic; color: var(--t3); white-space: nowrap; display: flex; align-items: center; gap: 48px; }
+  .faixa span { font: 300 20px/1 var(--serif); color: var(--t3); white-space: nowrap; display: flex; align-items: center; gap: 48px; }
   .faixa span::after { content: "✦"; font-style: normal; font-size: 11px; color: var(--azul); }
   @keyframes corre { to { transform: translateX(-50%); } }
 
@@ -120,7 +121,7 @@
   .video .info { position: absolute; left: 14px; right: 14px; bottom: 14px; z-index: 2; }
   .video .tipo, .video .titulo { display: block; }
   .video .tipo { font: 500 10.5px/1 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--ceu); }
-  .video .titulo { font: 500 19px/1.15 var(--serif); margin-top: 6px; }
+  .video .titulo { font: 600 17px/1.2 var(--serif); letter-spacing: -.01em; margin-top: 6px; }
   .esqueleto { aspect-ratio: 9/16; border-radius: 20px; background: linear-gradient(110deg, var(--marinho) 30%, #0a2a5a 50%, var(--marinho) 70%); background-size: 200% 100%; animation: brilho 1.4s linear infinite; }
   @keyframes brilho { to { background-position: -200% 0; } }
   .grade-vazia { grid-column: 1 / -1; color: var(--t3); text-align: center; padding: 40px 0; }
@@ -130,7 +131,7 @@
   @media (min-width: 800px) { .servicos { grid-template-columns: repeat(2, 1fr); gap: 18px; } }
   .serv { background: var(--branco); border: 1px solid rgba(1,30,72,.08); border-radius: 28px; padding: 28px 24px; display: flex; flex-direction: column; box-shadow: 0 20px 50px -34px rgba(1,30,72,.45); }
   .serv-ic { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; background: var(--gelo); color: var(--marinho); font-size: 19px; }
-  .serv h3 { font: 500 30px/1.05 var(--serif); margin: 18px 0 8px; }
+  .serv h3 { font: 700 26px/1.08 var(--serif); letter-spacing: -.03em; margin: 18px 0 8px; }
   .serv p { margin: 0; color: rgba(1,30,72,.7); font-size: 15px; }
   .serv ul { list-style: none; padding: 0; margin: 16px 0 22px; display: grid; gap: 8px; font-size: 14.5px; }
   .serv li { display: flex; gap: 10px; align-items: baseline; }
@@ -166,8 +167,8 @@
   .passos { display: grid; gap: 14px; counter-reset: p; }
   @media (min-width: 800px) { .passos { grid-template-columns: repeat(3, 1fr); gap: 18px; } }
   .passo { padding: 28px 24px; border-radius: 28px; border: 1px solid rgba(1,30,72,.1); background: var(--branco); }
-  .passo::before { counter-increment: p; content: "0" counter(p); font: 500 15px/1 var(--serif); color: var(--azul); letter-spacing: .1em; }
-  .passo h3 { font: 500 26px/1.1 var(--serif); margin: 14px 0 8px; }
+  .passo::before { counter-increment: p; content: "0" counter(p); font: 600 14px/1 var(--serif); color: var(--azul); letter-spacing: .1em; }
+  .passo h3 { font: 700 22px/1.12 var(--serif); letter-spacing: -.02em; margin: 14px 0 8px; }
   .passo p { margin: 0; color: rgba(1,30,72,.7); font-size: 15px; }
 
   /* ---------- faq ---------- */
@@ -207,8 +208,8 @@
   @media (min-width: 700px) { .modal { align-items: center; } .folha { border-radius: 28px; padding: 32px 30px; } }
   .fechar { position: absolute; top: 14px; right: 14px; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: rgba(214,227,244,.08); color: var(--t2); z-index: 3; }
   .fechar:hover { background: rgba(214,227,244,.16); color: var(--branco); }
-  .folha .script { font-size: 48px; display: block; text-align: center; }
-  .folha h2 { font: 500 30px/1.1 var(--serif); margin: 4px 0 0; text-align: center; }
+  .folha .script { font-size: 40px; display: block; text-align: center; padding: 0 30px; margin-top: 10px; white-space: nowrap; }
+  .folha h2 { font: 700 26px/1.1 var(--serif); letter-spacing: -.03em; margin: 4px 0 0; text-align: center; }
   .folha .intro { text-align: center; color: var(--t2); font-size: 14.5px; margin: 8px 0 20px; font-weight: 300; }
   .etapas { display: flex; gap: 6px; justify-content: center; margin-bottom: 18px; }
   .etapas i { width: 28px; height: 4px; border-radius: 4px; background: rgba(214,227,244,.18); transition: background .2s; }
@@ -251,7 +252,7 @@
   .player .modal { align-items: center; }
   .player-leg { padding: 12px 16px 16px; background: var(--marinho); }
   .player-leg .tipo { font: 500 10.5px/1 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--ceu); }
-  .player-leg b { display: block; font: 500 20px/1.2 var(--serif); margin-top: 4px; }
+  .player-leg b { display: block; font: 600 18px/1.2 var(--serif); margin-top: 4px; }
 
   /* ---------- animação de entrada ---------- */
   .revela { opacity: 0; transform: translateY(18px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
