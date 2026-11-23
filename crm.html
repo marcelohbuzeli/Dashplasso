@@ -316,6 +316,7 @@
   function badgeAnalise(l) {
     const a = analiseDe(l);
     if (!a) return l.site === true ? '<span class="muted"><i class="fa-solid fa-hourglass-half"></i> análise na fila</span>' : '';
+    if (a.status === 'na_fila') return '<span class="muted"><i class="fa-solid fa-hourglass-half"></i> análise na fila do Jarvis</span>';
     if (a.status === 'analisando') return '<span class="muted"><i class="fa-solid fa-spinner fa-spin"></i> analisando Instagram</span>';
     if (a.status === 'erro') return '<span style="color:#fca5a5"><i class="fa-solid fa-triangle-exclamation"></i> análise falhou</span>';
     return `<span style="color:var(--accent-2)"><i class="fa-brands fa-instagram"></i> análise pronta${a.nota_perfil != null ? ' · ' + a.nota_perfil + '/10' : ''}</span>`;
@@ -324,7 +325,8 @@
     const a = analiseDe(l);
     const btn = (t) => `<button class="btn btn-ghost btn-sm" data-a="analisar"><i class="fa-solid fa-rotate"></i> ${t}</button>`;
     if (!a) return l.insta || l.site ? `<div class="card card-tight mb-4 row-between"><span class="small muted"><i class="fa-brands fa-instagram"></i> Sem análise do Instagram ainda.</span>${btn('Analisar agora')}</div>` : '';
-    if (a.status === 'analisando') return `<div class="card card-tight mb-4"><span class="small muted"><i class="fa-solid fa-spinner fa-spin"></i> Analisando o Instagram${a.usuario ? ' @' + esc(a.usuario) : ''}… leva cerca de 1 minuto. O card atualiza sozinho.</span></div>`;
+    if (a.status === 'na_fila') return `<div class="card card-tight mb-4"><span class="small muted"><i class="fa-solid fa-hourglass-half"></i> Na fila do Jarvis. A análise começa assim que o Jarvis estiver ligado no Mac.</span></div>`;
+    if (a.status === 'analisando') return `<div class="card card-tight mb-4"><span class="small muted"><i class="fa-solid fa-spinner fa-spin"></i> O Jarvis está analisando o Instagram… leva alguns minutos. O card atualiza sozinho.</span></div>`;
     if (a.status === 'erro') return `<div class="card card-tight mb-4 row-between"><span class="small" style="color:#fca5a5"><i class="fa-solid fa-triangle-exclamation"></i> A análise falhou: ${esc(a.erro || '')}</span>${btn('Tentar de novo')}</div>`;
     const li = arr => (arr || []).map(x => `<li>${esc(x)}</li>`).join('');
     const p = a.perfil;
@@ -332,7 +334,7 @@
     return `<div class="card card-tight mb-4">
       <div class="row-between" style="align-items:flex-start;gap:12px">
         <div><div class="eyebrow" style="margin:0"><i class="fa-brands fa-instagram"></i> Análise do Instagram${a.usuario ? ' · @' + esc(a.usuario) : ''}</div>
-        <div class="tiny muted mt-1">${a.fonte === 'api' ? 'Lido pela API do Instagram' : 'Sem acesso direto ao perfil: baseada em pesquisa pública'}${p ? ` · ${n(p.seguidores)} seguidores · ${n(p.publicacoes)} posts${p.ultimoPost ? ' · último em ' + new Date(p.ultimoPost + 'T12:00').toLocaleDateString('pt-BR') : ''}` : ''} · ${new Date(a.em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</div></div>
+        <div class="tiny muted mt-1">${a.fonte === 'pesquisa' ? 'Não deu para ver o perfil: baseada em pesquisa pública' : 'Perfil visto pelo Jarvis no Instagram'}${p ? ` · ${n(p.seguidores)} seguidores · ${n(p.publicacoes)} posts${p.ultimoPost ? ' · último em ' + new Date(p.ultimoPost + 'T12:00').toLocaleDateString('pt-BR') : ''}` : ''} · ${new Date(a.em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</div></div>
         <span class="pill num">${a.nota_perfil ?? '–'}/10</span>
       </div>
       <p class="mt-3" style="margin-bottom:0">${esc(a.resumo || '')}</p>
@@ -347,13 +349,13 @@
       <div class="row mt-3" style="justify-content:flex-end">${btn('Refazer análise')}</div>
     </div>`;
   }
-  async function pedirAnalise(id, forcar) {
-    try {
-      const { data: { session } } = await App.supabase.auth.getSession();
-      if (!session) return;
-      if (forcar) { DB.put('crm_analise', { id, status: 'analisando', em: agoraISO() }); render(); App.toast('Analisando o Instagram…', 'ok'); }
-      await fetch(PLASSO_CONFIG.SUPABASE_URL + '/functions/v1/analisar-orcamento', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-user-token': session.access_token, apikey: PLASSO_CONFIG.SUPABASE_ANON_KEY }, body: JSON.stringify({ id, forcar: !!forcar }) });
-    } catch (e) { if (forcar) App.toast('Não consegui pedir a análise.', 'warn'); }
+  // põe na fila do Jarvis (Mac): ao salvar, o Dashplasso já avisa o Jarvis pelo Realtime
+  function pedirAnalise(id, forcar) {
+    const a = DB.get('crm_analise', id);
+    if (a && !forcar) return;
+    DB.put('crm_analise', { id, status: 'na_fila', pedidoEm: agoraISO() });
+    render();
+    if (forcar) App.toast('Pedido enviado ao Jarvis.', 'ok');
   }
   // novos orçamentos e análises chegam pelo banco: confere a cada 20 s e ao voltar para a aba
   const pedidos = new Set();

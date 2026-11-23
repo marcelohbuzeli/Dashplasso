@@ -10,8 +10,6 @@
 --   • recusa enxurrada (mais de 30 pedidos do site na última hora).
 -- =====================================================================
 
-create extension if not exists pg_net;
-
 create or replace function public.site_orcamento(p jsonb)
 returns boolean
 language plpgsql
@@ -68,14 +66,15 @@ begin
          to_char(v_agora at time zone 'America/Sao_Paulo', 'DD/MM/YYYY') || ' — Pediu orçamento pelo site (link da bio)')
   )), v_agora);
 
-  -- análise automática do Instagram do cliente (Edge Function analisar-orcamento)
+  -- análise do Instagram do cliente: entra na fila do Jarvis (Mac do Marcelo, jarvis/analises.py)
+  insert into public.records (owner, collection, id, data, updated_at)
+  values (v_owner, 'crm_analise', v_id, jsonb_build_object('id', v_id, 'status', 'na_fila',
+          'pedidoEm', to_char(v_agora at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')), v_agora)
+  on conflict do nothing;
+  -- avisa o Jarvis na hora (mesmo sinal que o site manda: "a coleção crm_analise mudou")
   begin
-    perform net.http_post(
-      url := 'https://icarqnbtxrntogfsyavv.supabase.co/functions/v1/analisar-orcamento',
-      body := jsonb_build_object('id', v_id),
-      headers := '{"Content-Type": "application/json"}'::jsonb,
-      timeout_milliseconds := 5000);
-  exception when others then null; -- se falhar, o CRM pede a análise ao abrir
+    perform realtime.send(jsonb_build_object('col', 'crm_analise'), 'mudou', 'dp-' || v_owner::text, false);
+  exception when others then null; -- sem o sinal, o Jarvis pega a fila na próxima conferência
   end;
 
   return true;
