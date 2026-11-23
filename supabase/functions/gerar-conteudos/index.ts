@@ -57,6 +57,7 @@ Como trabalhar:
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "Método não permitido" }, 405);
+  if (!Deno.env.get("ANTHROPIC_API_KEY")) return json({ error: "A IA ainda não está ligada: falta a chave da Anthropic (ANTHROPIC_API_KEY) no Supabase. Crie a chave em console.anthropic.com e cadastre em Edge Functions > Secrets.", codigo: "sem_chave" }, 503);
 
   // token do usuário em x-user-token (o gateway só aceita a chave pública no apikey)
   const tok = req.headers.get("x-user-token") || (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");

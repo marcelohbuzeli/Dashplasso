@@ -30,6 +30,7 @@ Como trabalhar:
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "Método não permitido" }, 405);
+  if (!Deno.env.get("ANTHROPIC_API_KEY")) return json({ error: "A IA ainda não está ligada: falta a chave da Anthropic (ANTHROPIC_API_KEY) no Supabase. Crie a chave em console.anthropic.com e cadastre em Edge Functions > Secrets.", codigo: "sem_chave" }, 503);
 
   const tok = req.headers.get("x-user-token") || (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
   const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {

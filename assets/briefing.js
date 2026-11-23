@@ -136,7 +136,7 @@
       add('expectativa', lead.notas && !/^crm_/.test(lead.notas) ? lead.notas : '', 'orcamento');
       add('ticket', lead.ticket, 'orcamento');
     }
-    const a = analise && analise.status !== 'erro' && analise.status !== 'analisando' ? analise : null;
+    const a = analise && !['erro', 'analisando', 'na_fila'].includes(analise.status) && (analise.resumo || analise.objetivo) ? analise : null;
     if (a) {
       add('meta30', a.objetivo, 'analise');
       add('diagResumo', [a.resumo, a.nota_perfil != null ? `Nota do perfil: ${a.nota_perfil}/10` : ''].filter(Boolean).join('\n\n'), 'analise');
