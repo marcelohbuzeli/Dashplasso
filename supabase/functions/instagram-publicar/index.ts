@@ -187,6 +187,10 @@ async function rodarFila(owner?: string) {
     if (!ok?.length) { log.push(`${a.id}: já em andamento`); continue; }
     try {
       await contaDoCliente(a.owner, a.task_id, igId); // trava: só publica na conta do próprio cliente
+      if (a.status === "agendado") { // trava: o mesmo conteúdo não é publicado duas vezes
+        const { data: ja } = await db.from("ig_agendamentos").select("permalink").eq("task_id", a.task_id).eq("status", "publicado").neq("id", a.id).limit(1);
+        if (ja?.length) throw new Error(`Esse conteúdo já foi publicado${ja[0].permalink ? " em " + ja[0].permalink : ""}. Não publiquei de novo.`);
+      }
       log.push(`${a.id}: ${await passo(a, igId)}`);
     } catch (e) {
       const msg = String((e as Error).message || e);
