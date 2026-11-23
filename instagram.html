@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060918">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Plassô | Instagram</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="assets/ui.css?v=12">
+<link rel="icon" href="assets/icons/favicon-empresa.svg" type="image/svg+xml">
+<link rel="icon" href="assets/icons/favicon-empresa-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon-empresa.png">
+<style>
+  .barras { display: flex; align-items: flex-end; gap: 3px; height: 140px; padding-top: 8px; }
+  .barras > div { flex: 1; min-width: 3px; background: var(--accent); border-radius: 3px 3px 0 0; opacity: .85; position: relative; }
+  .barras > div:hover { opacity: 1; }
+  .barras > div[title=""] { opacity: .25; }
+  .post { display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .post:last-child { border-bottom: 0; }
+  .post img, .post .sem-capa { width: 56px; height: 56px; object-fit: cover; border-radius: 10px; background: var(--glass-2); display: grid; place-items: center; }
+  .post .nums { display: flex; gap: 12px; font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+  .post .nums b { color: var(--ink); font-weight: 600; }
+  @media (max-width: 640px) { .post { grid-template-columns: 48px 1fr; } .post .nums { grid-column: 1 / -1; } }
+  .rel p { margin: 6px 0 0; }
+  .rel ul { margin: 6px 0 0; padding-left: 18px; }
+</style>
+</head>
+<body data-theme="empresa">
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="brand-mark">P</div><div><div class="brand-name">Empresa</div><div class="brand-sub">Instagram dos clientes</div></div></div>
+    <div class="row"><button class="chip-btn" onclick="UI.menu()" aria-label="Menu"><i class="fa-solid fa-ellipsis"></i></button></div>
+  </header>
+  <nav id="subnav"></nav>
+
+  <div class="hero">
+    <div class="eyebrow" id="resumo">API oficial da Meta</div>
+    <h1 class="display mt-2">Instagram<br><span class="soft">dos clientes</span></h1>
+    <p>Conecte a conta de cada cliente para agendar posts, acompanhar as métricas (atualizadas todo dia às 6h) e pedir a análise do mês ao Jarvis.</p>
+  </div>
+
+  <div class="card card-tight mb-4" id="token"></div>
+
+  <div class="row mb-4" style="flex-wrap:wrap">
+    <select class="select" id="f-cliente" style="width:auto;min-width:220px;flex:1 1 220px" aria-label="Cliente"></select>
+  </div>
+
+  <section id="conexao" class="mb-4"></section>
+  <div class="grid g-2 md-g-4 mb-4" id="kpis"></div>
+  <section id="grafico" class="mb-4"></section>
+  <section id="analise" class="mb-4"></section>
+  <section id="posts" class="mb-4"></section>
+</div>
+
+<script src="assets/config.js?v=10"></script>
+<script src="assets/core.js?v=10" data-mode="app"></script>
+<script src="assets/ui.js?v=13"></script>
+<script type="text/plain" data-app>
+  UI.mount({ tab: 'empresa', sub: 'instagram' });
+  const { esc } = UI;
+  const $ = id => document.getElementById(id);
+  const norm = c => String(c || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const num = v => v == null ? '–' : Number(v).toLocaleString('pt-BR');
+  const sb = () => window.App && App.supabase;
+  const qp = new URLSearchParams(location.search);
+  let cliente = qp.get('cliente') || '';
+  let estado = { alcancadas: [], ligadas: [], token: null, carregado: false, erro: '' };
+
+  async function fn(nome, body) {
+    const { data, error } = await sb().functions.invoke(nome, { body });
+    if (error) { let msg = error.message; try { msg = (await error.context.json()).erro || msg; } catch (e) {} throw new Error(msg); }
+    if (data && data.erro) throw new Error(data.erro);
+    return data;
+  }
+
+  async function carregarContas() {
+    if (!sb()) { estado.erro = 'Banco desligado (modo de teste).'; return; }
+    try { const d = await fn('instagram-publicar', { modo: 'contas' }); Object.assign(estado, d, { carregado: true, erro: '' }); }
+    catch (e) { estado.erro = e.message; estado.carregado = true; }
+  }
+
+  function renderToken() {
+    const t = estado.token;
+    let txt;
+    if (!estado.carregado) txt = '<span class="small muted"><i class="fa-solid fa-spinner fa-spin"></i> Conferindo a conexão com a Meta…</span>';
+    else if (estado.erro) txt = `<span class="small" style="color:#ff8b99"><i class="fa-solid fa-triangle-exclamation"></i> ${esc(estado.erro)}</span>`;
+    else {
+      const exp = t && t.expira ? new Date(t.expira) : null;
+      const dias = exp ? Math.round((exp - Date.now()) / 864e5) : null;
+      const validade = t && t.nuncaExpira ? 'token permanente' : exp ? `token vence em ${dias} dia(s) (${exp.toLocaleDateString('pt-BR')})` : 'validade do token não informada';
+      const alerta = dias != null && dias < 15;
+      const faltam = t && Array.isArray(t.faltam) ? t.faltam : null;
+      txt = `<div class="row-between" style="flex-wrap:wrap"><span class="small"><i class="fa-brands fa-meta accent-text"></i> Meta conectada${t && t.quem ? ' (' + esc(t.quem) + ')' : ''} · ${estado.alcancadas.length} conta(s) de Instagram ao alcance · <span style="${alerta ? 'color:#ff8b99' : ''}">${validade}</span></span>
+        <span class="tiny muted">${estado.ligadas.length} cliente(s) ligado(s)</span></div>
+        ${alerta ? '<p class="tiny mt-2" style="color:#ff8b99;margin-bottom:0">Gere um token novo (de preferência de usuário do sistema, que não vence) e troque o segredo META_IG_TOKEN.</p>' : ''}
+        ${faltam && faltam.length ? `<p class="tiny mt-2" style="color:#ffb86b;margin-bottom:0">Faltam permissões no token: ${faltam.map(esc).join(', ')}. Sem elas, ${faltam.includes('instagram_manage_insights') ? 'as métricas não chegam' : 'algumas funções não funcionam'}. Gere o token de novo marcando essas permissões.</p>` : ''}
+        ${faltam === null && !estado.alcancadas.length ? '<p class="tiny mt-2" style="color:#ffb86b;margin-bottom:0">O token atual não lista Páginas, então só alcança a sua conta. Para atender clientes, gere um token de usuário do sistema no seu Business Manager (passo a passo em docs/META-CLIENTES.md).</p>' : ''}`;
+    }
+    $('token').innerHTML = txt;
+  }
+
+  function renderSelect() {
+    const clientes = DB.list('clients').map(c => c.name).filter(Boolean);
+    const ligados = new Set(estado.ligadas.map(l => l.cliente));
+    estado.ligadas.forEach(l => { if (!clientes.some(c => norm(c) === l.cliente)) clientes.push(l.cliente_nome); });
+    clientes.sort((a, b) => (ligados.has(norm(b)) - ligados.has(norm(a))) || a.localeCompare(b));
+    if (!cliente && clientes.length) cliente = clientes.find(c => ligados.has(norm(c))) || clientes[0];
+    $('f-cliente').innerHTML = clientes.map(c => `<option value="${esc(c)}" ${norm(c) === norm(cliente) ? 'selected' : ''}>${esc(c)}${ligados.has(norm(c)) ? ' · conectado' : ''}</option>`).join('');
+  }
+
+  const ligacao = () => estado.ligadas.find(l => l.cliente === norm(cliente));
+
+  function renderConexao() {
+    const l = ligacao();
+    const c = DB.list('clients').find(x => norm(x.name) === norm(cliente)) || {};
+    if (!estado.carregado) { $('conexao').innerHTML = ''; return; }
+    if (l) {
+      $('conexao').innerHTML = `<div class="card card-tight row-between" style="flex-wrap:wrap">
+        <span class="small"><i class="fa-brands fa-instagram accent-text"></i> <b>@${esc(l.username || l.ig_id)}</b> ligado a ${esc(l.cliente_nome)} desde ${new Date(l.conectado_em).toLocaleDateString('pt-BR')}</span>
+        <div class="row"><button class="btn btn-ghost btn-sm" id="atualizar"><i class="fa-solid fa-rotate"></i> Atualizar métricas</button><button class="btn btn-ghost btn-sm" id="desligar">Desligar</button></div></div>`;
+      $('atualizar').onclick = () => atualizar(false);
+      $('desligar').onclick = async () => {
+        if (!confirm(`Desligar @${l.username} de ${l.cliente_nome}? Os posts agendados deste cliente deixam de sair.`)) return;
+        try { await fn('instagram-publicar', { modo: 'desconectar', cliente: l.cliente_nome }); await recarregar(); App.toast('Conta desligada.', 'ok'); } catch (e) { App.toast(e.message, 'err'); }
+      };
+      return;
+    }
+    const usadas = new Set(estado.ligadas.map(x => x.ig_id));
+    const livres = estado.alcancadas.filter(a => !usadas.has(a.igId));
+    const sugerida = livres.find(a => c.instagram && norm(c.instagram).replace(/^@|.*instagram\.com\//g, '').replace(/\/.*/, '') === norm(a.username));
+    $('conexao').innerHTML = `<div class="card card-tight">
+      <div class="small"><i class="fa-brands fa-instagram"></i> <b>${esc(cliente)}</b> ainda não tem conta do Instagram ligada.</div>
+      ${livres.length ? `<div class="row mt-3" style="flex-wrap:wrap">
+          <select class="select" id="conta" style="flex:1 1 240px">${livres.map(a => `<option value="${esc(a.igId)}" ${sugerida && sugerida.igId === a.igId ? 'selected' : ''}>@${esc(a.username)} · ${esc(a.pagina)}</option>`).join('')}</select>
+          <button class="btn btn-white btn-sm" id="ligar">Ligar a ${esc(cliente)}</button></div>
+          <p class="tiny muted mt-2" style="margin-bottom:0">Só aparecem contas profissionais ligadas a uma Página do Facebook que você administra.</p>`
+        : `<p class="tiny muted mt-2" style="margin-bottom:0">Nenhuma conta livre ao alcance do token. Para incluir o cliente: a conta do Instagram dele precisa ser profissional, estar ligada à Página do Facebook dele, e essa Página precisa te dar acesso (ou ser adicionada ao seu Business Manager como parceira). Depois, recarregue esta página.</p>`}
+    </div>`;
+    const b = $('ligar');
+    if (b) b.onclick = async () => {
+      b.disabled = true;
+      try { const r = await fn('instagram-publicar', { modo: 'conectar', cliente, igId: $('conta').value }); await recarregar(); App.toast(`@${r.username} ligado a ${cliente}. Buscando 30 dias de métricas…`, 'ok'); atualizar(true); }
+      catch (e) { App.toast(e.message, 'err'); b.disabled = false; }
+    };
+  }
+
+  async function atualizar(historico) {
+    const b = $('atualizar'); if (b) { b.disabled = true; b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Atualizando…'; }
+    try {
+      const r = await fn('instagram-metricas', { modo: 'agora', cliente, dias: historico ? 30 : 3 });
+      const erro = (r.log || []).find(x => /erro/.test(x));
+      App.toast(erro ? erro : 'Métricas atualizadas.', erro ? 'warn' : 'ok');
+      await renderMetricas();
+    } catch (e) { App.toast(e.message, 'err'); }
+    finally { const b2 = $('atualizar'); if (b2) { b2.disabled = false; b2.innerHTML = '<i class="fa-solid fa-rotate"></i> Atualizar métricas'; } }
+  }
+
+  async function renderMetricas() {
+    const l = ligacao();
+    if (!l) { ['kpis', 'grafico', 'analise', 'posts'].forEach(id => $(id).innerHTML = ''); return; }
+    const desde = new Date(Date.now() - 31 * 864e5).toISOString().slice(0, 10);
+    const [dias, posts] = await Promise.all([
+      sb().from('ig_metricas_dia').select('dia,seguidores,dados').eq('ig_id', l.ig_id).gte('dia', desde).order('dia'),
+      sb().from('ig_metricas_posts').select('media_id,publicado,tipo,legenda,link,capa,dados').eq('ig_id', l.ig_id).order('publicado', { ascending: false }).limit(30),
+    ]);
+    const D = dias.data || [], P = posts.data || [];
+    const soma = k => D.reduce((a, d) => a + (Number(d.dados?.[k]) || 0), 0);
+    const seg = D.filter(d => d.seguidores != null);
+    const segAtual = seg.length ? seg[seg.length - 1].seguidores : null;
+    const segAntes = seg.length > 1 ? seg[0].seguidores : null;
+    const k = (icon, label, v, hint) => `<div class="card stat"><span class="label"><i class="fa-solid ${icon} accent-text"></i>${label}</span><span class="value num">${v}</span><span class="hint">${hint}</span></div>`;
+    $('kpis').innerHTML =
+      k('fa-users', 'Seguidores', num(segAtual), segAntes != null ? `${segAtual - segAntes >= 0 ? '+' : ''}${num(segAtual - segAntes)} no período` : 'histórico começa hoje') +
+      k('fa-eye', 'Visualizações (30 dias)', num(soma('views')), `alcance de ${num(soma('reach'))} contas/dia somadas`) +
+      k('fa-heart', 'Interações (30 dias)', num(soma('total_interactions')), `${num(soma('shares'))} compartilhamentos · ${num(soma('saves'))} salvos`) +
+      k('fa-calendar-check', 'Posts (30 dias)', num(P.length), P.length ? `${(P.length / 4.3).toFixed(1).replace('.', ',')} por semana` : 'nenhum post no período');
+
+    const serie = D.filter(d => d.dados && d.dados.reach != null);
+    const max = Math.max(1, ...serie.map(d => d.dados.reach));
+    $('grafico').innerHTML = serie.length ? `<div class="card"><div class="card-head"><span class="eyebrow">Alcance por dia</span><span class="tiny muted">${UI.dataBR(serie[0].dia)} a ${UI.dataBR(serie[serie.length - 1].dia)}</span></div>
+      <div class="barras">${serie.map(d => `<div style="height:${Math.max(2, d.dados.reach / max * 100)}%" title="${UI.dataBR(d.dia)}: ${num(d.dados.reach)} contas alcançadas, ${num(d.dados.views)} visualizações"></div>`).join('')}</div></div>`
+      : `<div class="card card-tight"><span class="small muted">Ainda não há métricas diárias. Clique em "Atualizar métricas" ou espere a atualização das 6h.</span></div>`;
+
+    const rank = [...P].sort((a, b) => (b.dados?.views || b.dados?.reach || 0) - (a.dados?.views || a.dados?.reach || 0));
+    $('posts').innerHTML = P.length ? `<div class="card"><div class="card-head"><span class="eyebrow">Posts dos últimos 30 dias · mais vistos primeiro</span></div>
+      ${rank.map(p => `<a class="post" href="${esc(p.link || '#')}" target="_blank" rel="noopener">
+        ${p.capa ? `<img src="${esc(p.capa)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '<div class="sem-capa"><i class="fa-brands fa-instagram muted"></i></div>'}
+        <div style="min-width:0"><div class="small truncate"><b>${esc(p.tipo || '')}</b> · ${new Date(p.publicado).toLocaleDateString('pt-BR')}</div><div class="tiny muted truncate">${esc((p.legenda || '').split('\n')[0])}</div></div>
+        <div class="nums"><span><b>${num(p.dados?.views)}</b> views</span><span><b>${num(p.dados?.reach)}</b> alcance</span><span><b>${num(p.dados?.likes)}</b> curtidas</span><span><b>${num(p.dados?.shares)}</b> compart.</span><span><b>${num(p.dados?.saved)}</b> salvos</span></div>
+      </a>`).join('')}</div>` : '';
+    renderAnalise();
+  }
+
+  // ---------- análise do mês: fila do Jarvis (coleção ig_relatorios; o Jarvis no Mac faz com o plano do Claude) ----------
+  const mesAtual = () => new Date().toISOString().slice(0, 7);
+  const relId = () => norm(cliente).replace(/[^a-z0-9]+/g, '_') + '_' + mesAtual();
+  function renderAnalise() {
+    const l = ligacao(); if (!l) { $('analise').innerHTML = ''; return; }
+    const r = DB.get('ig_relatorios', relId());
+    const btn = t => `<button class="btn btn-ghost btn-sm" id="pedir-rel"><i class="fa-solid fa-wand-magic-sparkles"></i> ${t}</button>`;
+    let corpo;
+    if (!r) corpo = `<div class="row-between" style="flex-wrap:wrap"><span class="small muted">Nenhuma análise de ${mesAtual().split('-').reverse().join('/')} ainda.</span>${btn('Pedir análise do mês ao Jarvis')}</div>`;
+    else if (r.status === 'na_fila') corpo = '<span class="small muted"><i class="fa-solid fa-hourglass-half"></i> Na fila do Jarvis. Começa assim que ele estiver ligado no Mac.</span>';
+    else if (r.status === 'analisando') corpo = '<span class="small muted"><i class="fa-solid fa-spinner fa-spin"></i> O Jarvis está analisando as métricas e os posts…</span>';
+    else if (r.status === 'erro') corpo = `<div class="row-between" style="flex-wrap:wrap"><span class="small" style="color:#ff8b99">A análise falhou: ${esc(r.erro || '')}</span>${btn('Tentar de novo')}</div>`;
+    else {
+      const li = a => (a || []).map(x => `<li>${esc(x)}</li>`).join('');
+      corpo = `<div class="rel"><p>${esc(r.resumo || '')}</p>
+        ${(r.destaques || []).length ? `<div class="eyebrow mt-3">O que funcionou</div><ul class="small">${li(r.destaques)}</ul>` : ''}
+        ${(r.atencao || []).length ? `<div class="eyebrow mt-3">Pontos de atenção</div><ul class="small">${li(r.atencao)}</ul>` : ''}
+        ${(r.recomendacoes || []).length ? `<div class="eyebrow mt-3">Próximo mês</div><ul class="small">${li(r.recomendacoes)}</ul>` : ''}
+        ${r.mensagem_cliente ? `<div class="eyebrow mt-3">Mensagem para o cliente</div><p class="small" style="white-space:pre-wrap">${esc(r.mensagem_cliente)}</p>` : ''}
+        <div class="row mt-3" style="justify-content:space-between;flex-wrap:wrap"><span class="tiny muted">Feita em ${new Date(r.em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</span>${btn('Refazer')}</div></div>`;
+    }
+    $('analise').innerHTML = `<div class="card"><div class="card-head"><span class="eyebrow">Análise do mês</span></div>${corpo}</div>`;
+    const b = $('pedir-rel');
+    if (b) b.onclick = () => {
+      DB.put('ig_relatorios', { id: relId(), status: 'na_fila', pedidoEm: new Date().toISOString(), cliente, igId: l.ig_id, username: l.username, mes: mesAtual() });
+      renderAnalise(); App.toast('Pedido enviado ao Jarvis.', 'ok');
+    };
+  }
+
+  async function recarregar() { await carregarContas(); render(); }
+  function render() { renderToken(); renderSelect(); renderConexao(); renderMetricas().catch(e => console.warn(e)); }
+
+  $('f-cliente').onchange = e => { cliente = e.target.value; history.replaceState(null, '', '?cliente=' + encodeURIComponent(cliente)); renderConexao(); renderMetricas().catch(e => console.warn(e)); };
+  render();
+  recarregar();
+  // a análise chega pelo banco: confere a cada 20 s enquanto estiver na fila
+  setInterval(async () => {
+    const r = DB.get('ig_relatorios', relId());
+    if (document.hidden || !r || !/na_fila|analisando/.test(r.status)) return;
+    if (await DB.reload(['ig_relatorios'])) renderAnalise();
+  }, 20000);
+</script>
+</body>
+</html>

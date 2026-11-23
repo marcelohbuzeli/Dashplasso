@@ -8,7 +8,10 @@
 //   { modo: "upload", nome }              -> (logado) devolve um link temporário para enviar um arquivo ao bucket "postagens".
 //   { modo: "agora" }                     -> (logado) roda a fila na hora (mesmo processo do cron).
 //   { modo: "conferir", id }             -> (logado) confere token, conta, cliente e arquivo de um agendamento, sem publicar.
-//   { modo: "testar", caminho }           -> (logado) manda um reel pro Instagram processar, sem publicar.
+//   { modo: "testar", caminho, igId }     -> (logado) manda um reel pro Instagram processar, sem publicar.
+//   { modo: "contas" }                    -> (logado) contas que o token alcança, validade do token e clientes ligados.
+//   { modo: "conectar", cliente, igId }   -> (logado) liga a conta do Instagram ao cliente (tabela ig_contas).
+//   { modo: "desconectar", cliente }      -> (logado) desliga.
 // Nesta função o "Verify JWT" fica DESLIGADO (o cron chama sem login);
 // os modos que mexem em arquivos ou na conta conferem o login aqui dentro.
 
@@ -39,22 +42,17 @@ const db = createClient(Deno.env.get("SUPABASE_URL")!, chaveServico(), {
 });
 const BUCKET = "postagens";
 
-// TRAVA DE SEGURANÇA: o token conectado é SÓ do perfil do Marcelo.
-// Cada cliente só publica se estiver nesta lista, com o id da conta do Instagram dele.
-// Para conectar um cliente novo: gerar o token da conta dele e adicionar aqui (nunca reaproveitar o do Marcelo).
-const CONTAS_POR_CLIENTE: Record<string, string> = {
-  "marcelo h buzeli": "17841454339423114", // @marcelohbuzeli
-};
+// TRAVA DE SEGURANÇA: cada conteúdo só é publicado na conta do Instagram ligada ao cliente dele
+// (tabela ig_contas, conectada pela tela Instagram do Dashplasso com o modo "conectar").
 const normCliente = (c: unknown) => String(c ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
 
-async function contaDoCliente(owner: string, taskId: string | null, igIdToken: string) {
+async function contaDoCliente(owner: string, taskId: string | null): Promise<string> {
   if (!taskId) throw new Error("Agendamento sem conteúdo vinculado: por segurança, não publico.");
   const { data } = await db.from("records").select("data").eq("owner", owner).eq("collection", "tasks").eq("id", taskId).maybeSingle();
   const cliente = data?.data?.client;
-  const esperado = CONTAS_POR_CLIENTE[normCliente(cliente)];
-  if (!esperado) throw new Error(`O cliente "${cliente || "sem cliente"}" não tem conta do Instagram conectada. Nada foi publicado.`);
-  if (esperado !== igIdToken) throw new Error(`O token conectado é de outra conta (${igIdToken}), não da conta de "${cliente}". Nada foi publicado.`);
-  return esperado;
+  const { data: c } = await db.from("ig_contas").select("ig_id").eq("owner", owner).eq("cliente", normCliente(cliente)).maybeSingle();
+  if (!c?.ig_id) throw new Error(`O cliente "${cliente || "sem cliente"}" não tem conta do Instagram conectada. Nada foi publicado.`);
+  return String(c.ig_id);
 }
 
 async function graph(path: string, params: Record<string, string> = {}, method: "GET" | "POST" = "GET") {
@@ -79,6 +77,53 @@ async function conta() {
   } catch { /* usuário do sistema pode não listar páginas; tenta o id direto */ }
   const ig = await graph(IG_ID_PADRAO, { fields: "id,username" });
   return { igId: String(ig.id), username: ig.username as string, tipoToken: TIPO_TOKEN };
+}
+
+async function contasAlcancadas() {
+  const out: { igId: string; username: string; nome: string; pagina: string }[] = [];
+  let next = "me/accounts";
+  let params: Record<string, string> = { fields: "name,instagram_business_account{id,username,name}", limit: "100" };
+  for (let i = 0; i < 10 && next; i++) {
+    const r = await graph(next, params);
+    for (const p of r.data || []) {
+      const ig = p.instagram_business_account;
+      if (ig?.id) out.push({ igId: String(ig.id), username: ig.username || "", nome: ig.name || "", pagina: p.name || "" });
+    }
+    const n = r.paging?.next as string | undefined;
+    if (!n) break;
+    const u = new URL(n);
+    next = u.pathname.replace(/^\/v[\d.]+\//, "");
+    params = Object.fromEntries([...u.searchParams].filter(([k]) => k !== "access_token"));
+  }
+  // contas do Instagram atribuídas pelo Business Manager (próprias e de clientes parceiros)
+  try {
+    const bms = (await graph("me/businesses", { fields: "id,name", limit: "50" })).data || [];
+    for (const bm of bms) {
+      for (const aresta of ["owned_instagram_accounts", "client_instagram_accounts"]) {
+        try {
+          const r = await graph(`${bm.id}/${aresta}`, { fields: "id,username,name", limit: "100" });
+          for (const ig of r.data || []) if (!out.some((o) => o.igId === String(ig.id))) out.push({ igId: String(ig.id), username: ig.username || "", nome: ig.name || "", pagina: bm.name || "" });
+        } catch { /* sem acesso a essa lista */ }
+      }
+    }
+  } catch { /* token sem business_management */ }
+  return out;
+}
+
+const PERMISSOES = ["instagram_basic", "instagram_content_publish", "instagram_manage_insights", "pages_show_list", "pages_read_engagement", "business_management"];
+async function validadeToken() {
+  const out: Record<string, unknown> = {};
+  try { const me = await graph("me", { fields: "id,name" }); out.quem = me.name || me.id; } catch (e) { out.quem = ""; }
+  try {
+    const p = (await graph("me/permissions")).data || [];
+    const ok = p.filter((x: any) => x.status === "granted").map((x: any) => x.permission);
+    out.escopos = ok; out.faltam = PERMISSOES.filter((x) => !ok.includes(x));
+  } catch { out.faltam = null; }   // token de Página não lista permissões
+  try {
+    const d = (await graph("debug_token", { input_token: TOKEN })).data || {};
+    out.expira = d.expires_at ? new Date(d.expires_at * 1000).toISOString() : null; out.nuncaExpira = d.expires_at === 0; out.tipo = d.type || "";
+  } catch { /* só o dono do app consegue ver a validade */ }
+  return out;
 }
 
 async function usuario(req: Request) {
@@ -177,7 +222,6 @@ async function rodarFila(owner?: string) {
   const { data: fila, error } = await q;
   if (error) throw new Error(error.message);
   if (!fila?.length) return [];
-  const { igId } = await conta();
   const log: string[] = [];
   for (const a of fila as Ag[]) {
     // trava de 4 minutos para duas execuções não publicarem o mesmo post
@@ -186,7 +230,7 @@ async function rodarFila(owner?: string) {
       .eq("id", a.id).or(`trava_ate.is.null,trava_ate.lt.${agora}`).select("id");
     if (!ok?.length) { log.push(`${a.id}: já em andamento`); continue; }
     try {
-      await contaDoCliente(a.owner, a.task_id, igId); // trava: só publica na conta do próprio cliente
+      const igId = await contaDoCliente(a.owner, a.task_id); // trava: só publica na conta do próprio cliente
       if (a.status === "agendado") { // trava: o mesmo conteúdo não é publicado duas vezes
         const { data: ja } = await db.from("ig_agendamentos").select("permalink").eq("task_id", a.task_id).eq("status", "publicado").neq("id", a.id).limit(1);
         if (ja?.length) throw new Error(`Esse conteúdo já foi publicado${ja[0].permalink ? " em " + ja[0].permalink : ""}. Não publiquei de novo.`);
@@ -219,6 +263,31 @@ Deno.serve(async (req) => {
       catch (e) { return json({ ok: false, erro: String((e as Error).message || e), tipoToken: TIPO_TOKEN, tamanhoToken: TOKEN.length, formato: { comecaIGAA: /^IGAA/i.test(TOKEN), comecaEAA: /^EAA/.test(TOKEN), temIgual: TOKEN.includes("="), temDoisPontos: TOKEN.includes(":"), soLetrasENumeros: /^[A-Za-z0-9]+$/.test(TOKEN), temNomeDoSegredo: /META_IG_TOKEN/i.test(TOKEN) } }); }
     }
     if (modo === "agora") return json({ ok: true, log: await rodarFila(user.id) });
+    if (modo === "contas") {
+      // contas do Instagram que o token alcança + quais já estão ligadas a clientes
+      const [alcancadas, token, ligadas] = await Promise.all([
+        contasAlcancadas().catch((e) => { throw new Error(`Não consegui listar as contas: ${(e as Error).message}`); }),
+        validadeToken(),
+        db.from("ig_contas").select("cliente,cliente_nome,ig_id,username,conectado_em").eq("owner", user.id),
+      ]);
+      return json({ ok: true, alcancadas, token, ligadas: ligadas.data || [] });
+    }
+    if (modo === "conectar") {
+      const igId = String(body.igId || "");
+      const nome = String(body.cliente || "").trim().slice(0, 120);
+      if (!igId || !nome) return json({ erro: "Informe o cliente e a conta." }, 400);
+      const conta = (await contasAlcancadas()).find((c) => c.igId === igId);
+      if (!conta) return json({ erro: "Essa conta não está entre as que o token alcança." }, 400);
+      const { data: outra } = await db.from("ig_contas").select("cliente_nome").eq("owner", user.id).eq("ig_id", igId).neq("cliente", normCliente(nome)).maybeSingle();
+      if (outra) return json({ erro: `Essa conta já está ligada a ${outra.cliente_nome}.` }, 400);
+      const { error } = await db.from("ig_contas").upsert({ owner: user.id, cliente: normCliente(nome), cliente_nome: nome, ig_id: igId, username: conta.username, conectado_em: new Date().toISOString() }, { onConflict: "owner,cliente" });
+      if (error) throw new Error(error.message);
+      return json({ ok: true, username: conta.username });
+    }
+    if (modo === "desconectar") {
+      await db.from("ig_contas").delete().eq("owner", user.id).eq("cliente", normCliente(body.cliente));
+      return json({ ok: true });
+    }
     if (modo === "conferir") {
       // confere tudo o que a publicação vai precisar, SEM publicar
       const itens: { ok: boolean; texto: string }[] = [];
@@ -228,9 +297,11 @@ Deno.serve(async (req) => {
       add(a.status === "agendado" || a.status === "processando" || a.status === "publicado", `Situação: ${a.status}${a.erro ? " (" + a.erro + ")" : ""}`);
       const quando = new Date(a.publicar_em);
       add(a.status === "publicado" || quando.getTime() > Date.now() - 10 * 60 * 1000, `Horário: ${quando.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`);
-      let igId = "";
-      try { const c = await conta(); igId = c.igId; add(true, `Conta conectada: @${c.username}`); } catch (e) { add(false, `Token do Instagram: ${(e as Error).message}`); }
-      if (igId) { try { await contaDoCliente(a.owner, a.task_id, igId); add(true, "Conteúdo é do cliente dono desta conta"); } catch (e) { add(false, (e as Error).message); } }
+      try {
+        const igId = await contaDoCliente(a.owner, a.task_id);
+        const c = await graph(igId, { fields: "username" });
+        add(true, `Publica em @${c.username} (conta do cliente deste conteúdo)`);
+      } catch (e) { add(false, (e as Error).message); }
       for (const m of a.midias as string[]) {
         try {
           const url = await linkLeitura(m);
@@ -244,7 +315,7 @@ Deno.serve(async (req) => {
     }
     if (modo === "testar") {
       // cria o contêiner do reel e espera o Instagram processar, SEM publicar (o contêiner expira sozinho em 24 h)
-      const { igId } = await conta();
+      const igId = String(body.igId || IG_ID_PADRAO);
       const c = await graph(`${igId}/media`, { media_type: "REELS", video_url: await linkLeitura(String(body.caminho)), caption: "teste" }, "POST");
       let st: any = {};
       for (let i = 0; i < 10; i++) { await new Promise((r) => setTimeout(r, 5000)); st = await graph(c.id, { fields: "status_code,status" }); if (st.status_code !== "IN_PROGRESS") break; }

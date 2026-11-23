@@ -64,11 +64,20 @@
 
   // ---------- Instagram: agendar pela API oficial (Supabase: tabela ig_agendamentos + função instagram-publicar) ----------
   const IG_LIMITE = 50 * 1024 * 1024; // plano gratuito do Supabase: 50 MB por arquivo
-  // TRAVA: a conexão do Instagram é SÓ do perfil do Marcelo. Cliente novo só entra aqui quando tiver o token da conta dele
-  // (e também em CONTAS_POR_CLIENTE na função instagram-publicar).
-  const IG_CLIENTES = ['marcelo h buzeli'];
+  // TRAVA: só publica para cliente com conta do Instagram ligada (tabela ig_contas, tela Empresa > Instagram).
+  // A função instagram-publicar confere de novo no servidor, na conta do próprio cliente.
+  const IG_CONTAS = {};   // cliente normalizado -> { username, ig_id }
   const igNorm = c => String(c || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
-  const igCliente = t => IG_CLIENTES.includes(igNorm(t.client));
+  const igCliente = t => !!IG_CONTAS[igNorm(t.client)];
+  async function carregarContasIG() {
+    for (let i = 0; i < 40 && !(window.App && App.supabase && App.user); i++) await new Promise(r => setTimeout(r, 250));   // espera o login
+    if (!(window.App && App.supabase && App.user)) return;
+    try {
+      const { data } = await App.supabase.from('ig_contas').select('cliente,username,ig_id');
+      (data || []).forEach(c => { IG_CONTAS[c.cliente] = c; });
+    } catch (e) { /* sem a tabela ainda: ninguém publica */ }
+  }
+  carregarContasIG();
   const igServe = t => igCliente(t) && /reel|v[ií]deo|carrossel|est[aá]tico|foto/i.test(t.type || '');
   function botaoInstagram(t) {
     if (!igServe(t)) return '';
@@ -90,7 +99,7 @@
   function agendarInstagram(id, onDone) {
     const t = DB.get('tasks', id); if (!t) return;
     if (!(window.App && App.supabase && App.user)) { App.toast('Agendar no Instagram só funciona com o banco ligado.', 'warn'); return; }
-    if (!igCliente(t)) { App.toast(`O Instagram de ${t.client || 'este cliente'} não está conectado. Só o perfil do Marcelo publica por aqui.`, 'warn'); return; }
+    if (!igCliente(t)) { App.toast(`O Instagram de ${t.client || 'este cliente'} não está conectado. Ligue a conta em Empresa > Instagram.`, 'warn'); return; }
     const ig = t.instagram || {};
     const ehReel = /reel|v[ií]deo/i.test(t.type || '');
     const s = UI.sheet({
@@ -104,7 +113,7 @@
         <label class="field mt-3"><span>Legenda</span><textarea class="textarea" name="ig-legenda" rows="5">${esc(t.legenda || t.caption || '')}</textarea></label>
         <label class="field mt-3"><span>${ehReel ? 'Vídeo final (MP4, até 50 MB)' : 'Imagens do post, na ordem (até 10)'}</span>
           <input class="input" type="file" name="ig-arquivos" accept="${ehReel ? 'video/mp4,video/quicktime' : 'image/*'}" ${ehReel ? '' : 'multiple'}></label>
-        <p class="tiny muted mt-2">Publica no Instagram @marcelohbuzeli. O post sai sozinho no horário (o Dashplasso confere a cada 5 minutos) e o card vira "Postado" com o link.</p>
+        <p class="tiny muted mt-2">Publica no Instagram @${esc(IG_CONTAS[igNorm(t.client)].username || '')}. O post sai sozinho no horário (o Dashplasso confere a cada 5 minutos) e o card vira "Postado" com o link.</p>
         <div class="mt-3" data-ig-conf></div>
         <p class="small mt-2" data-ig-status></p>`,
       foot: `${ig.status === 'agendado' ? '<button class="btn btn-danger" data-ig-cancelar>Cancelar agendamento</button>' : ''}<button class="btn btn-ghost" data-nao>Fechar</button>${ig.status === 'agendado' ? '' : '<button class="btn btn-white" data-ig-ok><i class="fa-brands fa-instagram"></i> Agendar</button>'}`
