@@ -409,6 +409,8 @@
       return;
     }
     hideLoading();
+    // sininho + push no celular (aprovações e pedidos de ajuste dos clientes)
+    if (configured && MODE === 'app' && user && window.UI) loadScript('assets/notificacoes.js?v=1').catch(() => {});
   }
 
   window.addEventListener('beforeunload', e => { if (pending) { e.preventDefault(); e.returnValue = ''; } });
