@@ -270,10 +270,18 @@
   };
 
   // ---------- carregamento ----------
+  // Coleções pesadas que só uma página usa ficam de fora do carregamento geral.
+  // A página que precisa delas pede no <body data-colecoes="crm_perdidos">. Gravar numa coleção
+  // que não foi carregada é seguro: a sincronização só apaga o que ela mesma carregou.
+  const LAZY = ['crm_perdidos', 'backup'];
+  const lazyFora = () => { const quer = String((document.body && document.body.dataset.colecoes) || '').split(','); return LAZY.filter(c => !quer.includes(c)); };
   async function loadAll() {
     let from = 0; const size = 1000;
+    const fora = lazyFora();
     for (;;) {
-      const { data, error } = await sb.from('records').select('collection,id,data').order('collection').range(from, from + size - 1);
+      let q = sb.from('records').select('collection,id,data');
+      if (fora.length) q = q.not('collection', 'in', `(${fora.join(',')})`);
+      const { data, error } = await q.order('collection').range(from, from + size - 1);
       if (error) throw error;
       data.forEach(r => {
         if (r.id === '__value') cache[r.collection] = { __scalar: r.data.v };
@@ -412,7 +420,8 @@
     get configured() { return configured; },
     mode: MODE,
     async logout() { await queue; if (sb) await sb.auth.signOut(); location.replace('login.html'); },
-    exportBackup() {
+    async exportBackup() {
+      if (configured && MODE === 'app' && sb && user) { try { await DB.reload(LAZY); } catch (e) { /* exporta o que tiver */ } }
       const out = {};
       Object.keys(cache).forEach(k => { out[k] = cache[k] && cache[k].__scalar !== undefined ? cache[k].__scalar : cache[k]; });
       const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), data: out }, null, 2)], { type: 'application/json' });

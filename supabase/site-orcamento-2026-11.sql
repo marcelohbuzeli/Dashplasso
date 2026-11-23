@@ -7,7 +7,8 @@
 --   • aceita apenas os campos do formulário, com tamanho limitado;
 --   • grava um lead novo na coleção "crm" do dono do Dashplassô, na etapa "orcamento";
 --   • não devolve nenhum dado do banco;
---   • recusa enxurrada (mais de 30 pedidos do site na última hora).
+--   • recusa enxurrada (mais de 15 pedidos do site na última hora) e WhatsApp repetido em 24 h;
+--   • no máximo 20 análises automáticas do Instagram por dia.
 -- =====================================================================
 
 create or replace function public.site_orcamento(p jsonb)
@@ -40,8 +41,17 @@ begin
   if (select count(*) from public.records
        where owner = v_owner and collection = 'crm'
          and data->>'origem' = 'Site · link da bio'
-         and updated_at > v_agora - interval '1 hour') >= 30 then
+         and updated_at > v_agora - interval '1 hour') >= 15 then
     return false;
+  end if;
+
+  -- mesmo WhatsApp nas últimas 24 h: não cria lead repetido (responde ok para não dar pista a robôs)
+  if exists (select 1 from public.records
+              where owner = v_owner and collection = 'crm'
+                and data->>'origem' = 'Site · link da bio'
+                and regexp_replace(coalesce(data->>'telefone', ''), '[^0-9]', '', 'g') = regexp_replace(v_whats, '[^0-9]', '', 'g')
+                and updated_at > v_agora - interval '24 hours') then
+    return true;
   end if;
 
   v_id := 'site_' || to_char(v_agora, 'YYMMDDHH24MISS') || '_' || substr(md5(random()::text), 1, 6);
@@ -67,10 +77,15 @@ begin
   )), v_agora);
 
   -- análise do Instagram do cliente: entra na fila do Jarvis (Mac do Marcelo, jarvis/analises.py)
-  insert into public.records (owner, collection, id, data, updated_at)
-  values (v_owner, 'crm_analise', v_id, jsonb_build_object('id', v_id, 'status', 'na_fila',
-          'pedidoEm', to_char(v_agora at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')), v_agora)
-  on conflict do nothing;
+  -- teto de 20 análises automáticas por dia (protege o plano do Claude de enxurrada; acima disso, use "Analisar agora" no CRM)
+  if (select count(*) from public.records
+       where owner = v_owner and collection = 'crm_analise'
+         and updated_at > v_agora - interval '24 hours') < 20 then
+    insert into public.records (owner, collection, id, data, updated_at)
+    values (v_owner, 'crm_analise', v_id, jsonb_build_object('id', v_id, 'status', 'na_fila',
+            'pedidoEm', to_char(v_agora at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')), v_agora)
+    on conflict do nothing;
+  end if;
   -- avisa o Jarvis na hora (mesmo sinal que o site manda: "a coleção crm_analise mudou")
   begin
     perform realtime.send(jsonb_build_object('col', 'crm_analise'), 'mudou', 'dp-' || v_owner::text, false);
