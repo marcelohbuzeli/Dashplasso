@@ -10,6 +10,8 @@
 --   • recusa enxurrada (mais de 30 pedidos do site na última hora).
 -- =====================================================================
 
+create extension if not exists pg_net;
+
 create or replace function public.site_orcamento(p jsonb)
 returns boolean
 language plpgsql
@@ -65,6 +67,16 @@ begin
       'historyArray', jsonb_build_array(
          to_char(v_agora at time zone 'America/Sao_Paulo', 'DD/MM/YYYY') || ' — Pediu orçamento pelo site (link da bio)')
   )), v_agora);
+
+  -- análise automática do Instagram do cliente (Edge Function analisar-orcamento)
+  begin
+    perform net.http_post(
+      url := 'https://icarqnbtxrntogfsyavv.supabase.co/functions/v1/analisar-orcamento',
+      body := jsonb_build_object('id', v_id),
+      headers := '{"Content-Type": "application/json"}'::jsonb,
+      timeout_milliseconds := 5000);
+  exception when others then null; -- se falhar, o CRM pede a análise ao abrir
+  end;
 
   return true;
 end;

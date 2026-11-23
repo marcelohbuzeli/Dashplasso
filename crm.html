@@ -133,6 +133,7 @@
         ${l.tier ? `<span class="tier ${esc(l.tier)}">${esc(l.tier)} · ${l.score ?? '–'}</span>` : l.valor ? `<span class="pill num">${UI.brl(l.valor).replace(',00', '')}</span>` : ''}</div>
       <div class="row small mt-2" style="flex-wrap:wrap;gap:4px 10px">
         ${l.site ? `<span style="color:var(--accent-2)"><i class="fa-solid fa-globe"></i> Pediu pelo site${l.criadoEm ? ' · ' + new Date(l.criadoEm).toLocaleDateString('pt-BR') : ''}</span>` : ''}
+        ${badgeAnalise(l)}
         ${l.warm ? '<span class="warm"><i class="fa-solid fa-heart"></i> Te segue</span>' : ''}
         ${l.rating ? `<span class="muted num"><i class="fa-solid fa-star" style="color:#fcd34d"></i> ${String(l.rating).replace('.', ',')} (${l.reviews || 0})</span>` : ''}
         ${l.telefone ? `<span class="muted"><i class="fa-brands fa-whatsapp"></i> ${l.mobile ? 'WhatsApp' : 'fixo'}</span>` : ''}
@@ -264,12 +265,13 @@
           ${wa ? `<a class="btn btn-ghost btn-sm" href="${wa}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : '<button class="btn btn-ghost btn-sm" disabled><i class="fa-brands fa-whatsapp"></i> Sem WhatsApp</button>'}
           ${ig ? `<a class="btn btn-ghost btn-sm" href="${esc(ig)}" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i> Instagram</a>` : '<button class="btn btn-ghost btn-sm" disabled><i class="fa-brands fa-instagram"></i> Instagram</button>'}
           ${l.maps ? `<a class="btn btn-ghost btn-sm" href="${esc(l.maps)}" target="_blank" rel="noopener"><i class="fa-solid fa-location-dot"></i> Maps</a>` : '<button class="btn btn-ghost btn-sm" data-a="follow"><i class="fa-solid fa-phone"></i> Follow-up</button>'}
-          ${l.site ? `<a class="btn btn-ghost btn-sm" href="${esc(l.site)}" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i> Site</a>` : '<button class="btn btn-ghost btn-sm" data-a="reuniao"><i class="fa-solid fa-handshake"></i> Reunião</button>'}
+          ${typeof l.site === 'string' && /^https?:/.test(l.site) ? `<a class="btn btn-ghost btn-sm" href="${esc(l.site)}" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i> Site</a>` : '<button class="btn btn-ghost btn-sm" data-a="reuniao"><i class="fa-solid fa-handshake"></i> Reunião</button>'}
         </div>
         <div class="grid g-2 mb-4">
           <button class="btn ${st === 'aprovado' ? 'btn-ghost' : 'btn-white'}" data-a="aprovar"><i class="fa-solid fa-paper-plane"></i> ${st === 'aprovado' ? 'Remover aprovação' : 'Aprovar para envio'}</button>
           <button class="btn btn-accent" data-a="fechar"><i class="fa-solid fa-trophy"></i> Fechou contrato</button>
         </div>
+        ${blocoAnalise(l)}
         ${l.tier || l.score != null ? `<div class="card card-tight mb-4">
           <div class="row"><span class="tier ${esc(l.tier || '')}">${esc(l.tier || '–')}</span><div class="bar grow"><span style="width:${Math.max(0, Math.min(100, l.score || 0))}%"></span></div><span class="num small">${l.score ?? '–'}/100</span></div>
           ${(l.signals || []).length ? `<div class="wrap-row mt-3">${l.signals.map(g => `<span class="pill ${g.kind === 'gap' ? 'pill-danger' : g.kind === 'good' ? 'pill-ok' : ''}">${esc(g.text)}</span>`).join('')}</div>` : ''}
@@ -303,8 +305,72 @@
     acao('[data-a="excluir"]', () => { if (!confirm(`Excluir o lead "${l.name}"? Não dá para desfazer.`)) return; DB.remove('crm', id); s.close(); render(); App.toast('Lead excluído.', 'ok'); });
     s.$$('[data-copy]').forEach(b => b.onclick = async () => { const t = s.$(`[data-part="${b.dataset.copy}"]`); try { await navigator.clipboard.writeText(t.value); App.toast('Mensagem copiada.', 'ok'); } catch (e) { t.select(); } });
     s.$$('[data-wa]').forEach(a => { a.href = wa + '?text=' + encodeURIComponent(s.$(`[data-part="${a.dataset.wa}"]`).value); a.onclick = () => { a.href = wa + '?text=' + encodeURIComponent(s.$(`[data-part="${a.dataset.wa}"]`).value); }; });
+    acao('[data-a="analisar"]', () => { s.close(); pedirAnalise(id, true); });
+    s.$$('[data-copy-an]').forEach(b => b.onclick = async () => { const a = DB.get('crm_analise', id); try { await navigator.clipboard.writeText(a.mensagem_whatsapp); App.toast('Mensagem copiada.', 'ok'); } catch (e) {} });
     s.$('#add-nota').onclick = () => { const v = s.$('#nota').value.trim(); if (!v) return; salvar(true); const atual = DB.get('crm', id); hist(atual, v); salvarLead(atual); s.close(); render(); abrirLead(id); };
   }
+
+  // ---------- análise do Instagram dos orçamentos do site (Edge Function analisar-orcamento) ----------
+  const analiseDe = l => DB.get('crm_analise', l.id);
+  function badgeAnalise(l) {
+    const a = analiseDe(l);
+    if (!a) return l.site === true ? '<span class="muted"><i class="fa-solid fa-hourglass-half"></i> análise na fila</span>' : '';
+    if (a.status === 'analisando') return '<span class="muted"><i class="fa-solid fa-spinner fa-spin"></i> analisando Instagram</span>';
+    if (a.status === 'erro') return '<span style="color:#fca5a5"><i class="fa-solid fa-triangle-exclamation"></i> análise falhou</span>';
+    return `<span style="color:var(--accent-2)"><i class="fa-brands fa-instagram"></i> análise pronta${a.nota_perfil != null ? ' · ' + a.nota_perfil + '/10' : ''}</span>`;
+  }
+  function blocoAnalise(l) {
+    const a = analiseDe(l);
+    const btn = (t) => `<button class="btn btn-ghost btn-sm" data-a="analisar"><i class="fa-solid fa-rotate"></i> ${t}</button>`;
+    if (!a) return l.insta || l.site ? `<div class="card card-tight mb-4 row-between"><span class="small muted"><i class="fa-brands fa-instagram"></i> Sem análise do Instagram ainda.</span>${btn('Analisar agora')}</div>` : '';
+    if (a.status === 'analisando') return `<div class="card card-tight mb-4"><span class="small muted"><i class="fa-solid fa-spinner fa-spin"></i> Analisando o Instagram${a.usuario ? ' @' + esc(a.usuario) : ''}… leva cerca de 1 minuto. O card atualiza sozinho.</span></div>`;
+    if (a.status === 'erro') return `<div class="card card-tight mb-4 row-between"><span class="small" style="color:#fca5a5"><i class="fa-solid fa-triangle-exclamation"></i> A análise falhou: ${esc(a.erro || '')}</span>${btn('Tentar de novo')}</div>`;
+    const li = arr => (arr || []).map(x => `<li>${esc(x)}</li>`).join('');
+    const p = a.perfil;
+    const n = v => v == null ? '–' : Number(v).toLocaleString('pt-BR');
+    return `<div class="card card-tight mb-4">
+      <div class="row-between" style="align-items:flex-start;gap:12px">
+        <div><div class="eyebrow" style="margin:0"><i class="fa-brands fa-instagram"></i> Análise do Instagram${a.usuario ? ' · @' + esc(a.usuario) : ''}</div>
+        <div class="tiny muted mt-1">${a.fonte === 'api' ? 'Lido pela API do Instagram' : 'Sem acesso direto ao perfil: baseada em pesquisa pública'}${p ? ` · ${n(p.seguidores)} seguidores · ${n(p.publicacoes)} posts${p.ultimoPost ? ' · último em ' + new Date(p.ultimoPost + 'T12:00').toLocaleDateString('pt-BR') : ''}` : ''} · ${new Date(a.em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</div></div>
+        <span class="pill num">${a.nota_perfil ?? '–'}/10</span>
+      </div>
+      <p class="mt-3" style="margin-bottom:0">${esc(a.resumo || '')}</p>
+      ${a.objetivo ? `<p class="small soft mt-2" style="margin-bottom:0"><b>O que ele quer:</b> ${esc(a.objetivo)}</p>` : ''}
+      ${(a.por_que_nao_vende || []).length ? `<div class="eyebrow mt-4 mb-2">Por que não está vendendo</div><div class="stack">${a.por_que_nao_vende.map(x => `<div class="part"><b class="small">${esc(x.problema)}</b><div class="tiny muted mt-1">${esc(x.evidencia)}</div><div class="small mt-1" style="color:var(--accent-2)">${esc(x.como_resolver)}</div></div>`).join('')}</div>` : ''}
+      ${(a.o_que_ja_faz_bem || []).length ? `<div class="eyebrow mt-4 mb-2">O que já faz bem</div><ul class="small soft" style="padding-left:18px;margin:0">${li(a.o_que_ja_faz_bem)}</ul>` : ''}
+      ${(a.oportunidades || []).length ? `<div class="eyebrow mt-4 mb-2">Oportunidades rápidas</div><ul class="small soft" style="padding-left:18px;margin:0">${li(a.oportunidades)}</ul>` : ''}
+      ${a.servico_recomendado ? `<p class="small mt-4" style="margin-bottom:0"><span class="pill pill-ok">${esc(a.servico_recomendado)}</span> ${esc(a.por_que_servico || '')}</p>` : ''}
+      ${a.mensagem_whatsapp ? `<div class="eyebrow mt-4 mb-2">Primeira mensagem (sugestão)</div><div class="part"><div class="small" style="white-space:pre-wrap">${esc(a.mensagem_whatsapp)}</div><div class="row mt-2" style="justify-content:flex-end"><button type="button" class="btn btn-ghost btn-sm" data-copy-an><i class="fa-regular fa-copy"></i> Copiar</button></div></div>` : ''}
+      ${(a.perguntas_reuniao || []).length ? `<div class="eyebrow mt-4 mb-2">Perguntas para a reunião</div><ul class="small soft" style="padding-left:18px;margin:0">${li(a.perguntas_reuniao)}</ul>` : ''}
+      ${a.limitacoes ? `<p class="tiny muted mt-3" style="margin-bottom:0"><i class="fa-solid fa-circle-info"></i> ${esc(a.limitacoes)}</p>` : ''}
+      <div class="row mt-3" style="justify-content:flex-end">${btn('Refazer análise')}</div>
+    </div>`;
+  }
+  async function pedirAnalise(id, forcar) {
+    try {
+      const { data: { session } } = await App.supabase.auth.getSession();
+      if (!session) return;
+      if (forcar) { DB.put('crm_analise', { id, status: 'analisando', em: agoraISO() }); render(); App.toast('Analisando o Instagram…', 'ok'); }
+      await fetch(PLASSO_CONFIG.SUPABASE_URL + '/functions/v1/analisar-orcamento', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-user-token': session.access_token, apikey: PLASSO_CONFIG.SUPABASE_ANON_KEY }, body: JSON.stringify({ id, forcar: !!forcar }) });
+    } catch (e) { if (forcar) App.toast('Não consegui pedir a análise.', 'warn'); }
+  }
+  // novos orçamentos e análises chegam pelo banco: confere a cada 20 s e ao voltar para a aba
+  const pedidos = new Set();
+  let atualizando = false;
+  async function atualizarAnalises() {
+    if (atualizando || document.hidden || document.querySelector('.sheet-backdrop, .sheet')) return;
+    atualizando = true;
+    try {
+      if (await DB.reload(['crm', 'crm_analise'])) render();
+      // reforço: lead do site sem análise há mais de 2 min (o banco não conseguiu chamar)
+      DB.list('crm').filter(l => l.site === true && !analiseDe(l) && l.criadoEm && Date.now() - new Date(l.criadoEm) > 120000 && !pedidos.has(l.id))
+        .slice(0, 3).forEach(l => { pedidos.add(l.id); pedirAnalise(l.id, false); });
+    } finally { atualizando = false; }
+  }
+  document.addEventListener('visibilitychange', atualizarAnalises);
+  window.addEventListener('focus', atualizarAnalises);
+  setInterval(atualizarAnalises, 20000);
+  setTimeout(atualizarAnalises, 1500);
 
   // ---------- API para a automação de prospecção (usada pelo Claude) ----------
   window.CRM_API = {
