@@ -79,6 +79,8 @@
       portalToken: App.randomToken(32),
       criadoEm: new Date().toISOString()
     };
+    // briefing: já começa com o que veio do orçamento do site e da análise do Instagram
+    if (lead && window.Briefing) { try { Briefing.preencherDoOrcamento(client); } catch (e) { console.warn('briefing', e); } }
     DB.put('clients', client);
     const recebimentos = gerarRecebimentos(client);
     return { client, recebimentos };

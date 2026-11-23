@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060918">
+<title>Briefing · Plassô</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="assets/ui.css?v=12">
+<style>
+  .wrap { max-width: 760px; padding-bottom: calc(120px + var(--safe-b)); }
+  .sec { scroll-margin-top: 90px; }
+  .sec .h2 { display: flex; align-items: center; gap: 10px; }
+  .sec .h2 i { color: var(--accent); font-size: 18px; }
+  .q { display: grid; gap: 6px; }
+  .q .lbl { font-size: 15px; font-weight: 500; color: var(--ink); }
+  .q .dica { font-size: 13px; color: var(--ink-3); }
+  .q .pre { font-size: 12px; color: var(--accent-2); display: flex; gap: 6px; align-items: center; }
+  .q textarea { font-size: 16px; }
+  .barra { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 12px 16px calc(12px + var(--safe-b)); background: color-mix(in srgb, var(--bg0) 88%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--line); }
+  .barra-in { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
+  .barra-in .grow { min-width: 0; }
+  .salvo { font-size: 12px; color: var(--ink-3); }
+  .salvo.erro { color: var(--danger); }
+  .fim { text-align: center; padding: 48px 20px; }
+  .fim i { font-size: 44px; color: var(--ok); }
+</style>
+<link rel="icon" href="assets/icons/favicon-empresa.svg" type="image/svg+xml">
+<link rel="icon" href="assets/icons/favicon-empresa-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon-empresa.png">
+</head>
+<body data-theme="empresa">
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="brand-mark">P</div><div><div class="brand-name">Plassô Marketing</div><div class="brand-sub">Briefing</div></div></div>
+  </header>
+
+  <div id="app"><div class="card empty mt-6"><i class="fa-solid fa-spinner fa-spin"></i>Carregando…</div></div>
+  <p class="tiny muted center mt-8">Link exclusivo seu. Não compartilhe.</p>
+</div>
+<div class="barra hidden" id="barra">
+  <div class="barra-in">
+    <div class="grow">
+      <div class="small" id="prog-txt"></div>
+      <div class="bar mt-2"><span id="prog-bar" style="width:0"></span></div>
+      <div class="salvo mt-1" id="salvo">As respostas ficam salvas sozinhas.</div>
+    </div>
+    <button class="btn btn-white" id="enviar">Enviar</button>
+  </div>
+</div>
+
+<script src="assets/config.js?v=10"></script>
+<script src="assets/briefing.js?v=1"></script>
+<script>
+(function () {
+  'use strict';
+  const cfg = window.PLASSO_CONFIG || {};
+  const qs = new URLSearchParams(location.search);
+  const token = qs.get('t') || '';
+  const isDev = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  const local = (isDev && qs.has('local')) || !(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY);
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  const SECOES = Briefing.SECOES.filter(s => !s.interno).map(s => ({ ...s, campos: s.campos.filter(f => f.cli) })).filter(s => s.campos.length);
+  const TOTAL = SECOES.reduce((n, s) => n + s.campos.length, 0);
+
+  // ---------- banco ----------
+  async function rpc(nome, args) {
+    const r = await fetch(cfg.SUPABASE_URL + '/rest/v1/rpc/' + nome, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: cfg.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + cfg.SUPABASE_ANON_KEY },
+      body: JSON.stringify(args)
+    });
+    if (!r.ok) throw new Error('Erro ' + r.status);
+    return r.json();
+  }
+  // modo local (testes no Mac): lê e grava no navegador, como o resto do Dashplasso
+  const lerLocal = () => { try { return JSON.parse(localStorage.getItem('plasso_clients') || '[]'); } catch (e) { return []; } };
+  async function carregar() {
+    if (local) {
+      const c = lerLocal().find(x => x.portalToken && x.portalToken === token); if (!c) return null;
+      const campos = {}; SECOES.forEach(s => s.campos.forEach(f => { const v = Briefing.valor(c, f.k); if (v) campos[f.k] = v; }));
+      return { name: c.name, campos, respondidoEm: Briefing.dados(c).respondidoEm || null };
+    }
+    return rpc('briefing_load', { p_token: token });
+  }
+  async function salvar(campos, finalizar) {
+    if (local) {
+      const all = lerLocal(); const c = all.find(x => x.portalToken === token); if (!c) return false;
+      Object.entries(campos).forEach(([k, v]) => Briefing.set(c, k, v, 'cliente'));
+      const b = Briefing.dados(c); if (finalizar) b.respondidoEm = new Date().toISOString(); c.briefingV2 = b;
+      localStorage.setItem('plasso_clients', JSON.stringify(all));
+      return true;
+    }
+    return rpc('briefing_save', { p_token: token, p_campos: campos, p_finalizar: !!finalizar });
+  }
+
+  // ---------- tela ----------
+  let pendentes = {}, timer = null, salvando = Promise.resolve();
+  const status = (t, erro) => { const el = $('salvo'); el.textContent = t; el.classList.toggle('erro', !!erro); };
+
+  function progresso() {
+    const n = [...document.querySelectorAll('[data-k]')].filter(t => t.value.trim()).length;
+    $('prog-txt').textContent = `${n} de ${TOTAL} respondidas`;
+    $('prog-bar').style.width = Math.round(n * 100 / TOTAL) + '%';
+    return n;
+  }
+
+  function agendarSalvar() {
+    clearTimeout(timer);
+    status('Salvando…');
+    timer = setTimeout(() => enviarPendentes().catch(() => {}), 1200);
+  }
+  function enviarPendentes(finalizar) {
+    clearTimeout(timer);
+    const lote = pendentes; pendentes = {};
+    const p = salvando.then(async () => {
+      if (!Object.keys(lote).length && !finalizar) return;
+      try {
+        const ok = await salvar(lote, finalizar);
+        if (!ok) throw new Error('não salvou');
+        status('Tudo salvo. Pode fechar e continuar depois.');
+      } catch (e) {
+        pendentes = { ...lote, ...pendentes };
+        status('Não consegui salvar agora. Verifique a internet; vou tentar de novo.', true);
+        clearTimeout(timer); timer = setTimeout(() => enviarPendentes().catch(() => {}), 5000);
+        throw e;
+      }
+    });
+    salvando = p.catch(() => {});
+    return p;
+  }
+
+  function render(d) {
+    const nome = d.name || '';
+    document.title = 'Briefing · ' + nome;
+    const temPre = Object.keys(d.campos || {}).length > 0;
+    $('app').innerHTML = `
+      <div class="hero">
+        <div class="eyebrow">Olá,</div>
+        <h1 class="display mt-2">${esc(nome)}</h1>
+        <p>Estas respostas são a base de tudo o que vamos criar para você: os temas, os ganchos, o tom de voz e as ofertas. Quanto mais detalhe, melhores os conteúdos.</p>
+        <p class="small soft">Responda com as suas palavras, do jeito que você falaria. Não precisa terminar de uma vez: <b>tudo fica salvo</b> e você pode voltar pelo mesmo link.${temPre ? ' Algumas respostas já vieram preenchidas com o que conversamos. É só conferir e corrigir se precisar.' : ''}</p>
+        ${d.respondidoEm ? '<div class="card card-tight small mt-3"><i class="fa-solid fa-circle-check" style="color:var(--ok)"></i> Você já enviou este briefing. Pode atualizar as respostas quando quiser.</div>' : ''}
+      </div>
+      <div class="stack">
+      ${SECOES.map((s, i) => `<section class="card card-lg sec" id="s-${s.id}">
+        <div class="eyebrow">Parte ${i + 1} de ${SECOES.length}</div>
+        <h2 class="h2 mt-1 mb-4"><i class="fa-solid ${s.icone}"></i>${esc(s.titulo)}</h2>
+        <div class="stack">
+          ${s.campos.map(f => {
+            const v = (d.campos || {})[f.k] || '';
+            return `<label class="q"><span class="lbl">${esc(f.l)}</span>${f.dica ? `<span class="dica">${esc(f.dica)}</span>` : ''}
+              ${v ? '<span class="pre"><i class="fa-solid fa-circle-info"></i> Já preenchido. Confira se está certo.</span>' : ''}
+              <textarea class="textarea" data-k="${f.k}" rows="${Math.max(2, f.rows || 3)}">${esc(v)}</textarea></label>`;
+          }).join('')}
+        </div>
+      </section>`).join('')}
+      </div>`;
+    $('barra').classList.remove('hidden');
+    document.querySelectorAll('[data-k]').forEach(t => t.addEventListener('input', () => {
+      pendentes[t.dataset.k] = t.value; progresso(); agendarSalvar();
+    }));
+    progresso();
+  }
+
+  function obrigado(nome) {
+    $('barra').classList.add('hidden');
+    $('app').innerHTML = `<div class="card card-lg fim mt-6"><i class="fa-solid fa-circle-check"></i>
+      <h1 class="h1 mt-4">Recebido, obrigado!</h1>
+      <p class="soft mt-2">Agora a gente já tem o que precisa para planejar os seus conteúdos${nome ? ', ' + esc(nome) : ''}. Se lembrar de algo depois, é só abrir este link de novo e completar.</p>
+      <button class="btn btn-ghost mt-4" id="voltar">Revisar respostas</button></div>`;
+    $('voltar').onclick = () => location.reload();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async function iniciar() {
+    if (!token || token.length < 24) { $('app').innerHTML = '<div class="card empty mt-6"><i class="fa-solid fa-link-slash"></i>Link inválido. Peça um novo link à agência.</div>'; return; }
+    let d;
+    try { d = await carregar(); } catch (e) { d = undefined; }
+    if (d === undefined) { $('app').innerHTML = '<div class="card empty mt-6"><i class="fa-solid fa-wifi"></i>Não consegui carregar agora. Verifique a internet e recarregue a página.</div>'; return; }
+    if (!d) { $('app').innerHTML = '<div class="card empty mt-6"><i class="fa-solid fa-link-slash"></i>Link inválido ou expirado. Peça um novo link à agência.</div>'; return; }
+    render(d);
+    $('enviar').onclick = async () => {
+      const n = progresso();
+      if (n < TOTAL && !confirm(`Ainda faltam ${TOTAL - n} pergunta${TOTAL - n !== 1 ? 's' : ''}. Quer enviar assim mesmo? Você pode completar depois pelo mesmo link.`)) {
+        const vazia = [...document.querySelectorAll('[data-k]')].find(t => !t.value.trim());
+        if (vazia) { vazia.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => vazia.focus(), 400); }
+        return;
+      }
+      const b = $('enviar'); b.disabled = true; b.textContent = 'Enviando…';
+      try { await enviarPendentes(true); obrigado(d.name); }
+      catch (e) { b.disabled = false; b.textContent = 'Enviar'; }
+    };
+    window.addEventListener('beforeunload', e => { if (Object.keys(pendentes).length) { enviarPendentes().catch(() => {}); e.preventDefault(); e.returnValue = ''; } });
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && Object.keys(pendentes).length) enviarPendentes().catch(() => {}); });
+  }
+  iniciar();
+})();
+</script>
+</body>
+</html>

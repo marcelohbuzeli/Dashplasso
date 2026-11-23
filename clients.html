@@ -83,7 +83,8 @@
 <script src="assets/config.js?v=10"></script>
 <script src="assets/core.js?v=10" data-mode="app"></script>
 <script src="assets/ui.js?v=12"></script>
-<script src="assets/integracao.js?v=10"></script>
+<script src="assets/integracao.js?v=11"></script>
+<script src="assets/briefing.js?v=1"></script>
 <script src="assets/financas.js?v=10"></script>
 <script src="assets/empresa.js?v=16"></script>
 <script type="text/plain" data-app>
@@ -191,8 +192,7 @@
         </div>
 
         <div data-p="briefing" class="hidden stack">
-          <label class="field"><span>Objetivo principal</span><input class="input" name="objetivo" value="${esc(c.objetivo || '')}" placeholder="Ex.: gerar agendamentos"></label>
-          <label class="field"><span>Briefing (o agente de criação usa este texto)</span><textarea class="textarea" name="briefing" rows="9" placeholder="Público, tom de voz, diferenciais, temas, o que evitar, referências…">${esc(c.briefing || '')}</textarea></label>
+          ${Briefing.editorHtml(c)}
         </div>`,
       foot: '<button class="btn btn-ghost" data-close>Fechar</button><button class="btn btn-white" data-save>Salvar</button>'
     });
@@ -261,13 +261,17 @@
     s.$$('[data-vis] button').forEach(b => b.onclick = () => { vis = b.dataset.v; try { localStorage.setItem('cli_conteudos_vis', vis); } catch (e) {} drawGal(); });
     s.$$('[data-gfil] button').forEach(b => b.onclick = () => { gfil = b.dataset.g; s.$$('[data-gfil] button').forEach(x => x.classList.toggle('on', x === b)); drawGal(); });
     drawGal();
+    Briefing.ligarEditor(s, () => DB.get('clients', id));
 
-    s.$('[data-save]').onclick = () => {
+    s.$('[data-save]').onclick = async () => {
       const f = UI.formData(s.el);
       if (!f.name.trim()) { App.toast('O nome é obrigatório.', 'warn'); return; }
+      // o cliente pode ter respondido o briefing pelo link enquanto a ficha estava aberta
+      try { await DB.reload(['clients']); } catch (e) {}
       const atual = DB.get('clients', id);
       const nomeAntigo = atual.name;
       Object.assign(atual, { name: f.name.trim(), produto: f.produto.trim(), fee: Number(f.fee) || 0, quantidadeMes: Number(f.quantidadeMes) || 0, inicio: f.inicio, whatsapp: f.whatsapp.trim(), instagram: f.instagram.trim(), email: f.email.trim(), documento: f.documento.trim(), objetivo: f.objetivo.trim(), briefing: f.briefing });
+      Briefing.coletar(s, atual);
       if (!temContrato) { atual.primeiroVencimento = f.primeiroVencimento; atual.dueDate = f.primeiroVencimento; atual.contratoMeses = Number(f.contratoMeses) || 0; }
       if (!atual.status) atual.status = 'ativo';
       DB.put('clients', atual);

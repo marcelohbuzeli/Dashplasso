@@ -80,6 +80,19 @@ Deno.serve(async (req) => {
   if (!row) return json({ error: "Cliente não encontrado" }, 404);
   const c = row.data as Record<string, unknown>;
 
+  // briefing por seções (c.briefingV2) + anotações livres (c.briefing)
+  const campos = ((c.briefingV2 as { campos?: Record<string, { v?: string; s?: string; l?: string }> } | undefined)?.campos) ?? {};
+  const porSecao = new Map<string, string[]>();
+  for (const [k, f] of Object.entries(campos)) {
+    const v = String(f?.v ?? "").trim(); if (!v) continue;
+    const sec = f.s || "Outros";
+    if (!porSecao.has(sec)) porSecao.set(sec, []);
+    porSecao.get(sec)!.push(`${f.l || k}:\n${v}`);
+  }
+  const briefingSecoes = [...porSecao].map(([sec, linhas]) => `## ${sec}\n${linhas.join("\n\n")}`).join("\n\n");
+  const anotacoes = String(c.briefing ?? "").trim();
+  const briefingTexto = [briefingSecoes, anotacoes ? `## Anotações livres\n${anotacoes}` : ""].filter(Boolean).join("\n\n");
+
   const formatos = Object.entries(body.formatos ?? {}).filter(([, n]) => Number(n) > 0).map(([f, n]) => `${n}× ${f}`).join(", ");
   const temasUsados = (body.jaCriados ?? []).slice(-60);
 
@@ -92,7 +105,7 @@ Objetivo: ${c.objetivo ?? ""}
 </cliente>
 
 <briefing>
-${c.briefing || "(briefing ainda não preenchido — use o objetivo e o produto, e sinalize nas orientações o que falta saber)"}
+${briefingTexto || "(briefing ainda não preenchido — use o objetivo e o produto, e sinalize nas orientações o que falta saber)"}
 </briefing>
 
 <pedido>

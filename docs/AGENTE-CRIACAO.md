@@ -61,3 +61,27 @@ O botão envia um `POST` em JSON com estes campos:
 ```
 
 Sem webhook configurado, o botão marca o conteúdo como "na fila" e copia o briefing para você colar onde quiser.
+
+## Briefing por seções
+
+O briefing do cliente fica na ficha do cliente → aba **Briefing**, dividido em seções (negócio, objetivos, público, marca, produção, mercado, vendas e o diagnóstico interno). Cada resposta guarda de onde veio: orçamento, análise do Instagram, cliente, você ou reunião.
+
+- **Puxar do orçamento:** se o cliente pediu orçamento pelo site, os campos vazios são preenchidos com os dados do lead e da análise do Instagram. Isso também acontece sozinho quando o lead vira cliente no CRM.
+- **Enviar ao cliente:** manda no WhatsApp o link `briefing.html?t=…` (o mesmo token do portal). O cliente confere o que já está preenchido, responde o resto e as respostas salvam enquanto ele digita.
+- **Organizar reunião ou texto (IA):** cole a transcrição ou as anotações da reunião (ou um briefing antigo). A IA sugere as respostas e você escolhe o que aplicar.
+- O agente de criação lê as seções e as anotações livres.
+
+### Publicar (uma vez)
+
+1. Supabase → SQL Editor → New query: cole e rode `supabase/briefing-2026-11.sql`.
+2. No Terminal, dentro da pasta do projeto:
+
+```bash
+supabase functions deploy extrair-briefing
+```
+
+```bash
+supabase functions deploy gerar-conteudos
+```
+
+As perguntas que o cliente responde estão em `assets/briefing.js` (as com `cli: true`) e também na lista da função `briefing_campos_cliente` do SQL. Ao mudar uma pergunta do cliente, atualize as duas.

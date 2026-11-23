@@ -65,6 +65,7 @@
 <script src="assets/config.js?v=10"></script>
 <script src="assets/core.js?v=10" data-mode="app"></script>
 <script src="assets/ui.js?v=12"></script>
+<script src="assets/briefing.js?v=1"></script>
 <script type="text/plain" data-app>
   UI.mount({ tab: 'empresa', sub: 'criacao' });
   const { esc } = UI;
@@ -99,7 +100,7 @@
     document.querySelectorAll('#formatos input').forEach(i => i.value = vals[i.dataset.f]);
     const linha = (k, v) => `<div><span class="muted">${k}:</span> ${esc(v || '—')}</div>`;
     $('cliente-info').innerHTML = linha('Produto', c.produto) + linha('Conteúdos/mês', c.quantidadeMes) + linha('Objetivo', c.objetivo) +
-      `<div class="muted mt-1">Briefing</div><div class="soft" style="white-space:pre-line;max-height:120px;overflow:auto">${esc(c.briefing || 'Sem briefing. Preencha na ficha do cliente para resultados melhores.')}</div>
+      `<div class="muted mt-1">Briefing · ${Briefing.progresso(c).preenchidos} de ${Briefing.progresso(c).total} respondidas</div><div class="soft" style="white-space:pre-line;max-height:120px;overflow:auto">${esc([Briefing.texto(c), c.briefing].filter(Boolean).join('\n\n') || 'Sem briefing. Preencha na ficha do cliente para resultados melhores.')}</div>
        <a href="${UI.keepParams('clients.html?c=' + encodeURIComponent(c.id))}" class="accent-text">Editar briefing →</a>`;
     render();
   }
