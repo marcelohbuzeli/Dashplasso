@@ -11,7 +11,7 @@
 <title>Plassô | Home</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="assets/ui.css?v=12">
-<style>.btn-trabalho{width:100%;max-width:380px;height:60px;justify-content:space-between;padding:0 8px 0 24px;font-size:16px}.btn-trabalho .play-in{width:46px;height:46px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}.agora{max-width:560px;padding:22px 22px 18px;border-radius:28px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.agora .ag-t{font-size:clamp(22px,5.2vw,30px);line-height:1.15;font-weight:600;letter-spacing:-.01em;margin-top:8px}.agora .ag-acts{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}.agora .ag-acts .btn-trabalho{flex:1;min-width:200px;max-width:none}.agora .ag-next{margin-top:14px;font-size:13px;color:var(--muted,rgba(255,255,255,.55))}.agora .ag-next b{color:inherit;font-weight:500}.prox{border:1px dashed rgba(255,255,255,.18)}</style>
+<style>.btn-trabalho{width:100%;max-width:380px;height:60px;justify-content:space-between;padding:0 8px 0 24px;font-size:16px}.btn-trabalho .play-in{width:46px;height:46px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}.agora{max-width:560px;padding:22px 22px 18px;border-radius:28px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.agora .ag-t{font-size:clamp(22px,5.2vw,30px);line-height:1.15;font-weight:600;letter-spacing:-.01em;margin-top:8px}.agora .ag-acts{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}.agora .ag-acts .btn-trabalho{flex:1;min-width:200px;max-width:none}.agora .ag-next{margin-top:14px;font-size:13px;color:var(--muted,rgba(255,255,255,.55))}.agora .ag-next b{color:inherit;font-weight:500}.prox{border:1px dashed rgba(255,255,255,.18)}.respiro{position:relative;border-radius:28px;overflow:hidden;aspect-ratio:4/5;max-height:420px;width:100%;background:#120c09;cursor:pointer;border:1px solid rgba(255,255,255,.08)}.respiro img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .6s ease,transform 8s ease}.respiro:hover img{transform:scale(1.03)}.respiro .rs-leg{position:absolute;left:0;right:0;bottom:0;padding:44px 18px 16px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.72));display:flex;align-items:flex-end;justify-content:space-between;gap:10px;font-size:12px;color:rgba(255,255,255,.78)}.respiro .rs-leg b{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#fff;font-weight:600;margin-bottom:3px}.respiro .rs-btn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);color:#fff;flex:0 0 auto}.respiro-mini{display:flex;gap:12px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)}.respiro-mini img{width:64px;height:80px;object-fit:cover;border-radius:14px}</style>
 <link rel="icon" href="assets/icons/favicon-home.svg" type="image/svg+xml">
 <link rel="icon" href="assets/icons/favicon-home-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon-home.png">
@@ -88,6 +88,7 @@
           </div>
         </div>
         <div class="stack-lg" style="min-width:0">
+          <div class="respiro hidden" id="respiro"></div>
           <div class="card card-lg">
             <div class="card-head"><h2 class="h2">Casa</h2><span class="pill" id="casa-count"></span></div>
             <div id="casa-hoje" class="list"></div>
@@ -220,6 +221,20 @@
       ${f.length > 1 ? `<div class="ag-next">Depois: <b>${f.slice(1, 3).map(y => esc(y.titulo)).join('</b> · <b>')}</b>${f.length > 3 ? ` <a href="#" onclick="inicioTrabalho();return false" style="color:inherit">+${f.length - 3}</a>` : ''}</div>` : ''}`;
   }
   function comecarAgora(origem, ref) { if (!S) inicioTrabalho(); iniciarItem(origem, ref); }
+
+  // ---------- Respiro: uma imagem das suas pastas do Pinterest ----------
+  // Pausas curtas olhando algo bonito restauram a atenção (Teoria da Restauração da Atenção; Lee et al., 2015).
+  // Os pins vêm de inspiracao/pins.json, atualizado a cada 3 h pelo GitHub Actions (pastas públicas do Pinterest).
+  let PINS = [], pinAtual = -1;
+  const pinNovo = () => { if (!PINS.length) return null; let i; do { i = Math.floor(Math.random() * PINS.length); } while (PINS.length > 1 && i === pinAtual); pinAtual = i; return PINS[i]; };
+  function renderRespiro() {
+    const el = $('respiro'); if (!el || !PINS.length) return;
+    const p = pinNovo(); el.classList.remove('hidden');
+    el.innerHTML = `<img src="${esc(p.img)}" alt="" loading="lazy" referrerpolicy="no-referrer"><div class="rs-leg"><div><b>Respiro</b>${esc(p.pasta)}</div><button class="rs-btn" aria-label="Outra imagem"><i class="fa-solid fa-rotate"></i></button></div>`;
+    el.querySelector('.rs-btn').onclick = e => { e.stopPropagation(); renderRespiro(); };
+    el.onclick = () => window.open(p.link, '_blank', 'noopener');
+  }
+  fetch('inspiracao/pins.json?' + Math.floor(Date.now() / 36e5)).then(r => r.ok ? r.json() : null).then(d => { PINS = (d && d.pins) || []; renderRespiro(); }).catch(() => {});
 
   // ---------- KPIs ----------
   function renderKpis() {
@@ -508,7 +523,8 @@
       const md = mediaDe(proxF.chave);
       $('w-atual').innerHTML = `<div class="eyebrow">Próxima</div><div class="h1 mt-2">${esc(proxF.titulo)}</div>
         <div class="muted small mt-1">${esc(proxF.sub || '')}${md ? ` · ~${fmtDur(md)}` : ''}</div>
-        <button class="btn btn-white btn-lg btn-block mt-4" onclick="iniciarItem('${proxF.origem}','${esc(String(proxF.ref))}')"><i class="fa-solid fa-play"></i> Começar</button>`;
+        <button class="btn btn-white btn-lg btn-block mt-4" onclick="iniciarItem('${proxF.origem}','${esc(String(proxF.ref))}')"><i class="fa-solid fa-play"></i> Começar</button>
+        ${S.itens.some(i => i.concluido) && PINS.length ? (() => { const p = pinNovo(); return `<div class="respiro-mini"><img src="${esc(p.img)}" alt="" referrerpolicy="no-referrer"><div class="small muted">Antes de começar: respira e olha essa imagem por uns segundos. Pausa curta descansa a atenção.</div></div>`; })() : ''}`;
     }
     if (a) {
       const media = mediaDe(a.chave);
