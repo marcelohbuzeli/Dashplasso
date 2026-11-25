@@ -19,6 +19,17 @@
   .part { border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
   .part textarea { min-height: 110px; }
   .meta-hoje .bar { height: 8px; }
+  .env { border: 1px solid var(--line); border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .env.feito { opacity: .55; }
+  .env textarea { width: 100%; min-height: 128px; font: inherit; font-size: 15px; line-height: 1.5; background: rgba(255,255,255,.04); color: inherit; border: 1px solid var(--line); border-radius: 14px; padding: 12px; resize: vertical; }
+  .env .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .env .acts .btn-white { flex: 1 1 220px; }
+  .env .tag { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); }
+  .env .tag.ret { color: #fcd34d; border-color: rgba(252,211,77,.4); }
+  .env .tag.novo { color: #6ee7b7; border-color: rgba(110,231,183,.4); }
+  .stack { display: flex; flex-direction: column; gap: 12px; }
+  .meta-n { display: inline-flex; align-items: center; gap: 6px; }
+  .meta-n button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: none; color: inherit; }
 </style>
 <link rel="icon" href="assets/icons/favicon-crm.svg" type="image/svg+xml">
 <link rel="icon" href="assets/icons/favicon-crm-32.png" sizes="32x32" type="image/png">
@@ -45,11 +56,16 @@
   <div class="grid g-2 lg-g-4 mb-4" id="kpis"></div>
 
   <div class="row mb-3" style="flex-wrap:wrap">
-    <div class="seg" id="vista" style="flex:0 0 auto"><button data-v="pipe" class="on">Pipeline</button><button data-v="ganhos">Ganhos</button><button data-v="perdidos">Perdidos</button></div>
+    <div class="seg" id="vista" style="flex:0 0 auto"><button data-v="hoje" class="on"><i class="fa-solid fa-paper-plane"></i>Envios de hoje</button><button data-v="pipe">Pipeline</button><button data-v="ganhos">Ganhos</button><button data-v="perdidos">Perdidos</button></div>
     <div class="seg sm-hide" id="modo" style="flex:0 0 auto;margin-left:auto"><button data-m="lista" class="on"><i class="fa-solid fa-list"></i>Lista</button><button data-m="quadro"><i class="fa-solid fa-table-columns"></i>Quadro</button></div>
   </div>
 
-  <section id="v-pipe">
+  <section id="v-hoje">
+    <div class="card card-lg mb-4" id="h-topo"></div>
+    <div id="h-lista" class="stack"></div>
+    <div id="h-conversa" class="mt-6"></div>
+  </section>
+  <section id="v-pipe" class="hidden">
     <div class="seg mb-3" id="etapas"></div>
     <div class="row mb-3" style="flex-wrap:wrap">
       <div class="grow" style="position:relative;min-width:200px">
@@ -95,7 +111,7 @@
   const etapaLabel = id => (ETAPAS.find(e => e.id === id) || { label: id }).label;
   const META_DIA = 10;
   const PRODUTOS = ['Consultoria · R$ 3.000', 'Vídeos 1 · R$ 220', 'Vídeos 4 · R$ 800/mês', 'Vídeos 8 · R$ 1.400/mês', 'Vídeos 12 · R$ 1.800/mês', 'Vídeos 30 · R$ 2.200/mês', 'Design 01 · R$ 400/mês', 'Design 02 · R$ 800/mês', 'Design 03 · R$ 1.200/mês', 'Vídeos 4 + Design 01 · R$ 1.200/mês', 'Vídeos 8 + Design 02 · R$ 2.200/mês', 'Vídeos 12 + Design 03 · R$ 3.000/mês', 'Gerenciamento · a partir de R$ 9.000', 'Ilha de link · R$ 250 + custos'];
-  let etapa = new URLSearchParams(location.search).get('etapa') || (DB.list('crm').some(l => l.col === 'orcamento') ? 'orcamento' : 'novo'), vista = 'pipe', limite = 30;
+  let etapa = new URLSearchParams(location.search).get('etapa') || (DB.list('crm').some(l => l.col === 'orcamento') ? 'orcamento' : 'novo'), vista = 'hoje', limite = 30;
   let busca = '', fTier = '', fSeg = '', fOrd = 'score';
   try { if (localStorage.getItem('crm_modo') === 'quadro') document.body.classList.add('crm-quadro'); } catch (e) {}
 
@@ -375,6 +391,141 @@
   setInterval(atualizarAnalises, 20000);
   setTimeout(atualizarAnalises, 1500);
 
+  // ---------- Envios de hoje ----------
+  // O sistema escolhe, escreve e prepara; o Marcelo envia com um toque pelo próprio WhatsApp.
+  // Envio automático do número pessoal para quem não pediu contato é a principal causa de bloqueio no WhatsApp,
+  // por isso o último toque é sempre dele (e cada mensagem sai personalizada, uma por vez).
+  const metaEnvios = () => Number(DB.getValue('crm_meta_envios', 15)) || 15;
+  const diaUtil = (n) => { const d = new Date(); let k = 0; while (k < n) { d.setDate(d.getDate() + 1); if (d.getDay() % 6) k++; } return d.toLocaleDateString('sv-SE'); };
+  const hojeStr = () => UI.hoje();
+  const dataDe = iso => iso ? new Date(iso).toLocaleDateString('sv-SE') : '';
+  // estilo aprovado pelo Marcelo (docs/PROSPECCAO-ESTILO.md): sem frase de vendedor, pergunta em parágrafo próprio
+  function estilo(t) {
+    return String(t || '')
+      .replace(/Vi que você me acompanha aqui no Instagram, obrigado pela confiança 🙏/g, 'É um prazer ter você por aqui 😉')
+      .replace(/,? ?obrigad[oa] pela confiança ?🙏?/gi, '')
+      .replace(/\s*Me tira uma dúvida rápida:\s*/g, '\n\nMas fiquei com uma dúvida: ')
+      .replace(/^Obrigad[oa] por responder!\s*/i, 'Ahh entendi. ')
+      .replace(/\s+—\s+/g, ', ')
+      .replace(/\n{3,}/g, '\n\n').trim();
+  }
+  const parte = (l, k) => (l.parts || []).find(p => p.key === k);
+  function textoDe(l, k) {
+    if (l.msgEdit && l.msgEdit[k]) return l.msgEdit[k];
+    const p = parte(l, k); return estilo(p ? p.text : (k === 'p1' ? l.message : ''));
+  }
+  const foneWa = l => { let d = String(l.telefone || '').replace(/\D/g, ''); if (!d) return ''; if (d.length <= 11) d = '55' + d; return d; };
+  const igUrl = l => l.instagram || (l.insta ? 'https://www.instagram.com/' + String(l.insta).replace(/^@/, '').replace(/\/$/, '') + '/' : '');
+  const canal = l => (l.telefone && l.mobile !== false && foneWa(l).length >= 12) ? 'whats' : igUrl(l) ? 'insta' : '';
+  const pulados = () => { try { const p = JSON.parse(localStorage.getItem('crm_pulados') || '{}'); return p.dia === hojeStr() ? p.ids : []; } catch (e) { return []; } };
+  const pular = id => { const ids = pulados(); ids.push(id); try { localStorage.setItem('crm_pulados', JSON.stringify({ dia: hojeStr(), ids })); } catch (e) {} renderHoje(); };
+  const ROTULO = { p1: 'Primeira mensagem', f1: 'Retomada 1', f2: 'Retomada 2 · última', p2: 'Resposta · qualificação' };
+  function filaHoje() {
+    const all = DB.list('crm'), pl = pulados(), hj = hojeStr();
+    const ret = all.filter(l => etapaDe(l) === 'contatado' && l.proxContato && l.proxContato <= hj && ['p1', 'f1'].includes(l.passo) && !pl.includes(l.id))
+      .map(l => ({ l, k: l.passo === 'p1' ? 'f1' : 'f2', tipo: 'ret' }));
+    const ord = (a, b) => (etapaDe(b) === 'aprovado') - (etapaDe(a) === 'aprovado') || (!!b.warm - !!a.warm) || (b.score || 0) - (a.score || 0);
+    const novos = all.filter(l => ['aprovado', 'analisado'].includes(etapaDe(l)) && (l.parts || []).length && canal(l) && !pl.includes(l.id)).sort(ord)
+      .map(l => ({ l, k: 'p1', tipo: 'novo' }));
+    return { ret, novos };
+  }
+  const enviadosHoje = () => DB.list('crm').filter(l => dataDe(l.ultimoContato) === hojeStr()).length;
+  function topoHoje() {
+    const meta = metaEnvios(), feitos = enviadosHoje(), { ret, novos } = filaHoje();
+    const vagas = Math.max(0, meta - feitos);
+    const lista = [...ret, ...novos].slice(0, Math.max(vagas, ret.length));
+    const pct = Math.min(100, Math.round(feitos * 100 / meta));
+    $('h-topo').innerHTML = `<div class="row-between" style="flex-wrap:wrap;gap:12px"><div><div class="eyebrow">Envios de hoje</div>
+      <div class="display mt-2" style="font-size:44px">${feitos}<span class="soft">/${meta}</span></div>
+      <div class="small muted mt-1">${feitos >= meta ? 'Meta batida. Agora é responder quem voltar.' : `${ret.length} retomada${ret.length === 1 ? '' : 's'} vence${ret.length === 1 ? '' : 'm'} hoje · ${novos.length} primeiras mensagens prontas`}</div></div>
+      <div class="meta-n small muted">meta <button type="button" data-meta="-1" aria-label="Diminuir meta">−</button><b>${meta}</b><button type="button" data-meta="1" aria-label="Aumentar meta">+</button></div></div>
+      <div class="bar mt-3"><span style="width:${pct}%;background:#fff"></span></div>
+      <p class="small muted mt-3">Toque em <b>Enviar</b>: o WhatsApp abre com a mensagem pronta. É só apertar enviar lá. A retomada já fica agendada sozinha. Uma por vez, com calma: é o que protege seu número.</p>`;
+    $('h-topo').querySelectorAll('[data-meta]').forEach(b => b.onclick = () => { DB.setValue('crm_meta_envios', Math.max(5, Math.min(40, meta + Number(b.dataset.meta)))); renderHoje(); });
+    return { lista, feitos, meta };
+  }
+  function renderHoje() {
+    if (!$('h-topo')) return;
+    const { lista, feitos, meta } = topoHoje();
+    $('h-lista').innerHTML = lista.length ? lista.map(({ l, k, tipo }) => {
+      const c = canal(l), r = (l.reasons || []).slice(1, 3).join(' · ');
+      return `<div class="env" data-env="${esc(l.id)}" data-k="${k}">
+        <div class="row-between" style="align-items:flex-start;gap:10px"><div style="min-width:0">
+          <div class="h3 truncate">${esc(l.name)}</div>
+          <div class="small muted truncate">${esc([l.categoria || l.area, l.bairro].filter(Boolean).join(' · '))}${l.warm ? ' · <span class="warm"><i class="fa-solid fa-heart"></i> te segue</span>' : ''}</div></div>
+          <span class="tag ${tipo}">${ROTULO[k]}</span></div>
+        ${r ? `<div class="small soft">${esc(r)}</div>` : ''}
+        ${l.product && k === 'p1' ? `<div class="small" style="color:var(--accent-2)">${esc(l.product)}</div>` : ''}
+        <textarea data-txt aria-label="Mensagem para ${esc(l.name)}">${esc(textoDe(l, k))}</textarea>
+        <div class="acts">
+          <button class="btn btn-white" data-enviar>${c === 'whats' ? '<i class="fa-brands fa-whatsapp"></i> Enviar no WhatsApp' : '<i class="fa-brands fa-instagram"></i> Copiar e abrir o Instagram'}</button>
+          <button class="btn btn-ghost" data-pular>Amanhã</button>
+          <button class="btn btn-ghost" data-ver aria-label="Ver lead"><i class="fa-solid fa-up-right-from-square"></i></button>
+          <button class="btn btn-ghost" data-desc aria-label="Descartar lead"><i class="fa-solid fa-xmark"></i></button>
+        </div></div>`;
+    }).join('') : `<div class="card empty">${feitos >= meta ? 'Meta de hoje batida. 🎯' : 'Nenhuma mensagem pronta. O analisador do Instagram prepara mais leads.'}</div>`;
+    $('h-lista').querySelectorAll('[data-env]').forEach(el => {
+      const id = el.dataset.env, k = el.dataset.k, ta = el.querySelector('[data-txt]');
+      ta.addEventListener('change', () => { const l = DB.get('crm', id); l.msgEdit = { ...(l.msgEdit || {}), [k]: ta.value }; salvarLead(l); });
+      el.querySelector('[data-enviar]').onclick = async () => {
+        const l = DB.get('crm', id), txt = ta.value.trim(); if (!txt) return;
+        if (canal(l) === 'whats') window.open('https://wa.me/' + foneWa(l) + '?text=' + encodeURIComponent(txt), '_blank', 'noopener');
+        else { try { await navigator.clipboard.writeText(txt); } catch (e) {} window.open(igUrl(l), '_blank', 'noopener'); App.toast('Mensagem copiada: cole no direct.', 'ok'); }
+        registrarEnvio(id, k, txt);
+        el.classList.add('feito'); el.querySelector('.acts').innerHTML = `<span class="small muted"><i class="fa-solid fa-check"></i> Enviado · retomada agendada</span><button class="btn btn-ghost btn-sm" data-desfazer>Não enviei</button>`;
+        el.querySelector('[data-desfazer]').onclick = () => { desfazerEnvio(id); renderHoje(); };
+        renderTopoSo();
+      };
+      el.querySelector('[data-pular]').onclick = () => pular(id);
+      el.querySelector('[data-ver]').onclick = () => abrirLead(id);
+      el.querySelector('[data-desc]').onclick = () => perdido(DB.get('crm', id));
+    });
+    renderConversa();
+  }
+  const renderTopoSo = () => topoHoje();
+  function registrarEnvio(id, k, txt) {
+    const l = DB.get('crm', id); if (!l) return;
+    l.antes = { col: l.col, passo: l.passo, proxContato: l.proxContato, ultimoContato: l.ultimoContato, contatoEm: l.contatoEm };
+    if (k === 'p1') { l.col = 'contatado'; l.contatoEm = agoraISO(); }
+    l.passo = k; l.ultimoContato = agoraISO();
+    l.proxContato = k === 'p1' ? diaUtil(2) : k === 'f1' ? diaUtil(3) : diaUtil(4);
+    l.msgEdit = { ...(l.msgEdit || {}), [k]: txt };
+    hist(l, `${ROTULO[k]} enviada${canal(l) === 'whats' ? ' no WhatsApp' : ' no Instagram'}`); salvarLead(l);
+  }
+  function desfazerEnvio(id) { const l = DB.get('crm', id); if (!l || !l.antes) return; Object.assign(l, l.antes); delete l.antes; hist(l, 'Envio desfeito'); salvarLead(l); }
+  // quem já recebeu: marcar resposta e seguir o roteiro (qualificação → áudio → reunião)
+  function renderConversa() {
+    const hj = hojeStr();
+    const aguard = DB.list('crm').filter(l => etapaDe(l) === 'contatado').sort((a, b) => String(b.ultimoContato || '').localeCompare(String(a.ultimoContato || '')));
+    const semResp = aguard.filter(l => l.passo === 'f2' && l.proxContato && l.proxContato <= hj);
+    $('h-conversa').innerHTML = aguard.length ? `<div class="card-head"><h2 class="h2">Aguardando resposta</h2><span class="pill">${aguard.length}</span></div>
+      <p class="small muted mb-3">Respondeu? Toque em <b>Respondeu</b> e o sistema mostra a próxima mensagem do roteiro.</p>
+      <div class="list">${aguard.slice(0, 40).map(l => `<div class="item"><div class="grow" style="min-width:0"><div class="title truncate">${esc(l.name)}</div>
+        <div class="sub truncate">${ROTULO[l.passo] || 'Mensagem'} · ${l.ultimoContato ? new Date(l.ultimoContato).toLocaleDateString('pt-BR') : ''}${semResp.includes(l) ? ' · <span style="color:var(--warn)">sem resposta depois da última retomada</span>' : ''}</div></div>
+        ${semResp.includes(l) ? `<button class="btn btn-ghost btn-sm" data-encerra="${esc(l.id)}">Encerrar</button>` : ''}
+        <button class="btn btn-white btn-sm" data-resp="${esc(l.id)}">Respondeu</button></div>`).join('')}</div>` : '';
+    $('h-conversa').querySelectorAll('[data-resp]').forEach(b => b.onclick = () => respondeu(b.dataset.resp));
+    $('h-conversa').querySelectorAll('[data-encerra]').forEach(b => b.onclick = () => { const l = DB.get('crm', b.dataset.encerra); hist(l, 'Perdido: Sem resposta'); DB.put('crm_perdidos', { ...l, col: 'perdido', motivo: 'Sem resposta', perdidoEm: agoraISO() }); DB.remove('crm', l.id); render(); });
+  }
+  function respondeu(id) {
+    const l = DB.get('crm', id); if (!l) return;
+    const p2 = textoDe(l, 'p2'), p3 = estilo((parte(l, 'p3') || {}).text || ''), x = estilo((parte(l, 'x') || {}).text || '');
+    const s = UI.sheet({ title: l.name, html: `
+      <div class="eyebrow mb-2">1 · Mande agora (qualificação)</div>
+      <div class="part"><textarea class="textarea" id="p2" rows="4">${esc(p2)}</textarea>
+        <div class="row mt-2" style="justify-content:flex-end">${canal(l) === 'whats' ? '<button class="btn btn-white btn-sm" id="p2w"><i class="fa-brands fa-whatsapp"></i> Enviar no WhatsApp</button>' : '<button class="btn btn-white btn-sm" id="p2c">Copiar</button>'}</div></div>
+      ${p3 ? `<div class="eyebrow mt-4 mb-2">2 · Quando responder: grave este áudio</div><div class="part"><div class="small" style="white-space:pre-wrap">${esc(p3)}</div></div>` : ''}
+      ${x ? `<div class="eyebrow mt-4 mb-2">Se já tiver alguém cuidando</div><div class="part"><div class="small" style="white-space:pre-wrap">${esc(x)}</div></div>` : ''}`,
+      foot: '<button class="btn btn-ghost" id="perd">Não tem interesse</button><button class="btn btn-white" id="reun">Marcou reunião</button>' });
+    const atual = DB.get('crm', id); atual.respondeuEm = atual.respondeuEm || agoraISO(); atual.proxContato = null; atual.col = 'follow'; hist(atual, 'Respondeu a mensagem'); salvarLead(atual);
+    const env = () => { const t = s.$('#p2').value.trim(); const a = DB.get('crm', id); a.msgEdit = { ...(a.msgEdit || {}), p2: t }; a.passo = 'p2'; a.ultimoContato = agoraISO(); hist(a, 'Qualificação enviada'); salvarLead(a); return t; };
+    const w = s.$('#p2w'); if (w) w.onclick = () => { const t = env(); window.open('https://wa.me/' + foneWa(l) + '?text=' + encodeURIComponent(t), '_blank', 'noopener'); };
+    const c = s.$('#p2c'); if (c) c.onclick = async () => { const t = env(); try { await navigator.clipboard.writeText(t); App.toast('Copiado.', 'ok'); } catch (e) {} };
+    s.$('#reun').onclick = () => { s.close(); agendar(DB.get('crm', id), 'reuniao'); };
+    s.$('#perd').onclick = () => { s.close(); perdido(DB.get('crm', id)); };
+    render();
+  }
+
   // ---------- API para a automação de prospecção (usada pelo Claude) ----------
   window.CRM_API = {
     meta: () => ({ hoje: hojeAnalisados(), meta: META_DIA }),
@@ -383,6 +534,22 @@
       const ord = arr => arr.sort((a, b) => (b.score || 0) - (a.score || 0));
       return [...ord(novos.filter(l => l.warm)), ...ord(novos.filter(l => !l.warm))].slice(0, n).map(l => ({ id: l.id, name: l.name, nomeCompleto: l.nomeCompleto, categoria: l.categoria || l.area, bairro: l.bairro, instagram: l.instagram || '', telefone: l.telefone || '', mobile: !!l.mobile, warm: !!l.warm, score: l.score, productEdited: !!l.productEdited }));
     },
+    // novos prospectos achados pela busca (Google Maps / Instagram); ignora quem já existe (nome, telefone, placeId ou @)
+    async adicionar(leads) {
+      const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
+      const todos = [...DB.list('crm'), ...DB.list('crm_perdidos'), ...DB.list('crm_ganhos')];
+      const ja = new Set(); todos.forEach(l => { [norm(l.name), String(l.telefone || '').replace(/\D/g, '').slice(-8), l.placeId, norm(l.insta || l.instagram)].filter(Boolean).forEach(k => ja.add(k)); });
+      let n = 0;
+      for (const d of [].concat(leads || [])) {
+        const chaves = [norm(d.name), String(d.telefone || '').replace(/\D/g, '').slice(-8), d.placeId, norm(d.insta || d.instagram)].filter(Boolean);
+        if (!d.name || chaves.some(k => ja.has(k))) continue;
+        chaves.forEach(k => ja.add(k));
+        const l = { id: 'ld_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), col: 'novo', criadoEm: agoraISO(), origem: d.origem || 'busca automática', ...d };
+        hist(l, 'Encontrado pela busca de prospectos'); salvarLead(l); n++;
+      }
+      await DB.flush(); render(); return n;
+    },
+    envios: () => ({ hoje: enviadosHoje(), meta: metaEnvios(), prontos: filaHoje().novos.length }),
     async atualizar(id, dados) {
       const l = DB.get('crm', id); if (!l) return 'não encontrado';
       Object.assign(l, dados);
@@ -397,13 +564,13 @@
   function setModo(m) { document.body.classList.toggle('crm-quadro', m === 'quadro'); try { localStorage.setItem('crm_modo', m); } catch (e) {} document.querySelectorAll('#modo button').forEach(x => x.classList.toggle('on', x.dataset.m === m)); renderPipe(); }
   document.querySelectorAll('#modo button').forEach(b => b.onclick = () => setModo(b.dataset.m));
   document.querySelectorAll('#modo button').forEach(x => x.classList.toggle('on', x.dataset.m === (document.body.classList.contains('crm-quadro') ? 'quadro' : 'lista')));
-  document.querySelectorAll('#vista button').forEach(b => b.onclick = () => { vista = b.dataset.v; document.querySelectorAll('#vista button').forEach(x => x.classList.toggle('on', x === b)); ['pipe', 'ganhos', 'perdidos'].forEach(v => $('v-' + v).classList.toggle('hidden', v !== vista)); });
+  document.querySelectorAll('#vista button').forEach(b => b.onclick = () => { vista = b.dataset.v; document.querySelectorAll('#vista button').forEach(x => x.classList.toggle('on', x === b)); ['hoje', 'pipe', 'ganhos', 'perdidos'].forEach(v => $('v-' + v).classList.toggle('hidden', v !== vista)); if (vista === 'hoje') renderHoje(); });
   $('busca').addEventListener('input', e => { busca = e.target.value.toLowerCase().trim(); limite = 30; renderPipe(); });
   $('f-tier').addEventListener('change', e => { fTier = e.target.value; limite = 30; renderPipe(); });
   $('f-seg').addEventListener('change', e => { fSeg = e.target.value; limite = 30; renderPipe(); });
   $('f-ord').addEventListener('change', e => { fOrd = e.target.value; renderPipe(); });
   $('mais').onclick = () => { limite += 30; renderPipe(); };
-  function render() { renderKpis(); renderFiltros(); renderPipe(); renderFechados(); }
+  function render() { renderKpis(); renderFiltros(); renderPipe(); renderFechados(); renderHoje(); }
   render();
   const qp = new URLSearchParams(location.search);
   if (qp.get('l')) abrirLead(qp.get('l'));
