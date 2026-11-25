@@ -285,7 +285,14 @@
             <div class="mt-3" data-midia>${UI.carrossel(t.midias)}</div>
           </div>
           <label class="field full"><span>Roteiro / descrição</span><textarea class="textarea" name="roteiro" rows="6">${esc(t.roteiro || '')}</textarea></label>
-          <label class="field full"><span>Legenda</span><textarea class="textarea" name="legenda" rows="4">${esc(t.legenda || t.caption || '')}</textarea></label>
+          <div class="full">
+            <label class="field"><span>Legenda</span><textarea class="textarea" name="legenda" rows="4">${esc(t.legenda || t.caption || '')}</textarea></label>
+            <div class="row mt-2" style="flex-wrap:wrap;gap:8px">
+              <button type="button" class="btn btn-ghost btn-sm" data-legenda-ia><i class="fa-solid fa-wand-magic-sparkles"></i> Escrever legenda</button>
+              <input class="input grow" style="height:36px;min-width:180px;font-size:13px" data-legenda-pedido placeholder="Pedido opcional (ex.: mais leve, termina com pergunta)">
+            </div>
+            <p class="tiny muted mt-2" data-legenda-status>A IA lê o roteiro, as fotos do Drive e o tom de voz do cliente. Clique de novo para outra versão.</p>
+          </div>
           <label class="field full"><span>Observações</span><textarea class="textarea" name="observacoes" rows="2">${esc(t.observacoes || '')}</textarea></label>
           <div class="full midia-box">
             <div class="field"><span><i class="fa-solid fa-images"></i> Referências para o Design / Editor</span></div>
@@ -319,6 +326,33 @@
       } catch (e) { s.$('[data-midia-status]').innerHTML = `<span style="color:#ff9aa7">${esc(e.message)}</span>`; }
     };
     s.$('[data-buscar]').onclick = () => { linkBuscado = ''; buscar(); };
+
+    // escritor de legenda (IA): cada clique gera uma versão nova, na voz do cliente
+    const versoesLegenda = [];
+    s.$('[data-legenda-ia]').onclick = async () => {
+      const b = s.$('[data-legenda-ia]'), stL = s.$('[data-legenda-status]'), ta = s.$('[name=legenda]');
+      const f = UI.formData(s.el);
+      if (f.drive.trim() && f.drive.trim() !== linkBuscado) await buscar();
+      if (!f.roteiro.trim() && !midias.length && !f.headline.trim()) { stL.innerHTML = '<span style="color:#ff9aa7">Preencha o roteiro ou busque as mídias do Drive primeiro.</span>'; return; }
+      if (ta.value.trim() && !versoesLegenda.includes(ta.value.trim())) versoesLegenda.push(ta.value.trim());
+      const cli = f.client.trim().toLowerCase();
+      const exemplos = DB.list('tasks')
+        .filter(x => x.id !== t.id && (x.client || '').trim().toLowerCase() === cli && (x.legenda || x.caption))
+        .sort((a, z) => Number(z.status === 'postado') - Number(a.status === 'postado') || String(z.date || '').localeCompare(String(a.date || '')))
+        .slice(0, 8).map(x => x.legenda || x.caption);
+      b.disabled = true; stL.innerHTML = '<span class="live">●</span> Lendo o roteiro, as imagens e o tom do cliente…';
+      try {
+        const out = await UI.chamarFuncao('escrever-legenda', {
+          cliente: f.client.trim(), formato: f.type, titulo: f.headline.trim(), objetivo: f.objetivo, roteiro: f.roteiro, observacoes: f.observacoes,
+          midias: midias.map(m => ({ id: m.id, nome: m.nome, tipo: m.tipo })), exemplos, anteriores: versoesLegenda, pedido: s.$('[data-legenda-pedido]').value.trim()
+        });
+        if (!out.legenda) throw new Error('A IA não devolveu legenda. Tente de novo.');
+        ta.value = out.legenda; versoesLegenda.push(out.legenda);
+        stL.textContent = `Versão ${versoesLegenda.length}${out.imagensLidas ? ` · leu ${out.imagensLidas} imagem(ns)` : ''}. Clique de novo para outra, ou ajuste e Salve.`;
+      } catch (e) {
+        stL.innerHTML = `<span style="color:#ff9aa7">${esc(e.message === 'LOCAL' ? 'O escritor de legenda precisa do banco ligado (Supabase).' : e.message)}</span>`;
+      } finally { b.disabled = false; }
+    };
     const bAg = s.$('[data-agente]');
     if (bAg) bAg.onclick = () => { s.close(); setTimeout(() => chamarAgente(id, bAg.dataset.agente, onDone), 220); };
     const bIg = s.$('[data-ig]');
