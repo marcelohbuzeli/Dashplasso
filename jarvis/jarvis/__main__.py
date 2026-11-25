@@ -230,7 +230,7 @@ class Jarvis:
         self.log(f"[avisos] mudou no Dashplasso: {', '.join(sorted(cols))}")
         if self.dia and (cols & self.PAINEL_COLS or "?" in cols):
             self.dia.atualizar_logo()
-        if "tasks" in cols or "?" in cols:
+        if cols & {"tasks", "crm_analise", "ig_relatorios"} or "?" in cols:
             self.agentes.verificar()          # botão "Chamar Design/Editor"
         if "criacao" in cols or "?" in cols:
             self.verificar_envios()           # botão "Enviar para edição/design" da Criação
@@ -360,6 +360,49 @@ class Jarvis:
             self.mic.fechar()
 
 
+def rodar_agentes(cfg: Config):
+    """Jarvis de SEGUNDO PLANO: só a fila do "Chamar Design / Chamar Editor" do Dashplasso.
+    Sem microfone, sem voz, sem painel: fica conectado aos avisos (sem gastar nada) e só abre o
+    Claude quando chega um pedido. Ligado pelo launchd no login (instalar-segundo-plano.sh)."""
+    from .agentes import Agentes
+    from .avisos import Avisos
+    from .cerebro import Cerebro
+
+    def log(msg: str):
+        linha = f"{agora()} [segundo plano] {msg}"
+        print(linha, flush=True)
+        with open(Path(cfg.logs) / "jarvis.log", "a", encoding="utf-8") as f:
+            f.write(linha + "\n")
+
+    agentes = Agentes(cfg, Cerebro(cfg, log=log), log=log, dizer=lambda _t: None, notificar=notificar)
+
+    def verificar():
+        try:
+            agentes.verificar()
+        except Exception as e:  # noqa: BLE001
+            log(f"[dashplasso] erro: {e}")
+
+    def ao_mudar(cols: set):
+        if cols & {"tasks", "crm_analise", "ig_relatorios"} or "?" in cols:
+            verificar()
+
+    Avisos(cfg, ao_mudar, log=log)
+    log("[pronto] cuidando da fila de Design/Editor em silêncio")
+    threading.Thread(target=verificar, daemon=True).start()
+    try:
+        minutos = 0
+        while True:
+            time.sleep(60)
+            minutos += 1
+            if minutos % 10 == 0 and agentes._trava_arq is not None:
+                verificar()   # rede de segurança: um orçamento cujo sinal se perdeu entra em até 10 min
+            # se o Jarvis de voz estava com a fila e foi desligado, este assume e confere o que ficou
+            if agentes._trava_arq is None and agentes.dono():
+                verificar()
+    except KeyboardInterrupt:
+        log("[fim] desligando")
+
+
 def calibrar(cfg: Config):
     from .audio import Microfone, Palmas, Wake, rms
     mic, wake, palmas = Microfone(cfg), Wake(cfg), Palmas(cfg)
@@ -393,6 +436,7 @@ def main():
     ap = argparse.ArgumentParser(prog="jarvis")
     ap.add_argument("--texto", help="pedido digitado, sem microfone")
     ap.add_argument("--calibrar", action="store_true")
+    ap.add_argument("--agentes", action="store_true", help="só a fila de Design/Editor, em silêncio (segundo plano)")
     ap.add_argument("--voz", help="testa a voz com este texto")
     ap.add_argument("--vozes", action="store_true", help="lista as vozes da sua conta ElevenLabs")
     a = ap.parse_args()
@@ -415,6 +459,9 @@ def main():
         return
     if a.calibrar:
         calibrar(cfg)
+        return
+    if a.agentes:
+        rodar_agentes(cfg)
         return
     if a.texto:
         j = Jarvis(cfg, com_microfone=False)

@@ -108,13 +108,41 @@ class Agentes:
         self.rodando: dict[str, subprocess.Popen] = {}
         self._trava = threading.Lock()
         self._primeira = True
+        self._trava_arq = None      # arquivo travado = este processo é o dono da fila
+        self._avisou_dono = False
+        from .analises import Analises
+        self.analises = Analises(self)   # análise do Instagram dos orçamentos do site
 
     def ocupado(self) -> bool:
         return any(p.poll() is None for p in self.rodando.values())
 
+    def dono(self) -> bool:
+        """Só UM processo pega os pedidos (o Jarvis de voz ou o de segundo plano), senão o mesmo
+        pedido seria feito duas vezes. Quem conseguir travar logs/agentes.lock é o dono; a trava some
+        sozinha quando o processo fecha, e aí o outro assume."""
+        if self._trava_arq:
+            return True
+        import fcntl
+        f = open(Path(self.cfg.logs) / "agentes.lock", "w")
+        try:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            f.close()
+            if not self._avisou_dono:
+                self._avisou_dono = True
+                self.log("[agentes] a fila de Design/Editor está com o outro Jarvis (segundo plano)")
+            return False
+        f.write(str(__import__("os").getpid()))
+        f.flush()
+        self._trava_arq = f
+        self.log("[agentes] este Jarvis cuida da fila de Design/Editor")
+        return True
+
     # ---------- fila (só leitura do banco, sem IA) ----------
     def verificar(self):
         """Chamado quando o site avisa que 'tasks' mudou (e uma vez ao ligar)."""
+        if not self.dono():
+            return
         from .dashplasso import Dashplasso
         db = Dashplasso(self.cfg)
         tasks = db.lista("tasks")
@@ -134,6 +162,10 @@ class Agentes:
                     continue
                 fila.sort(key=lambda t: str(t["agentes"][k].get("pedidoEm") or ""))
                 self._comecar(db, k, fila[0])
+            try:
+                self.analises.verificar(db)
+            except Exception as e:  # noqa: BLE001
+                self.log(f"[análise] erro: {e}")
 
     def _referencias(self, db, t: dict) -> list[dict]:
         out = []
