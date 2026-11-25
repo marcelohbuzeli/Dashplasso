@@ -259,6 +259,37 @@
   .revela.visto { opacity: 1; transform: none; }
   .sem-js .revela { opacity: 1; transform: none; }
   @media (prefers-reduced-motion: reduce) { .revela { opacity: 1; transform: none; transition: none; } .faixa-trilho { animation: none; } html { scroll-behavior: auto; } }
+
+  .ir-editor { display: inline-flex; align-items: center; gap: 10px; margin-top: 18px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--linha); background: var(--vidro); font-size: 13px; color: var(--t2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .ir-editor b { color: var(--branco); font-weight: 500; }
+  .ir-editor i:first-child { color: #ff8a4c; }
+  .ir-editor:hover { border-color: rgba(214,227,244,.4); }
+  /* ---------- Meu Editor (produto) ---------- */
+  .editor { display: grid; gap: 44px; align-items: center; }
+  @media (min-width: 900px) { .editor { grid-template-columns: 1.05fr .95fr; gap: 64px; } }
+  .editor .selo { display: inline-flex; align-items: center; gap: 8px; font: 500 12px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--gelo); border: 1px solid var(--linha); background: var(--vidro); padding: 9px 14px; border-radius: 999px; margin-bottom: 18px; }
+  .editor .selo i { color: #ff8a4c; }
+  .editor-lista { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 14px; }
+  .editor-lista li { display: flex; gap: 14px; align-items: flex-start; color: var(--t2); font-weight: 300; }
+  .editor-lista li i { flex: 0 0 34px; height: 34px; border-radius: 12px; display: grid; place-items: center; background: rgba(127,179,227,.12); color: var(--ceu); font-size: 14px; }
+  .editor-lista b { color: var(--branco); font-weight: 500; display: block; }
+  .editor-preco { margin-top: 26px; font-size: 14px; color: var(--t3); }
+  .editor-preco b { color: var(--branco); font-weight: 600; }
+  .celular { position: relative; width: min(300px, 76vw); aspect-ratio: 9 / 18.6; margin: 0 auto; border-radius: 44px; padding: 10px; background: linear-gradient(160deg, #20345e, #0a1830); box-shadow: 0 40px 80px -30px rgba(0,0,0,.8), 0 0 0 1px rgba(214,227,244,.14), 0 0 90px -20px rgba(127,179,227,.35); }
+  .celular .tela { position: relative; height: 100%; border-radius: 36px; overflow: hidden; background: #000; }
+  .celular .tela img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 25%; }
+  .celular .tela::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.25) 0%, transparent 30%, transparent 55%, rgba(0,0,0,.65) 100%); }
+  .celular .leg { position: absolute; left: 0; right: 0; bottom: 30%; z-index: 2; text-align: center; line-height: .95; }
+  .celular .leg b { display: block; font: 800 26px/1 var(--sans); letter-spacing: -.02em; text-transform: uppercase; text-shadow: 0 2px 12px rgba(0,0,0,.6); }
+  .celular .leg span { font: 400 34px/1 var(--script); color: #ffd6a8; display: inline-block; transform: rotate(-4deg); margin-top: 2px; }
+  .celular .barra-ed { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 2; display: flex; justify-content: space-around; padding: 10px 6px; border-radius: 18px; background: rgba(10,18,36,.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-size: 10px; color: var(--t2); }
+  .celular .barra-ed span { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .celular .barra-ed i { font-size: 14px; color: var(--branco); }
+  .celular .chip-ia { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); z-index: 2; font: 500 11px/1 var(--sans); padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); white-space: nowrap; }
+  .flutua { position: absolute; z-index: 3; font-size: 12px; padding: 10px 14px; border-radius: 14px; background: var(--neve); color: var(--marinho); box-shadow: 0 18px 40px -16px rgba(0,0,0,.6); display: flex; align-items: center; gap: 8px; font-weight: 500; }
+  .flutua i { color: #2453c6; }
+  .flutua.a { left: -6%; top: 22%; } .flutua.b { right: -2%; top: 50%; }
+  @media (max-width: 420px) { .flutua.a { left: -2%; } .flutua.b { right: -2%; } }
 </style>
 </head>
 <body class="sem-js">
@@ -267,7 +298,7 @@
   <div class="wrap">
     <a class="marca" href="#inicio" aria-label="Plassô Marketing, início"><img src="plasso.png" alt="" width="694" height="720"><span>marketing</span></a>
     <nav class="menu" aria-label="Seções">
-      <a href="#portfolio">Portfólio</a><a href="#servicos">Serviços</a><a href="#sobre">Sobre</a><a href="#como">Como funciona</a>
+      <a href="#portfolio">Portfólio</a><a href="#servicos">Serviços</a><a href="#editor">Meu Editor</a><a href="#sobre">Sobre</a><a href="#como">Como funciona</a>
     </nav>
     <button class="btn btn-claro btn-sm" data-orcamento>Pedir orçamento</button>
   </div>
@@ -287,6 +318,7 @@
         <a class="btn btn-vidro" data-whats href="#" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Falar no WhatsApp</a>
       </div>
       <div class="hero-assin"><i class="fa-solid fa-circle" style="font-size:7px;color:#7fb3e3"></i> <span><b>Marcelo H Buzeli</b> · fundador da Plassô</span></div>
+      <a class="ir-editor" href="#editor"><i class="fa-solid fa-scissors"></i> <span>Conheça também o <b>Meu Editor</b>, o app que eu criei</span> <i class="fa-solid fa-arrow-down"></i></a>
     </div>
   </section>
 
@@ -348,6 +380,42 @@
           <ul><li>Diagnóstico do seu perfil</li><li>Plano de conteúdo de 30 dias</li><li>Acompanhamento direto comigo</li></ul>
           <button class="btn btn-escuro btn-sm" data-orcamento="Consultoria">Orçar consultoria</button>
         </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEU EDITOR (produto) -->
+  <section class="secao grao" id="editor">
+    <div class="wrap">
+      <div class="editor">
+        <div class="revela">
+          <span class="selo"><i class="fa-solid fa-scissors"></i> Produto Plassô</span>
+          <h2 class="h2">Meu Editor. <em>O app que eu criei para editar os vídeos dos meus clientes.</em></h2>
+          <span class="script">agora é seu</span>
+          <p class="lead">Eu edito Reels de clientes toda semana e montei a ferramenta que eu queria ter: simples no celular e com o acabamento de um vídeo profissional. Agora qualquer pessoa pode usar.</p>
+          <ul class="editor-lista">
+            <li><i class="fa-solid fa-closed-captioning"></i><span><b>Legenda automática com estilo</b>Um toque legenda o vídeo inteiro, com a combinação de fonte grande e manuscrita.</span></li>
+            <li><i class="fa-solid fa-wand-magic-sparkles"></i><span><b>Edição com IA</b>Você diz o objetivo do vídeo e a IA entrega a primeira versão, com a cara da sua marca. No plano Completo.</span></li>
+            <li><i class="fa-solid fa-font"></i><span><b>243 animações de texto, sons e zoom</b>Tudo no mesmo lugar, sem pular de app em app.</span></li>
+            <li><i class="fa-solid fa-mobile-screen"></i><span><b>Funciona no celular e no computador</b>Abre no navegador, sem instalar nada da loja. Seus vídeos ficam no seu aparelho.</span></li>
+          </ul>
+          <p class="editor-preco">Planos a partir de <b>R$ 9,90/mês</b> · garantia de 7 dias</p>
+          <div class="hero-acoes">
+            <a class="btn btn-claro" href="https://marcelohbuzeli.github.io/Editor/vendas.html" target="_blank" rel="noopener">Conhecer o Meu Editor <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+        <div class="revela" style="position:relative">
+          <div class="celular" aria-hidden="true">
+            <div class="tela">
+              <img src="img/img_5747.jpg" alt="" loading="lazy">
+              <span class="chip-ia"><i class="fa-solid fa-wand-magic-sparkles"></i> Editado com IA</span>
+              <div class="leg"><b>isso aqui</b><span>mudou tudo</span></div>
+              <div class="barra-ed"><span><i class="fa-solid fa-scissors"></i>Dividir</span><span><i class="fa-solid fa-font"></i>Texto</span><span><i class="fa-solid fa-music"></i>Áudio</span><span><i class="fa-solid fa-layer-group"></i>Camada</span></div>
+            </div>
+          </div>
+          <div class="flutua a"><i class="fa-solid fa-check"></i> Legenda gerada</div>
+          <div class="flutua b"><i class="fa-solid fa-check"></i> Silêncios cortados</div>
+        </div>
       </div>
     </div>
   </section>
