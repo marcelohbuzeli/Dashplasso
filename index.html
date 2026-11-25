@@ -11,7 +11,7 @@
 <title>Plassô | Home</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="assets/ui.css?v=12">
-<style>.btn-trabalho{width:100%;max-width:380px;height:60px;justify-content:space-between;padding:0 8px 0 24px;font-size:16px}.btn-trabalho .play-in{width:46px;height:46px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}</style>
+<style>.btn-trabalho{width:100%;max-width:380px;height:60px;justify-content:space-between;padding:0 8px 0 24px;font-size:16px}.btn-trabalho .play-in{width:46px;height:46px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}.agora{max-width:560px;padding:22px 22px 18px;border-radius:28px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.agora .ag-t{font-size:clamp(22px,5.2vw,30px);line-height:1.15;font-weight:600;letter-spacing:-.01em;margin-top:8px}.agora .ag-acts{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}.agora .ag-acts .btn-trabalho{flex:1;min-width:200px;max-width:none}.agora .ag-next{margin-top:14px;font-size:13px;color:var(--muted,rgba(255,255,255,.55))}.agora .ag-next b{color:inherit;font-weight:500}.prox{border:1px dashed rgba(255,255,255,.18)}</style>
 <link rel="icon" href="assets/icons/favicon-home.svg" type="image/svg+xml">
 <link rel="icon" href="assets/icons/favicon-home-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon-home.png">
@@ -63,10 +63,7 @@
       <div class="eyebrow" id="data-longa"></div>
       <h1 class="display mt-2" id="saudacao"></h1>
       <p id="resumo-frase"></p>
-      <button class="btn btn-white btn-lg mt-4 btn-trabalho" onclick="inicioTrabalho()" aria-label="Iniciar modo trabalho">
-        <span>Modo trabalho</span>
-        <span class="play-in"><i class="fa-solid fa-play"></i></span>
-      </button>
+      <div id="agora" class="agora mt-4"></div>
     </div>
 
     <div class="seg mb-4" id="tabs">
@@ -197,6 +194,32 @@
     if (ext) partes.push(`${ext} extra${ext > 1 ? 's' : ''}`);
     $('resumo-frase').textContent = partes.length ? 'Hoje você tem ' + partes.join(', ').replace(/, ([^,]*)$/, ' e $1') + '.' : 'Dia tranquilo. Nada urgente por aqui.';
   }
+
+  // ---------- Agora: UMA próxima ação (menos decisão, mais começo) ----------
+  // A fila já ordena por prazo e urgência. A Home mostra só a primeira, com um botão que começa o cronômetro nela.
+  // "Outra" pula só por hoje. Estudos de fadiga de decisão e intenção de implementação: decidir antes, executar sem pensar.
+  const kAg = x => x.origem + ':' + x.ref;
+  const pulados = () => { try { const p = JSON.parse(localStorage.getItem('agora_pulados') || '{}'); return p.dia === hoje() ? p.ids : []; } catch (e) { return []; } };
+  function pular(k) { const ids = pulados(); ids.push(k); try { localStorage.setItem('agora_pulados', JSON.stringify({ dia: hoje(), ids })); } catch (e) {} renderAgora(); }
+  function desfazerPulos() { try { localStorage.removeItem('agora_pulados'); } catch (e) {} renderAgora(); }
+  function renderAgora() {
+    const el = $('agora'); if (!el) return;
+    const todos = fila(), pl = pulados(), f = todos.filter(x => !pl.includes(kAg(x)));
+    if (!todos.length) { el.innerHTML = `<div class="eyebrow">Agora</div><div class="ag-t">Tudo em dia. Respira.</div><div class="ag-acts"><button class="btn btn-ghost" onclick="inicioTrabalho()"><i class="fa-solid fa-play"></i> Abrir modo trabalho</button></div>`; return; }
+    if (!f.length) { el.innerHTML = `<div class="eyebrow">Agora</div><div class="ag-t">Você pulou todas por hoje.</div><div class="ag-acts"><button class="btn btn-white" onclick="desfazerPulos()">Mostrar de novo</button></div>`; return; }
+    const x = f[0], media = mediaDe(x.chave);
+    const why = x.rejeitado ? 'ajuste pedido pelo cliente' : x.score >= 90 ? 'atrasada' : x.score >= 85 ? 'vence hoje' : x.score >= 80 ? 'urgente' : '';
+    el.innerHTML = `
+      <div class="eyebrow">Agora${why ? ` · <span style="color:var(--danger)">${why}</span>` : ''}</div>
+      <div class="ag-t">${esc(x.titulo)}</div>
+      <div class="muted small mt-1">${esc(x.sub || '')}${media ? ` · leva ~${fmtDur(media).replace(/\d+s$/, '')}` : ''}</div>
+      <div class="ag-acts">
+        <button class="btn btn-white btn-lg btn-trabalho" onclick="comecarAgora('${x.origem}','${esc(String(x.ref))}')"><span>Começar agora</span><span class="play-in"><i class="fa-solid fa-play"></i></span></button>
+        <button class="btn btn-ghost btn-lg" onclick="pular('${esc(kAg(x))}')" aria-label="Mostrar outra tarefa">Outra</button>
+      </div>
+      ${f.length > 1 ? `<div class="ag-next">Depois: <b>${f.slice(1, 3).map(y => esc(y.titulo)).join('</b> · <b>')}</b>${f.length > 3 ? ` <a href="#" onclick="inicioTrabalho();return false" style="color:inherit">+${f.length - 3}</a>` : ''}</div>` : ''}`;
+  }
+  function comecarAgora(origem, ref) { if (!S) inicioTrabalho(); iniciarItem(origem, ref); }
 
   // ---------- KPIs ----------
   function renderKpis() {
@@ -477,7 +500,16 @@
     if (prox) { const [h, m] = prox._hora.split(':').map(Number); const d = new Date(); d.setHours(h, m, 0, 0); livreMin = Math.round((d - Date.now()) / 60000); }
     $('w-next').innerHTML = prox ? `<div class="h3">${esc(prox._hora)} · ${esc(prox._titulo)}</div><div class="muted small">${livreMin} min livres até lá</div>` : '<div class="muted">Nenhum hoje</div>';
     const a = S.atual;
-    $('w-atual').classList.toggle('hidden', !a);
+    const proxF = !a ? fila()[0] : null;
+    $('w-atual').classList.toggle('hidden', !a && !proxF);
+    $('w-atual').classList.toggle('prox', !a && !!proxF);
+    if (!a && proxF) {
+      // entre uma tarefa e outra, a próxima já aparece pronta para começar (sem escolher numa lista)
+      const md = mediaDe(proxF.chave);
+      $('w-atual').innerHTML = `<div class="eyebrow">Próxima</div><div class="h1 mt-2">${esc(proxF.titulo)}</div>
+        <div class="muted small mt-1">${esc(proxF.sub || '')}${md ? ` · ~${fmtDur(md)}` : ''}</div>
+        <button class="btn btn-white btn-lg btn-block mt-4" onclick="iniciarItem('${proxF.origem}','${esc(String(proxF.ref))}')"><i class="fa-solid fa-play"></i> Começar</button>`;
+    }
     if (a) {
       const media = mediaDe(a.chave);
       $('w-atual').innerHTML = `
@@ -532,10 +564,10 @@
   }
   document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => trocaTab(b.dataset.tab));
 
-  function renderAll() { renderHero(); renderKpis(); renderHabitos(); renderCasa(); renderExtras(); renderEmpresa(); renderAgenda(); renderRelatorio(); }
+  function renderAll() { renderHero(); renderAgora(); renderKpis(); renderHabitos(); renderCasa(); renderExtras(); renderEmpresa(); renderAgenda(); renderRelatorio(); }
   renderAll();
   if (S) entrarModo();
-  UI.agenda.carregar().then(() => { renderHero(); renderKpis(); renderAgenda(); if (S) renderWork(); });
+  UI.agenda.carregar().then(() => { renderHero(); renderAgora(); renderKpis(); renderAgenda(); if (S) renderWork(); });
   if (new URLSearchParams(location.search).get('aba')) trocaTab(new URLSearchParams(location.search).get('aba'));
 </script>
 </body>
