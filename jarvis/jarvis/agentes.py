@@ -112,6 +112,8 @@ class Agentes:
         self._avisou_dono = False
         from .analises import Analises
         self.analises = Analises(self)   # análise do Instagram dos orçamentos do site
+        from .legendas import Legendas
+        self.legendas = Legendas(self)   # botão "Escrever legenda" do conteúdo
 
     def ocupado(self) -> bool:
         return any(p.poll() is None for p in self.rodando.values())
@@ -166,6 +168,10 @@ class Agentes:
                 self.analises.verificar(db)
             except Exception as e:  # noqa: BLE001
                 self.log(f"[análise] erro: {e}")
+            try:
+                self.legendas.verificar(db)
+            except Exception as e:  # noqa: BLE001
+                self.log(f"[legenda] erro: {e}")
 
     def _referencias(self, db, t: dict) -> list[dict]:
         out = []

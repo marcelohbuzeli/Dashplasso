@@ -230,7 +230,7 @@ class Jarvis:
         self.log(f"[avisos] mudou no Dashplasso: {', '.join(sorted(cols))}")
         if self.dia and (cols & self.PAINEL_COLS or "?" in cols):
             self.dia.atualizar_logo()
-        if cols & {"tasks", "crm_analise", "ig_relatorios"} or "?" in cols:
+        if cols & {"tasks", "crm_analise", "ig_relatorios", "legendas"} or "?" in cols:
             self.agentes.verificar()          # botão "Chamar Design/Editor"
         if "criacao" in cols or "?" in cols:
             self.verificar_envios()           # botão "Enviar para edição/design" da Criação
@@ -383,7 +383,7 @@ def rodar_agentes(cfg: Config):
             log(f"[dashplasso] erro: {e}")
 
     def ao_mudar(cols: set):
-        if cols & {"tasks", "crm_analise", "ig_relatorios"} or "?" in cols:
+        if cols & {"tasks", "crm_analise", "ig_relatorios", "legendas"} or "?" in cols:
             verificar()
 
     Avisos(cfg, ao_mudar, log=log)

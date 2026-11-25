@@ -340,17 +340,35 @@
         .filter(x => x.id !== t.id && (x.client || '').trim().toLowerCase() === cli && (x.legenda || x.caption))
         .sort((a, z) => Number(z.status === 'postado') - Number(a.status === 'postado') || String(z.date || '').localeCompare(String(a.date || '')))
         .slice(0, 8).map(x => x.legenda || x.caption);
-      b.disabled = true; stL.innerHTML = '<span class="live">●</span> Lendo o roteiro, as imagens e o tom do cliente…';
+      if (!(window.App && App.supabase && App.user)) { stL.innerHTML = '<span style="color:#ff9aa7">O escritor de legenda precisa do banco ligado (Supabase).</span>'; return; }
+      // o pedido vai para a fila "legendas"; quem escreve é o Jarvis no Mac (Claude Code, sem chave de API)
+      const pedidoEm = new Date().toISOString();
+      DB.put('legendas', {
+        id: t.id, taskId: t.id, status: 'na_fila', pedidoEm,
+        cliente: f.client.trim(), formato: f.type, titulo: f.headline.trim(), objetivo: f.objetivo, roteiro: f.roteiro, observacoes: f.observacoes,
+        midias: midias.map(m => ({ id: m.id, nome: m.nome, tipo: m.tipo })), exemplos, anteriores: versoesLegenda.slice(), pedido: s.$('[data-legenda-pedido]').value.trim()
+      });
+      b.disabled = true; stL.innerHTML = '<span class="live">●</span> Pedido enviado ao Jarvis. Ele está lendo o roteiro, as imagens e o tom do cliente…';
+      const ini = Date.now();
       try {
-        const out = await UI.chamarFuncao('escrever-legenda', {
-          cliente: f.client.trim(), formato: f.type, titulo: f.headline.trim(), objetivo: f.objetivo, roteiro: f.roteiro, observacoes: f.observacoes,
-          midias: midias.map(m => ({ id: m.id, nome: m.nome, tipo: m.tipo })), exemplos, anteriores: versoesLegenda, pedido: s.$('[data-legenda-pedido]').value.trim()
-        });
-        if (!out.legenda) throw new Error('A IA não devolveu legenda. Tente de novo.');
-        ta.value = out.legenda; versoesLegenda.push(out.legenda);
-        stL.textContent = `Versão ${versoesLegenda.length}${out.imagensLidas ? ` · leu ${out.imagensLidas} imagem(ns)` : ''}. Clique de novo para outra, ou ajuste e Salve.`;
+        for (;;) {
+          await new Promise(r => setTimeout(r, 3000));
+          if (!document.body.contains(ta)) return;   // fechou o conteúdo
+          const { data } = await App.supabase.from('records').select('data').eq('collection', 'legendas').eq('id', String(t.id)).maybeSingle();
+          const a = data && data.data;
+          if (a && a.pedidoEm === pedidoEm && a.status === 'pronta' && a.legenda) {
+            ta.value = a.legenda; versoesLegenda.push(a.legenda);
+            stL.textContent = `Versão ${versoesLegenda.length}. Clique de novo para outra, ou ajuste e Salve.`;
+            return;
+          }
+          if (a && a.pedidoEm === pedidoEm && a.status === 'erro') throw new Error(a.erro || 'O Jarvis não conseguiu escrever.');
+          const seg = Math.round((Date.now() - ini) / 1000);
+          if (a && a.status === 'escrevendo') stL.innerHTML = `<span class="live">●</span> O Jarvis está escrevendo… (${seg}s)`;
+          else if (seg > 45) stL.innerHTML = `<span class="live">●</span> Esperando o Jarvis pegar o pedido (${seg}s). O Mac precisa estar ligado.`;
+          if (seg > 300) throw new Error('O Jarvis não respondeu em 5 minutos. Confira se o Mac está ligado e clique de novo.');
+        }
       } catch (e) {
-        stL.innerHTML = `<span style="color:#ff9aa7">${esc(e.message === 'LOCAL' ? 'O escritor de legenda precisa do banco ligado (Supabase).' : e.message)}</span>`;
+        stL.innerHTML = `<span style="color:#ff9aa7">${esc(e.message)}</span>`;
       } finally { b.disabled = false; }
     };
     const bAg = s.$('[data-agente]');
