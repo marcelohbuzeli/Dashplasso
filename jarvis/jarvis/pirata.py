@@ -38,7 +38,9 @@ DADOS PARA AS FERRAMENTAS
 - PASTA_PRINTS (salve aqui os prints <id do anúncio>.png): {pasta}
 - Hoje: {hoje}
 
-Grave o resultado com mcp__dashplasso__dash_atualizar(colecao="pirata", id="{id}", campos={{...}}) no formato da skill.
+Cumpra os "Mínimos obrigatórios" da skill (≥ 8 buscas, ≥ 60 anúncios lidos, ≥ 8 referências aprofundadas com print
+na PASTA_PRINTS). Não pule o passo 4. Só no fim grave com
+mcp__dashplasso__dash_atualizar(colecao="pirata", id="{id}", campos={{...}}), com campos como objeto, no formato da skill.
 """
 
 
@@ -112,8 +114,8 @@ class Pirata:
                "--allowedTools", "mcp__dashplasso__*",
                "--output-format", "stream-json", "--verbose",
                "--permission-mode", cfg.permissao, "--chrome"]
-        if cfg.modelo:
-            cmd += ["--model", cfg.modelo]
+        # pesquisa longa e estratégica: modelo forte (o padrão do Claude Code neste Mac é o Haiku, que encurta o trabalho)
+        cmd += ["--model", cfg.extras.get("modelo_pirata") or "opus"]
         arq = Path(cfg.logs) / f"pirata-{time.strftime('%Y%m%d-%H%M%S')}.jsonl"
         saida = open(arq, "w", encoding="utf-8")
         ws = Path(cfg.logs).parent / "workspace"

@@ -219,12 +219,14 @@ def dash_obter(colecao: str, id: str) -> str:
 
 
 @srv.tool()
-def dash_atualizar(colecao: str, id: str, campos: dict) -> str:
+def dash_atualizar(colecao: str, id: str, campos: dict | str) -> str:
     """Altera campos de um item (mescla: o que não for passado continua igual).
     Ex.: mover conteúdo no kanban: colecao="tasks", campos={"status": "pronto"}.
     Ex.: anexar link final: campos={"drive": "https://drive.google.com/..."}.
     Use valor null para apagar um campo. Financeiro, tokens e configurações são só leitura."""
     try:
+        if isinstance(campos, str):   # o modelo às vezes manda o objeto como texto JSON
+            campos = json.loads(campos)
         atual = db.obter(colecao, id)
         if atual is None:
             return "Não encontrado."
@@ -249,12 +251,12 @@ def dash_atualizar(colecao: str, id: str, campos: dict) -> str:
 
 
 @srv.tool()
-def dash_criar(colecao: str, dados: dict) -> str:
+def dash_criar(colecao: str, dados: dict | str) -> str:
     """Cria um item novo. Para uma tarefa/conteúdo no kanban use colecao="tasks" com, por exemplo,
     {"client": "Carla Marques", "headline": "Reels sobre bioestimulador", "date": "2026-11-20",
     "status": "afazer", "kind": "post", "format": "Reels"}. Devolve o id criado."""
     try:
-        obj = dict(dados)
+        obj = dict(json.loads(dados) if isinstance(dados, str) else dados)
         obj.setdefault("id", f"j{int(time.time() * 1000):x}")
         if colecao == "tasks":
             obj.setdefault("status", "afazer")
