@@ -13,6 +13,14 @@
 <link rel="icon" href="assets/icons/favicon-empresa.svg" type="image/svg+xml">
 <link rel="icon" href="assets/icons/favicon-empresa-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon-empresa.png">
+<style>
+  .cal .day .mini[data-mover] { cursor: grab; }
+  [data-mover] { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  .cal .day.drop { outline: 2px dashed var(--accent); outline-offset: 2px; background: color-mix(in srgb, var(--accent) 18%, transparent); }
+  body.arrastando, body.arrastando * { cursor: grabbing !important; }
+  .arraste-fantasma { position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none; max-width: 220px; padding: 8px 12px; border-radius: 12px;
+    background: var(--accent); color: #fff; font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 10px 30px rgba(0,0,0,.45); }
+</style>
 </head>
 <body data-theme="empresa">
 <div class="wrap">
@@ -89,14 +97,15 @@
       html += `<button class="day ${iso.slice(0, 7) !== ref ? 'out' : ''} ${iso === hoje ? 'today' : ''} ${iso === sel ? 'sel' : ''}" data-d="${iso}" aria-label="${UI.dataBR(iso)}, ${doDia.length} itens">
         <span class="n">${d.getDate()}</span>
         <span class="dots">${doDia.slice(0, 4).map(() => '<i></i>').join('')}</span>
-        ${doDia.slice(0, 3).map(x => `<span class="mini ${x._kind === 'google' ? 'gc' : x._kind !== 'post' ? 'ev' : ''}">${x._hora ? x._hora + ' ' : ''}${esc(x._titulo)}</span>`).join('')}${doDia.length > 3 ? `<span class="mini" style="background:none;color:var(--ink-3)">+${doDia.length - 3}</span>` : ''}
+        ${doDia.slice(0, 3).map(x => `<span class="mini ${x._kind === 'google' ? 'gc' : x._kind !== 'post' ? 'ev' : ''}" ${x._src !== 'google' ? `data-mover="${esc(x.id)}" data-src="${x._src}"` : ''}>${x._hora ? x._hora + ' ' : ''}${esc(x._titulo)}</span>`).join('')}${doDia.length > 3 ? `<span class="mini" style="background:none;color:var(--ink-3)">+${doDia.length - 3}</span>` : ''}
       </button>`;
     }
     $('cal').innerHTML = html;
     $('cal').querySelectorAll('[data-d]').forEach(b => {
-      b.onclick = () => { sel = b.dataset.d; if (sel.slice(0, 7) !== ref) ref = sel.slice(0, 7); render(); if (window.innerWidth < 1100) $('dia-titulo').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+      b.onclick = () => { if (ignorarClique) return; sel = b.dataset.d; if (sel.slice(0, 7) !== ref) ref = sel.slice(0, 7); render(); if (window.innerWidth < 1100) $('dia-titulo').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
       b.ondblclick = () => Empresa.novoNoDia(b.dataset.d, render);
     });
+    $('cal').querySelectorAll('[data-mover]').forEach(ligarArraste);
   }
 
   function renderDia() {
@@ -106,13 +115,89 @@
     $('dia-lista').innerHTML = arr.map(x => {
       const k = T.kindInfo(x._kind);
       const st = x._kind === 'post' ? T.statusInfo(T.status(x)) : null;
-      return `<button class="item item-btn" data-open="${esc(x.id)}" data-src="${x._src}">
+      return `<button class="item item-btn" data-open="${esc(x.id)}" data-src="${x._src}" ${x._src !== 'google' ? `data-mover="${esc(x.id)}"` : ''}>
         <div class="icon ${x._kind !== 'post' ? 'accent' : ''}"><i class="fa-solid ${k.icon}"></i></div>
         <div class="grow"><div class="title truncate">${esc(x._titulo)}</div><div class="sub truncate">${x._kind === 'post' ? esc([x.client, x.type].filter(Boolean).join(' · ')) : k.label + (x.client ? ' · ' + esc(x.client) : '')}</div></div>
         ${st ? `<span class="pill ${st.pill}">${st.label}</span>` : `<span class="pill num">${x._hora || 'dia todo'}</span>`}
       </button>`;
     }).join('') || `<div class="empty"><i class="fa-regular fa-calendar"></i>Nada neste dia.<br><button class="btn btn-white btn-sm mt-3" onclick="Empresa.novoNoDia(sel, render)">Adicionar</button></div>`;
-    $('dia-lista').querySelectorAll('[data-open]').forEach(b => b.onclick = () => Empresa.abrir(b.dataset.open, render, b.dataset.src));
+    $('dia-lista').querySelectorAll('[data-open]').forEach(b => b.onclick = () => { if (!ignorarClique) Empresa.abrir(b.dataset.open, render, b.dataset.src); });
+    $('dia-lista').querySelectorAll('[data-mover]').forEach(ligarArraste);
+  }
+
+  // ---------- arrastar um card para outro dia (muda a data) ----------
+  // Mouse: arraste o card. Toque: segure meio segundo e arraste até o dia.
+  let arraste = null, ignorarClique = false, rolagem = null;
+  function ligarArraste(el) {
+    el.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      const toque = e.pointerType !== 'mouse';
+      arraste = { el, id: el.dataset.mover, src: el.dataset.src, x: e.clientX, y: e.clientY, ativo: false, alvo: null, toque, timer: null };
+      if (toque) arraste.timer = setTimeout(() => ativar(e.clientX, e.clientY), 450);
+    });
+  }
+  function ativar(x, y) {
+    if (!arraste || arraste.ativo) return;
+    arraste.ativo = true;
+    const g = document.createElement('div');
+    g.className = 'arraste-fantasma';
+    g.textContent = (arraste.el.querySelector('.title') || arraste.el).textContent.trim();
+    document.body.appendChild(g);
+    arraste.fantasma = g;
+    document.body.classList.add('arrastando');
+    if (navigator.vibrate) try { navigator.vibrate(15); } catch (e) {}
+    mover(x, y);
+  }
+  function mover(x, y) {
+    const a = arraste; if (!a || !a.ativo) return;
+    a.fantasma.style.transform = `translate(${x + 12}px, ${y + 12}px)`;
+    a.ultY = y;
+    const dia = document.elementFromPoint(x, y)?.closest('.cal .day');
+    if (a.alvo && a.alvo !== dia) a.alvo.classList.remove('drop');
+    if (dia) dia.classList.add('drop');
+    a.alvo = dia || null;
+    if (!rolagem) rolagem = setInterval(() => {   // rola a tela perto das bordas (celular: a lista fica abaixo do calendário)
+      if (!arraste || !arraste.ativo) { clearInterval(rolagem); rolagem = null; return; }
+      const yy = arraste.ultY;
+      if (yy < 90) window.scrollBy(0, -14); else if (yy > innerHeight - 90) window.scrollBy(0, 14);
+    }, 16);
+  }
+  window.addEventListener('pointermove', e => {
+    const a = arraste; if (!a) return;
+    const longe = Math.hypot(e.clientX - a.x, e.clientY - a.y) > 8;
+    if (!a.ativo) {
+      if (a.toque && longe) { clearTimeout(a.timer); arraste = null; return; }   // era rolagem, não arraste
+      if (!a.toque && longe) ativar(e.clientX, e.clientY);
+      return;
+    }
+    e.preventDefault();
+    mover(e.clientX, e.clientY);
+  }, { passive: false });
+  window.addEventListener('touchmove', e => { if (arraste && arraste.ativo) e.preventDefault(); }, { passive: false });
+  function soltar() {
+    const a = arraste; arraste = null;
+    if (!a) return;
+    clearTimeout(a.timer);
+    if (!a.ativo) return;
+    a.fantasma.remove();
+    document.body.classList.remove('arrastando');
+    if (a.alvo) a.alvo.classList.remove('drop');
+    ignorarClique = true; setTimeout(() => { ignorarClique = false; }, 250);
+    if (a.alvo && a.alvo.dataset.d) mudarData(a.id, a.src, a.alvo.dataset.d);
+  }
+  window.addEventListener('pointerup', soltar);
+  window.addEventListener('pointercancel', soltar);
+  document.addEventListener('contextmenu', e => { if (arraste && arraste.ativo) e.preventDefault(); });
+
+  function mudarData(id, src, iso) {
+    const col = src === 'events' ? 'events' : 'tasks';
+    const it = DB.get(col, id);
+    if (!it || it.date === iso) return;
+    if (it.ig && it.ig.status === 'agendado') { App.toast('Este conteúdo já está agendado no Instagram. Cancele o agendamento no card e agende de novo no dia certo.', 'warn'); return; }
+    DB.put(col, { ...it, date: iso });
+    sel = iso; ref = iso.slice(0, 7);
+    render();
+    App.toast(`Movido para ${UI.dataBR(iso)}.`, 'ok');
   }
 
   document.querySelectorAll('#filtro button').forEach(b => b.onclick = () => { filtro = b.dataset.f; document.querySelectorAll('#filtro button').forEach(x => x.classList.toggle('on', x === b)); render(); });
