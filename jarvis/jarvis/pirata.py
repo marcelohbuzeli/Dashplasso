@@ -158,7 +158,24 @@ class Pirata:
         return item
 
     def _esperar(self, p, saida, arq, item_id, quem, pasta: Path):
-        p.wait()
+        # o Claude Code às vezes não fecha depois de entregar (fica preso no Chrome/MCP): quando o
+        # resultado final aparece no registro, espera 90 s e encerra, para não travar a fila
+        visto = None
+        while p.poll() is None:
+            time.sleep(10)
+            if visto is None:
+                try:
+                    if '"type":"result"' in arq.read_text(encoding="utf-8", errors="ignore")[-20000:]:
+                        visto = time.time()
+                except OSError:
+                    pass
+            elif time.time() - visto > 90:
+                self.ag.log("[pirata] o Claude entregou mas não fechou: encerrando o processo")
+                p.terminate()
+                try:
+                    p.wait(timeout=15)
+                except subprocess.TimeoutExpired:
+                    p.kill()
         saida.close()
         from .dashplasso import Dashplasso
         st = "?"
