@@ -28,7 +28,7 @@
   <div class="hero">
     <div class="eyebrow" id="resumo"></div>
     <h1 class="display mt-2">Central de<br><span class="soft">aprovação</span></h1>
-    <p>Pedidos de ajuste ficam sempre no topo. O cliente só vê o conteúdo marcado como <b>Pronto</b> e com o link do Drive da versão final. Aprovados e postados saem daqui.</p>
+    <p><b>Etapa 1:</b> o cliente aprova o roteiro e a legenda antes da gravação. <b>Etapa 2:</b> aprova a versão final (marcada como <b>Pronto</b> e com o link do Drive). Pedidos de ajuste ficam sempre no topo.</p>
   </div>
 
   <div class="grid g-2 lg-g-4 mb-4" id="kpis"></div>
@@ -38,6 +38,7 @@
     <div class="row" id="acoes-cliente"></div>
   </div>
 
+  <section id="sec-roteiros" class="mb-4"></section>
   <section id="sec-ajustes"></section>
   <section id="sec-cliente"></section>
   <section id="sec-semdrive"></section>
@@ -75,6 +76,59 @@
       ${arr.length ? `<div class="galeria">${arr.map(quadro).join('')}</div>` : `<div class="card empty" style="padding:18px">${vazio}</div>`}`;
   }
 
+  // ---------- etapa 1: roteiro e legenda ----------
+  const temTexto = t => String(t.roteiro || '').trim() || String(t.legenda || t.caption || '').trim();
+  const ROT = { enviado: { l: 'Com o cliente', pill: 'pill-warn' }, ajuste: { l: 'Ajuste pedido', pill: 'pill-danger' }, aprovado: { l: 'Roteiro aprovado', pill: 'pill-ok' } };
+  function linhaRot(t, reenviar) {
+    const r = ROT[t.aprovRoteiro];
+    return `<div class="item">
+      <div class="grow" style="min-width:0"><div class="title truncate">${esc(T.titulo(t))}</div>
+        <div class="sub truncate">${esc([cliente ? '' : t.client, t.type, t.date ? UI.diaMes(t.date) : ''].filter(Boolean).join(' · '))}</div>
+        ${t.aprovRoteiro === 'ajuste' && t.roteiroFeedback ? `<div class="small mt-1" style="color:#ff9aa7">“${esc(t.roteiroFeedback)}”</div>` : ''}</div>
+      ${r ? `<span class="pill ${r.pill}">${r.l}</span>` : ''}
+      <button class="btn btn-ghost btn-sm" data-abrir-rot="${esc(t.id)}">Abrir</button>
+      ${reenviar ? `<button class="btn btn-white btn-sm" data-reenviar="${esc(t.id)}">Reenviar</button>` : ''}
+    </div>`;
+  }
+  function enviarRoteiros(arr) {
+    const agora = new Date().toISOString();
+    DB.putMany('tasks', arr.map(t => { const n = { ...t, aprovRoteiro: 'enviado', roteiroEnviadoEm: agora }; delete n.roteiroFeedback; delete n.aprovRoteiroEm; return n; }));
+  }
+  function renderRoteiros(all) {
+    const ativos = all.filter(t => !T.encerrado(t) && !T.paraCliente(t));
+    const ajuste = ord(ativos.filter(t => t.aprovRoteiro === 'ajuste'));
+    const enviados = ord(ativos.filter(t => t.aprovRoteiro === 'enviado'));
+    const paraEnviar = ord(ativos.filter(t => !t.aprovRoteiro && temTexto(t)));
+    const aprovados = ord(ativos.filter(t => t.aprovRoteiro === 'aprovado'));
+    const el = $('sec-roteiros');
+    if (!ajuste.length && !enviados.length && !paraEnviar.length && !aprovados.length) { el.innerHTML = ''; return; }
+    const bloco = (titulo, arr, reenviar) => arr.length ? `<div class="eyebrow mt-3 mb-2">${titulo} · ${arr.length}</div><div class="list">${arr.map(t => linhaRot(t, reenviar)).join('')}</div>` : '';
+    el.innerHTML = `<div class="card">
+      <div class="row-between" style="flex-wrap:wrap;gap:10px">
+        <h2 class="h2" style="margin:0"><i class="fa-solid fa-file-pen accent-text" style="font-size:16px"></i> Roteiros e legendas <span class="muted small">etapa 1</span></h2>
+        ${paraEnviar.length ? (cliente ? `<button class="btn btn-white btn-sm" id="enviar-rot"><i class="fa-solid fa-paper-plane"></i> Enviar ${paraEnviar.length} para aprovação</button>` : '<span class="tiny muted">Escolha um cliente para enviar os roteiros</span>') : ''}
+      </div>
+      ${bloco('Ajuste pedido no roteiro (edite e reenvie)', ajuste, true)}
+      ${bloco('Com o cliente', enviados, false)}
+      ${bloco('Prontos para enviar', paraEnviar, false)}
+      ${aprovados.length ? `<details class="mt-3"><summary class="small muted" style="cursor:pointer">${aprovados.length} roteiro(s) aprovado(s): pode gravar</summary><div class="list mt-2">${aprovados.map(t => linhaRot(t, false)).join('')}</div></details>` : ''}
+    </div>`;
+    el.querySelectorAll('[data-abrir-rot]').forEach(b => b.onclick = () => Empresa.editarConteudo(b.dataset.abrirRot, {}, render));
+    el.querySelectorAll('[data-reenviar]').forEach(b => b.onclick = () => { enviarRoteiros([DB.get('tasks', b.dataset.reenviar)]); render(); App.toast('Roteiro reenviado ao cliente.', 'ok'); });
+    const env = $('enviar-rot');
+    if (env) env.onclick = () => {
+      if (!confirm(`Enviar ${paraEnviar.length} roteiro(s) de ${cliente} para aprovação? O cliente passa a ver o roteiro e a legenda no link.`)) return;
+      enviarRoteiros(paraEnviar); render();
+      const c = DB.list('clients').find(x => x.name.toLowerCase() === cliente.toLowerCase());
+      App.toast('Roteiros enviados. Agora mande o link para o cliente.', 'ok');
+      if (c && c.whatsapp) {
+        Integracao.ensurePortalToken(c);
+        const atual = DB.get('clients', c.id);
+        window.open(Integracao.whatsappLink(atual, `Olá, ${atual.name}! Os roteiros e as legendas dos próximos conteúdos estão prontos 📝\n\nÉ só abrir o link, ler e aprovar (ou pedir ajuste). Depois da sua aprovação a gente grava:\n${Integracao.portalUrl(atual)}`), '_blank');
+      }
+    };
+  }
+
   function render() {
     const nomes = [...new Set(T.conteudos().map(t => t.client).filter(Boolean))].sort((a, b) => a.localeCompare(b));
     $('f-cliente').innerHTML = '<option value="">Todos os clientes</option>' + nomes.map(n => `<option ${n === cliente ? 'selected' : ''}>${esc(n)}</option>`).join('');
@@ -90,6 +144,7 @@
       };
     }
     const all = base();
+    renderRoteiros(all);
     const ajustes = ord(all.filter(t => t.isRejected));
     const comCliente = ord(all.filter(t => T.paraCliente(t)));
     const semDrive = ord(all.filter(t => !t.isRejected && T.status(t) === 'pronto' && !T.completo(t)));
