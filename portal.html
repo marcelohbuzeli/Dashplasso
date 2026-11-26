@@ -23,6 +23,7 @@
   .wrap { max-width: 860px; padding-bottom: calc(40px + var(--safe-b)); }
   .preview { white-space: pre-line; font-size: 14px; color: var(--ink-2); max-height: 7.5em; overflow: hidden; position: relative; }
   .preview.open { max-height: none; }
+  .texto-inteiro { white-space: pre-line; font-size: 15px; line-height: 1.55; color: var(--ink); overflow-wrap: anywhere; }
   .wrap { max-width: 1180px; }
   .semana { display: grid; gap: 10px; }
   @media (min-width: 900px) { .semana { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
@@ -113,7 +114,7 @@
     const podeVer = e !== 'producao';
     if (e === 'roteiro' || (e === 'producao' && t.roteiro)) return corpoRoteiro(t, compacto);
     return `${podeVer && (t.midias || []).length ? `<div class="mt-3">${UI.carrossel(t.midias)}</div>${t.midias.length > 1 ? '<p class="tiny muted center mt-2"><i class="fa-solid fa-hand-pointer"></i> Arraste para o lado para ver todos</p>' : ''}` : ''}
-      ${podeVer && (t.legenda || t.caption) ? `<div class="eyebrow mt-4 mb-2">Legenda</div><div class="preview ${compacto ? '' : 'open'}" data-prev>${esc(t.legenda || t.caption)}</div>${compacto ? '<button class="btn btn-ghost btn-sm mt-2" data-mais>Ver tudo</button>' : ''}` : ''}
+      ${podeVer && (t.legenda || t.caption) ? `<div class="eyebrow mt-4 mb-2">Legenda</div><div class="texto-inteiro">${esc(t.legenda || t.caption)}</div>` : ''}
       ${e === 'producao' ? '<p class="small muted mt-3"><i class="fa-solid fa-clapperboard"></i> Em produção. Assim que a versão final estiver pronta, ela aparece aqui para você aprovar.</p>' : ''}
       ${e === 'ajuste' && t.notes ? `<div class="card card-tight mt-3 small" style="border-color:rgba(255,90,110,.4)"><b>Seu pedido:</b> ${esc(String(t.notes).replace(/^Reprovado pelo cliente:\s*/, ''))}</div>` : ''}
       <div class="wrap-row mt-4">
@@ -127,9 +128,9 @@
   function corpoRoteiro(t, compacto) {
     const r = t.aprovRoteiro;
     const leg = t.legenda || t.caption;
-    return `${t.roteiro ? `<div class="eyebrow mt-4 mb-2">Roteiro</div><div class="preview ${compacto ? '' : 'open'}" data-prev>${esc(t.roteiro)}</div>` : ''}
-      ${leg ? `<div class="eyebrow mt-4 mb-2">Legenda</div><div class="preview ${compacto ? '' : 'open'}" data-prev>${esc(leg)}</div>` : ''}
-      ${compacto && (t.roteiro || leg) ? '<button class="btn btn-ghost btn-sm mt-2" data-mais-rot>Ler tudo</button>' : ''}
+    // roteiro e legenda sempre inteiros na tela (nada de "ver mais")
+    return `${t.roteiro ? `<div class="eyebrow mt-4 mb-2">Roteiro</div><div class="texto-inteiro">${esc(t.roteiro)}</div>` : ''}
+      ${leg ? `<div class="eyebrow mt-4 mb-2">Legenda</div><div class="texto-inteiro">${esc(leg)}</div>` : ''}
       ${r === 'ajuste' && t.roteiroFeedback ? `<div class="card card-tight mt-3 small" style="border-color:rgba(255,90,110,.4)"><b>Seu pedido:</b> ${esc(t.roteiroFeedback)}<div class="tiny muted mt-1">Estamos ajustando. A nova versão aparece aqui.</div></div>` : ''}
       <div class="wrap-row mt-4">
         ${r === 'enviado' ? `<button class="btn btn-white" data-rok="${esc(t.id)}"><i class="fa-solid fa-check"></i> Aprovar roteiro</button><button class="btn btn-ghost" data-radj="${esc(t.id)}"><i class="fa-solid fa-pen"></i> Pedir ajuste</button>` : ''}
@@ -179,7 +180,6 @@
     root.querySelectorAll('[data-adj]').forEach(b => b.onclick = () => ajuste(b.dataset.adj, aoMudar));
     root.querySelectorAll('[data-rok]').forEach(b => b.onclick = () => aprovarRoteiro(b.dataset.rok, aoMudar));
     root.querySelectorAll('[data-radj]').forEach(b => b.onclick = () => ajusteRoteiro(b.dataset.radj, aoMudar));
-    root.querySelectorAll('[data-mais-rot]').forEach(b => b.onclick = () => { const ps = b.parentElement.querySelectorAll('[data-prev]'); const abrir = !ps[0].classList.contains('open'); ps.forEach(p => p.classList.toggle('open', abrir)); b.textContent = abrir ? 'Ver menos' : 'Ler tudo'; });
   }
 
   function renderAprovar(arr) {
