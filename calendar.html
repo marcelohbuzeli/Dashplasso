@@ -129,12 +129,30 @@
   // Mouse: arraste o card. Toque: segure meio segundo e arraste até o dia.
   let arraste = null, ignorarClique = false, rolagem = null;
   function ligarArraste(el) {
+    // mouse (computador)
     el.addEventListener('pointerdown', e => {
-      if (e.button !== 0) return;
-      const toque = e.pointerType !== 'mouse';
-      arraste = { el, id: el.dataset.mover, src: el.dataset.src, x: e.clientX, y: e.clientY, ativo: false, alvo: null, toque, timer: null };
-      if (toque) arraste.timer = setTimeout(() => ativar(e.clientX, e.clientY), 450);
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      arraste = { el, id: el.dataset.mover, src: el.dataset.src, x: e.clientX, y: e.clientY, ativo: false, alvo: null };
     });
+    // toque (iPhone/iPad/Android): segure meio segundo e arraste
+    el.addEventListener('touchstart', e => {
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0];
+      arraste = { el, id: el.dataset.mover, src: el.dataset.src, x: t.clientX, y: t.clientY, ativo: false, alvo: null, toque: true };
+      arraste.timer = setTimeout(() => ativar(arraste.x, arraste.y), 450);
+    }, { passive: true });
+    el.addEventListener('touchmove', e => {
+      const a = arraste; if (!a || !a.toque) return;
+      const t = e.touches[0];
+      if (!a.ativo) {
+        if (Math.hypot(t.clientX - a.x, t.clientY - a.y) > 10) { clearTimeout(a.timer); arraste = null; }   // era rolagem
+        return;
+      }
+      e.preventDefault();                 // segura a tela parada enquanto arrasta
+      mover(t.clientX, t.clientY);
+    }, { passive: false });
+    el.addEventListener('touchend', e => { if (arraste && arraste.toque) { if (arraste.ativo) e.preventDefault(); soltar(); } });
+    el.addEventListener('touchcancel', () => { if (arraste && arraste.toque) soltar(); });
   }
   function ativar(x, y) {
     if (!arraste || arraste.ativo) return;
@@ -163,17 +181,11 @@
     }, 16);
   }
   window.addEventListener('pointermove', e => {
-    const a = arraste; if (!a) return;
-    const longe = Math.hypot(e.clientX - a.x, e.clientY - a.y) > 8;
-    if (!a.ativo) {
-      if (a.toque && longe) { clearTimeout(a.timer); arraste = null; return; }   // era rolagem, não arraste
-      if (!a.toque && longe) ativar(e.clientX, e.clientY);
-      return;
-    }
+    const a = arraste; if (!a || a.toque) return;
+    if (!a.ativo) { if (Math.hypot(e.clientX - a.x, e.clientY - a.y) > 6) ativar(e.clientX, e.clientY); return; }
     e.preventDefault();
     mover(e.clientX, e.clientY);
-  }, { passive: false });
-  window.addEventListener('touchmove', e => { if (arraste && arraste.ativo) e.preventDefault(); }, { passive: false });
+  });
   function soltar() {
     const a = arraste; arraste = null;
     if (!a) return;
@@ -182,12 +194,11 @@
     a.fantasma.remove();
     document.body.classList.remove('arrastando');
     if (a.alvo) a.alvo.classList.remove('drop');
-    ignorarClique = true; setTimeout(() => { ignorarClique = false; }, 250);
+    ignorarClique = true; setTimeout(() => { ignorarClique = false; }, 350);
     if (a.alvo && a.alvo.dataset.d) mudarData(a.id, a.src, a.alvo.dataset.d);
   }
-  window.addEventListener('pointerup', soltar);
-  window.addEventListener('pointercancel', soltar);
-  document.addEventListener('contextmenu', e => { if (arraste && arraste.ativo) e.preventDefault(); });
+  window.addEventListener('pointerup', e => { if (arraste && !arraste.toque) soltar(); });
+  document.addEventListener('contextmenu', e => { if (arraste) e.preventDefault(); });
 
   function mudarData(id, src, iso) {
     const col = src === 'events' ? 'events' : 'tasks';
