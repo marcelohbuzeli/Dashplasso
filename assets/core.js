@@ -273,7 +273,7 @@
   // Coleções pesadas que só uma página usa ficam de fora do carregamento geral.
   // A página que precisa delas pede no <body data-colecoes="crm_perdidos">. Gravar numa coleção
   // que não foi carregada é seguro: a sincronização só apaga o que ela mesma carregou.
-  const LAZY = ['crm_perdidos', 'backup'];
+  const LAZY = ['crm_perdidos', 'backup', 'pirata_anuncios'];
   const lazyFora = () => { const quer = String((document.body && document.body.dataset.colecoes) || '').split(','); return LAZY.filter(c => !quer.includes(c)); };
   async function loadAll() {
     let from = 0; const size = 1000;

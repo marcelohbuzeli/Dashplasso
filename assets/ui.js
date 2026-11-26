@@ -23,6 +23,7 @@
     { id: 'calendario', href: 'calendar.html', label: 'Calendário', icon: 'fa-calendar' },
     { id: 'clientes', href: 'clients.html', label: 'Clientes', icon: 'fa-user-group' },
     { id: 'instagram', href: 'instagram.html', label: 'Instagram', icon: 'fa-camera-retro' },
+    { id: 'pirata', href: 'pirata.html', label: 'Pirata', icon: 'fa-skull-crossbones' },
     { id: 'criacao', href: 'criacao.html', label: 'Criação IA', icon: 'fa-wand-magic-sparkles' }
   ];
 

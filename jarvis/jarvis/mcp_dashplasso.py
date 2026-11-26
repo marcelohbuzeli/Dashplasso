@@ -31,7 +31,7 @@ srv = MCPServer("dashplasso", instructions=(
     "casa; life_extras = tarefas extras esporádicas {nome, criadaEm, feitaEm: null até ser feita}, sessões do Modo Trabalho). AGENDA DO DIA: use dash_agenda (inclui a agenda do Google conectada "
     "no Calendário do Dashplasso). Qualquer outra coleção: dash_colecoes + dash_listar. Métricas: 'metric*'."))
 
-COLECOES_ESCRITA_LIVRE = {"tasks", "criacao", "clients", "events", "crm", "crm_analise", "ig_relatorios", "life_casa", "life_extras", "life_habitos"}
+COLECOES_ESCRITA_LIVRE = {"tasks", "criacao", "clients", "events", "crm", "crm_analise", "ig_relatorios", "pirata", "pirata_anuncios", "life_casa", "life_extras", "life_habitos"}
 LOG_ALTERACOES = Path(cfg.logs) / "dashplasso-alteracoes.jsonl"
 
 

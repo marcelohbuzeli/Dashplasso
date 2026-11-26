@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060918">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Plassô | Pirata</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="assets/ui.css?v=12">
+<link rel="icon" href="assets/icons/favicon-empresa.svg" type="image/svg+xml">
+<link rel="icon" href="assets/icons/favicon-empresa-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon-empresa.png">
+<style>
+  .mural { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .ref { display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; background: var(--glass-2); border: 1px solid var(--line); }
+  .ref .midia { aspect-ratio: 4 / 5; background: rgba(255,255,255,.04); display: grid; place-items: center; color: var(--ink-3); overflow: hidden; }
+  .ref .midia img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ref .corpo { padding: 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .ref .pg { font-weight: 600; font-size: 13.5px; }
+  .ref .txt { font-size: 12px; color: var(--ink-3); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .ref .pq { font-size: 12.5px; color: var(--ink-2); }
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .rot { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 16px; }
+  .rot:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+  .rot h3 { margin: 0 0 6px; font-size: 17px; }
+  .ganchos { margin: 6px 0 0; padding-left: 20px; font-size: 13.5px; }
+  .ganchos li { margin: 3px 0; }
+  .cenas { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
+  .cenas th { text-align: left; font-weight: 500; color: var(--ink-3); font-size: 11.5px; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  .cenas td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .cenas td:first-child { white-space: nowrap; color: var(--ink-3); }
+  .ficha { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); margin-top: 8px; }
+  .ficha div { background: var(--glass-2); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; font-size: 12.5px; }
+  .ficha b { display: block; font-size: 11px; font-weight: 500; color: var(--ink-3); margin-bottom: 2px; }
+  .hist { display: flex; gap: 8px; flex-wrap: wrap; }
+  .hist button.on { outline: 2px solid var(--accent); }
+  .padrao { padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .padrao:last-child { border-bottom: 0; }
+  @media (max-width: 640px) { .cenas thead { display: none; } .cenas td { display: block; border: 0; padding: 2px 0; } .cenas tr { display: block; padding: 8px 0; border-bottom: 1px solid var(--line); } }
+</style>
+</head>
+<body data-theme="empresa" data-colecoes="pirata_anuncios">
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="brand-mark">P</div><div><div class="brand-name">Empresa</div><div class="brand-sub">Pirata · máquina de anúncios</div></div></div>
+    <div class="row"><button class="chip-btn" onclick="UI.menu()" aria-label="Menu"><i class="fa-solid fa-ellipsis"></i></button></div>
+  </header>
+  <nav id="subnav"></nav>
+
+  <div class="hero">
+    <div class="eyebrow" id="resumo-topo">Biblioteca de Anúncios da Meta</div>
+    <h1 class="display mt-2">Pirata<br><span class="soft">o que já está vendendo</span></h1>
+    <p>Escolha o cliente e o objetivo. O Jarvis procura os anúncios mais escalados do nicho, encontra os padrões e devolve um moodboard com roteiros prontos para gravar.</p>
+  </div>
+
+  <section class="card mb-4" id="pedido"></section>
+  <section class="mb-4" id="historico"></section>
+  <section id="relatorio"></section>
+</div>
+
+<script src="assets/config.js?v=10"></script>
+<script src="assets/core.js?v=13" data-mode="app"></script>
+<script src="assets/ui.js?v=14"></script>
+<script type="text/plain" data-app>
+  UI.mount({ tab: 'empresa', sub: 'pirata' });
+  const { esc } = UI;
+  const $ = id => document.getElementById(id);
+  const norm = c => String(c || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const qp = new URLSearchParams(location.search);
+  const OBJETIVOS = ['Vender um produto', 'Trazer gente à loja', 'Mensagens no WhatsApp', 'Seguidores e reconhecimento'];
+  let cliente = qp.get('cliente') || '';
+  let aberto = qp.get('id') || '';
+  const prints = {};   // caminho no Storage -> link temporário
+
+  const clientes = () => DB.list('clients').filter(c => c.name && c.status !== 'encerrado').sort((a, b) => a.name.localeCompare(b.name));
+  const doCliente = () => DB.list('pirata').filter(p => norm(p.cliente) === norm(cliente)).sort((a, b) => String(b.pedidoEm).localeCompare(String(a.pedidoEm)));
+  const fmtData = iso => iso ? new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '';
+
+  // ---------- pedido ----------
+  function renderPedido() {
+    const cs = clientes();
+    if (!cliente && cs.length) cliente = cs[0].name;
+    const ultimo = doCliente()[0] || {};
+    $('pedido').innerHTML = `
+      <div class="card-head"><span class="eyebrow">Nova pesquisa</span></div>
+      <div class="form-grid">
+        <label class="field"><span>Cliente</span><select class="select" id="f-cliente">${cs.map(c => `<option ${norm(c.name) === norm(cliente) ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></label>
+        <label class="field"><span>Objetivo dos anúncios</span><select class="select" id="f-objetivo">${OBJETIVOS.map(o => `<option ${o === ultimo.objetivo ? 'selected' : ''}>${o}</option>`).join('')}</select></label>
+        <label class="field full"><span>Produto ou foco (opcional)</span><input class="input" id="f-foco" placeholder="Ex.: calcinha modeladora, kit de sutiãs, Black Friday da loja" value="${esc(ultimo.foco || '')}"></label>
+        <label class="field full"><span>Observações (opcional)</span><textarea class="textarea" id="f-obs" rows="2" placeholder="Oferta atual, preço, o que NÃO pode aparecer, concorrentes que você já conhece…">${esc(ultimo.obs || '')}</textarea></label>
+      </div>
+      <div class="row-between mt-3" style="flex-wrap:wrap;gap:10px">
+        <span class="tiny muted">Roda no Mac pelo Jarvis (sem custo de API). Leva de 15 a 40 minutos.</span>
+        <button class="btn btn-white" id="pesquisar"><i class="fa-solid fa-skull-crossbones"></i> Pesquisar</button>
+      </div>`;
+    $('f-cliente').onchange = e => { cliente = e.target.value; aberto = ''; sincronizarUrl(); render(); };
+    $('pesquisar').onclick = pedir;
+  }
+
+  function pedir() {
+    const emAndamento = doCliente().find(p => /na_fila|pesquisando/.test(p.status));
+    if (emAndamento) { App.toast('Já tem uma pesquisa deste cliente em andamento.', 'warn'); aberto = emAndamento.id; render(); return; }
+    const c = clientes().find(x => norm(x.name) === norm(cliente));
+    const item = {
+      id: 'pi_' + norm(cliente).replace(/[^a-z0-9]+/g, '_').slice(0, 30) + '_' + Date.now().toString(36),
+      cliente, clienteId: c ? c.id : '', objetivo: $('f-objetivo').value,
+      foco: $('f-foco').value.trim(), obs: $('f-obs').value.trim(),
+      status: 'na_fila', pedidoEm: new Date().toISOString()
+    };
+    DB.put('pirata', item);
+    aberto = item.id; sincronizarUrl(); render();
+    App.toast('Pedido enviado ao Jarvis.', 'ok');
+  }
+
+  function sincronizarUrl() {
+    const q = new URLSearchParams(location.search);
+    q.set('cliente', cliente); if (aberto) q.set('id', aberto); else q.delete('id');
+    history.replaceState(null, '', '?' + q.toString());
+  }
+
+  // ---------- histórico ----------
+  const rotulo = s => ({ na_fila: '<span class="pill pill-warn">na fila</span>', pesquisando: '<span class="pill pill-accent"><i class="fa-solid fa-spinner fa-spin"></i> pesquisando</span>', pronto: '<span class="pill pill-ok">pronto</span>', erro: '<span class="pill pill-danger">erro</span>' }[s] || '');
+  function renderHistorico() {
+    const lista = doCliente();
+    if (!lista.length) { $('historico').innerHTML = ''; return; }
+    if (!aberto || !lista.some(p => p.id === aberto)) aberto = lista[0].id;
+    $('historico').innerHTML = `<div class="hist">${lista.slice(0, 8).map(p => `
+      <button class="btn btn-ghost btn-sm ${p.id === aberto ? 'on' : ''}" data-abrir="${esc(p.id)}">${new Date(p.pedidoEm).toLocaleDateString('pt-BR')} · ${esc(p.foco || p.objetivo || '')} ${rotulo(p.status)}</button>`).join('')}</div>`;
+    $('historico').querySelectorAll('[data-abrir]').forEach(b => b.onclick = () => { aberto = b.dataset.abrir; sincronizarUrl(); renderHistorico(); renderRelatorio(); });
+  }
+
+  // ---------- relatório / moodboard ----------
+  async function carregarPrints(refs) {
+    const faltam = refs.map(r => r.print).filter(p => p && !prints[p]);
+    if (!faltam.length || !App.supabase) return false;
+    const { data, error } = await App.supabase.storage.from('referencias').createSignedUrls(faltam, 3600);
+    if (error || !data) return false;
+    data.forEach(d => { if (d.signedUrl) prints[d.path] = d.signedUrl; });
+    return true;
+  }
+
+  const lista = a => (a || []).map(x => `<li>${esc(x)}</li>`).join('');
+  const dias = d => d >= 60 ? `${Math.round(d / 30)} meses no ar` : `${d} dias no ar`;
+
+  function cardRef(r) {
+    const img = r.print && prints[r.print] ? `<img src="${prints[r.print]}" alt="Anúncio de ${esc(r.pagina)}" loading="lazy">` : `<i class="fa-solid ${r.formato === 'video' ? 'fa-film' : 'fa-image'} fa-2x"></i>`;
+    return `<article class="ref">
+      <a class="midia" href="${esc(r.link)}" target="_blank" rel="noopener">${img}</a>
+      <div class="corpo">
+        <div class="pg">${esc(r.pagina)}</div>
+        <div class="pills">
+          ${r.dias ? `<span class="pill">${dias(r.dias)}</span>` : ''}
+          ${r.copias > 1 ? `<span class="pill pill-ok">${r.copias} cópias</span>` : ''}
+          ${r.versoes ? '<span class="pill">várias versões</span>' : ''}
+          ${r.duracao ? `<span class="pill">${esc(r.duracao)}</span>` : ''}
+        </div>
+        ${r.gancho ? `<div class="small"><b>Gancho:</b> “${esc(r.gancho)}”</div>` : ''}
+        <div class="pills">${r.gancho_tipo ? `<span class="pill pill-accent">${esc(r.gancho_tipo)}</span>` : ''}${r.estrutura ? `<span class="pill">${esc(r.estrutura)}</span>` : ''}</div>
+        ${r.por_que ? `<div class="pq">${esc(r.por_que)}</div>` : ''}
+        ${r.texto ? `<div class="txt">${esc(r.texto)}</div>` : ''}
+        <a class="tiny accent-text" href="${esc(r.link)}" target="_blank" rel="noopener" style="margin-top:auto">Ver na Biblioteca <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      </div>
+    </article>`;
+  }
+
+  function blocoRoteiro(rt, i, refs) {
+    const ref = refs.find(r => String(r.id) === String(rt.referencia));
+    const f = rt.ficha || {};
+    const fichaItens = [['Quem aparece', f.quem_aparece], ['Produto', f.produto], ['Cenário', f.cenario], ['Duração', f.duracao], ['Formato', f.formato], ['Legenda', f.legenda], ['Música', f.musica], ['CTA', rt.cta]].filter(x => x[1]);
+    return `<div class="rot">
+      <div class="row-between" style="flex-wrap:wrap;gap:8px">
+        <h3>${i + 1}. ${esc(rt.titulo || 'Roteiro')}</h3>
+        <div class="row" style="gap:6px">
+          <button class="btn btn-ghost btn-sm" data-copiar="${i}"><i class="fa-regular fa-copy"></i> Copiar</button>
+          <button class="btn btn-white btn-sm" data-kanban="${i}"><i class="fa-solid fa-list-check"></i> Criar no Kanban</button>
+        </div>
+      </div>
+      <div class="pills">${rt.estrutura ? `<span class="pill pill-accent">${esc(rt.estrutura)}</span>` : ''}${ref ? `<a class="pill" href="${esc(ref.link)}" target="_blank" rel="noopener">referência: ${esc(ref.pagina)}</a>` : ''}${rt.oferta ? `<span class="pill pill-ok">${esc(rt.oferta)}</span>` : ''}</div>
+      ${rt.por_que ? `<p class="small mt-2" style="margin-bottom:0">${esc(rt.por_que)}</p>` : ''}
+      <div class="eyebrow mt-3">5 ganchos para testar</div>
+      <ol class="ganchos">${lista(rt.ganchos)}</ol>
+      ${(rt.cenas || []).length ? `<div class="eyebrow mt-3">Roteiro</div>
+      <table class="cenas"><thead><tr><th>Tempo</th><th>O que aparece</th><th>Fala</th><th>Texto na tela</th></tr></thead><tbody>
+        ${rt.cenas.map(c => `<tr><td>${esc(c.tempo)}</td><td>${esc(c.imagem)}</td><td>${esc(c.fala)}</td><td>${esc(c.texto_tela)}</td></tr>`).join('')}
+      </tbody></table>` : ''}
+      ${fichaItens.length ? `<div class="eyebrow mt-3">Ficha de gravação</div><div class="ficha">${fichaItens.map(([k, v]) => `<div><b>${k}</b>${esc(v)}</div>`).join('')}</div>` : ''}
+      ${rt.adaptacao ? `<p class="tiny muted mt-2" style="margin-bottom:0"><b>Adaptação:</b> ${esc(rt.adaptacao)}</p>` : ''}
+      ${rt.anti_burro ? `<p class="tiny muted mt-1" style="margin-bottom:0"><b>Teste anti-burro:</b> ${esc(rt.anti_burro)}</p>` : ''}
+    </div>`;
+  }
+
+  function textoRoteiro(rt) {
+    return [rt.titulo, rt.oferta ? 'OFERTA: ' + rt.oferta : '',
+      'GANCHOS:\n' + (rt.ganchos || []).map((g, i) => `${i + 1}. ${g}`).join('\n'),
+      'ROTEIRO:\n' + (rt.cenas || []).map(c => `[${c.tempo}] ${c.imagem}\nFALA: ${c.fala}${c.texto_tela ? '\nTELA: ' + c.texto_tela : ''}`).join('\n\n'),
+      rt.cta ? 'CTA: ' + rt.cta : '',
+      rt.ficha ? 'FICHA: ' + Object.entries(rt.ficha).filter(x => x[1]).map(([k, v]) => `${k.replace('_', ' ')}: ${v}`).join(' · ') : ''
+    ].filter(Boolean).join('\n\n');
+  }
+
+  function criarNoKanban(p, rt) {
+    const t = {
+      id: UI.T.novoId(), kind: 'post', status: 'afazer', isRejected: false, notes: '', client: p.cliente,
+      headline: 'Anúncio · ' + (rt.titulo || 'roteiro do Pirata'), type: 'Reels', format: 'Reels',
+      roteiro: textoRoteiro(rt), observacoes: 'Gerado pelo Pirata (' + new Date(p.pedidoEm).toLocaleDateString('pt-BR') + ').', pirataId: p.id
+    };
+    DB.put('tasks', t);
+    App.toast('Criado no Kanban, em A fazer.', 'ok');
+  }
+
+  async function renderRelatorio() {
+    const p = DB.get('pirata', aberto);
+    if (!p) { $('relatorio').innerHTML = `<div class="card"><p class="small muted" style="margin:0">Nenhuma pesquisa de ${esc(cliente || 'cliente')} ainda. Preencha acima e clique em Pesquisar.</p></div>`; return; }
+    if (p.status === 'na_fila') { $('relatorio').innerHTML = `<div class="card"><span class="small muted"><i class="fa-solid fa-hourglass-half"></i> Na fila do Jarvis. Começa assim que ele estiver ligado no Mac (pedido em ${fmtData(p.pedidoEm)}).</span> <button class="btn btn-ghost btn-sm mt-3" id="cancelar">Cancelar pedido</button></div>`; $('cancelar').onclick = () => { DB.remove('pirata', p.id); aberto = ''; render(); }; return; }
+    if (p.status === 'pesquisando') { $('relatorio').innerHTML = `<div class="card"><span class="small muted"><i class="fa-solid fa-spinner fa-spin"></i> O Jarvis está na Biblioteca de Anúncios lendo os anúncios escalados (começou ${fmtData(p.inicioEm)}).</span></div>`; return; }
+    if (p.status === 'erro') { $('relatorio').innerHTML = `<div class="card"><span class="small" style="color:#ff8b99">A pesquisa falhou: ${esc(p.erro || '')}</span><div class="mt-3"><button class="btn btn-ghost btn-sm" id="refazer"><i class="fa-solid fa-rotate"></i> Tentar de novo</button></div></div>`; $('refazer').onclick = () => { DB.put('pirata', Object.assign({}, p, { status: 'na_fila', erro: null, pedidoEm: new Date().toISOString() })); render(); }; return; }
+
+    const refs = (p.referencias || []).slice().sort((a, b) => (b.pontuacao || 0) - (a.pontuacao || 0));
+    const pt = p.plano_teste || {};
+    $('relatorio').innerHTML = `
+      <div class="card mb-4">
+        <div class="card-head row-between"><span class="eyebrow">Resumo</span><span class="tiny muted">${p.analisados ? p.analisados + ' anúncios lidos · ' : ''}${fmtData(p.em)}</span></div>
+        <p style="margin:0">${esc(p.resumo || '')}</p>
+        ${(p.termos || []).length ? `<div class="pills mt-3">${p.termos.map(t => `<span class="pill">${esc(t)}</span>`).join('')}</div>` : ''}
+      </div>
+
+      ${refs.length ? `<div class="section-title mb-2"><span class="eyebrow">Referências escaladas</span></div><div class="mural mb-4">${refs.map(cardRef).join('')}</div>` : ''}
+
+      ${(p.padroes || []).length ? `<div class="card mb-4"><div class="card-head"><span class="eyebrow">Padrões que se repetem</span></div>
+        ${p.padroes.map(x => `<div class="padrao"><div class="row-between" style="gap:8px"><b class="small">${esc(x.padrao)}</b>${x.quantos ? `<span class="pill">${esc(x.quantos)}</span>` : ''}</div>${x.explicacao ? `<div class="small muted mt-1">${esc(x.explicacao)}</div>` : ''}</div>`).join('')}</div>` : ''}
+
+      ${(p.roteiros || []).length ? `<div class="card mb-4"><div class="card-head"><span class="eyebrow">Roteiros para ${esc(p.cliente)}</span></div>${p.roteiros.map((rt, i) => blocoRoteiro(rt, i, refs)).join('')}</div>` : ''}
+
+      ${(p.estaticos || []).length ? `<div class="card mb-4"><div class="card-head"><span class="eyebrow">Ideias de estático</span></div>
+        ${p.estaticos.map(e => `<div class="padrao"><b class="small">${esc(e.titulo || e.ideia)}</b><div class="small muted mt-1">${esc(e.ideia && e.titulo ? e.ideia : '')}${e.texto ? ' · “' + esc(e.texto) + '”' : ''}</div></div>`).join('')}</div>` : ''}
+
+      ${Object.keys(pt).length ? `<div class="card mb-4"><div class="card-head"><span class="eyebrow">Plano de teste</span></div>
+        <div class="ficha">${[['Subir primeiro', (pt.primeiros || []).join(' · ')], ['Verba', pt.verba], ['Objetivo', pt.objetivo], ['Quando desligar', pt.desligar], ['Se vencer', pt.escalar]].filter(x => x[1]).map(([k, v]) => `<div><b>${k}</b>${esc(v)}</div>`).join('')}</div></div>` : ''}
+
+      ${p.limitacoes ? `<p class="tiny muted">Limitações: ${esc(p.limitacoes)}</p>` : ''}
+      <div class="row mb-4"><button class="btn btn-ghost btn-sm" id="refazer"><i class="fa-solid fa-rotate"></i> Pesquisar de novo</button></div>`;
+
+    $('relatorio').querySelectorAll('[data-copiar]').forEach(b => b.onclick = async () => { try { await navigator.clipboard.writeText(textoRoteiro(p.roteiros[+b.dataset.copiar])); App.toast('Roteiro copiado.', 'ok'); } catch (e) { App.toast('Não deu para copiar.', 'err'); } });
+    $('relatorio').querySelectorAll('[data-kanban]').forEach(b => b.onclick = () => { criarNoKanban(p, p.roteiros[+b.dataset.kanban]); b.disabled = true; });
+    $('refazer').onclick = () => { $('f-objetivo').value = p.objetivo || OBJETIVOS[0]; $('f-foco').value = p.foco || ''; $('f-obs').value = p.obs || ''; pedir(); };
+    if (await carregarPrints(refs)) renderRelatorio();
+  }
+
+  function render() {
+    renderPedido(); renderHistorico(); renderRelatorio();
+    const n = DB.list('pirata_anuncios').length;
+    $('resumo-topo').textContent = n ? `${n} anúncios no arquivo` : 'Biblioteca de Anúncios da Meta';
+  }
+
+  render();
+  // o resultado chega pelo banco: confere a cada 20 s enquanto houver pesquisa em andamento
+  setInterval(async () => {
+    if (document.hidden || !DB.list('pirata').some(p => /na_fila|pesquisando/.test(p.status))) return;
+    if (await DB.reload(['pirata'])) { renderHistorico(); renderRelatorio(); }
+  }, 20000);
+</script>
+</body>
+</html>

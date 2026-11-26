@@ -112,6 +112,8 @@ class Agentes:
         self._avisou_dono = False
         from .analises import Analises
         self.analises = Analises(self)   # análise do Instagram dos orçamentos do site
+        from .pirata import Pirata
+        self.pirata = Pirata(self)       # pesquisa de anúncios escalados (aba Pirata)
         from .legendas import Legendas
         self.legendas = Legendas(self)   # botão "Escrever legenda" do conteúdo
 
@@ -168,6 +170,10 @@ class Agentes:
                 self.analises.verificar(db)
             except Exception as e:  # noqa: BLE001
                 self.log(f"[análise] erro: {e}")
+            try:
+                self.pirata.verificar(db)
+            except Exception as e:  # noqa: BLE001
+                self.log(f"[pirata] erro: {e}")
             try:
                 self.legendas.verificar(db)
             except Exception as e:  # noqa: BLE001
