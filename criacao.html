@@ -36,6 +36,7 @@
     <section class="stack" id="col-lista" style="min-width:0">
       <div class="row-between">
         <h2 class="h2">Conteúdos <span class="muted" id="cont-count"></span></h2>
+        <button class="btn btn-ghost btn-sm" id="btn-exportar" onclick="exportarRoteiros()"><i class="fa-solid fa-file-word"></i> Exportar roteiros para gravação</button>
       </div>
       <div class="seg" id="status-filter">
         <button data-v="" class="on">Todos</button><button data-v="rascunho">Rascunhos</button><button data-v="aprovado">No calendário</button>
@@ -66,6 +67,7 @@
 <script src="assets/core.js?v=13" data-mode="app"></script>
 <script src="assets/ui.js?v=14"></script>
 <script src="assets/briefing.js?v=2"></script>
+<script src="assets/roteiro-docx.js?v=1"></script>
 <script type="text/plain" data-app>
   UI.mount({ tab: 'empresa', sub: 'criacao' });
   const { esc } = UI;
@@ -213,6 +215,32 @@
     } catch (e) { App.toast('Falha no envio: ' + e.message, 'err'); }
   }
   function excluir(id) { const x = DB.get(COL, id); if (!confirm(`Excluir "${x.titulo}"?${x.taskId ? '\n(A tarefa nas Tasks continua.)' : ''}`)) return; DB.remove(COL, id); render(); }
+
+  // Exportar roteiros de vídeo (Reels/Story) da lista atual para um .docx de gravação, com teleprompter no fim
+  const VIDEO = ['Reels', 'Story'];
+  function exportarRoteiros() {
+    const c = atual();
+    let list = DB.list(COL).filter(x => !c || x.clienteId === c.id);
+    if (filtro) list = list.filter(x => x.status === filtro);
+    const videos = list.filter(x => VIDEO.includes(x.formato)).sort((a, b) => (a.data || '').localeCompare(b.data || ''));
+    if (!videos.length) { App.toast('Nenhum Reels ou Story nesta lista para exportar.', 'warn'); return; }
+    const s = UI.sheet({ title: 'Exportar roteiros para gravação', html: `<p class="small soft">Gera um arquivo Word com os roteiros em takes (cliente e mês no topo, fala em vermelho, direção do videomaker em roxo) e, no fim, o teleprompter só com as falas.</p>
+      <div class="row-between mt-3"><span class="label-txt">${videos.length} vídeo${videos.length > 1 ? 's' : ''}</span><button class="btn btn-ghost btn-sm" id="ex-todos">Desmarcar todos</button></div>
+      <div class="stack mt-2" style="gap:6px">${videos.map(x => `<label class="card card-tight row" style="gap:10px;padding:8px 12px;cursor:pointer"><input type="checkbox" data-id="${esc(x.id)}" checked><span class="grow small"><b>${esc(x.titulo || 'Sem título')}</b><br><span class="muted">${esc(x.formato)}${x.data ? ' · ' + UI.dataBR(x.data) : ''}${x.roteiro ? '' : ' · sem roteiro'}</span></span></label>`).join('')}</div>`,
+      foot: '<button class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-white" id="ex-ok"><i class="fa-solid fa-download"></i> Baixar .docx</button>' });
+    const caixas = () => s.$$('input[data-id]');
+    s.$('#ex-todos').onclick = () => { const marcar = !caixas().some(i => i.checked); caixas().forEach(i => i.checked = marcar); s.$('#ex-todos').textContent = marcar ? 'Desmarcar todos' : 'Marcar todos'; };
+    s.$('#ex-ok').onclick = () => {
+      const ids = caixas().filter(i => i.checked).map(i => i.dataset.id);
+      const sel = videos.filter(x => ids.includes(x.id));
+      if (!sel.length) { App.toast('Marque pelo menos um roteiro.', 'warn'); return; }
+      const mes = (sel[0].mes || $('mes').value) ? UI.mesNome(sel[0].mes || $('mes').value) : '';
+      try {
+        const nome = RoteiroDocx.baixar(sel, { cliente: c ? c.name : (sel[0].cliente || ''), mes, mesArq: sel[0].mes || $('mes').value });
+        s.close(); App.toast(`${sel.length} roteiro${sel.length > 1 ? 's' : ''} exportado${sel.length > 1 ? 's' : ''}: ${nome}`, 'ok');
+      } catch (e) { App.toast('Não deu para gerar o arquivo: ' + e.message, 'err'); }
+    };
+  }
 
   function openSettings() {
     const cfg = DB.getValue('config_criacao', {});
